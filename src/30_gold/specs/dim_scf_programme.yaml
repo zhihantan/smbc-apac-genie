@@ -1,0 +1,41 @@
+table: dim_scf_programme
+domain: hub
+comment: >-
+  Supply chain finance programmes: anchor buyer (golden client), programme type (payables / receivables
+  finance), limit, drawn amount and utilisation at the as-of date, supplier counts and the primary trade
+  corridor. SCF drawdown and programme-month facts reference programme_id.
+grain: one row per SCF programme
+primary_key: [programme_id]
+foreign_keys:
+  - {columns: [anchor_golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [anchor_country], references: dim_booking_entity}
+cluster_by: [programme_id]
+min_rows: 1
+columns:
+  programme_id: {type: STRING, comment: SCF programme id.}
+  programme_name: {type: STRING, comment: "Programme label = anchor short name + programme type (e.g. Meridian Agri Holdings Payables Finance)."}
+  programme_type: {type: STRING, comment: "Payables Finance (buyer-led) or Receivables Finance (seller-led)."}
+  anchor_party_id: {type: STRING, comment: Trade-platform party id of the anchor (source identity record).}
+  anchor_golden_client_id: {type: STRING, comment: Golden client id of the anchor buyer / seller.}
+  anchor_golden_client_sk: {type: BIGINT, comment: dim_client surrogate key of the anchor (current version).}
+  anchor_client_name: {type: STRING, comment: Display name of the anchor.}
+  anchor_country: {type: STRING, comment: Coverage office (APAC booking location) of the anchor.}
+  client_group_id: {type: STRING}
+  launch_date: {type: DATE, comment: Programme launch date.}
+  currency: {type: STRING, comment: Programme currency.}
+  limit_usd: {type: DOUBLE, comment: Programme limit in USD.}
+  drawn_usd: {type: DOUBLE, comment: Financed (drawn) amount outstanding at the as-of date in USD.}
+  utilisation: {type: DOUBLE, comment: "Drawn / limit at the as-of date (0-1; 0.85 = 85%)."}
+  utilisation_band: {type: STRING, comment: "Above 85%, 40-85% or Below 40% (dim_threshold SCF_UTILISATION_HIGH / LOW)."}
+  n_suppliers_total: {type: INT, comment: Suppliers listed in the programme's supplier register (onboarded + prospective).}
+  n_suppliers_onboarded: {type: BIGINT, comment: Suppliers onboarded (able to finance invoices).}
+  n_suppliers_financing: {type: BIGINT, comment: Suppliers that have financed at least one invoice.}
+  n_supplier_countries: {type: BIGINT, comment: Distinct supplier countries.}
+  n_suppliers_banking_elsewhere: {type: BIGINT, comment: Suppliers whose payments route to other banks (account-opening opportunity).}
+  primary_corridor: {type: STRING, comment: Main supplier country / corridor of the programme.}
+  programme_age_months: {type: INT, comment: Whole months from launch to the as-of date.}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.scf_programme

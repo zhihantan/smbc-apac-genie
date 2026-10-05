@@ -1,0 +1,61 @@
+table: fact_rm_activity
+domain: rm
+comment: >-
+  RM engagement log (Account Planning, mv_rm_engagement): one row per CRM activity with a client - calls,
+  meetings, emails, video calls and site visits from Apr-2024 to Sep-2026 - with the RM, the client contact and
+  role (CFO, Treasurer, CEO, Procurement Head), the purpose and product discussed, a short note (<= 40 words), the
+  note sentiment (-1 negative .. +1 positive) and the follow-up action with its status at the as-of date. Count
+  rows for activity volumes and distinct golden_client_id for clients touched; average sentiment_score.
+grain: one row per CRM activity
+primary_key: [activity_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [activity_date], references: dim_date}
+  - {columns: [rm_employee_id], references: dim_employee}
+  - {columns: [contact_id], references: dim_contact}
+  - {columns: [product_discussed_id], references: dim_product}
+cluster_by: [activity_date, golden_client_sk]
+min_rows: 1000
+columns:
+  activity_id: {type: STRING, comment: "CRM activity id."}
+  activity_date: {type: DATE, comment: "Date of the activity."}
+  activity_month: {type: DATE, comment: "First day of the month of the activity."}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_quarter_label: {type: STRING}
+  fiscal_half_label: {type: STRING}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  crm_account_id: {type: STRING}
+  rm_employee_id: {type: STRING, comment: "Employee id of the RM who logged the activity; join to gold.dim_employee."}
+  rm_code: {type: STRING, comment: "CRM code of the RM who logged the activity (RM001-RM120)."}
+  rm_office: {type: STRING, comment: "Coverage office of the RM (APAC booking location, e.g. SG)."}
+  contact_id: {type: STRING, comment: "Client contact met (CRM contact id); join to gold.dim_contact."}
+  contact_role: {type: STRING, comment: "Role of the contact: CFO, Treasurer, CEO, Procurement Head, Other or Unknown."}
+  contact_seniority: {type: STRING, comment: "Seniority of the contact as recorded in CRM."}
+  activity_type: {type: STRING, comment: "Call, Meeting, Email, Video Call or Site Visit."}
+  is_in_person: {type: BOOLEAN, comment: "True for meetings and site visits."}
+  purpose: {type: STRING, comment: "Purpose: Account Planning, Relationship Review, Product Discussion, Deal Progress, Signal Follow-up, Credit Review, Service Review, Market Update or Courtesy Visit."}
+  subject: {type: STRING, comment: "Subject line of the activity."}
+  product_discussed: {type: STRING, comment: "Product discussed (CRM sales product, e.g. Supply Chain Finance, Cash Management Mandate); null when none."}
+  product_discussed_id: {type: STRING, comment: "dim_product key of product_discussed."}
+  product_family: {type: STRING, comment: "Product family of the product discussed; null when none."}
+  note_text: {type: STRING, comment: "RM call note (synthetic, <= 40 words)."}
+  note_tone: {type: STRING, comment: "Tone of the note as written: Positive, Neutral or Negative."}
+  sentiment_score: {type: DOUBLE, comment: "Note sentiment -1 (very negative) .. +1 (very positive), deterministic from the tone; average it."}
+  action_required: {type: BOOLEAN, comment: "True when the activity set a follow-up action."}
+  next_action: {type: STRING, comment: "Follow-up action agreed (short text)."}
+  next_action_due_date: {type: DATE, comment: "Due date of the follow-up action."}
+  next_action_status: {type: STRING, comment: "Status of the follow-up at the as-of date: Open, Overdue or Completed (null without an action)."}
+  is_next_action_open: {type: BOOLEAN, comment: "True when the follow-up is still open at the as-of date (Open or Overdue) - Next Actions Open."}
+  is_next_action_overdue: {type: BOOLEAN, comment: "True when the follow-up is overdue at the as-of date."}
+  related_signal_id: {type: STRING, comment: "Opportunity signal the activity followed up (fact_opportunity_signal.signal_id)."}
+  related_opportunity_id: {type: STRING, comment: "Pipeline opportunity the activity progressed (fact_pipeline_opportunity.opportunity_id)."}
+  duration_minutes: {type: INT, comment: "Duration of the activity in minutes."}
+  days_before_as_of: {type: INT, comment: "Days from the activity to the as-of date 30-Sep-2026."}
+  is_last_90_days: {type: BOOLEAN, comment: "True for activities in the 90 days to the as-of date (1-Jul to 30-Sep-2026)."}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_activity

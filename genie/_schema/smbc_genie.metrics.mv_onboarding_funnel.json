@@ -1,0 +1,343 @@
+{
+ "columns": [
+  {
+   "comment": "Request date of the onboarding case (on every row type, so documents and surveys follow their case's request cohort); \"this fiscal year\" requests = Fiscal Year FY2026. Today is 30-Sep-2026 (never CURRENT_DATE).",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the onboarding request as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the onboarding request, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the onboarding request).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Segment of the onboarded client (live cases only - applicants that never went live have none); use Request Segment to include every request.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office of the onboarded client (live cases only); use Booking Country for every request.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Booking location of the onboarding request (ISO-2, e.g. SG, HK, TH) - every case, including applicants.",
+   "is_measure": false,
+   "name": "Booking Country",
+   "type": "string"
+  },
+  {
+   "comment": "Segment of the requesting entity on the case (Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance, Public Sector) - every case, including applicants.",
+   "is_measure": false,
+   "name": "Request Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Anchor product of the request - Current Account (corporates) or Correspondent Account (financial institutions).",
+   "is_measure": false,
+   "name": "Primary Product",
+   "type": "string"
+  },
+  {
+   "comment": "Product Request rows: one requested product (e.g. Current Account, Payments, Time Deposit, Trade Finance, FX, Liquidity Sweeping).",
+   "is_measure": false,
+   "name": "Product Requested",
+   "type": "string"
+  },
+  {
+   "comment": "Stage the case is in or ended in: Request, KYC Docs, Screening, Risk Assessment, Credit/Product Approval, Account Open, First Transaction, or Complete (live and transacted).",
+   "is_measure": false,
+   "name": "Current Stage",
+   "type": "string"
+  },
+  {
+   "comment": "Case status at 30-Sep-2026: Open, Live, Withdrawn or Rejected.",
+   "is_measure": false,
+   "name": "Case Status",
+   "type": "string"
+  },
+  {
+   "comment": "Why an open case is stuck (e.g. Workflow Migration Backlog, Awaiting Client Documents, UBO Verification Pending).",
+   "is_measure": false,
+   "name": "Blocker Reason",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding officer owning the case.",
+   "is_measure": false,
+   "name": "Owner",
+   "type": "string"
+  },
+  {
+   "comment": "When the new entity was matched to an existing client group: At Intake, After Account Opening (found later by entity resolution, e.g. Meridian's Thai subsidiary) or New Group (no existing group identified).",
+   "is_measure": false,
+   "name": "Match Timing",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal year of the go-live (account opening) of live cases, e.g. FY2026 = onboarded Apr-2026 or later.",
+   "is_measure": false,
+   "name": "Go-Live Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "True on every row of an open case that has been in the KYC Docs stage for more than 15 days (dim_threshold KYC_DOCS_STUCK_DAYS).",
+   "is_measure": false,
+   "name": "Stuck in KYC Docs 15D",
+   "type": "boolean"
+  },
+  {
+   "comment": "Document rows: KYC document requested (e.g. UBO Declaration, Board Resolution, Audited Financial Statements, AML/CTF Questionnaire).",
+   "is_measure": false,
+   "name": "Document Type",
+   "type": "string"
+  },
+  {
+   "comment": "Feedback rows: comment theme - Turnaround Time, Relationship Manager, Account Setup, Digital Portal, Communication, Document Requests.",
+   "is_measure": false,
+   "name": "Feedback Theme",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding requests (cases) in the selection.",
+   "is_measure": true,
+   "name": "Cases Opened",
+   "type": "bigint"
+  },
+  {
+   "comment": "Cases still in progress at 30-Sep-2026.",
+   "is_measure": true,
+   "name": "Open Cases",
+   "type": "bigint"
+  },
+  {
+   "comment": "Cases that went live (client onboarded).",
+   "is_measure": true,
+   "name": "Cases Live",
+   "type": "bigint"
+  },
+  {
+   "comment": "Cases withdrawn by the client or RM.",
+   "is_measure": true,
+   "name": "Cases Withdrawn",
+   "type": "bigint"
+  },
+  {
+   "comment": "Cases rejected (screening, risk or credit).",
+   "is_measure": true,
+   "name": "Cases Rejected",
+   "type": "bigint"
+  },
+  {
+   "comment": "Cases no longer open (live, withdrawn or rejected) - the denominator of the conversion rate.",
+   "is_measure": true,
+   "name": "Closed Cases",
+   "type": "bigint"
+  },
+  {
+   "comment": "Live cases / closed cases (fraction) - open cases are excluded until decided.",
+   "is_measure": true,
+   "name": "Conversion to Live %",
+   "type": "double"
+  },
+  {
+   "comment": "Cases belonging to an existing client group (matched at intake or after account opening).",
+   "is_measure": true,
+   "name": "Matched to Existing Group",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of cases matched to an existing client group (fraction).",
+   "is_measure": true,
+   "name": "Matched to Existing Group %",
+   "type": "double"
+  },
+  {
+   "comment": "Cases not linked to their group at intake and matched only after account opening (entity resolution).",
+   "is_measure": true,
+   "name": "Matched After Account Opening",
+   "type": "bigint"
+  },
+  {
+   "comment": "Open cases whose current stage has run longer than its SLA at 30-Sep-2026 (over SLA right now).",
+   "is_measure": true,
+   "name": "Cases Over SLA",
+   "type": "bigint"
+  },
+  {
+   "comment": "Open cases in the KYC Docs stage for more than 15 days.",
+   "is_measure": true,
+   "name": "Cases Stuck in KYC Docs",
+   "type": "bigint"
+  },
+  {
+   "comment": "KYC documents still outstanding at 30-Sep-2026 (Document rows).",
+   "is_measure": true,
+   "name": "Documents Outstanding",
+   "type": "bigint"
+  },
+  {
+   "comment": "Products requested across the selected cases (one per case x product).",
+   "is_measure": true,
+   "name": "Product Requests",
+   "type": "bigint"
+  },
+  {
+   "comment": "Live cases whose first transaction came within 60 days of go-live.",
+   "is_measure": true,
+   "name": "Transacted Within 60D",
+   "type": "bigint"
+  },
+  {
+   "comment": "Live cases without a first transaction within 60 days of go-live (slow activation).",
+   "is_measure": true,
+   "name": "Not Transacted Within 60D",
+   "type": "bigint"
+  },
+  {
+   "comment": "Live cases transacting within 60 days of go-live / live cases (fraction).",
+   "is_measure": true,
+   "name": "Activation Within 60D %",
+   "type": "double"
+  },
+  {
+   "comment": "Average days from go-live to the client's first transaction (live cases that have transacted).",
+   "is_measure": true,
+   "name": "Average First Transaction Lag Days",
+   "type": "double"
+  },
+  {
+   "comment": "Post-onboarding survey responses (Feedback rows).",
+   "is_measure": true,
+   "name": "Survey Responses",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average post-onboarding satisfaction score 1-5 (5 = very satisfied).",
+   "is_measure": true,
+   "name": "Average Satisfaction",
+   "type": "double"
+  },
+  {
+   "comment": "Survey responses scoring 1-2 (negative); group by Feedback Theme for the common negative themes.",
+   "is_measure": true,
+   "name": "Negative Responses",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Client onboarding funnel of SMBC APAC, requests Apr-2024 to Sep-2026: cases opened, open, live, withdrawn, rejected, conversion to live, cases matched to an existing client group (at intake or only after account opening), open cases over SLA or stuck in KYC Docs, documents outstanding by type, products requested, new clients that transacted within 60 days of go-live, and post-onboarding satisfaction. Date = request date (cohort by request); statuses are as of 30-Sep-2026. Applicants that never went live have no client record: use Booking Country and Request Segment (not Coverage Office / Segment) to include them. Grain: one row per onboarding case, case x product requested, KYC document or survey response (gold.mvb_onboarding).",
+ "identifier": "smbc_genie.metrics.mv_onboarding_funnel",
+ "type": "METRIC_VIEW"
+}

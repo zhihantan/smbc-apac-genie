@@ -1,0 +1,265 @@
+{
+ "columns": [
+  {
+   "comment": "Core-banking account id (join gold.dim_account).",
+   "is_measure": false,
+   "name": "account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end date of the snapshot (last calendar day of the month).",
+   "is_measure": false,
+   "name": "balance_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of the snapshot.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Core-banking customer number (source identity record) holding the account.",
+   "is_measure": false,
+   "name": "cust_no",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location of the account = the holder's coverage office (ISO-2, e.g. HK); join gold.dim_booking_entity.",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Current Account, Savings Account, Time Deposit or Money Market Deposit.",
+   "is_measure": false,
+   "name": "account_type",
+   "type": "string"
+  },
+  {
+   "comment": "Deposit product (PRD-CURRENT-ACCOUNT, PRD-SAVINGS-ACCOUNT, PRD-TIME-DEPOSIT, PRD-MONEY-MARKET-DEPOSIT); join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "CASA (current and savings accounts) or TD (time and money-market deposits).",
+   "is_measure": false,
+   "name": "deposit_class",
+   "type": "string"
+  },
+  {
+   "comment": "True for current / savings accounts (CASA).",
+   "is_measure": false,
+   "name": "is_casa",
+   "type": "boolean"
+  },
+  {
+   "comment": "ISO 4217 currency of the account (the _lcy amounts are in this currency).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end balance in the account currency (point-in-time; do not sum across months).",
+   "is_measure": false,
+   "name": "balance_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Month-end balance in USD at the month-end FX rate (point-in-time; do not sum across months).",
+   "is_measure": false,
+   "name": "balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "balance_usd when the account is CASA, else 0 (point-in-time). CASA ratio = SUM(casa_balance_usd) / SUM(balance_usd) at one month-end.",
+   "is_measure": false,
+   "name": "casa_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "balance_usd when the account is a time / money-market deposit, else 0 (point-in-time).",
+   "is_measure": false,
+   "name": "td_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Average daily balance over the calendar month in USD (point-in-time per month; for the Average Balance measure average or sum within one month only).",
+   "is_measure": false,
+   "name": "avg_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "USD balance of the account at the previous month-end (0 when the account did not exist yet).",
+   "is_measure": false,
+   "name": "balance_usd_prev_month",
+   "type": "double"
+  },
+  {
+   "comment": "balance_usd - balance_usd_prev_month (USD; negative = outflow). Adds up across accounts for one month (movement vs last month).",
+   "is_measure": false,
+   "name": "balance_change_mom_usd",
+   "type": "double"
+  },
+  {
+   "comment": "USD balance of the account at the same month-end one year earlier (0 when the account did not exist; null before Apr-2024 = no history).",
+   "is_measure": false,
+   "name": "balance_usd_prior_year",
+   "type": "double"
+  },
+  {
+   "comment": "TD / money-market placements live at the month-end (placed on or before it, maturing after it); 0 for CASA.",
+   "is_measure": false,
+   "name": "td_placements_live",
+   "type": "int"
+  },
+  {
+   "comment": "Principal (USD at placement) of the placements live at the month-end - the contractual TD book behind the balance.",
+   "is_measure": false,
+   "name": "td_principal_live_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Earliest maturity date among the placements live at the month-end (null = no live placement).",
+   "is_measure": false,
+   "name": "td_next_maturity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the month-end to td_next_maturity_date.",
+   "is_measure": false,
+   "name": "td_days_to_next_maturity",
+   "type": "int"
+  },
+  {
+   "comment": "Bucket of td_days_to_next_maturity: 0-30 days, 31-90 days, 91-180 days, 181-365 days, Over 365 days; No live TD for TD accounts without a live placement; null for CASA.",
+   "is_measure": false,
+   "name": "td_maturity_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Principal (USD) of live placements maturing within 90 days after the month-end (TD maturities in the next 90 days; additive across accounts at one month-end).",
+   "is_measure": false,
+   "name": "td_principal_maturing_90d_usd",
+   "type": "double"
+  },
+  {
+   "comment": "td_principal_maturing_90d_usd in the account currency.",
+   "is_measure": false,
+   "name": "td_principal_maturing_90d_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "True when at least one live placement of the account matures within 90 days after the month-end (dim_threshold TD_MATURITY_WINDOW_DAYS).",
+   "is_measure": false,
+   "name": "is_td_maturing_next_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Principal-weighted interest rate (% p.a.) of the live placements at the month-end; null without a live placement.",
+   "is_measure": false,
+   "name": "td_weighted_rate_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Principal (USD) of time deposits placed into this account during the month (flow).",
+   "is_measure": false,
+   "name": "td_placed_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Part of td_placed_usd funded by a transfer from the client's current account (CASA -> TD migration), USD (flow).",
+   "is_measure": false,
+   "name": "td_placed_from_current_account_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Part of td_placed_usd funded by new money (USD, flow).",
+   "is_measure": false,
+   "name": "td_placed_new_funds_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Part of td_placed_usd that rolled over a maturing placement (USD, flow).",
+   "is_measure": false,
+   "name": "td_rolled_over_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Principal (USD) of placements on this account maturing during the month (flow).",
+   "is_measure": false,
+   "name": "td_matured_usd",
+   "type": "double"
+  },
+  {
+   "comment": "On current accounts: principal moved out of this account into time deposits during the month (USD, flow) - CASA outflow that stayed with the bank.",
+   "is_measure": false,
+   "name": "transferred_to_td_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Rank (1 = largest) of the account holder (golden client) by total month-end deposits in the booking country; same value on all the client's accounts. Top-10 concentration = SUM(balance_usd WHERE rank <= 10) / SUM(balance_usd).",
+   "is_measure": false,
+   "name": "depositor_rank_in_country",
+   "type": "int"
+  },
+  {
+   "comment": "True when depositor_rank_in_country <= 10 (the client is a top-10 depositor of its booking country at the month-end).",
+   "is_measure": false,
+   "name": "is_top10_depositor_in_country",
+   "type": "boolean"
+  },
+  {
+   "comment": "Rank (1 = largest) of the client's group by its total month-end deposits in the booking country; null for clients without a group.",
+   "is_measure": false,
+   "name": "group_depositor_rank_in_country",
+   "type": "int"
+  },
+  {
+   "comment": "True when group_depositor_rank_in_country <= 10.",
+   "is_measure": false,
+   "name": "is_top10_group_depositor_in_country",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the as-of month-end 30-Sep-2026 (today's balances).",
+   "is_measure": false,
+   "name": "is_latest_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on fiscal quarter-ends (30 Jun, 30 Sep, 31 Dec, 31 Mar).",
+   "is_measure": false,
+   "name": "is_fiscal_quarter_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for month-ends from 31-Dec-2025, which also exist in fact_deposit_balance_daily (identical balances).",
+   "is_measure": false,
+   "name": "is_in_daily_window",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Month-end deposit balances per core-banking account, Apr-2023 to Sep-2026 (42 month-ends), in local currency and USD with the month's average balance, the CASA / TD split, the previous month-end and same month-end a year earlier (MoM / YoY movement), the time-deposit maturity profile of the placements live at the month-end (next maturity, principal maturing within 90 days, weighted rate), the month's TD placements / maturities (incl. CASA -> TD transfers) and the depositor rank of the client and of its group in the booking country. POINT-IN-TIME: never sum balances across month-ends - pick one balance_date (is_latest_month_end = 30-Sep-2026) or use the semi-additive last value; the placement / maturity / transfer columns are flows and do add up over months. Month-ends from Dec-2025 equal fact_deposit_balance_daily. Grain: one row per account per month-end.",
+ "identifier": "smbc_genie.gold.fact_deposit_balance_monthly",
+ "type": "MANAGED"
+}

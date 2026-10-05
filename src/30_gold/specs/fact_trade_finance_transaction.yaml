@@ -1,0 +1,82 @@
+table: fact_trade_finance_transaction
+domain: trade
+comment: >-
+  One row per trade-finance instrument issued / confirmed / lodged for a client (import and export LCs,
+  guarantees / SBLCs, documentary collections, trade loans, receivables purchase) from Apr-2023: issue date,
+  product, direction, goods corridor origin -> destination, counterparty / counterparty-bank / beneficiary
+  country, commodity (HS chapter, carbon-intensive flag), currency and USD amount, tenor and expiry (fiscal
+  quarter), booking location, commission (fee USD and bps), sustainable-trade flag, status and outstanding at the
+  as-of date, amendment and document-presentation counts. Issuance amount and fee are flows (additive by issue
+  date); outstanding_at_as_of_usd is point-in-time at 30-Sep-2026 - month-end outstanding history is
+  fact_trade_outstanding_monthly. History is complete from FY2024 (1-Apr-2024); earlier issues are only the
+  legacy book still open then (is_legacy_book).
+grain: one row per trade-finance instrument (txn_id)
+primary_key: [txn_id]
+foreign_keys:
+  - {columns: [txn_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [origin_country], references: dim_country}
+  - {columns: [destination_country], references: dim_country}
+  - {columns: [beneficiary_country], references: dim_country}
+  - {columns: [counterparty_bank_country], references: dim_country}
+cluster_by: [txn_date, golden_client_sk]
+min_rows: 10000
+columns:
+  txn_id: {type: STRING, comment: "Trade-finance instrument id."}
+  txn_date: {type: DATE, comment: "Issue / confirmation / lodgement date of the instrument (issuance date)."}
+  month: {type: DATE, comment: "First day of the month of txn_date."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  party_id: {type: STRING, comment: "Trade-platform party id (source identity record) of the client."}
+  product_type: {type: STRING, comment: "Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan or Receivables Purchase."}
+  product_id: {type: STRING, comment: "Trade product key (e.g. PRD-IMPORT-LC, PRD-GUARANTEE-SBLC); join gold.dim_product."}
+  direction: {type: STRING, comment: "Import (client buys goods from abroad) or Export (client sells)."}
+  origin_country: {type: STRING, comment: "Goods corridor origin country (ISO-2): the counterparty for imports, the client country for exports."}
+  destination_country: {type: STRING, comment: "Goods corridor destination country (ISO-2): the client country for imports, the counterparty for exports."}
+  corridor: {type: STRING, comment: "Goods corridor origin->destination, e.g. CN->VN (Vietnam importing from China)."}
+  counterparty_country: {type: STRING, comment: "Country of the trade counterparty (seller for imports, buyer for exports)."}
+  counterparty_bank_country: {type: STRING, comment: "Country of the counterparty's bank (issuing / advising / confirming bank)."}
+  beneficiary_country: {type: STRING, comment: "Country of the beneficiary of the instrument (e.g. of a guarantee / SBLC)."}
+  commodity: {type: STRING, comment: "Goods traded: Electronics, Machinery, Auto Parts, Precision Instruments, Chemicals, Plastics, Iron & Steel, Mineral Fuels, Ores & Metals, Palm Oil & Fats, Food & Agri, Textiles & Apparel."}
+  hs_chapter: {type: STRING, comment: "Harmonised System chapter of the goods (e.g. 85 electronics, 87 vehicles / auto parts) - the key to the external trade statistics."}
+  hs_description: {type: STRING, comment: "HS chapter description."}
+  is_carbon_intensive_commodity: {type: BOOLEAN, comment: "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats)."}
+  currency: {type: STRING, comment: "Instrument currency (ISO 4217)."}
+  amount_lcy: {type: DOUBLE, comment: "Instrument amount in its currency (flow at issue)."}
+  amount_usd: {type: DOUBLE, comment: "Instrument amount in USD at issue - Issuance USD (flow, additive by issue date)."}
+  tenor_days: {type: INT, comment: "Tenor of the instrument in days (issue to maturity / expiry)."}
+  tenor_bucket: {type: STRING, comment: "0-30 days, 31-90 days, 91-180 days, 181-365 days or Over 365 days."}
+  maturity_date: {type: DATE, comment: "Maturity / expiry date of the instrument (may be after the as-of date)."}
+  expiry_fiscal_quarter_label: {type: STRING, comment: "Japanese fiscal quarter of maturity_date, e.g. FY2026-Q3 (Oct-Dec 2026); from gold.dim_date, same rule beyond Mar-2027."}
+  status: {type: STRING, comment: "Status at the as-of date: Issued (live), Negotiated (documents negotiated, awaiting payment), Settled or Expired."}
+  closed_date: {type: DATE, comment: "Date the instrument was settled / expired (null while live)."}
+  is_live_at_as_of: {type: BOOLEAN, comment: "True when the instrument is still open at 30-Sep-2026 (Issued or Negotiated)."}
+  outstanding_at_as_of_usd: {type: DOUBLE, comment: "Outstanding (contingent or funded) exposure at 30-Sep-2026 in USD (point-in-time; 0 when closed)."}
+  fee_bps: {type: DOUBLE, comment: "Commission rate charged in basis points (per annum for trade loans and guarantees, flat otherwise)."}
+  fee_usd: {type: DOUBLE, comment: "Commission / fee income of the instrument in USD, recognised at issue (flow). Fee yield bps = 10000 x SUM(fee_usd) / SUM(amount_usd)."}
+  is_sustainable_trade: {type: BOOLEAN, comment: "True for instruments financing sustainable / green trade."}
+  booking_country: {type: STRING, comment: "SMBC booking location of the instrument (ISO-2; may differ from the client's coverage office, e.g. Singapore hub bookings)."}
+  is_booked_in_sg_hub: {type: BOOLEAN, comment: "True when booked in Singapore (the APAC hub)."}
+  amendment_count: {type: INT, comment: "Amendments made to the instrument (lifecycle events)."}
+  presentation_count: {type: INT, comment: "Document presentations under the instrument (LCs only)."}
+  discrepant_presentation_count: {type: INT, comment: "Presentations found discrepant."}
+  is_legacy_book: {type: BOOLEAN, comment: "True for instruments issued before 1-Apr-2024 (FY2023 legacy book: only those still open on 1-Apr-2024 were migrated, so FY2023 issuance is incomplete)."}
+checks:
+  - name: outstanding_only_when_live
+    sql: SELECT count_if(NOT is_live_at_as_of AND outstanding_at_as_of_usd > 0.01) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.trade_finance_txn
+  - name: issuance_usd_vs_silver
+    gold: SELECT round(sum(amount_usd)) FROM ${table}
+    silver: SELECT round(sum(amount_usd)) FROM ${catalog}.silver.trade_finance_txn
+    tolerance: 1
+  - name: outstanding_vs_silver
+    gold: SELECT round(sum(outstanding_at_as_of_usd)) FROM ${table}
+    silver: SELECT round(sum(outstanding_usd)) FROM ${catalog}.silver.trade_finance_txn
+    tolerance: 1

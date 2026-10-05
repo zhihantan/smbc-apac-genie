@@ -1,0 +1,265 @@
+{
+ "columns": [
+  {
+   "comment": "Listed-parent issuer id of the market-data vendor (ISS-...); one listed parent per client group.",
+   "is_measure": false,
+   "name": "issuer_id",
+   "type": "string"
+  },
+  {
+   "comment": "Trading day of the close (the grain date).",
+   "is_measure": false,
+   "name": "trade_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the calendar month of the trading day.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Fictional exchange ticker of the listed parent.",
+   "is_measure": false,
+   "name": "ticker",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the listed parent (fictional).",
+   "is_measure": false,
+   "name": "issuer_name",
+   "type": "string"
+  },
+  {
+   "comment": "Exchange the parent is listed on (fictional venue name or code).",
+   "is_measure": false,
+   "name": "listing_venue",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the group's lead entity (version valid on this row's date) - the client attributes used for group-grain facts (D12).",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "ISO 4217 listing currency of close_price and market_cap_lcy.",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Closing share price in the listing currency.",
+   "is_measure": false,
+   "name": "close_price",
+   "type": "double"
+  },
+  {
+   "comment": "1-day share-price return as a fraction (-0.05 = -5%).",
+   "is_measure": false,
+   "name": "price_change_1d_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Share-price change vs the last close at least 30 calendar days earlier, as a fraction (-0.20 = -20%); null in the first 30 days of the series.",
+   "is_measure": false,
+   "name": "price_change_30d_pct",
+   "type": "double"
+  },
+  {
+   "comment": "30-day volatility of daily returns as reported by the vendor (fraction).",
+   "is_measure": false,
+   "name": "volatility_30d",
+   "type": "double"
+  },
+  {
+   "comment": "Shares traded on the day.",
+   "is_measure": false,
+   "name": "volume",
+   "type": "bigint"
+  },
+  {
+   "comment": "Market capitalisation in the listing currency.",
+   "is_measure": false,
+   "name": "market_cap_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Market capitalisation in USD.",
+   "is_measure": false,
+   "name": "market_cap_usd",
+   "type": "double"
+  },
+  {
+   "comment": "CDS-like credit spread of the parent in basis points (higher = riskier).",
+   "is_measure": false,
+   "name": "cds_spread_bps",
+   "type": "double"
+  },
+  {
+   "comment": "Change of the CDS spread vs the previous trading day in bps (positive = widening).",
+   "is_measure": false,
+   "name": "cds_change_1d_bps",
+   "type": "double"
+  },
+  {
+   "comment": "Change of the CDS spread vs the last value at least 30 calendar days earlier, in bps (positive = widening).",
+   "is_measure": false,
+   "name": "cds_change_30d_bps",
+   "type": "double"
+  },
+  {
+   "comment": "52-week high close in the listing currency (vendor).",
+   "is_measure": false,
+   "name": "high_52w",
+   "type": "double"
+  },
+  {
+   "comment": "52-week low close in the listing currency (vendor).",
+   "is_measure": false,
+   "name": "low_52w",
+   "type": "double"
+  },
+  {
+   "comment": "How far the close is above the 52-week low, as a fraction (0 = at the low).",
+   "is_measure": false,
+   "name": "pct_above_52w_low",
+   "type": "double"
+  },
+  {
+   "comment": "True when the close is at (or below) the 52-week low - a parent at its 52-week low.",
+   "is_measure": false,
+   "name": "is_52w_low",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the 30-day share-price change is -20% or worse.",
+   "is_measure": false,
+   "name": "is_price_drop_30d",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the CDS spread widened by 50 bps or more over 30 days.",
+   "is_measure": false,
+   "name": "is_cds_widening_30d",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the first day at the 52-week low after 30 days without one - raises MARKET_52W_LOW in fact_signal_event.",
+   "is_measure": false,
+   "name": "is_52w_low_event",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the first day of a -20% 30-day drop after 30 days without one - raises MARKET_PRICE_DROP_30D.",
+   "is_measure": false,
+   "name": "is_price_drop_event",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the first day of a +50 bps 30-day widening after 30 days without one - raises MARKET_CDS_WIDENING.",
+   "is_measure": false,
+   "name": "is_cds_widening_event",
+   "type": "boolean"
+  },
+  {
+   "comment": "Agency rating of the listed parent in force on the day (primary agency first, then its latest action; fictional agencies).",
+   "is_measure": false,
+   "name": "external_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Agency of external_rating.",
+   "is_measure": false,
+   "name": "external_rating_agency",
+   "type": "string"
+  },
+  {
+   "comment": "Outlook attached to the rating in force: Stable, Positive or Negative.",
+   "is_measure": false,
+   "name": "external_outlook",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the rating action in force.",
+   "is_measure": false,
+   "name": "external_rating_date",
+   "type": "date"
+  },
+  {
+   "comment": "Agency downgrades of the parent (any agency) dated after the previous trading day up to this day - sum for Rating Downgrades.",
+   "is_measure": false,
+   "name": "rating_downgrades",
+   "type": "int"
+  },
+  {
+   "comment": "Agency upgrades of the parent (any agency) dated after the previous trading day up to this day.",
+   "is_measure": false,
+   "name": "rating_upgrades",
+   "type": "int"
+  },
+  {
+   "comment": "Agency outlook revisions to Negative dated after the previous trading day up to this day - sum for Outlook Changes to Negative.",
+   "is_measure": false,
+   "name": "outlook_negative_changes",
+   "type": "int"
+  },
+  {
+   "comment": "Group APAC drawn lending in USD at apac_exposure_date (silver.core_facility_balance_monthly, all the group's golden clients).",
+   "is_measure": false,
+   "name": "apac_lending_drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Group APAC trade finance live at apac_exposure_date in USD (silver.trade_finance_txn issued on or before and maturing after that date).",
+   "is_measure": false,
+   "name": "apac_trade_outstanding_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Group APAC credit exposure in USD = drawn lending + trade finance outstanding at the latest month-end on or before the trading day (same definition as the ER exposure); point-in-time, 0 = no credit exposure.",
+   "is_measure": false,
+   "name": "apac_exposure_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Month-end snapshot date of the APAC exposure (the trading day itself when it is a month-end).",
+   "is_measure": false,
+   "name": "apac_exposure_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the group APAC exposure is above USD 100m (dim_threshold MARKET_APAC_EXPOSURE_USD) - for listed parents at 52-week lows with exposure above USD 100m.",
+   "is_measure": false,
+   "name": "is_apac_exposure_above_100m",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the issuer's latest trading day to the as-of date (30-Sep-2026) - the current snapshot.",
+   "is_measure": false,
+   "name": "is_latest_trade_date",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the issuer's last trading day of each calendar month (month-end snapshot).",
+   "is_measure": false,
+   "name": "is_last_trade_day_of_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days between the trading day and the as-of date 30-Sep-2026; last N days = days_before_as_of < N.",
+   "is_measure": false,
+   "name": "days_before_as_of",
+   "type": "int"
+  }
+ ],
+ "comment": "External quantitative signal on listed parents (fictional market-data vendor): one row per listed parent and trading day (Apr-2025 .. Sep-2026) with close price, 1-day and 30-day share-price change, 30-day volatility, CDS-like spread and its 1-day / 30-day change, the 52-week high / low and an at-52-week-low flag, the external rating and outlook in force (primary agency first), agency actions since the previous trading day, the market-signal entry events of the unified feed, and the group's APAC credit exposure (drawn lending + trade finance outstanding at the latest month-end, USD). Prices, spreads and exposure are point-in-time: never sum them across days - use the latest trading day (is_latest_trade_date). Grain: one row per listed parent issuer per trading day.",
+ "identifier": "smbc_genie.gold.fact_market_signal_daily",
+ "type": "MANAGED"
+}

@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date (primary key; facts join their date key here).",
+   "is_measure": false,
+   "name": "date",
+   "type": "date"
+  },
+  {
+   "comment": "Date as an integer yyyymmdd (e.g. 20260930).",
+   "is_measure": false,
+   "name": "date_key",
+   "type": "int"
+  },
+  {
+   "comment": "Calendar year.",
+   "is_measure": false,
+   "name": "calendar_year",
+   "type": "int"
+  },
+  {
+   "comment": "Calendar month number 1-12.",
+   "is_measure": false,
+   "name": "calendar_month",
+   "type": "int"
+  },
+  {
+   "comment": "Calendar quarter 1-4 (Jan-Mar = 1). Use fiscal_quarter for Japanese fiscal quarters.",
+   "is_measure": false,
+   "name": "calendar_quarter",
+   "type": "int"
+  },
+  {
+   "comment": "Three-letter month name (Jan ... Dec).",
+   "is_measure": false,
+   "name": "month_name",
+   "type": "string"
+  },
+  {
+   "comment": "Calendar month as yyyy-MM (e.g. 2026-09).",
+   "is_measure": false,
+   "name": "calendar_month_label",
+   "type": "string"
+  },
+  {
+   "comment": "Day of the month 1-31.",
+   "is_measure": false,
+   "name": "day_of_month",
+   "type": "int"
+  },
+  {
+   "comment": "Day of week 1-7 with 1 = Sunday and 7 = Saturday.",
+   "is_measure": false,
+   "name": "day_of_week",
+   "type": "int"
+  },
+  {
+   "comment": "Three-letter weekday name (Mon ... Sun).",
+   "is_measure": false,
+   "name": "day_name",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the calendar month.",
+   "is_measure": false,
+   "name": "month_start_date",
+   "type": "date"
+  },
+  {
+   "comment": "Last calendar day of the month.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the fiscal year (1 April).",
+   "is_measure": false,
+   "name": "fiscal_year_start_date",
+   "type": "date"
+  },
+  {
+   "comment": "Last day of the fiscal year (31 March).",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Fiscal quarter 1-4 (Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar).",
+   "is_measure": false,
+   "name": "fiscal_quarter",
+   "type": "int"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half, H1 (Apr-Sep) or H2 (Oct-Mar).",
+   "is_measure": false,
+   "name": "fiscal_half",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal month number 1-12 with April = 1 and March = 12.",
+   "is_measure": false,
+   "name": "fiscal_month_no",
+   "type": "int"
+  },
+  {
+   "comment": "True on the last calendar day of a month (month-end snapshot date).",
+   "is_measure": false,
+   "name": "is_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the last day of a fiscal quarter (30 Jun, 30 Sep, 31 Dec, 31 Mar).",
+   "is_measure": false,
+   "name": "is_quarter_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on 31 March, the Japanese fiscal year-end.",
+   "is_measure": false,
+   "name": "is_fiscal_year_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on Saturday or Sunday.",
+   "is_measure": false,
+   "name": "is_weekend",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on a Singapore business day (Monday-Friday; same rule as the source calendar).",
+   "is_measure": false,
+   "name": "is_business_day_sg",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the last Monday-Friday of the month.",
+   "is_measure": false,
+   "name": "is_last_business_day_of_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days between this date and the as-of date 30-Sep-2026 (0 = as-of, positive = past, negative = future). Last N days = days_before_as_of between 0 and N-1.",
+   "is_measure": false,
+   "name": "days_before_as_of",
+   "type": "int"
+  },
+  {
+   "comment": "Months between this date's month and the as-of month (0 = Sep 2026, -1 = Aug 2026, +1 = Oct 2026).",
+   "is_measure": false,
+   "name": "month_offset",
+   "type": "int"
+  },
+  {
+   "comment": "True only on the as-of date 30-Sep-2026 (\"today\").",
+   "is_measure": false,
+   "name": "is_as_of_date",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for dates after the as-of date (forecast / maturity horizon).",
+   "is_measure": false,
+   "name": "is_future",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for days of the as-of month (Sep 2026).",
+   "is_measure": false,
+   "name": "is_latest_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for days of the latest closed month (Sep 2026, closed at the as-of date).",
+   "is_measure": false,
+   "name": "is_latest_closed_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for fiscal-year-to-date days of the as-of fiscal year (1-Apr-2026 to 30-Sep-2026).",
+   "is_measure": false,
+   "name": "is_fytd",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the same fiscal-year-to-date window one year earlier (1-Apr-2025 to 30-Sep-2025) - the YoY comparison base.",
+   "is_measure": false,
+   "name": "is_prior_fytd_same_period",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Calendar from 1-Apr-2023 to 31-Mar-2027 with Japanese fiscal-year fields (FY2026 = Apr 2026 - Mar 2027; Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar; H1 Apr-Sep, H2 Oct-Mar) and flags relative to the as-of date 30-Sep-2026 (H1 FY2026 close, the demo \"today\" - never use CURRENT_DATE). Date keys of gold facts reference dim_date.date. Grain: one row per calendar day.",
+ "identifier": "smbc_genie.gold.dim_date",
+ "type": "MANAGED"
+}

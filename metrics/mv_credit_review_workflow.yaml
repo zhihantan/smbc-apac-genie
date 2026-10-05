@@ -1,0 +1,255 @@
+# Space 3, Credit Memo & Financial Spreading (WP9b / WP8d). The credit workflow: credit reviews (Annual, New Money,
+# Amendment, Watchlist) and financial-spreading tasks (Review Type = Financial Spreading) in one fact. Date = the
+# workflow date (due date for annual reviews and spreading, submission date for request-driven reviews); approvals
+# are sliced by the approval date through a dim_date join (Approval Fiscal Half). Statuses (overdue, awaiting
+# approval, not yet spread) are as of 30-Sep-2026; counts and days are flows over the selected items.
+view: mv_credit_review_workflow
+space: credit_memo_financial_spreading
+comment: >-
+  Credit review and financial-spreading workflow of SMBC APAC: reviews due (annual reviews, spreading tasks),
+  submitted, approved; overdue items and days overdue at 30-Sep-2026; days late, in preparation and to approval;
+  approved on first submission; memos awaiting approval; FY2025 statements not yet spread; new-money amount and
+  amount-weighted margin. Date = due date (annual reviews, spreading) or submission date (new money, amendment,
+  watchlist); approvals by approval date use Approval Fiscal Half. Statuses are as of today (30-Sep-2026).
+grain: one row per credit review or spreading task (gold.fact_credit_review_workflow)
+source: ${catalog}.gold.fact_credit_review_workflow
+blocks:
+  calendar: {date: source.workflow_date, grain: day, what: "the workflow item (due date or submission date for requests)"}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: an
+    source: ${catalog}.gold.dim_employee
+    'on': source.analyst_id = an.employee_id
+  - name: ap
+    source: ${catalog}.gold.dim_employee
+    'on': source.approver_id = ap.employee_id
+  - name: apd
+    source: ${catalog}.gold.dim_date
+    'on': source.completed_date = apd.date
+overrides:
+  Date:
+    comment: >-
+      Workflow date: the due date of annual reviews and spreading tasks, the submission date of new-money,
+      amendment and watchlist reviews. "Reviews due in Q3 FY2026" = Fiscal Quarter FY2026-Q3 (Oct-Dec 2026, in the
+      future). Today is 30-Sep-2026 (never CURRENT_DATE).
+    synonyms: [due date, workflow date, submission date, review date, deadline, request date]
+  Fiscal Year:
+    comment: >-
+      Japanese fiscal year of the workflow date (the due date of annual reviews and spreading tasks, the submission
+      date of requests), April to March: FY2026 = Apr 2026 - Mar 2027. Not the year of the financials: "FY2025
+      financials" (spread, reviewed or not yet spread) = Review Fiscal Year 'FY2025'.
+dimensions:
+  - name: Review Type
+    expr: source.review_type
+    display_name: Review Type
+    comment: >-
+      Annual (annual credit review), New Money (new facility / increase), Amendment, Watchlist (watchlist review)
+      or Financial Spreading (spreading of a statement year).
+    synonyms: [review type, workflow type, credit review type, annual review, new money, spreading]
+  - name: Status
+    expr: source.status
+    display_name: Status
+    comment: >-
+      Status at 30-Sep-2026. Reviews: Not Started, In Preparation, Overdue, Submitted - Awaiting Approval,
+      Approved, Declined. Spreading: Received - Not Started, In Progress, Checked.
+    synonyms: [status, workflow status, review status, current status, stage, progress]
+  - name: Outcome
+    expr: source.outcome
+    display_name: Credit Decision
+    comment: "Credit decision: Approved, Approved with Conditions or Declined (null while undecided and for spreading)."
+    synonyms: [outcome, decision, credit decision, approval outcome, result]
+  - name: Analyst
+    expr: an.employee_name
+    display_name: Credit Analyst
+    comment: Credit analyst preparing the memo or spreading the statements (fictional name).
+    synonyms: [analyst, credit analyst, preparer, spreader, credit officer, underwriter]
+  - name: Approver
+    expr: ap.employee_name
+    display_name: Credit Approver
+    comment: Credit approver deciding the memo, or the checker of a spread (fictional name); null until assigned.
+    synonyms: [approver, credit approver, checker, sanctioning officer, decision maker, approving authority]
+  - name: Review Fiscal Year
+    expr: CONCAT('FY', source.review_fiscal_year)
+    display_name: Statement Fiscal Year Reviewed
+    comment: >-
+      Statement fiscal year whose financials are reviewed or spread (FY2025 = the FY2025 financials) - "FY2025
+      financials" always means this field, not Fiscal Year (the year of the workflow date); null for new-money,
+      amendment and watchlist reviews. "FY2025 financials not yet spread" = Review Fiscal Year 'FY2025' + Review
+      Type 'Financial Spreading' + Is Not Yet Spread.
+    synonyms: [review fiscal year, statement year, financials year, FY reviewed, spread year, financials fiscal year,
+               fiscal year of the financials, statement fiscal year, FY of the financials, accounts year]
+  - name: Is Overdue
+    expr: source.is_overdue
+    display_name: Is Overdue
+    comment: True when the due date has passed (before 30-Sep-2026) and the memo / spread is not submitted.
+    synonyms: [overdue, late, past due, behind schedule, missed deadline]
+  - name: Is Not Yet Spread
+    expr: source.is_not_yet_spread
+    display_name: Is Not Yet Spread
+    comment: True for spreading tasks whose statements are not yet spread.
+    synonyms: [not yet spread, unspread, spreading pending, spread outstanding, awaiting spreading]
+  - name: Approval Fiscal Half
+    expr: apd.fiscal_half_label
+    display_name: Approval Fiscal Half
+    comment: >-
+      Japanese fiscal half of the approval / decision date (e.g. FY2026-H1 = Apr-Sep 2026); null while undecided.
+      It also holds declined decisions: "approved in H1 FY2026" = Approval Fiscal Half 'FY2026-H1' + Outcome IN
+      ('Approved', 'Approved with Conditions').
+    synonyms: [approval half, approved in, decision period, approval period, H1 approvals]
+measures:
+  - name: Workflow Items
+    expr: COUNT(1)
+    display_name: Workflow Items
+    comment: Credit reviews and spreading tasks in the selection.
+    synonyms: [items, reviews, tasks, workflow items, cases, number of reviews]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Reviews Due
+    expr: COUNT(1) FILTER (WHERE source.due_date IS NOT NULL)
+    display_name: Reviews Due
+    comment: >-
+      Annual reviews and spreading tasks due in the selected period (Date = due date). Always 0 for new-money,
+      amendment and watchlist requests (they have no due date) - count those with Workflow Items or Approved.
+    synonyms: [reviews due, due items, due reviews, upcoming reviews, scheduled reviews]
+    format: *count
+  - name: Overdue
+    expr: COUNT(1) FILTER (WHERE source.is_overdue)
+    display_name: Overdue Items
+    comment: >-
+      Number of items past due and not submitted at 30-Sep-2026 (a count of items, not days - for days overdue use
+      Average Days Overdue or Max Days Overdue).
+    synonyms: [overdue, overdue reviews, late reviews, past due items, delinquent reviews]
+    format: *count
+  - name: Overdue Rate %
+    expr: MEASURE(`Overdue`) / NULLIF(MEASURE(`Reviews Due`), 0)
+    display_name: Overdue Rate
+    comment: Overdue items / items due in the selection (fraction).
+    synonyms: [overdue rate, late rate, percent overdue, SLA breach rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Average Days Overdue
+    expr: AVG(CASE WHEN source.is_overdue THEN source.days_overdue END)
+    display_name: Average Days Overdue
+    comment: Average days past due at 30-Sep-2026 over the overdue items.
+    synonyms: [days overdue, average days overdue, ageing, how late, days past due]
+    format: &days {type: number, decimal_places: {type: max, places: 1}}
+  - name: Max Days Overdue
+    expr: MAX(source.days_overdue)
+    display_name: Max Days Overdue
+    comment: >-
+      Days past due at 30-Sep-2026 of the longest-overdue item in the selection - "maximum days overdue"; for one
+      item (e.g. one client's spreading task) its days overdue.
+    synonyms: [max days overdue, oldest overdue, longest overdue, worst ageing, maximum days overdue,
+               highest days overdue, max overdue days, days overdue of the item, maximum ageing, longest days past due]
+    format: *days
+  - name: Average Days Late
+    expr: AVG(CASE WHEN source.was_submitted_late THEN source.days_late END)
+    display_name: Average Days Late (submitted late)
+    comment: Average days submitted after the due date, over items submitted late (Sunda's FY2025 annual review = 23).
+    synonyms: [days late, lateness, submitted late, late submission days, delay]
+    format: *days
+  - name: Submitted Late
+    expr: COUNT(1) FILTER (WHERE source.was_submitted_late)
+    display_name: Submitted Late
+    comment: Items submitted after their due date.
+    synonyms: [late submissions, submitted late, missed due date, late memos]
+    format: *count
+  - name: Average Days in Preparation
+    expr: AVG(source.days_in_preparation)
+    display_name: Average Days in Preparation
+    comment: Average days from preparation start (statements received) to submission (spread); to 30-Sep-2026 for items still in preparation.
+    synonyms: [days in preparation, preparation time, prep days, cycle time, turnaround]
+    format: *days
+  - name: Average Days to Approval
+    expr: AVG(source.days_to_approval)
+    display_name: Average Days to Approval
+    comment: Average end-to-end days from preparation start (request) to approval / decision, over decided items.
+    synonyms: [time to approval, days to approval, approval time, time to decision, turnaround to approval]
+    format: *days
+  - name: Approved
+    expr: COUNT(1) FILTER (WHERE source.outcome IN ('Approved', 'Approved with Conditions'))
+    display_name: Approved
+    comment: >-
+      Number of reviews approved (with or without conditions) - the count of approvals, e.g. new-money approvals by
+      Approval Fiscal Half.
+    synonyms: [approved, approvals, sanctioned, approved reviews, credit approvals, number approved, approvals count,
+               count of approvals, approved requests, new money approvals]
+    format: *count
+  - name: Approved First Time
+    expr: COUNT(1) FILTER (WHERE source.approved_on_first_submission)
+    display_name: Approved on First Submission (count)
+    comment: Reviews approved (with or without conditions) on their first submission.
+    synonyms: [approved first time, first submission approvals, first-time approvals, no resubmission approvals]
+    format: *count
+  - name: Approved on First Submission %
+    expr: MEASURE(`Approved First Time`) / NULLIF(MEASURE(`Approved`), 0)
+    display_name: Approved on First Submission
+    comment: Share of approved reviews approved on the first submission (fraction).
+    synonyms: [first time right, approved first time, first submission approval rate, no resubmission]
+    format: *pct
+  - name: Memos Awaiting Approval
+    expr: COUNT(1) FILTER (WHERE source.is_awaiting_approval)
+    display_name: Memos Awaiting Approval
+    comment: Credit memos submitted but not yet decided at 30-Sep-2026.
+    synonyms: [awaiting approval, pending approval, submitted memos, in approval queue, pending decisions]
+    format: *count
+  - name: Not Yet Spread
+    expr: COUNT(1) FILTER (WHERE source.is_not_yet_spread)
+    display_name: Statements Not Yet Spread
+    comment: Spreading tasks whose statements are not yet spread at 30-Sep-2026.
+    synonyms: [not spread, unspread statements, spreading backlog, pending spreads, statements outstanding]
+    format: *count
+  - name: Requested Amount USD
+    expr: SUM(source.requested_amount_usd)
+    display_name: Requested Amount (USD)
+    comment: >-
+      Amount requested in new-money reviews, USD (a flow over the selected reviews). For approved amounts add Outcome
+      IN ('Approved', 'Approved with Conditions') - otherwise declined requests are included.
+    synonyms: [amount, requested amount, new money amount, facility amount, deal size, ticket]
+    format: {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Weighted Margin bps
+    expr: SUM(source.proposed_margin_bps * source.requested_amount_usd) / NULLIF(SUM(CASE WHEN source.proposed_margin_bps IS NOT NULL THEN source.requested_amount_usd END), 0)
+    display_name: Amount-Weighted Margin (bps)
+    comment: Amount-weighted average proposed margin of new-money requests in basis points.
+    synonyms: [margin, weighted margin, pricing, spread, margin bps, proposed margin]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+validate:
+  dims: [Fiscal Year, Review Type]
+reconcile:
+  - name: annual_reviews_due_q3_fy2026
+    measure: Reviews Due
+    where: "`Fiscal Quarter` = 'FY2026-Q3' AND `Review Type` = 'Annual'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_credit_review_workflow
+      WHERE review_type = 'Annual' AND workflow_date BETWEEN DATE'2026-10-01' AND DATE'2026-12-31'
+  - name: fy2025_not_yet_spread
+    measure: Not Yet Spread
+    where: "`Review Fiscal Year` = 'FY2025' AND `Review Type` = 'Financial Spreading'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_credit_review_workflow
+      WHERE review_type = 'Financial Spreading' AND review_fiscal_year = 2025 AND is_not_yet_spread
+  - name: new_money_h1_fy2026_amount_by_office
+    measure: Requested Amount USD
+    by: [Coverage Office]
+    where: "`Approval Fiscal Half` = 'FY2026-H1' AND `Review Type` = 'New Money' AND `Outcome` IN ('Approved', 'Approved with Conditions')"
+    gold: >-
+      SELECT c.coverage_office, sum(w.requested_amount_usd) FROM ${catalog}.gold.fact_credit_review_workflow w
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = w.golden_client_sk
+      WHERE w.review_type = 'New Money' AND w.outcome IN ('Approved', 'Approved with Conditions')
+        AND w.completed_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' GROUP BY 1
+  - name: approved_first_submission_fy2025
+    measure: Approved on First Submission %
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT count_if(approved_on_first_submission) / count_if(outcome IN ('Approved', 'Approved with Conditions'))
+      FROM ${catalog}.gold.fact_credit_review_workflow WHERE workflow_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31'
+  - name: sunda_fy2025_annual_days_late
+    measure: Average Days Late
+    where: "`Review Type` = 'Annual' AND `Review Fiscal Year` = 'FY2025' AND `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'"
+    gold: >-
+      SELECT avg(w.days_late) FROM ${catalog}.gold.fact_credit_review_workflow w
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = w.golden_client_sk
+      WHERE w.review_type = 'Annual' AND w.review_fiscal_year = 2025 AND w.was_submitted_late AND c.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%'
+glossary:
+  caveats:
+    - >-
+      Overdue, awaiting-approval and not-yet-spread statuses are as of 30-Sep-2026, not historical; Date filters
+      select the items by due / submission date. Approvals by decision date use Approval Fiscal Half.

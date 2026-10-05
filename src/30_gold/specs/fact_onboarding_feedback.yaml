@@ -1,0 +1,40 @@
+table: fact_onboarding_feedback
+domain: onboarding
+comment: >-
+  Post-onboarding client satisfaction (brief 5.6): one row per survey response 2-6 weeks after go-live, with
+  the 1-5 score, sentiment (Negative 1-2, Neutral 3, Positive 4-5), comment theme (Turnaround Time,
+  Relationship Manager, Account Setup, Digital Portal, Communication, Document Requests) and short comment
+  text, plus the onboarding case it rates (booking country, segment, days to live). Average satisfaction =
+  AVG(satisfaction_score); negative themes = COUNT(*) WHERE is_negative grouped by theme.
+grain: one row per survey response
+primary_key: [feedback_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [survey_date], references: dim_date}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [survey_date, golden_client_sk]
+min_rows: 100
+columns:
+  feedback_id: {type: STRING, comment: "Survey response id (FBK-nnnnn)."}
+  case_id: {type: STRING, comment: "Onboarding case rated (ONB-nnnnn); join to fact_onboarding_case."}
+  kyc_id: {type: STRING, comment: "KYC customer record of the client."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  survey_date: {type: DATE, comment: "Date the survey was answered."}
+  satisfaction_score: {type: INT, comment: "Satisfaction score 1 (very dissatisfied) to 5 (very satisfied)."}
+  sentiment: {type: STRING, comment: "Negative (score 1-2), Neutral (3) or Positive (4-5)."}
+  is_negative: {type: BOOLEAN, comment: "True for negative responses (score <= 2)."}
+  theme: {type: STRING, comment: "Comment theme: Turnaround Time, Relationship Manager, Account Setup, Digital Portal, Communication or Document Requests."}
+  comment_text: {type: STRING, comment: "Client comment (synthetic, short)."}
+  booking_country: {type: STRING, comment: "Booking location of the onboarding (ISO-2)."}
+  segment: {type: STRING}
+  request_date: {type: DATE, comment: "Request date of the rated onboarding case."}
+  go_live_date: {type: DATE, comment: "Go-live date of the rated case."}
+  days_to_live: {type: INT, comment: "Days from request to go-live of the rated case."}
+  days_after_go_live: {type: INT, comment: "Days between go-live and the survey."}
+  is_after_kyc_migration: {type: BOOLEAN, comment: "True when the rated case was requested on or after the Feb-2026 KYC workflow migration."}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_feedback

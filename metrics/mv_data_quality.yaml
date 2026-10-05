@@ -1,0 +1,246 @@
+# Space 11, Customer 360 Data Foundation (WP8f). Source = a UNION ALL (record_type) of the monthly DQ score history
+# (gold.fact_dq_score_monthly: month x table x dimension) and the rule results of the latest DQ run
+# (gold.fact_dq_rule_result: rule x table, Sep-2026) - a structural union, no business logic - so the Rule dimension
+# sits beside the 42-month scores. Score measures read only score rows and are monthly snapshots (window last over
+# Month); rule measures read only rule rows. Answers: metrics/_answers/customer360_data_foundation.sql.
+view: mv_data_quality
+space: customer360_data_foundation
+comment: >-
+  Data quality of the bronze, shared and silver layers, Apr-2023 to Sep-2026: monthly DQ score per table and
+  DQ dimension (completeness, validity, uniqueness, timeliness, consistency) as a fraction of rows passing,
+  the previous month's score and the change, row pass rate, rules evaluated / failed, rows failed, tables below
+  95%, and - for the latest DQ run (Sep-2026) - the rule-level results (rule, severity, status, failed and
+  de-duplicated rows). Explainable dips: Jun-2026 payments replay (bronze uniqueness), Feb-May 2026 KYC
+  migration (timeliness), Aug-2026 Japan share outage (timeliness). Scores are monthly snapshots: a quarter or
+  year returns its last month; "this month vs last" = Month = DATE'2026-09-01' with the prior-month measures.
+grain: >-
+  one row per month x layer-qualified table x DQ dimension (score history) plus one row per DQ rule x layer of
+  the latest run (Sep-2026, rule results)
+source: >-
+  SELECT 'table_dimension' AS record_type, month, layer, table_name, dimension, CAST(NULL AS STRING) AS rule_id,
+  CAST(NULL AS STRING) AS severity, CAST(NULL AS STRING) AS rule_status, CAST(NULL AS BOOLEAN) AS rule_failed,
+  score, CAST(rules_evaluated AS BIGINT) AS rules_evaluated, CAST(rules_failed AS BIGINT) AS rules_failed,
+  rows_evaluated, rows_failed, rows_passed, CAST(0 AS BIGINT) AS deduplicated_rows, basis, incident_key, is_below_95
+  FROM ${catalog}.gold.fact_dq_score_monthly
+  UNION ALL
+  SELECT 'rule' AS record_type, month, layer, table_name, dimension, rule_id, severity, status AS rule_status,
+  is_failed AS rule_failed, pass_rate AS score, CAST(NULL AS BIGINT) AS rules_evaluated, CAST(NULL AS BIGINT) AS rules_failed,
+  total_rows AS rows_evaluated, failed_rows AS rows_failed, passed_rows AS rows_passed, deduplicated_rows,
+  'actual' AS basis, CAST(NULL AS STRING) AS incident_key, CAST(NULL AS BOOLEAN) AS is_below_95
+  FROM ${catalog}.gold.fact_dq_rule_result
+client_block_exempt: >-
+  DQ scores and rule results are per layer-qualified table, not per client; the client vocabulary does not apply.
+blocks:
+  calendar: {date: source.month, grain: month, what: the scored month}
+dimensions:
+  - name: Layer
+    expr: source.layer
+    display_name: Data Layer
+    comment: "Lakehouse layer: bronze (raw landing), shared (Delta Sharing inbound) or silver (cleansed, conformed)."
+    synonyms: [layer, data layer, medallion layer, zone, bronze silver, tier of the lakehouse]
+  - name: Table
+    expr: source.table_name
+    display_name: Table (layer-qualified)
+    comment: >-
+      Table scored, with its layer, e.g. silver.kyc_review, bronze.pay_payment_message,
+      silver.share_jp_parent_rating; match with LIKE '%pay_payment_message%'.
+    synonyms: [table, dataset, data set, table name, entity, data asset, source table]
+  - name: DQ Dimension
+    expr: source.dimension
+    display_name: DQ Dimension
+    comment: "Data-quality dimension: completeness, validity, uniqueness, timeliness (incl. freshness of shared tables) or consistency."
+    synonyms: [DQ dimension, quality dimension, dimension, check type, quality aspect, rule dimension]
+  - name: Rule
+    expr: source.rule_id
+    display_name: DQ Rule
+    comment: >-
+      DQ rule of the latest run (Sep-2026 rule results only), e.g. pay_payment_message:key_unique,
+      pay_payment_message:x:landing_ties_to_cash_flow; null on the monthly score rows.
+    synonyms: [rule, DQ rule, check, validation rule, control, quality rule, rule id]
+  - name: Rule Severity
+    expr: source.severity
+    display_name: Rule Severity
+    comment: "Severity of the rule (rule results only): error, warn or info."
+    synonyms: [severity, rule severity, criticality, priority, error or warning]
+  - name: Rule Status
+    expr: source.rule_status
+    display_name: Rule Status
+    comment: "Result of the rule in the latest run (rule results only): pass, warn or fail."
+    synonyms: [rule status, result, pass or fail, check result, outcome, status]
+  - name: Score Basis
+    expr: source.basis
+    display_name: Score Basis
+    comment: >-
+      simulated (score history), incident (an explainable dip) or actual (the current DQ run, Sep-2026, and all
+      rule results).
+    synonyms: [basis, score basis, simulated or actual, history basis, data basis]
+  - name: Incident
+    expr: source.incident_key
+    display_name: DQ Incident
+    comment: >-
+      Incident behind a dip: payments_replay_landing and payments_replay_tie (Jun-2026 payments replay,
+      storyline 12), kyc_migration_backlog / kyc_migration_recovery (Feb-2026 KYC migration, storyline 7),
+      jp_share_outage (11-15 Aug 2026 Japan share outage, storyline 13); null otherwise.
+    synonyms: [incident, DQ incident, root cause, issue, data incident, outage, cause of dip]
+  - name: Is Below 95%
+    expr: source.is_below_95
+    display_name: Score Below 95%
+    comment: True when the monthly score of the table and dimension is below 95%.
+    synonyms: [below 95, below threshold, failing quality, low score, below target, red table]
+measures:
+  - name: DQ Score %
+    expr: AVG(CASE WHEN source.record_type = 'table_dimension' THEN source.score END)
+    display_name: DQ Score
+    comment: >-
+      Average monthly DQ score of the selected tables and dimensions (fraction; one table and dimension = its
+      score, 0.978 = 97.8%), for the last month of the selection.
+    synonyms: [DQ score, data quality score, quality score, score, DQ %, data quality index, health score]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 2}}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: DQ Score Prior Month %
+    expr: AVG(CASE WHEN source.record_type = 'table_dimension' THEN source.score END)
+    display_name: DQ Score Prior Month
+    comment: The same score one month earlier (Month = Sep 2026 gives Aug 2026) - for "this month vs last".
+    synonyms: [last month score, prior month DQ score, previous month score, DQ score last month, August score]
+    format: *pct
+    window:
+      - {order: Month, range: current, semiadditive: last, offset: -1 month}
+  - name: DQ Score Change vs Prior Month pts
+    expr: MEASURE(`DQ Score %`) - MEASURE(`DQ Score Prior Month %`)
+    display_name: DQ Score Change vs Prior Month (points)
+    comment: DQ score minus the prior month's (fraction points; negative = deterioration).
+    synonyms: [score change, DQ change, month on month change, deterioration, improvement, MoM change]
+    format: *pct
+  - name: Row Pass Rate %
+    expr: >-
+      SUM(CASE WHEN source.record_type = 'table_dimension' THEN source.rows_passed END)
+      / NULLIF(SUM(CASE WHEN source.record_type = 'table_dimension' THEN source.rows_evaluated END), 0)
+    display_name: Row Pass Rate
+    comment: Rows passing / rows evaluated over the selected tables and dimensions (row-weighted), last month of the selection.
+    synonyms: [pass rate, row pass rate, rows passing, weighted DQ score, pass percentage]
+    format: *pct
+    window: *eom
+  - name: Rules Evaluated
+    expr: SUM(CASE WHEN source.record_type = 'table_dimension' THEN source.rules_evaluated END)
+    display_name: Rules Evaluated
+    comment: DQ rules evaluated on the selected tables and dimensions in the last month of the selection.
+    synonyms: [rules evaluated, checks run, rules run, number of rules, controls executed]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *eom
+  - name: Rules Failed
+    expr: SUM(CASE WHEN source.record_type = 'table_dimension' THEN source.rules_failed END)
+    display_name: Rules Failed
+    comment: DQ rules that failed their threshold in the last month of the selection.
+    synonyms: [rules failed, failed checks, failed rules, breaches, control failures, rule failures]
+    format: *count
+    window: *eom
+  - name: Rows Evaluated
+    expr: SUM(CASE WHEN source.record_type = 'table_dimension' THEN source.rows_evaluated END)
+    display_name: Rows Evaluated
+    comment: Rows checked by the dimension's rules in the last month of the selection.
+    synonyms: [rows evaluated, rows checked, records checked, volume checked]
+    format: *count
+    window: *eom
+  - name: Rows Failed
+    expr: SUM(CASE WHEN source.record_type = 'table_dimension' THEN source.rows_failed END)
+    display_name: Rows Failed
+    comment: >-
+      Rows failing the dimension's rules in the last month of the selection (e.g. 3,966 replayed payment
+      messages at Sep-2026, bronze uniqueness).
+    synonyms: [rows failed, failed rows, bad records, exceptions, error rows, records failing]
+    format: *count
+    window: *eom
+  - name: Tables Below Target
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'table_dimension' AND source.is_below_95 THEN source.table_name END)
+    display_name: Tables Below 95%
+    comment: Tables with at least one DQ dimension scoring below 95% in the last month of the selection.
+    synonyms: [tables below 95%, tables below target, failing tables, red tables, low quality tables]
+    format: *count
+    window: *eom
+  - name: Tables Scored
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'table_dimension' THEN source.table_name END)
+    display_name: Tables Scored
+    comment: Tables with a DQ score in the last month of the selection.
+    synonyms: [tables scored, tables monitored, datasets monitored, number of tables]
+    format: *count
+    window: *eom
+  - name: Rule Results
+    expr: COUNT(1) FILTER (WHERE source.record_type = 'rule')
+    display_name: Rule Results (latest run)
+    comment: Rule evaluations of the latest DQ run (Sep-2026) on the selected tables.
+    synonyms: [rule results, rule checks, evaluations, rule runs, checks performed]
+    format: *count
+  - name: Rules Not Passed
+    expr: COUNT(1) FILTER (WHERE source.record_type = 'rule' AND source.rule_failed)
+    display_name: Rules Not Passed (latest run)
+    comment: Rule evaluations of the latest run with status warn or fail.
+    synonyms: [rules not passed, failing rules, warnings and failures, rules in breach, open DQ issues]
+    format: *count
+  - name: Rule Failed Rows
+    expr: SUM(CASE WHEN source.record_type = 'rule' THEN source.rows_failed END)
+    display_name: Rows Failing the Rule (latest run)
+    comment: Rows failing the selected rules in the latest run (for de-duplication rules = duplicates removed).
+    synonyms: [rule failed rows, rows failing rule, exceptions per rule, rule exceptions, rule breaches]
+    format: *count
+  - name: Rows De-duplicated
+    expr: SUM(CASE WHEN source.record_type = 'rule' THEN source.deduplicated_rows END)
+    display_name: Rows De-duplicated (latest run)
+    comment: >-
+      Duplicate rows removed by business-key de-duplication in the latest run (bronze
+      pay_payment_message:key_unique = 3,966 replayed messages of batch PAY_20260617_R).
+    synonyms: [de-duplicated rows, duplicates removed, dedup count, removed duplicates, replay duplicates]
+    format: *count
+validate:
+  dims: [Month, Layer, DQ Dimension]
+reconcile:
+  - name: score_bronze_payments_uniqueness_jun26
+    measure: DQ Score %
+    where: "`Table` = 'bronze.pay_payment_message' AND `DQ Dimension` = 'uniqueness' AND `Month` = DATE'2026-06-01'"
+    gold: >-
+      SELECT score FROM ${catalog}.gold.fact_dq_score_monthly WHERE table_name = 'bronze.pay_payment_message'
+      AND dimension = 'uniqueness' AND month = DATE'2026-06-01'
+  - name: score_by_dimension_fy2025_is_mar26
+    measure: DQ Score %
+    by: [DQ Dimension]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT dimension, avg(score) FROM ${catalog}.gold.fact_dq_score_monthly WHERE month = DATE'2026-03-01' GROUP BY 1
+  - name: prior_month_score_by_layer_sep26
+    measure: DQ Score Prior Month %
+    by: [Layer]
+    where: "`Month` = DATE'2026-09-01'"
+    gold: SELECT layer, avg(score) FROM ${catalog}.gold.fact_dq_score_monthly WHERE month = DATE'2026-08-01' GROUP BY 1
+  - name: row_pass_rate_by_layer_sep26
+    measure: Row Pass Rate %
+    by: [Layer]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT layer, sum(rows_passed) / sum(rows_evaluated) FROM ${catalog}.gold.fact_dq_score_monthly
+      WHERE month = DATE'2026-09-01' GROUP BY 1
+  - name: rows_failed_by_layer_sep26
+    measure: Rows Failed
+    by: [Layer]
+    where: "`Is Latest Month`"
+    gold: SELECT layer, sum(rows_failed) FROM ${catalog}.gold.fact_dq_score_monthly WHERE month = DATE'2026-09-01' GROUP BY 1
+  - name: tables_below_target_sep26
+    measure: Tables Below Target
+    where: "`Is Latest Month`"
+    gold: SELECT count(DISTINCT table_name) FROM ${catalog}.gold.fact_dq_score_monthly WHERE month = DATE'2026-09-01' AND is_below_95
+  - name: dedup_rows_key_unique_by_layer
+    measure: Rows De-duplicated
+    by: [Layer]
+    where: "`Rule` = 'pay_payment_message:key_unique'"
+    gold: >-
+      SELECT layer, sum(deduplicated_rows) FROM ${catalog}.gold.fact_dq_rule_result
+      WHERE rule_id = 'pay_payment_message:key_unique' GROUP BY 1
+  - name: rules_not_passed_by_dimension
+    measure: Rules Not Passed
+    by: [DQ Dimension]
+    gold: SELECT dimension, count_if(is_failed) FROM ${catalog}.gold.fact_dq_rule_result GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Score measures are monthly snapshots (window last over Month): filter one Month and use the prior-month
+      measures for "this month vs last". DQ Score % averages table scores; Row Pass Rate % weights by rows.
+      Rule-level rows exist for the latest run (Sep-2026) only. Score history is simulated before Sep-2026 and
+      the actual DQ run at Sep-2026 (deterministic simulation in silver).

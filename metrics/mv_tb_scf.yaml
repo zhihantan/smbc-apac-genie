@@ -1,0 +1,223 @@
+# Space 8, Transactional Banking: Trade & Supply Chain Finance (WP9b / WP8e). Source: gold.fact_scf_programme_monthly,
+# a record_type union (D13): Programme rows (limit, financed outstanding, utilisation at the month-end) and Supplier rows
+# (one per programme supplier: state, outstanding, monthly invoice / drawdown / discount flows). Programme measures read
+# Programme rows, supplier measures read Supplier rows - nothing double counts. Limits, outstanding, utilisation and
+# supplier counts are point-in-time window measures (last month-end); drawdowns, discount and yield inputs are flows.
+view: mv_tb_scf
+space: tb_trade_scf
+comment: >-
+  Supply chain finance programmes of SMBC's APAC anchor buyers / sellers at each month-end, Apr-2024 to Sep-2026 (USD):
+  programme limit, financed outstanding and utilisation (bands above 85% / below 40%), suppliers in the register,
+  onboarded and active (drew in the last 3 months) with the activation rate, and the period's drawdowns, financed
+  amount, discount income, average days financed and annualised yield (bps), by programme, anchor, anchor country,
+  supplier country and supplier spend segment. Point-in-time measures (limit, outstanding, utilisation, supplier
+  counts): filter one Month (Is Latest Month = Sep 2026). Programme limit / utilisation are programme-level - do not
+  split them by supplier country / segment (use Supplier Financed Outstanding USD for that).
+grain: one row per SCF programme per month-end per record (the programme, or one of its suppliers) (gold.fact_scf_programme_monthly)
+source: ${catalog}.gold.fact_scf_programme_monthly
+blocks:
+  calendar: {date: source.month_end_date, grain: month, what: the programme month-end}
+  client: {key: source.golden_client_sk}
+overrides:
+  Client:
+    comment: >-
+      Anchor of the SCF programme: the buyer (payables finance) or seller (receivables finance) legal entity,
+      e.g. Meridian Agri Holdings (Singapore) Pte Ltd - "anchor buyer" means this.
+    synonyms: [anchor, anchor buyer, anchor client, buyer, programme sponsor, anchor entity, client, legal entity]
+dimensions:
+  - name: Programme
+    expr: source.programme_name
+    display_name: SCF Programme
+    comment: Programme label = anchor short name + programme type (e.g. Meridian Agri Holdings Trading Payables Finance).
+    synonyms: [programme, program, SCF programme, supplier finance programme, facility, SCF program]
+  - name: Programme Type
+    expr: source.programme_type
+    display_name: Programme Type
+    comment: Payables Finance (buyer-led reverse factoring) or Receivables Finance (seller-led).
+    synonyms: [programme type, payables finance, receivables finance, reverse factoring, SCF type]
+  - name: Anchor Country
+    expr: source.anchor_country
+    display_name: Anchor Country
+    comment: Coverage office of the anchor (ISO-2).
+    synonyms: [anchor country, buyer country, programme country, anchor location, anchor office]
+  - name: Utilisation Band
+    expr: source.utilisation_band
+    display_name: Utilisation Band
+    comment: Programme utilisation band at the month-end - Above 85% (limit review), 40-85% or Below 40% (under-used).
+    synonyms: [utilisation band, utilization band, usage band, high utilisation, low utilisation]
+  - name: Supplier Country
+    expr: source.supplier_country
+    display_name: Supplier Country
+    comment: Country of the supplier (ISO-2; supplier rows - null for the programme-level measures).
+    synonyms: [supplier country, vendor country, seller country, supplier location]
+  - name: Supplier Segment
+    expr: source.supplier_segment
+    display_name: Supplier Spend Segment
+    comment: Supplier spend segment within its programme (invoice value Oct-2025 to Sep-2026) - Strategic (top 20%), Core (next 30%), Long tail (bottom 50%).
+    synonyms: [supplier segment, supplier tier, spend segment, strategic suppliers, long tail, tail suppliers]
+  - name: Supplier
+    expr: source.supplier_name
+    display_name: Supplier
+    comment: Supplier name (fictional; suppliers are not bank clients).
+    synonyms: [supplier, vendor, supplier name, seller, counterparty]
+  - name: Is Supplier Onboarded
+    expr: source.is_supplier_onboarded
+    display_name: Is Supplier Onboarded
+    comment: True when the supplier was onboarded to the programme (able to finance) by the month-end.
+    synonyms: [onboarded, supplier onboarded, enrolled, activated supplier, live supplier]
+  - name: Supplier Banks Elsewhere
+    expr: source.supplier_routes_to_other_bank
+    display_name: Supplier Banks Elsewhere
+    comment: True when the supplier's own payments route to another bank - an account-opening opportunity.
+    synonyms: [banks elsewhere, other bank supplier, supplier at competitor, account opening opportunity, unbanked supplier]
+measures:
+  - name: Programme Limit USD
+    expr: SUM(source.limit_usd)
+    display_name: Programme Limit (USD)
+    comment: Programme limit in USD at the month-end (current limit; point-in-time; Programme rows).
+    synonyms: [limit, programme limit, facility limit, approved limit, programme size, SCF limit]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Financed Outstanding USD
+    expr: SUM(source.financed_outstanding_usd)
+    display_name: Financed Outstanding (month-end, USD)
+    comment: Financed invoices outstanding at the month-end - the programme's drawn amount, USD (point-in-time; Programme rows).
+    synonyms: [financed, drawn, outstanding, utilised amount, financed USD, SCF outstanding, drawn amount]
+    format: *usd
+    window: *eom
+  - name: Utilisation %
+    expr: MEASURE(`Financed Outstanding USD`) / NULLIF(MEASURE(`Programme Limit USD`), 0)
+    display_name: Utilisation
+    comment: Financed outstanding / programme limit at the month-end (fraction; above 0.85 = limit review, below 0.40 = under-used).
+    synonyms: [utilisation, utilization, usage, drawn ratio, limit usage, headroom used, utilisation rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Supplier Financed Outstanding USD
+    expr: SUM(source.supplier_financed_outstanding_usd)
+    display_name: Supplier Financed Outstanding (month-end, USD)
+    comment: >-
+      Financed invoices outstanding at the month-end by supplier, USD (point-in-time; Supplier rows) - use this when
+      splitting by Supplier Country / Segment; it sums to Financed Outstanding USD.
+    synonyms: [supplier outstanding, financed by supplier, supplier drawn, outstanding by supplier country]
+    format: *usd
+    window: *eom
+  - name: Programmes
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Programme' THEN source.programme_id END)
+    display_name: SCF Programmes (month-end)
+    comment: SCF programmes live at the month-end (point-in-time).
+    synonyms: [programmes, number of programmes, SCF programmes, programs, live programmes]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *eom
+  - name: High-Utilisation Programmes
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Programme' AND source.is_above_85pct THEN source.programme_id END)
+    display_name: Programmes Above 85% Utilisation (month-end)
+    comment: Programmes above 85% utilisation at the month-end (dim_threshold SCF_UTILISATION_HIGH) - limit review.
+    synonyms: [high utilisation programmes, above 85%, near limit, fully drawn programmes, limit review]
+    format: *count
+    window: *eom
+  - name: Low-Utilisation Programmes
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Programme' AND source.is_below_40pct THEN source.programme_id END)
+    display_name: Programmes Below 40% Utilisation (month-end)
+    comment: Programmes below 40% utilisation at the month-end (dim_threshold SCF_UTILISATION_LOW) - under-used.
+    synonyms: [low utilisation programmes, below 40%, under-used programmes, idle programmes, underutilised]
+    format: *count
+    window: *eom
+  - name: Suppliers in Register
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Supplier' THEN source.supplier_id END)
+    display_name: Suppliers in Register (month-end)
+    comment: Suppliers in the programmes' supplier registers at the month-end (point-in-time).
+    synonyms: [suppliers, supplier base, number of suppliers, registered suppliers, supplier register]
+    format: *count
+    window: *eom
+  - name: Suppliers Onboarded
+    expr: COUNT(DISTINCT CASE WHEN source.is_supplier_onboarded THEN source.supplier_id END)
+    display_name: Suppliers Onboarded (month-end)
+    comment: Suppliers onboarded (able to finance) by the month-end (point-in-time).
+    synonyms: [onboarded suppliers, enrolled suppliers, live suppliers, suppliers on platform, signed-up suppliers]
+    format: *count
+    window: *eom
+  - name: Suppliers Active
+    expr: COUNT(DISTINCT CASE WHEN source.is_supplier_active_3m THEN source.supplier_id END)
+    display_name: Suppliers Active (3 months to month-end)
+    comment: Suppliers that drew (financed) at least one invoice in the 3 months to the month-end (point-in-time).
+    synonyms: [active suppliers, financing suppliers, suppliers drawing, engaged suppliers, active users]
+    format: *count
+    window: *eom
+  - name: Supplier Activation %
+    expr: MEASURE(`Suppliers Active`) / NULLIF(MEASURE(`Suppliers in Register`), 0)
+    display_name: Supplier Activation Rate
+    comment: Active suppliers / suppliers in the register at the month-end (fraction) - supplier activation.
+    synonyms: [supplier activation, activation rate, supplier adoption, take-up, supplier penetration, onboarding rate]
+    format: *pct
+  - name: Drawdowns
+    expr: SUM(source.drawdowns_in_month)
+    display_name: Drawdowns (invoices financed)
+    comment: Invoices financed (drawn) by suppliers in the selected months (a flow).
+    synonyms: [drawdowns, invoices financed, financings, early payments, discounted invoices]
+    format: *count
+  - name: Financed in Period USD
+    expr: SUM(source.financed_in_month_usd)
+    display_name: Financed in Period (USD)
+    comment: Amount advanced to suppliers in the selected months, USD (a flow).
+    synonyms: [financed volume, financed in period, drawdown volume, early payment volume, SCF volume, financed amount]
+    format: *usd
+  - name: Discount Income USD
+    expr: SUM(source.discount_income_in_month_usd)
+    display_name: Discount Income (USD)
+    comment: Discount (financing income) on invoices financed in the selected months, USD (a flow).
+    synonyms: [discount income, SCF income, financing income, discount revenue, SCF revenue]
+    format: *usd
+  - name: Average Days Financed
+    expr: SUM(source.days_financed_in_month) / NULLIF(SUM(source.drawdowns_in_month), 0)
+    display_name: Average Days Financed
+    comment: Average days from drawdown to the invoice due date over the drawdowns of the selection.
+    synonyms: [days financed, average tenor, days paid early, financing tenor, DPO extension]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Yield bps
+    expr: 10000 * SUM(source.discount_income_in_month_usd) / NULLIF(SUM(source.financed_usd_days_in_month) / 365.0, 0)
+    display_name: Annualised Yield (bps)
+    comment: Annualised discount yield = discount income / (financed amount x days / 365) x 10,000, in basis points.
+    synonyms: [yield, SCF yield, discount rate, pricing, bps, financing yield, margin]
+    format: {type: number, decimal_places: {type: max, places: 0}}
+validate:
+  dims: [Month, Programme]
+reconcile:
+  - name: limit_sep26
+    measure: Programme Limit USD
+    where: "`Is Latest Month`"
+    gold: SELECT sum(limit_usd) FROM ${catalog}.gold.fact_scf_programme_monthly WHERE record_type = 'Programme' AND is_latest_month_end
+  - name: utilisation_by_programme_sep26
+    measure: Utilisation %
+    by: [Programme]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT programme_name, financed_outstanding_usd / limit_usd FROM ${catalog}.gold.fact_scf_programme_monthly
+      WHERE record_type = 'Programme' AND is_latest_month_end
+  - name: outstanding_sep26_vs_programme_drawn
+    measure: Financed Outstanding USD
+    where: "`Is Latest Month`"
+    gold: SELECT sum(drawn_usd) FROM ${catalog}.gold.dim_scf_programme
+  - name: suppliers_active_by_country_sep26
+    measure: Suppliers Active
+    by: [Supplier Country]
+    where: "`Is Latest Month` AND `Supplier Country` IS NOT NULL"
+    gold: >-
+      SELECT supplier_country, count_if(is_supplier_active_3m) FROM ${catalog}.gold.fact_scf_programme_monthly
+      WHERE record_type = 'Supplier' AND is_latest_month_end GROUP BY 1
+  - name: financed_fy2026
+    measure: Financed in Period USD
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT sum(financed_amount_usd) FROM ${catalog}.gold.fact_scf_programme_drawdown
+      WHERE is_financed AND financing_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30'
+  - name: yield_fy2025
+    measure: Yield bps
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT 10000 * sum(discount_amount_usd) / (sum(financed_usd_days) / 365.0) FROM ${catalog}.gold.fact_scf_programme_drawdown
+      WHERE is_financed AND financing_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31'
+glossary:
+  caveats:
+    - >-
+      Limit / outstanding / utilisation / supplier counts are point-in-time at month-end; flows (drawdowns, financed,
+      discount) add up over months. Historical utilisation uses today's limit (no limit history in the SCF platform).

@@ -1,0 +1,128 @@
+# WP9b - space 2, Opportunity Identification. Next-best-product propensity scores (model NBP-3.1, month-ends Apr-Sep
+# 2026). Scores are monthly snapshots, so every measure is a window measure (latest month of the selection).
+# Must-answer queries: metrics/_answers/opportunity_identification.sql.
+view: mv_next_best_product
+space: opportunity_identification
+comment: >-
+  Next-best-product recommendations for SMBC APAC clients (model NBP-3.1, scored at each month-end Apr-Sep 2026):
+  the propensity (0-1) of each client to buy each recommended product, its rank among the client's top three, the
+  main drivers, expected annual revenue and whether it would be a cross-sell into a new product family. Scores are
+  POINT-IN-TIME snapshots: filter one Month (Is Latest Month = Sep 2026 for current recommendations) - a longer
+  period returns its last month. "Top N clients for product X" = filter the product, order by Max Propensity.
+grain: one row per golden client x product x score month (gold.fact_next_best_product_score)
+source: ${catalog}.gold.fact_next_best_product_score
+blocks:
+  calendar: {date: source.score_month, grain: month, what: the scoring month-end}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Product Family
+    expr: source.product_family
+    display_name: Product Family
+    comment: Product family of the recommendation - Supply Chain Finance, Corporate Lending, Trade Finance, Liquidity, Cash, FX, Rates or Sustainable Finance.
+    synonyms: [product family, product line, family, product group, business product]
+  - name: Product
+    expr: source.product
+    display_name: Recommended Product
+    comment: Recommended product (CRM sales product), e.g. Supply Chain Finance, Cash Management Mandate, Term Loan, Time Deposit.
+    synonyms: [product, recommended product, next best product, NBP, offer, cross-sell product]
+  - name: Propensity Rank
+    expr: source.propensity_rank
+    display_name: Propensity Rank
+    comment: Rank of the product among the client's recommendations that month - 1 = next best product, 2, 3.
+    synonyms: [rank, NBP rank, recommendation rank, priority, position, top pick]
+    format: {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Propensity Band
+    expr: source.propensity_band
+    display_name: Propensity Band
+    comment: High (>= 0.7, dim_threshold NBP_HIGH_PROPENSITY), Medium (0.4-0.7) or Low (< 0.4).
+    synonyms: [propensity band, score band, likelihood band, high propensity, warm leads]
+  - name: Is Cross-Sell
+    expr: NOT source.client_holds_product_family
+    display_name: Is Cross-Sell (new product family)
+    comment: True when the client does not yet hold any product of the family (cross-sell); false = deepen an existing family.
+    synonyms: [cross-sell, new family, white space, not held, deepen or cross-sell, new product]
+  - name: Top Drivers
+    expr: source.top_drivers
+    display_name: Top Drivers
+    comment: Main model drivers of the score (one to three, ' | '-separated), e.g. Trade corridor CN->VN up 50% YoY | SCF anchor candidate.
+    synonyms: [drivers, reasons, explanation, why, rationale, key drivers]
+measures:
+  - name: Max Propensity
+    expr: MAX(source.propensity)
+    display_name: Propensity (max)
+    comment: Highest propensity (0-1) in the selection - per client and product this is the client's score.
+    synonyms: [propensity, score, NBP score, likelihood, probability to buy, max propensity]
+    format: &dec3 {type: number, decimal_places: {type: max, places: 3}}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Average Propensity
+    expr: AVG(source.propensity)
+    display_name: Average Propensity
+    comment: Average propensity (0-1) across the selected client-product scores.
+    synonyms: [average propensity, mean score, average NBP score, average likelihood]
+    format: *dec3
+    window: *eom
+  - name: Clients Scored
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients Scored
+    comment: Clients with a recommendation in the selection.
+    synonyms: [clients scored, clients recommended, scored clients, target clients, clients]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *eom
+  - name: Clients With High Propensity
+    expr: COUNT(DISTINCT CASE WHEN source.is_high_propensity THEN source.golden_client_id END)
+    display_name: Clients With Score 0.7+
+    comment: Clients with a propensity of at least 0.7 for the selected products (dim_threshold NBP_HIGH_PROPENSITY).
+    synonyms: [high propensity clients, hot leads, clients above 0.7, strong candidates, warm prospects]
+    format: *count
+    window: *eom
+  - name: Rank-1 Recommendations
+    expr: COUNT(1) FILTER (WHERE source.propensity_rank = 1)
+    display_name: Rank-1 Recommendations
+    comment: Client-product scores ranked as the client's next best product (rank 1).
+    synonyms: [rank 1, top recommendations, next best products, number one picks, top picks]
+    format: *count
+    window: *eom
+  - name: Estimated Revenue USD
+    expr: SUM(source.expected_revenue_usd)
+    display_name: Estimated Revenue if Sold (USD)
+    comment: Expected annual revenue in USD if the recommended products are sold.
+    synonyms: [estimated revenue, expected revenue, revenue potential, opportunity size, upside]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: *eom
+  - name: Propensity-Weighted Revenue USD
+    expr: SUM(source.propensity_weighted_revenue_usd)
+    display_name: Propensity-Weighted Revenue (USD)
+    comment: Expected revenue x propensity in USD - the risk-adjusted revenue potential.
+    synonyms: [weighted revenue, probability-weighted revenue, expected value, risk-adjusted potential]
+    format: *usd
+    window: *eom
+validate:
+  dims: [Month, Product Family, Propensity Band]
+reconcile:
+  - name: high_propensity_clients_sep_2026
+    measure: Clients With High Propensity
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_next_best_product_score
+      WHERE is_latest_score_month AND is_high_propensity
+  - name: average_propensity_by_family_sep_2026
+    measure: Average Propensity
+    by: [Product Family]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT product_family, avg(propensity) FROM ${catalog}.gold.fact_next_best_product_score
+      WHERE is_latest_score_month GROUP BY 1
+  - name: kinokawa_rank1_scf_sep_2026
+    measure: Rank-1 Recommendations
+    where: "`Is Latest Month` AND `Client Group` = 'Kinokawa Precision' AND `Product Family` = 'Supply Chain Finance'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_next_best_product_score
+      WHERE client_group_id = 'SYN-G-0001' AND is_latest_score_month AND is_top_ranked AND product_family = 'Supply Chain Finance'
+  - name: expected_revenue_jun_2026
+    measure: Estimated Revenue USD
+    where: "`Month` = DATE'2026-06-01'"
+    gold: SELECT sum(expected_revenue_usd) FROM ${catalog}.gold.fact_next_best_product_score WHERE score_month = DATE'2026-06-01'
+glossary:
+  caveats:
+    - Scores are monthly snapshots - filter one Month (Is Latest Month for current recommendations).

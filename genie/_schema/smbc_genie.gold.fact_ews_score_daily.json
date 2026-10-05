@@ -1,0 +1,295 @@
+{
+ "columns": [
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Score date (daily, including weekends); 30-Sep-2026 = today.",
+   "is_measure": false,
+   "name": "score_date",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor record whose score is shown (the worst of the day when the client has duplicate credit records).",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor records of the client scored that day (normally 1).",
+   "is_measure": false,
+   "name": "n_obligors_scored",
+   "type": "int"
+  },
+  {
+   "comment": "Composite EWS score 0-100 (higher = riskier); point-in-time - average or take the latest, never sum.",
+   "is_measure": false,
+   "name": "composite_score",
+   "type": "double"
+  },
+  {
+   "comment": "Model band from the composite score before overrides: Green (< 40), Amber (40-69) or Red (>= 70).",
+   "is_measure": false,
+   "name": "computed_band",
+   "type": "string"
+  },
+  {
+   "comment": "Final EWS band after steward overrides - the band to report (Green, Amber, Red).",
+   "is_measure": false,
+   "name": "final_band",
+   "type": "string"
+  },
+  {
+   "comment": "Final band on the previous day (null on the first scored day).",
+   "is_measure": false,
+   "name": "prev_final_band",
+   "type": "string"
+  },
+  {
+   "comment": "Model band on the previous day.",
+   "is_measure": false,
+   "name": "prev_computed_band",
+   "type": "string"
+  },
+  {
+   "comment": "True when the final band differs from the previous day's.",
+   "is_measure": false,
+   "name": "final_band_changed",
+   "type": "boolean"
+  },
+  {
+   "comment": "Band move on this day, e.g. Green to Amber, Amber to Red (null when unchanged).",
+   "is_measure": false,
+   "name": "band_change",
+   "type": "string"
+  },
+  {
+   "comment": "True on the day the final band moved from Green to Amber.",
+   "is_measure": false,
+   "name": "moved_green_to_amber",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the day the final band entered Red from Green or Amber.",
+   "is_measure": false,
+   "name": "entered_red",
+   "type": "boolean"
+  },
+  {
+   "comment": "Final band 30 days earlier (null in the first 30 days of the series).",
+   "is_measure": false,
+   "name": "final_band_30d_ago",
+   "type": "string"
+  },
+  {
+   "comment": "True when the final band is Amber today but was Green 30 days earlier - robust to day-to-day flicker; use on the as-of date for clients that moved Green to Amber in the last 30 days.",
+   "is_measure": false,
+   "name": "moved_green_to_amber_30d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Composite score 30 days earlier.",
+   "is_measure": false,
+   "name": "score_30d_ago",
+   "type": "double"
+  },
+  {
+   "comment": "Composite score change over 30 days (points; positive = deteriorating).",
+   "is_measure": false,
+   "name": "score_change_30d",
+   "type": "double"
+  },
+  {
+   "comment": "Consecutive days the client has been in the current final band up to this day (counted from 1-Apr-2025 at the earliest).",
+   "is_measure": false,
+   "name": "days_in_final_band",
+   "type": "int"
+  },
+  {
+   "comment": "True when the final band differs from the model band (an override changed the band).",
+   "is_measure": false,
+   "name": "is_band_overridden",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when a steward override is in force on the day (including overrides that affirm the model band).",
+   "is_measure": false,
+   "name": "is_overridden",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the day an override was made or re-confirmed (count these for 'overrides this year').",
+   "is_measure": false,
+   "name": "override_event_flag",
+   "type": "boolean"
+  },
+  {
+   "comment": "Override in force (EWS-OVR-...); null when none.",
+   "is_measure": false,
+   "name": "override_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the override in force was made / re-confirmed.",
+   "is_measure": false,
+   "name": "override_date",
+   "type": "date"
+  },
+  {
+   "comment": "Override direction: Soften (band lowered), Escalate (band raised) or Affirm.",
+   "is_measure": false,
+   "name": "override_direction",
+   "type": "string"
+  },
+  {
+   "comment": "Model band the steward overrode at the override date.",
+   "is_measure": false,
+   "name": "override_model_band",
+   "type": "string"
+  },
+  {
+   "comment": "Override rationale, e.g. Parent support confirmed (JP data): keepwell from the Japanese parent ...",
+   "is_measure": false,
+   "name": "override_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Credit steward who made the override (name as recorded by the EWS engine).",
+   "is_measure": false,
+   "name": "override_analyst_name",
+   "type": "string"
+  },
+  {
+   "comment": "Evidence reference of the override, e.g. the JP-share support letter id (JPSL-...).",
+   "is_measure": false,
+   "name": "override_evidence_ref",
+   "type": "string"
+  },
+  {
+   "comment": "True when the override cites parent support confirmed from Japan (JP share data).",
+   "is_measure": false,
+   "name": "is_parent_support_override",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the override in force was confirmed on a day the JP share feed it relies on was stale (refresh lag > 24h in the share refresh log) - audit flag.",
+   "is_measure": false,
+   "name": "source_data_stale",
+   "type": "boolean"
+  },
+  {
+   "comment": "Credit sub-score 0-100 (health, utilisation, covenant).",
+   "is_measure": false,
+   "name": "credit_component",
+   "type": "double"
+  },
+  {
+   "comment": "Liquidity sub-score 0-100 (deposit outflow).",
+   "is_measure": false,
+   "name": "liquidity_component",
+   "type": "double"
+  },
+  {
+   "comment": "Behavioural sub-score 0-100 (payments routed to other banks).",
+   "is_measure": false,
+   "name": "behavioural_component",
+   "type": "double"
+  },
+  {
+   "comment": "External sub-score 0-100 from news sentiment - informational, not part of the composite.",
+   "is_measure": false,
+   "name": "external_component",
+   "type": "double"
+  },
+  {
+   "comment": "Strongest trigger fired in the score's month (most score points, then severity); join to gold.dim_ews_trigger.",
+   "is_measure": false,
+   "name": "top_trigger_1",
+   "type": "string"
+  },
+  {
+   "comment": "Second trigger of the month.",
+   "is_measure": false,
+   "name": "top_trigger_2",
+   "type": "string"
+  },
+  {
+   "comment": "Third trigger of the month.",
+   "is_measure": false,
+   "name": "top_trigger_3",
+   "type": "string"
+  },
+  {
+   "comment": "Top three triggers of the month as text, e.g. COV_BREACH, UTIL_HIGH, DPD_30.",
+   "is_measure": false,
+   "name": "top_triggers_text",
+   "type": "string"
+  },
+  {
+   "comment": "Triggers fired for the client in the score's month.",
+   "is_measure": false,
+   "name": "n_triggers_month",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist on the day (watchlist register membership).",
+   "is_measure": false,
+   "name": "is_watchlisted",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client's drawn lending exposure at the month-end of the score month, USD - 'exposure' (point-in-time: sum across clients on one day, never across days).",
+   "is_measure": false,
+   "name": "exposure_drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's committed facility limits at the month-end of the score month, USD.",
+   "is_measure": false,
+   "name": "exposure_limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's exposure at default for the score month, USD (from Apr-2024; null when not computed).",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's expected credit loss provision (IFRS 9) for the score month, USD.",
+   "is_measure": false,
+   "name": "ecl_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True on calendar month-ends (use for month-end snapshots, e.g. exposure in Amber / Red at each month-end).",
+   "is_measure": false,
+   "name": "is_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on 30-Sep-2026 (today).",
+   "is_measure": false,
+   "name": "is_as_of_date",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Daily early-warning score per client (brief 5.4), 1-Apr-2025 to 30-Sep-2026, every calendar day: composite EWS score 0-100 = 1.12 x 100 x (0.45 credit-health + 0.20 utilisation + 0.15 covenant + 0.12 deposit-outflow + 0.08 wallet-leakage stress), the model (computed) band and the final band after steward overrides (Green < 40, Amber 40-69, Red >= 70), previous band, band change (e.g. Green to Amber), band 30 days ago, days in the current band, override flags (override in force, override event day, parent-support override, source_data_stale = override confirmed while the JP share feed was stale), the four explainable sub-components (external = news, informational only), the top three triggers of the month, the watchlist flag and the client's month-end exposure / EAD / ECL. Scores and exposure are point-in-time: never sum across days; count clients per day or take the latest day (score_date = 30-Sep-2026 is today). Grain: one row per golden client x score date.",
+ "identifier": "smbc_genie.gold.fact_ews_score_daily",
+ "type": "MANAGED"
+}

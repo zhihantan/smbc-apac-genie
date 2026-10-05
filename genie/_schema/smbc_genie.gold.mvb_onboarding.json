@@ -1,0 +1,289 @@
+{
+ "columns": [
+  {
+   "comment": "Row type: Case, Product Request, Document or Feedback.",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "Key within the type: case_id, case_id|product, document_id or feedback_id.",
+   "is_measure": false,
+   "name": "record_id",
+   "type": "string"
+  },
+  {
+   "comment": "True on the one Case row per onboarding case - use for case counts.",
+   "is_measure": false,
+   "name": "is_primary_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "Request date (Case, Product Request), document requested date (Document) or survey date (Feedback).",
+   "is_measure": false,
+   "name": "record_date",
+   "type": "date"
+  },
+  {
+   "comment": "Onboarding case (ONB-nnnnn) of the row.",
+   "is_measure": false,
+   "name": "case_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version of the onboarded client at the request date (null for applicants that never went live).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client of the case (null for applicants that never went live).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group of the case (ER group, else the intake link).",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Booking location of the case (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  },
+  {
+   "comment": "Request date of the case.",
+   "is_measure": false,
+   "name": "request_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the request month.",
+   "is_measure": false,
+   "name": "request_month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year of the request (this fiscal year = 2026, last = 2025).",
+   "is_measure": false,
+   "name": "request_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Case status: Open, Live, Withdrawn or Rejected.",
+   "is_measure": false,
+   "name": "case_status",
+   "type": "string"
+  },
+  {
+   "comment": "Stage the case is in / ended in (Complete = live and transacted).",
+   "is_measure": false,
+   "name": "current_stage",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding officer owning the case (employee_id).",
+   "is_measure": false,
+   "name": "owner_id",
+   "type": "string"
+  },
+  {
+   "comment": "Blocker of an open case (e.g. Workflow Migration Backlog).",
+   "is_measure": false,
+   "name": "blocker_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Group match: At Intake, After Account Opening or New Group.",
+   "is_measure": false,
+   "name": "match_timing",
+   "type": "string"
+  },
+  {
+   "comment": "Anchor product requested (Current Account / Correspondent Account).",
+   "is_measure": false,
+   "name": "primary_product",
+   "type": "string"
+  },
+  {
+   "comment": "Request period vs the Feb-2026 KYC migration: Pre-migration, Migration (Feb-2026), Backlog peak (Mar-May 2026), Recovery (from Jun-2026).",
+   "is_measure": false,
+   "name": "kyc_migration_period",
+   "type": "string"
+  },
+  {
+   "comment": "Case descriptor: open case whose current stage is over its SLA (over SLA right now).",
+   "is_measure": false,
+   "name": "case_over_sla",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case descriptor: open case in KYC Docs for more than 15 days.",
+   "is_measure": false,
+   "name": "case_stuck_in_kyc_docs_15d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case rows: products requested ('; '-separated).",
+   "is_measure": false,
+   "name": "products_requested",
+   "type": "string"
+  },
+  {
+   "comment": "Case rows: number of products requested.",
+   "is_measure": false,
+   "name": "n_products_requested",
+   "type": "int"
+  },
+  {
+   "comment": "Case rows: open case.",
+   "is_measure": false,
+   "name": "is_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case rows: case went live.",
+   "is_measure": false,
+   "name": "is_live",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case rows: case withdrawn.",
+   "is_measure": false,
+   "name": "is_withdrawn",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case rows: case rejected.",
+   "is_measure": false,
+   "name": "is_rejected",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case rows: matched to an existing client group (at intake or after account opening).",
+   "is_measure": false,
+   "name": "matched_existing_group",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case rows: go-live date (end of Account Open).",
+   "is_measure": false,
+   "name": "go_live_date",
+   "type": "date"
+  },
+  {
+   "comment": "Case rows: fiscal year of go-live (2026 = onboarded in FY2026).",
+   "is_measure": false,
+   "name": "go_live_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Case rows: days from request to go-live (live cases).",
+   "is_measure": false,
+   "name": "days_to_live",
+   "type": "int"
+  },
+  {
+   "comment": "Case rows: days from go-live to the first transaction.",
+   "is_measure": false,
+   "name": "first_transaction_lag_days",
+   "type": "int"
+  },
+  {
+   "comment": "Case rows (live): first transaction within 60 days of go-live; false = not activated within 60 days.",
+   "is_measure": false,
+   "name": "transacted_within_60d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Case rows (open): days in the current stage.",
+   "is_measure": false,
+   "name": "days_in_current_stage",
+   "type": "int"
+  },
+  {
+   "comment": "Case rows: documents outstanding on the case.",
+   "is_measure": false,
+   "name": "documents_outstanding",
+   "type": "int"
+  },
+  {
+   "comment": "Product Request rows: one product requested (e.g. Current Account, Payments, Time Deposit, Trade Finance, FX).",
+   "is_measure": false,
+   "name": "product_requested",
+   "type": "string"
+  },
+  {
+   "comment": "Document rows: KYC document type (e.g. UBO Declaration, Board Resolution).",
+   "is_measure": false,
+   "name": "document_type",
+   "type": "string"
+  },
+  {
+   "comment": "Document rows: Received, Outstanding, Waived or Cancelled.",
+   "is_measure": false,
+   "name": "document_status",
+   "type": "string"
+  },
+  {
+   "comment": "Document rows: mandatory document.",
+   "is_measure": false,
+   "name": "is_mandatory_document",
+   "type": "boolean"
+  },
+  {
+   "comment": "Document rows: still outstanding at the as-of date.",
+   "is_measure": false,
+   "name": "is_document_outstanding",
+   "type": "boolean"
+  },
+  {
+   "comment": "Document rows: days outstanding at the as-of date.",
+   "is_measure": false,
+   "name": "document_days_outstanding",
+   "type": "int"
+  },
+  {
+   "comment": "Feedback rows: survey score 1-5.",
+   "is_measure": false,
+   "name": "satisfaction_score",
+   "type": "int"
+  },
+  {
+   "comment": "Feedback rows: Negative (1-2), Neutral (3) or Positive (4-5).",
+   "is_measure": false,
+   "name": "feedback_sentiment",
+   "type": "string"
+  },
+  {
+   "comment": "Feedback rows: negative response (score <= 2).",
+   "is_measure": false,
+   "name": "is_negative_feedback",
+   "type": "boolean"
+  },
+  {
+   "comment": "Feedback rows: comment theme (Turnaround Time, Relationship Manager, Account Setup, Digital Portal, Communication, Document Requests).",
+   "is_measure": false,
+   "name": "feedback_theme",
+   "type": "string"
+  },
+  {
+   "comment": "Feedback rows: client comment text.",
+   "is_measure": false,
+   "name": "feedback_comment",
+   "type": "string"
+  }
+ ],
+ "comment": "Metric-view base for the onboarding funnel (mv_onboarding_funnel, D13): a record_type union of Case rows (one per onboarding case - is_primary_row), Product Request rows (one per case x product requested), Document rows (one per KYC document requested) and Feedback rows (one per post-onboarding survey). Case descriptors (booking country, segment, request month / fiscal year, status, current stage, owner, blocker, match timing, KYC-migration period, over-SLA and stuck-in-KYC-Docs flags) repeat on every row for slicing; case measures are populated only on Case rows, document / feedback / product fields only on their own rows, so counts never double. Examples: Cases Opened = COUNT_IF(is_primary_row); Conversion to Live % = COUNT_IF(is_live) / COUNT_IF(is_primary_row AND NOT is_open); Matched to Existing Group % = COUNT_IF(matched_existing_group) / COUNT_IF(is_primary_row); documents outstanding = COUNT_IF(is_document_outstanding); average satisfaction = AVG(satisfaction_score). Grain: one row per record_type x record (case, case x product, document or survey response).",
+ "identifier": "smbc_genie.gold.mvb_onboarding",
+ "type": "MANAGED"
+}

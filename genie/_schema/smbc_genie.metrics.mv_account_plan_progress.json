@@ -1,0 +1,283 @@
+{
+ "columns": [
+  {
+   "comment": "Japanese fiscal year as a number (2026 = FY2026 = Apr 2026 - Mar 2027); the order field for prior-year comparisons (offset -1).",
+   "is_measure": false,
+   "name": "Fiscal Year Number",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label of the plan year, April to March: FY2026 = Apr 2026 - Mar 2027 (in progress, H1 closed 30-Sep-2026), FY2025 = Apr 2025 - Mar 2026 (the latest complete year).",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "True for FY2026, the fiscal year containing the as-of date 30-Sep-2026 (\"this fiscal year\").",
+   "is_measure": false,
+   "name": "Is Latest Fiscal Year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics). \"Client\" or \"group\" without qualification means this level. Match with LIKE '%Kinokawa%'.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "The group's lead (relationship) legal entity, e.g. the entity holding the account plan.",
+   "is_measure": false,
+   "name": "Lead Client",
+   "type": "string"
+  },
+  {
+   "comment": "Group segment (most common segment of its APAC clients): Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Group relationship tier - Strategic, Core or Transactional. \"Strategic groups\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for groups headquartered in Japan (Japanese corporate groups) - \"Japanese corporates\" / \"JC\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Group industry sector (most common sector of its APAC clients), e.g. Technology, Materials, Energy.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Group industry subsector (most common subsector of its APAC clients), e.g. Automotive Parts, Shipping.",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Lead office of the group = coverage office of its lead entity, ISO-2 code (SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand).",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Group lead RM = current primary RM of the group's lead entity (fictional name).",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the group lead RM sits - \"RMs in Singapore\" means this.",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Worst (highest) internal rating grade 1-10 among the group's rated APAC clients today; null = no rated client.",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "Highest IFRS 9 stage (1-3) among the group's APAC clients today.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when at least one APAC client of the group is on the credit watchlist today.",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating (Low, Medium, High) of the group's lead entity today; null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Worst current early-warning band among the group's APAC clients (Red > Amber > Green); null = none scored.",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Plan product family: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX or Sustainable Finance.",
+   "is_measure": false,
+   "name": "Product Family",
+   "type": "string"
+  },
+  {
+   "comment": "Status of the group's account plan - Active (current year), Revised (reset mid-year) or Closed (past years); null without a plan.",
+   "is_measure": false,
+   "name": "Plan Status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the group has an account plan for the fiscal year (any product family).",
+   "is_measure": false,
+   "name": "Has Account Plan",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the group's plan for the year was reset mid-year (e.g. Kinokawa Precision FY2026, revised 10-Jul-2026).",
+   "is_measure": false,
+   "name": "Plan Revised Mid-Year",
+   "type": "boolean"
+  },
+  {
+   "comment": "RM owning the group's account plan (fictional name); null for groups without a plan.",
+   "is_measure": false,
+   "name": "Plan Owner RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) of the plan owner RM - \"RMs in Singapore\" means SG.",
+   "is_measure": false,
+   "name": "Plan Owner RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Competitor bank (fictional) with the largest share of the group's wallet for the family.",
+   "is_measure": false,
+   "name": "Top Competitor Bank",
+   "type": "string"
+  },
+  {
+   "comment": "Original full-year revenue target of the plan lines in USD, as approved at the start of the year.",
+   "is_measure": true,
+   "name": "Revenue Target USD",
+   "type": "double"
+  },
+  {
+   "comment": "Mid-year revised full-year target in USD (only lines that were revised; blank otherwise).",
+   "is_measure": true,
+   "name": "Revised Target USD",
+   "type": "double"
+  },
+  {
+   "comment": "Target in force in USD = the revised target where the line was revised mid-year, else the original target.",
+   "is_measure": true,
+   "name": "Effective Target USD",
+   "type": "double"
+  },
+  {
+   "comment": "Actual revenue year to date in USD (FY2026 = Apr-Sep 2026, H1; past years = full year), from the gold revenue fact; Supply Chain Finance uses the CRM-recorded actual.",
+   "is_measure": true,
+   "name": "Revenue Actual YTD USD",
+   "type": "double"
+  },
+  {
+   "comment": "Actual revenue year to date in USD on the families that have a plan target (the attainment numerator).",
+   "is_measure": true,
+   "name": "Revenue Actual YTD on Plan USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue year to date / target in force (fraction: 0.40 = 40%). At H1 FY2026 about 50% is on track; below 40% is behind plan (dim_threshold PLAN_ATTAINMENT_LOW).",
+   "is_measure": true,
+   "name": "Attainment %",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue year to date annualised in USD (FY2026 H1 x 2) - where the year lands at the current pace.",
+   "is_measure": true,
+   "name": "Run-Rate Full-Year USD",
+   "type": "double"
+  },
+  {
+   "comment": "Target in force minus the full-year run-rate on planned lines, USD (positive = shortfall expected).",
+   "is_measure": true,
+   "name": "Gap to Target USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue in the same months one year earlier in USD (FY2026 - Apr-Sep 2025; past years - the prior full year).",
+   "is_measure": true,
+   "name": "Revenue Prior YTD USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue year to date in USD on the lines that have a same-period prior-year figure (excludes FY2026 Supply Chain Finance, whose CRM actual has no H1 comparable) - the Revenue YoY numerator.",
+   "is_measure": true,
+   "name": "Revenue YTD Comparable USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue year to date vs the same months one year earlier, like for like (fraction - 0.20 = +20%, -0.15 = -15%); FY2026 compares Apr-Sep 2026 with Apr-Sep 2025.",
+   "is_measure": true,
+   "name": "Revenue YoY %",
+   "type": "double"
+  },
+  {
+   "comment": "Estimated full-year bankable wallet in USD - the revenue the group pays all banks for the family.",
+   "is_measure": true,
+   "name": "Estimated Wallet USD",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC revenue used by the wallet estimate, annualised in USD (FY2026 H1 x 2) - the share-of-wallet numerator.",
+   "is_measure": true,
+   "name": "SMBC Wallet Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC share of the group's bankable wallet (fraction); low values = wallet held by other banks.",
+   "is_measure": true,
+   "name": "Share of Wallet %",
+   "type": "double"
+  },
+  {
+   "comment": "Account-plan initiatives for the groups, years and families selected (detail in gold.dim_account_plan_initiative).",
+   "is_measure": true,
+   "name": "Initiatives Planned",
+   "type": "bigint"
+  },
+  {
+   "comment": "Initiatives with status Completed.",
+   "is_measure": true,
+   "name": "Initiatives Completed",
+   "type": "bigint"
+  },
+  {
+   "comment": "Initiatives still open at 30-Sep-2026 (Not Started, In Progress, At Risk, Delayed).",
+   "is_measure": true,
+   "name": "Initiatives Open",
+   "type": "bigint"
+  },
+  {
+   "comment": "Open initiatives past their due date at 30-Sep-2026.",
+   "is_measure": true,
+   "name": "Initiatives Overdue",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups in the selection.",
+   "is_measure": true,
+   "name": "Groups",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups that have an account plan for the fiscal year.",
+   "is_measure": true,
+   "name": "Groups With Plan",
+   "type": "bigint"
+  },
+  {
+   "comment": "Attainment below which a group is behind plan at H1 (dim_threshold PLAN_ATTAINMENT_LOW, 0.40 = 40%).",
+   "is_measure": true,
+   "name": "Low Attainment Threshold %",
+   "type": "double"
+  }
+ ],
+ "comment": "Account-plan progress of SMBC APAC client groups by fiscal year and product family, FY2023-FY2026 (USD): the plan's original revenue target and its mid-year revised target, actual revenue year to date (FY2026 = Apr-Sep 2026, H1; past years = full year), the full-year run-rate, the same period one year earlier (Revenue YoY), the bankable wallet and SMBC share of wallet, the top competitor bank and the plan's initiatives. Every group with revenue or a wallet estimate appears, with or without a plan (Has Account Plan). Amounts add up across groups and families within one fiscal year - filter one Fiscal Year; attainment and share of wallet are ratios of sums. Grain: one row per client group x fiscal year x product family (gold.fact_account_plan_annual).",
+ "identifier": "smbc_genie.metrics.mv_account_plan_progress",
+ "type": "METRIC_VIEW"
+}

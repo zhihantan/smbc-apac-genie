@@ -1,0 +1,205 @@
+{
+ "columns": [
+  {
+   "comment": "activity (one CRM activity) or coverage (one client x month-end coverage snapshot).",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "activity_id for activity rows; golden_client_id|month for coverage rows.",
+   "is_measure": false,
+   "name": "record_id",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the month of the activity / coverage snapshot (window order field for the views).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Date of the activity (activity rows; null on coverage rows).",
+   "is_measure": false,
+   "name": "activity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Last calendar day of the month.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "True for rows of Sep-2026, the month of the as-of date.",
+   "is_measure": false,
+   "name": "is_latest_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "RM: the RM who logged the activity (activity rows) or the client's primary RM at the month-end (coverage rows); join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "rm_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location) of that RM, e.g. SG.",
+   "is_measure": false,
+   "name": "rm_office",
+   "type": "string"
+  },
+  {
+   "comment": "Client relationship tier at the time (Strategic, Core, Transactional).",
+   "is_measure": false,
+   "name": "relationship_tier",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client is Strategic tier at the time.",
+   "is_measure": false,
+   "name": "is_strategic",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has a CRM account (covered in the CRM platform); always true on activity rows. Strategic-tier entities without one are never contacted in CRM - filter it for 'no RM contact' questions.",
+   "is_measure": false,
+   "name": "has_crm_account",
+   "type": "boolean"
+  },
+  {
+   "comment": "Call, Meeting, Email, Video Call or Site Visit (activity rows only).",
+   "is_measure": false,
+   "name": "activity_type",
+   "type": "string"
+  },
+  {
+   "comment": "Role of the contact met: CFO, Treasurer, CEO, Procurement Head, Other or Unknown (activity rows only).",
+   "is_measure": false,
+   "name": "contact_role",
+   "type": "string"
+  },
+  {
+   "comment": "Purpose of the activity (activity rows only).",
+   "is_measure": false,
+   "name": "purpose",
+   "type": "string"
+  },
+  {
+   "comment": "Product family discussed (activity rows only).",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "True for meetings and site visits (activity rows only).",
+   "is_measure": false,
+   "name": "is_in_person",
+   "type": "boolean"
+  },
+  {
+   "comment": "1 on activity rows, 0 on coverage rows - Activities = SUM(activity_count).",
+   "is_measure": false,
+   "name": "activity_count",
+   "type": "int"
+  },
+  {
+   "comment": "Note sentiment -1..1 (activity rows; null on coverage rows) - Average Sentiment = AVG.",
+   "is_measure": false,
+   "name": "sentiment_score",
+   "type": "double"
+  },
+  {
+   "comment": "Follow-up still open at the as-of date (activity rows) - Next Actions Open.",
+   "is_measure": false,
+   "name": "is_next_action_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "Follow-up overdue at the as-of date (activity rows).",
+   "is_measure": false,
+   "name": "is_next_action_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "1 on coverage rows, 0 on activity rows - clients covered at a month-end.",
+   "is_measure": false,
+   "name": "client_month_count",
+   "type": "int"
+  },
+  {
+   "comment": "Coverage rows: client had an RM activity in the 90 days to the month-end.",
+   "is_measure": false,
+   "name": "is_touched_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Coverage rows: no RM activity in the 90 days to the month-end (incl. never contacted).",
+   "is_measure": false,
+   "name": "is_not_touched_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Coverage rows: Strategic-tier client not touched in the 90 days to the month-end - Strategic Clients Not Touched 90D (point-in-time; latest month).",
+   "is_measure": false,
+   "name": "is_strategic_not_touched_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Coverage rows: days from the last RM activity to the month-end; null when never contacted.",
+   "is_measure": false,
+   "name": "days_since_last_activity",
+   "type": "int"
+  },
+  {
+   "comment": "Coverage rows: RM activities in the 90 days to the month-end (trailing window).",
+   "is_measure": false,
+   "name": "activities_90d",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Metric-view base of mv_rm_engagement (D13 record_type union): record_type = 'activity' rows (one per CRM activity: RM, activity type, contact role, sentiment, follow-up status) and record_type = 'coverage' rows (one per golden client x month-end: primary RM, tier, touched / not touched in the last 90 days). Activity measures read activity rows (activity_count = 1, sentiment_score, is_next_action_open); coverage measures read coverage rows (client_month_count = 1, is_strategic_not_touched_90d) and are point-in-time - take the latest month, never sum across months. Each row belongs to exactly one record type, so no measure double counts. Grain: one row per CRM activity (record_type activity) or per golden client x month-end (record_type coverage).",
+ "identifier": "smbc_genie.gold.mvb_rm_engagement",
+ "type": "MANAGED"
+}

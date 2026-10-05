@@ -1,0 +1,307 @@
+{
+ "columns": [
+  {
+   "comment": "CRM opportunity id.",
+   "is_measure": false,
+   "name": "opportunity_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the opportunity was created.",
+   "is_measure": false,
+   "name": "created_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of creation.",
+   "is_measure": false,
+   "name": "created_month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year of creation (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "created_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Fiscal year label of creation, e.g. FY2026.",
+   "is_measure": false,
+   "name": "created_fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label of creation, e.g. FY2026-Q2.",
+   "is_measure": false,
+   "name": "created_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "True for opportunities created this fiscal year (FY2026, from 1-Apr-2026).",
+   "is_measure": false,
+   "name": "is_created_current_fiscal_year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account id (source record of the CRM platform) the row was recorded against.",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the owning RM.",
+   "is_measure": false,
+   "name": "owner_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Employee id of the owning RM; join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "owner_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product pitched (CRM sales product), e.g. Supply Chain Finance, Term Loan, Green Loan, Trade Finance Line.",
+   "is_measure": false,
+   "name": "product",
+   "type": "string"
+  },
+  {
+   "comment": "Product key (PRD-<NAME>); join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Pipeline stage: Prospecting, Qualification, Proposal, Negotiation (open) or Won / Lost (closed).",
+   "is_measure": false,
+   "name": "stage",
+   "type": "string"
+  },
+  {
+   "comment": "Stage sort order 1 (Prospecting) .. 4 (Negotiation), 5 Won, 6 Lost.",
+   "is_measure": false,
+   "name": "stage_order",
+   "type": "int"
+  },
+  {
+   "comment": "Open, Won or Lost.",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "True while the opportunity is open (not won or lost).",
+   "is_measure": false,
+   "name": "is_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when won or lost.",
+   "is_measure": false,
+   "name": "is_closed",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when won - Win Rate % = won / closed.",
+   "is_measure": false,
+   "name": "is_won",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when lost.",
+   "is_measure": false,
+   "name": "is_lost",
+   "type": "boolean"
+  },
+  {
+   "comment": "Win probability of the stage (fraction: 0.10 Prospecting, 0.25 Qualification, 0.45 Proposal, 0.70 Negotiation, 1 Won, 0 Lost).",
+   "is_measure": false,
+   "name": "win_probability",
+   "type": "double"
+  },
+  {
+   "comment": "Deal amount in USD (limit / volume pitched). Pipeline Amount USD.",
+   "is_measure": false,
+   "name": "amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "amount_usd x win_probability in USD - Weighted Pipeline USD (sum over open opportunities).",
+   "is_measure": false,
+   "name": "weighted_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Expected annual revenue in USD if won.",
+   "is_measure": false,
+   "name": "expected_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "expected_revenue_usd x win_probability in USD.",
+   "is_measure": false,
+   "name": "weighted_expected_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Expected close date (may lie after Mar-2027).",
+   "is_measure": false,
+   "name": "expected_close_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year of the expected close.",
+   "is_measure": false,
+   "name": "expected_close_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Fiscal quarter of the expected close, e.g. FY2026-Q3 - Expected Close Quarter.",
+   "is_measure": false,
+   "name": "expected_close_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half of the expected close, e.g. FY2026-H2 (Oct-2026 - Mar-2027).",
+   "is_measure": false,
+   "name": "expected_close_fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Date the opportunity was won or lost; null while open.",
+   "is_measure": false,
+   "name": "actual_close_date",
+   "type": "date"
+  },
+  {
+   "comment": "Fiscal quarter of the actual close.",
+   "is_measure": false,
+   "name": "actual_close_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Days from creation to close (closed opportunities) - Average Cycle Days.",
+   "is_measure": false,
+   "name": "cycle_days",
+   "type": "int"
+  },
+  {
+   "comment": "Days open to the as-of date (open opportunities only).",
+   "is_measure": false,
+   "name": "open_age_days",
+   "type": "int"
+  },
+  {
+   "comment": "True for open opportunities whose expected close date has passed (slipped).",
+   "is_measure": false,
+   "name": "is_past_expected_close",
+   "type": "boolean"
+  },
+  {
+   "comment": "Reason recorded for a lost opportunity.",
+   "is_measure": false,
+   "name": "lost_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Origin of the opportunity: Signal, RM Originated, Client Request or Referral.",
+   "is_measure": false,
+   "name": "source_type",
+   "type": "string"
+  },
+  {
+   "comment": "True when the opportunity was created from an opportunity signal.",
+   "is_measure": false,
+   "name": "is_signal_sourced",
+   "type": "boolean"
+  },
+  {
+   "comment": "Source signal (fact_opportunity_signal.signal_id) for signal-sourced opportunities.",
+   "is_measure": false,
+   "name": "source_signal_id",
+   "type": "string"
+  },
+  {
+   "comment": "Signal type of the source signal, e.g. TRADE_CORRIDOR_GROWTH - Source Signal Type; null when not signal-sourced.",
+   "is_measure": false,
+   "name": "source_signal_code",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the source signal type.",
+   "is_measure": false,
+   "name": "source_signal_name",
+   "type": "string"
+  },
+  {
+   "comment": "Detection date of the source signal.",
+   "is_measure": false,
+   "name": "source_signal_detected_date",
+   "type": "date"
+  },
+  {
+   "comment": "Trade corridor origin (ISO-2) of a corridor-growth source signal.",
+   "is_measure": false,
+   "name": "source_corridor_origin",
+   "type": "string"
+  },
+  {
+   "comment": "Trade corridor destination (ISO-2) of a corridor-growth source signal, e.g. VN or IN.",
+   "is_measure": false,
+   "name": "source_corridor_destination",
+   "type": "string"
+  },
+  {
+   "comment": "Days from signal detection to opportunity creation.",
+   "is_measure": false,
+   "name": "signal_to_opportunity_days",
+   "type": "int"
+  },
+  {
+   "comment": "Segment recorded on the opportunity in CRM.",
+   "is_measure": false,
+   "name": "crm_segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier recorded on the opportunity in CRM.",
+   "is_measure": false,
+   "name": "crm_relationship_tier",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location of the deal (ISO-2); join to gold.dim_booking_entity.",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  }
+ ],
+ "comment": "CRM sales pipeline (Opportunity Identification, mv_pipeline): one row per opportunity created Apr-2024 to Sep-2026 with its stage (Prospecting, Qualification, Proposal, Negotiation, Won, Lost), product, amount, win probability and probability-weighted value, expected and actual close, cycle time, owner RM and - for opportunities created from a signal - the source signal type, detection date and trade corridor. Win Rate % = won / (won + lost) (D21); Weighted Pipeline USD = SUM(weighted_amount_usd) over open opportunities; amounts in USD, additive across opportunities. Grain: one row per pipeline opportunity.",
+ "identifier": "smbc_genie.gold.fact_pipeline_opportunity",
+ "type": "MANAGED"
+}

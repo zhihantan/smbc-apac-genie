@@ -1,0 +1,55 @@
+{
+ "columns": [
+  {
+   "comment": "ISO 4217 currency code.",
+   "is_measure": false,
+   "name": "currency_code",
+   "type": "string"
+  },
+  {
+   "comment": "Currency name (e.g. Singapore Dollar).",
+   "is_measure": false,
+   "name": "currency_name",
+   "type": "string"
+  },
+  {
+   "comment": "ISO-2 home country of the currency (null for EUR).",
+   "is_measure": false,
+   "name": "home_country_code",
+   "type": "string"
+  },
+  {
+   "comment": "True for USD - the reporting / base currency of all _usd columns.",
+   "is_measure": false,
+   "name": "is_base",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when it is the local currency of an APAC booking location.",
+   "is_measure": false,
+   "name": "is_apac_local_currency",
+   "type": "boolean"
+  },
+  {
+   "comment": "Reference (planning) rate in currency units per 1 USD from the currency master.",
+   "is_measure": false,
+   "name": "reference_rate_per_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Market rate on the as-of date 30-Sep-2026 in currency units per 1 USD.",
+   "is_measure": false,
+   "name": "rate_per_usd_as_of",
+   "type": "double"
+  },
+  {
+   "comment": "USD value of one currency unit on the as-of date (1 / rate_per_usd_as_of).",
+   "is_measure": false,
+   "name": "usd_per_unit_as_of",
+   "type": "double"
+  }
+ ],
+ "comment": "Currencies of the APAC book (USD base, the 13 APAC local currencies, JPY, EUR, GBP) with names, home country and the rate to USD at the as-of date. Every monetary column in gold has a USD version (<x>_usd); local-currency amounts (<x>_lcy) carry their ISO code here. Grain: one row per ISO 4217 currency.",
+ "identifier": "smbc_genie.gold.dim_currency",
+ "type": "MANAGED"
+}

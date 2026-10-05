@@ -1,0 +1,55 @@
+table: fact_delta_share_freshness_daily
+domain: foundation
+comment: >-
+  Delta Sharing freshness: one row per day (Apr-2024 .. Sep-2026) and shared table received from the JP
+  (Tokyo head office), EMEA and AMER lakehouses - provider region, share, refresh status, last refresh time,
+  provider version, lag in hours vs the 24-hour SLA, stale flag (lag > 24h), consecutive stale days, row
+  count and schema drift. Storyline 13: share_jp_parent_rating was not refreshed 11-15 Aug 2026 (5 stale
+  days, lag up to 125h). Lag and row counts are point-in-time per day: average / max them, never sum.
+grain: one row per day per shared table
+primary_key: [log_date, table_name]
+foreign_keys:
+  - {columns: [log_date], references: dim_date}
+  - {columns: [provider_region], references: dim_booking_entity}
+cluster_by: [log_date, table_name]
+min_rows: 9000
+columns:
+  log_date: {type: DATE, comment: Day of the freshness check (the grain date).}
+  table_name: {type: STRING, comment: "Shared table, e.g. share_jp_parent_rating, share_emea_exposure_monthly."}
+  month: {type: DATE, comment: First day of the month of the check.}
+  provider_region: {type: STRING, comment: "Data provider region: JP (Tokyo head office), EMEA or AMER; joins gold.dim_booking_entity."}
+  share_name: {type: STRING, comment: "Delta Share the table arrives in: jp_head_office_share, emea_regional_share or amer_regional_share."}
+  checked_at: {type: TIMESTAMP, comment: When the freshness check ran (UTC).}
+  scheduled_refresh_at: {type: TIMESTAMP, comment: When the provider's daily refresh was scheduled (UTC).}
+  refresh_status: {type: STRING, comment: "Outcome of the scheduled refresh: Success, Late or Failed."}
+  last_refreshed_at: {type: TIMESTAMP, comment: Time of the latest successful provider refresh visible at the check (UTC).}
+  provider_version: {type: INT, comment: Provider table version visible at the check (does not move while the share is stale).}
+  lag_hours: {type: DOUBLE, comment: Hours between the latest successful refresh and the check (freshness lag).}
+  sla_hours: {type: INT, comment: Freshness SLA in hours (24).}
+  is_stale: {type: BOOLEAN, comment: True when the lag exceeds the SLA (Tables Stale > 24h).}
+  is_over_24h: {type: BOOLEAN, comment: True when lag_hours > 24 (gold.dim_threshold SHARE_STALE_HOURS).}
+  hours_over_sla: {type: DOUBLE, comment: Hours beyond the SLA (0 when fresh).}
+  consecutive_stale_days: {type: INT, comment: Consecutive stale days up to and including this day (0 when fresh).}
+  row_count: {type: INT, comment: Rows in the shared table at the check.}
+  row_count_change: {type: INT, comment: Row-count change vs the previous day's check.}
+  schema_version: {type: INT, comment: Schema version of the shared table.}
+  schema_drift_flag: {type: BOOLEAN, comment: True when the provider changed the table schema since the previous check (Schema Drift Events).}
+  schema_change: {type: STRING, comment: Description of the schema change (null when none).}
+  error_message: {type: STRING, comment: Refresh error message (null when none).}
+  is_latest_day: {type: BOOLEAN, comment: True on the latest check day (30-Sep-2026).}
+  days_before_as_of: {type: INT, comment: "Days between the check day and the as-of date 30-Sep-2026; last N days = days_before_as_of < N."}
+  is_last_30d: {type: BOOLEAN, comment: True for checks in the 30 days to 30-Sep-2026 (1-Sep .. 30-Sep-2026).}
+checks:
+  - name: jp_rating_stale_days_in_outage      # storyline 13: exactly 5 stale days, all 11-15 Aug 2026
+    sql: >-
+      SELECT abs(count_if(is_stale AND log_date BETWEEN DATE'2026-08-11' AND DATE'2026-08-15') - 5)
+           + count_if(is_stale AND log_date NOT BETWEEN DATE'2026-08-11' AND DATE'2026-08-15')
+      FROM ${table} WHERE table_name = 'share_jp_parent_rating'
+  - name: stale_flag_matches_threshold
+    sql: SELECT count_if(is_stale <> is_over_24h) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.dq_share_refresh_log
+  - name: stale_days_vs_silver
+    gold: SELECT count_if(is_stale) FROM ${table}
+    silver: SELECT count_if(is_stale) FROM ${catalog}.silver.dq_share_refresh_log

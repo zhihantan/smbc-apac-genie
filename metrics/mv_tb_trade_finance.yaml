@@ -1,0 +1,225 @@
+# Space 8, Transactional Banking: Trade & Supply Chain Finance (WP9b / WP8e). Source: the record_type union
+# gold.mvb_trade_finance (D13) - 'Issuance' rows (each instrument on its issue date: amount, 1 transaction, fee, tenor)
+# and 'Outstanding' rows (each live instrument at each month-end from Apr-2024). Issuance / fee / tenor are flows
+# (0 on Outstanding rows); Outstanding USD is a point-in-time window measure (0 on Issuance rows). Fee yield and tenor
+# are SUM/SUM ratios. Must-answer queries: metrics/_answers/tb_trade_scf.sql.
+view: mv_tb_trade_finance
+space: tb_trade_scf
+comment: >-
+  Trade finance of SMBC's APAC clients (import / export LCs, guarantees and SBLCs, documentary collections, trade loans,
+  receivables purchase), Apr-2023 to Sep-2026 (USD): issuance, transactions, fee income and fee yield (bps), average
+  tenor, and outstanding at month-end with active trade clients, by product, goods corridor (from -> to country),
+  commodity, booking country, tenor bucket, counterparty-bank and beneficiary country and expiry quarter. Issuance and
+  fees are flows (add up over months; complete from FY2024 - FY2023 holds only the legacy book). Outstanding is
+  POINT-IN-TIME (from Apr-2024): filter one Month (Is Latest Month = Sep 2026) or a quarter (= its last month-end).
+grain: one row per instrument on its issue date, plus one row per live instrument per month-end (gold.mvb_trade_finance)
+source: ${catalog}.gold.mvb_trade_finance
+blocks:
+  calendar: {date: source.record_date, grain: month, what: the issue date (issuance) or month-end (outstanding)}
+  client: {key: source.golden_client_sk}
+overrides:
+  Coverage Office:
+    comment: >-
+      Coverage office of the client (ISO-2). Trade instruments can be booked elsewhere (e.g. the Singapore hub):
+      use Booking Country for where the instrument is booked.
+    synonyms: [coverage office, office, coverage country, client office, client country]
+  Segment:
+    comment: >-
+      Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured
+      Finance or Public Sector. Null for trade clients whose golden record carries no segment - keep them as their
+      own group (do not filter nulls out).
+  Is Japanese Corporate:
+    comment: >-
+      True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - "Japanese corporates", "JC" or
+      "Japanese clients" means true. Null for unclassified trade clients: for Japanese vs non-Japanese group by
+      this flag itself (true / false / null).
+dimensions:
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: >-
+      SMBC booking location of the instrument (ISO-2) - e.g. SG for instruments booked in the Singapore hub for VN /
+      IN importers. "Booked in Singapore" means this = SG.
+    synonyms: [booking country, booking location, booked in, booking entity, booking office, booking hub]
+  - name: Product
+    expr: source.product_type
+    display_name: Trade Product
+    comment: Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan or Receivables Purchase.
+    synonyms: [product, trade product, instrument, instrument type, LC, letter of credit, guarantee, SBLC, trade loan]
+  - name: Corridor From
+    expr: source.origin_country
+    display_name: Corridor From (goods origin)
+    comment: Country the goods are shipped from (ISO-2) - the counterparty for imports, the client's country for exports.
+    synonyms: [corridor from, origin, origin country, from country, exporter country, ship from, source country]
+  - name: Corridor To
+    expr: source.destination_country
+    display_name: Corridor To (goods destination)
+    comment: Country the goods are shipped to (ISO-2) - the client's country for imports; import LCs into Vietnam = Corridor To VN.
+    synonyms: [corridor to, destination, destination country, to country, importer country, ship to, import country]
+  - name: Corridor
+    expr: source.corridor
+    display_name: Trade Corridor
+    comment: Goods corridor origin->destination, e.g. CN->VN (goods from China into Vietnam).
+    synonyms: [corridor, trade corridor, trade lane, route, country pair, trade route]
+  - name: Commodity
+    expr: source.commodity
+    display_name: Commodity
+    comment: >-
+      Goods financed: Electronics (HS 85), Machinery (84), Auto Parts (87), Precision Instruments (90), Chemicals
+      (29), Plastics (39), Iron & Steel (72), Mineral Fuels (27), Ores & Metals (26), Palm Oil & Fats (15), Food &
+      Agri (10), Textiles & Apparel (62).
+    synonyms: [commodity, goods, product traded, HS chapter, cargo, merchandise, commodity type]
+  - name: Is Carbon-Intensive Commodity
+    expr: source.is_carbon_intensive_commodity
+    display_name: Is Carbon-Intensive Commodity
+    comment: True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels incl. coal, ores & metals, palm oil & fats).
+    synonyms: [carbon intensive, high carbon, brown commodity, fossil, transition risk, climate sensitive]
+  - name: Tenor Bucket
+    expr: source.tenor_bucket
+    display_name: Tenor Bucket
+    comment: Original tenor of the instrument - 0-30 days, 31-90 days, 91-180 days, 181-365 days, Over 365 days.
+    synonyms: [tenor bucket, tenor, maturity bucket, term, usance, tenor band]
+  - name: Counterparty Bank Country
+    expr: source.counterparty_bank_country
+    display_name: Counterparty Bank Country
+    comment: Country of the counterparty's bank (issuing / advising / confirming bank), ISO-2.
+    synonyms: [counterparty bank country, issuing bank country, advising bank country, confirming bank country, bank country]
+  - name: Beneficiary Country
+    expr: source.beneficiary_country
+    display_name: Beneficiary Country
+    comment: Country of the beneficiary of the instrument (e.g. of a guarantee / SBLC), ISO-2.
+    synonyms: [beneficiary country, beneficiary, guarantee beneficiary country, payee country]
+  - name: Expiry Quarter
+    expr: source.expiry_fiscal_quarter_label
+    display_name: Expiry Fiscal Quarter
+    comment: >-
+      Japanese fiscal quarter in which the instrument matures / expires, e.g. FY2026-Q3 (Oct-Dec 2026) - use with
+      Outstanding USD at the latest month for the expiry profile.
+    synonyms: [expiry quarter, maturity quarter, expiry, expiring, run-off quarter, maturity profile]
+measures:
+  - name: Issuance USD
+    expr: SUM(source.issuance_usd)
+    display_name: Issuance (USD)
+    comment: Amount of trade instruments issued / confirmed in the selected months, USD (a flow; Issuance rows).
+    synonyms: [issuance, issued, new business, volume, origination, trade volume, issued amount]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Transactions
+    expr: SUM(source.transactions)
+    display_name: Instruments Issued
+    comment: >-
+      Number of trade instruments issued in the selected months (a flow of NEW instruments). For how many are live /
+      outstanding at a date use Live Instruments.
+    synonyms: [transactions, number of instruments, deals, tickets, count, LCs issued, instruments]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Outstanding USD
+    expr: SUM(source.outstanding_usd)
+    display_name: Outstanding (month-end, USD)
+    comment: >-
+      Trade exposure outstanding at the month-end, USD (point-in-time from Apr-2024: a quarter or year returns its
+      last month-end, never a sum).
+    synonyms: [outstanding, exposure, trade exposure, outstanding balance, contingent exposure, book, live exposure]
+    format: *usd
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Live Instruments
+    expr: COUNT(1) FILTER (WHERE source.record_type = 'Outstanding')
+    display_name: Live Instruments (month-end)
+    comment: >-
+      Number of instruments with a balance outstanding at the month-end (point-in-time) - the count to use for "how
+      many are live / outstanding", e.g. the number of live guarantees and SBLCs.
+    synonyms: [live instruments, open instruments, live LCs, open guarantees, outstanding instruments, live guarantees,
+               number live, number of live instruments, live SBLCs, count outstanding]
+    format: *count
+    window: *eom
+  - name: Active Trade Clients
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Outstanding' THEN source.golden_client_id END)
+    display_name: Active Trade Clients (month-end)
+    comment: >-
+      Legal entities (clients, not instruments) with at least one live trade instrument at the month-end
+      (point-in-time).
+    synonyms: [active trade clients, trade clients, clients with trade, trade customers, active clients]
+    format: *count
+    window: *eom
+  - name: Issuing Clients
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Issuance' THEN source.golden_client_id END)
+    display_name: Clients Issuing
+    comment: Legal entities that had at least one instrument issued in the selected months.
+    synonyms: [issuing clients, new business clients, clients issuing, transacting clients]
+    format: *count
+  - name: Fee Income USD
+    expr: SUM(source.fee_usd)
+    display_name: Trade Fee Income (USD)
+    comment: Commission / fee income on the instruments issued in the selected months, USD (recognised at issue; a flow).
+    synonyms: [fees, fee income, commission, trade fees, trade revenue, LC commission]
+    format: *usd
+  - name: Fee Yield bps
+    expr: 10000 * SUM(source.fee_usd) / NULLIF(SUM(source.issuance_usd), 0)
+    display_name: Fee Yield (bps)
+    comment: Fee income / issuance x 10,000, in basis points - the pricing of trade products (Japanese corporates price tighter).
+    synonyms: [fee yield, yield, pricing, bps, commission rate, margin, fee margin, take rate]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Average Tenor Days
+    expr: SUM(source.tenor_days_issued) / NULLIF(SUM(source.transactions), 0)
+    display_name: Average Tenor (days)
+    comment: Average original tenor of the instruments issued in the selection, days.
+    synonyms: [average tenor, tenor, average maturity, days, usance days, average term]
+    format: {type: number, decimal_places: {type: max, places: 0}}
+  - name: Average Ticket USD
+    expr: SUM(source.issuance_usd) / NULLIF(SUM(source.transactions), 0)
+    display_name: Average Ticket (USD)
+    comment: Average instrument size at issue, USD.
+    synonyms: [average ticket, ticket size, average deal size, mean instrument size, average LC]
+    format: *usd
+validate:
+  dims: [Month, Product]
+reconcile:
+  - name: issuance_h1_fy2026_by_product
+    measure: Issuance USD
+    by: [Product]
+    where: "`Fiscal Half` = 'FY2026-H1'"
+    gold: >-
+      SELECT product_type, sum(amount_usd) FROM ${catalog}.gold.fact_trade_finance_transaction
+      WHERE txn_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' GROUP BY 1
+  - name: outstanding_sep26_by_product
+    measure: Outstanding USD
+    by: [Product]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT product_type, sum(outstanding_usd) FROM ${catalog}.gold.fact_trade_outstanding_monthly
+      WHERE is_latest_month_end GROUP BY 1
+  - name: outstanding_fy2025_is_march_month_end
+    measure: Outstanding USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT sum(outstanding_usd) FROM ${catalog}.gold.fact_trade_outstanding_monthly WHERE month_end_date = DATE'2026-03-31'
+  - name: fee_yield_fy2025_japanese_vs_not
+    measure: Fee Yield bps
+    by: [Is Japanese Corporate]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT c.is_japanese_corporate, 10000 * sum(t.fee_usd) / sum(t.amount_usd) FROM ${catalog}.gold.fact_trade_finance_transaction t
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = t.golden_client_sk
+      WHERE t.txn_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31' GROUP BY 1
+  - name: vn_in_surge_import_lcs_h1_fy2026
+    measure: Transactions
+    where: >-
+      `Fiscal Half` = 'FY2026-H1' AND `Product` = 'Import LC' AND `Corridor To` IN ('VN', 'IN')
+      AND `Corridor From` IN ('CN', 'KR', 'JP') AND `Commodity` IN ('Electronics', 'Auto Parts')
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_trade_finance_transaction WHERE product_type = 'Import LC'
+      AND destination_country IN ('VN', 'IN') AND origin_country IN ('CN', 'KR', 'JP')
+      AND commodity IN ('Electronics', 'Auto Parts') AND txn_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30'
+  - name: active_trade_clients_sep26
+    measure: Active Trade Clients
+    where: "`Is Latest Month`"
+    gold: SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_trade_outstanding_monthly WHERE is_latest_month_end
+  - name: average_tenor_fy2025
+    measure: Average Tenor Days
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT avg(tenor_days) FROM ${catalog}.gold.fact_trade_finance_transaction
+      WHERE txn_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31'
+glossary:
+  caveats:
+    - >-
+      Issuance, fees and tenor are flows on Issuance rows; Outstanding, Live Instruments and Active Trade Clients are
+      point-in-time on Outstanding rows (month-ends from Apr-2024). FY2023 issuance is the legacy book only.

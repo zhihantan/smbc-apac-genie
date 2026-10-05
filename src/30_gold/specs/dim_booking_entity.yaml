@@ -1,0 +1,30 @@
+table: dim_booking_entity
+domain: hub
+comment: >-
+  SMBC booking entities: the 13 APAC booking locations (Singapore hub plus HK, CN, TH, ID, IN, AU, VN, MY,
+  TW, KR, PH, NZ) and the three data-provider regions JP (Tokyo head office), EMEA and AMER that publish
+  via Delta Sharing. A client's coverage office and the booking country of facts reference this table.
+grain: one row per booking entity
+primary_key: [booking_entity_id]
+foreign_keys:
+  - {columns: [country_code], references: dim_country}
+cluster_by: [booking_entity_id]
+min_rows: 16
+columns:
+  booking_entity_id: {type: STRING, comment: "Booking entity code: ISO-2 country code for the APAC locations and JP, or EMEA / AMER for the provider regions."}
+  booking_entity_name: {type: STRING, comment: "Display name, e.g. Singapore (SG hub) or EMEA provider region."}
+  country_code: {type: STRING, comment: ISO-2 country of the booking entity (null for the EMEA / AMER provider regions).}
+  country_name: {type: STRING, comment: Country name of the booking entity (e.g. Vietnam).}
+  city: {type: STRING, comment: City of the booking entity (e.g. Ho Chi Minh City).}
+  region_cluster: {type: STRING, comment: "Region: APAC, JP, EMEA or AMER."}
+  regulator: {type: STRING, comment: "Local banking regulator (illustrative only: MAS, HKMA, ...)."}
+  local_currency: {type: STRING, comment: ISO 4217 local currency of the booking entity.}
+  is_hub: {type: BOOLEAN, comment: "True for Singapore, the APAC hub."}
+  is_apac: {type: BOOLEAN, comment: True for the 13 APAC booking locations.}
+  is_provider_region: {type: BOOLEAN, comment: True for JP / EMEA / AMER - regions that only provide data via Delta Sharing (not APAC booking locations).}
+checks:
+  - name: thirteen_apac_locations
+    sql: SELECT abs(count_if(is_apac) - 13) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ref_booking_entity

@@ -1,0 +1,2140 @@
+{
+  "title": "APAC Genie - Transactional Banking: Trade & Supply Chain Finance",
+  "description": "Ask about trade finance issuance and outstanding by product and corridor, supply chain finance programme health, trade operations turnaround and document discrepancies, and trade-flow opportunities for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000000",
+          "question": [
+            "Which trade corridors grew trade finance issuance fastest in H1 FY2026 vs H1 FY2025?"
+          ]
+        },
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000001",
+          "question": [
+            "What is our import LC volume into Vietnam and India by commodity and client segment this fiscal year?"
+          ]
+        },
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000002",
+          "question": [
+            "How are our SCF programmes utilised by anchor, and which are above 85% or below 40%?"
+          ]
+        },
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000003",
+          "question": [
+            "What is the LC document discrepancy rate by booking country this fiscal year, and which clients have a rising discrepancy rate from H2 FY2025 to H1 FY2026?"
+          ]
+        },
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000004",
+          "question": [
+            "What is the median trade-operations turnaround by product and country versus the 24-hour SLA?"
+          ]
+        },
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000005",
+          "question": [
+            "Which clients trade in the CN->VN electronics corridor (visible from payments) but have no trade product with us?"
+          ]
+        },
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000006",
+          "question": [
+            "Which buyers paying 50 or more distinct suppliers through us could anchor a new SCF programme?"
+          ]
+        },
+        {
+          "id": "8ee83d1aeb36a988c0bb60ff00000007",
+          "question": [
+            "How has our trade exposure to carbon-intensive commodities trended by quarter?"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_amer",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_emea",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_global",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.dim_scf_programme",
+          "column_configs": [
+            {
+              "column_name": "anchor_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "anchor_country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "anchor_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "anchor_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "anchor_party_id",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "currency",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "n_suppliers_financing",
+              "exclude": true
+            },
+            {
+              "column_name": "n_suppliers_onboarded",
+              "exclude": true
+            },
+            {
+              "column_name": "n_suppliers_total",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_corridor",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "programme_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "programme_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "programme_type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "utilisation",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_band",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_deposit_only",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_single_product_lending",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product_propensity",
+              "exclude": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "open_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "product_families_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "products_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "revenue_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_prior_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_yoy_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "exclude": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "time_deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_tb_payments",
+          "column_configs": [
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Channel",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Counterparty Bank",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Counterparty Bank Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Counterparty Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Currency",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Direction",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Payment Purpose",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Repair Reason",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_tb_scf",
+          "column_configs": [
+            {
+              "column_name": "Anchor Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Programme",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Programme Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Supplier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Supplier Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Supplier Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Utilisation Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_tb_trade_finance",
+          "column_configs": [
+            {
+              "column_name": "Beneficiary Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Commodity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor From",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor To",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Counterparty Bank Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Expiry Quarter",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Live Instruments",
+              "synonyms": [
+                "how many are live",
+                "how many guarantees are live",
+                "guarantees live",
+                "number of guarantees outstanding",
+                "live count"
+              ]
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Tenor Bucket",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Transactions",
+              "description": [
+                "Instruments ISSUED in the selected months (a flow of new business) - never the number live or outstanding at a date; for that use Live Instruments."
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_trade_corridors",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Commodity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor From",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor To",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Record Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_trade_operations",
+          "column_configs": [
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Decision",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Discrepancy Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Operations Team",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "3cbffb354fe87bd6887d01d400000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Views: mv_tb_trade_finance = trade-finance issuance, fees / fee yield, tenor and outstanding by product, goods corridor, commodity and expiry quarter; mv_trade_operations = LC document checks, discrepancies, turnaround vs the 24-hour SLA; mv_tb_scf = SCF programmes and suppliers; mv_trade_corridors = external corridor statistics, SMBC share, clients without a trade product; mv_tb_payments = payments (suppliers paid).\n",
+            "- Fiscal periods: filter or group the `Fiscal Year` / `Fiscal Half` / `Fiscal Quarter` dimensions by their labels ('FY2025' = Apr 2025-Mar 2026, 'FY2026' = Apr-Sep 2026 to date, 'FY2026-H1', 'FY2026-Q2'); never rebuild fiscal years from `Month` ranges. Point-in-time measures (Outstanding USD, Live Instruments, Active Trade Clients, SCF limit / outstanding / utilisation / supplier counts) need ONE `Month` or `Is Latest Month` (today = Sep 2026).\n",
+            "- Trade `Corridor` / `Corridor From` / `Corridor To` = goods origin -> destination (CN->VN = goods from China into Vietnam; import LCs into Vietnam = `Corridor To` = 'VN'); `Booking Country` = where SMBC books it ('SG' = the Singapore hub). `Product`: 'Import LC', 'Export LC', 'Guarantee / SBLC', 'Documentary Collection', 'Trade Loan', 'Receivables Purchase'.\n",
+            "- Counts: `Transactions` = instruments ISSUED in the period (a flow); `Live Instruments` = instruments outstanding at the month-end (e.g. the number of live guarantees); `Active Trade Clients` counts clients. Pricing = `Fee Yield bps`; carbon exposure = `Is Carbon-Intensive Commodity`.\n",
+            "- Return ratios, shares and growth exactly as the measures give them - fractions (0.37 = 37%), never multiplied by 100. Corridor market growth = `Corridor Growth YoY %` with `Corridor Volume USD` and `Corridor Volume Prior Year USD` on the later period (it compares the same months a year earlier).\n",
+            "- Keep NULL groups: never add `IS NOT NULL` filters on grouping columns unless asked (a NULL `Segment` / `Is Japanese Corporate` is an unclassified trade client). Japanese vs non-Japanese = GROUP BY `Is Japanese Corporate` itself (true / false / null), not a CASE label. Only add LIMIT for a top N.\n",
+            "- SCF limit / utilisation are programme-level (never split by supplier fields); `Utilisation Band` = 'Above 85%', '40-85%', 'Below 40%'; the anchor buyer is `Client`. Discrepancy counts by `Discrepancy Type` need `Is Discrepant`; rising-discrepancy clients = `Is Client Discrepancy Rising`; payment-visible clients with no trade product = `Is Payment Visible` AND NOT `Has Trade Product Today`.\n",
+            "- `Client Group` has a value dictionary: filter it with = on the exact name; entity questions list `Client`. Functions (STRING arguments): SCF anchor candidates = smbc_genie.gold.fn_scf_anchor_candidates('50'); the N fastest-growing corridors = fn_trade_corridor_growth('FY2026-H1', '20000000', '10'); one group's trade profile by entity = fn_trade_group_profile('<exact group name>').\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. In the SQL keep every value unscaled and unrounded - ratios, shares and growth stay fractions (never * 100); name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "70b3358b2f58990c18eb667500000000",
+          "question": [
+            "SCF programme utilisation and supplier activation by anchor at the end of :month"
+          ],
+          "sql": [
+            "SELECT `Programme`, `Client` AS anchor, `Anchor Country`, `Utilisation Band`,\n",
+            "       MEASURE(`Programme Limit USD`)      AS programme_limit_usd,\n",
+            "       MEASURE(`Financed Outstanding USD`) AS financed_outstanding_usd,\n",
+            "       MEASURE(`Utilisation %`)            AS utilisation,\n",
+            "       MEASURE(`Suppliers in Register`)    AS suppliers_in_register,\n",
+            "       MEASURE(`Suppliers Onboarded`)      AS suppliers_onboarded,\n",
+            "       MEASURE(`Suppliers Active`)         AS suppliers_active,\n",
+            "       MEASURE(`Supplier Activation %`)    AS supplier_activation_rate\n",
+            "FROM smbc_genie.metrics.mv_tb_scf\n",
+            "WHERE `Month` = :month\n",
+            "GROUP BY ALL\n",
+            "ORDER BY utilisation DESC"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Month as its first day; 2026-09-01 = today (Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"SCF programme health\", \"utilisation by anchor\", \"programmes above 85% or below 40%\", \"supplier onboarding / activation by programme\"."
+          ]
+        },
+        {
+          "id": "70b3358b2f58990c18eb667500000001",
+          "question": [
+            "Trade finance issuance by product in :fiscal_half vs :prior_fiscal_half and the growth"
+          ],
+          "sql": [
+            "WITH h AS (\n",
+            "  SELECT `Product`, `Fiscal Half`, MEASURE(`Issuance USD`) AS issuance_usd\n",
+            "  FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+            "  WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Product`,\n",
+            "       sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN issuance_usd END) AS issuance_prior_half_usd,\n",
+            "       sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN issuance_usd END) AS issuance_half_usd,\n",
+            "       sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN issuance_usd END)\n",
+            "         / sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN issuance_usd END) - 1 AS issuance_growth_yoy\n",
+            "FROM h GROUP BY `Product`\n",
+            "ORDER BY issuance_growth_yoy DESC"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-H1"
+                ]
+              }
+            },
+            {
+              "name": "prior_fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Same half one year earlier, e.g. FY2025-H1"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025-H1"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"issuance by product half on half / year on year\", \"H1 FY2026 vs H1 FY2025 by product\", \"which trade products are growing\"; for corridors use fn_trade_corridor_growth."
+          ]
+        },
+        {
+          "id": "70b3358b2f58990c18eb667500000002",
+          "question": [
+            "Clients flagged with a rising LC discrepancy rate and their discrepancy rate in :prior_fiscal_half and :fiscal_half"
+          ],
+          "sql": [
+            "WITH r AS (\n",
+            "  SELECT `Client`, `Fiscal Half`, MEASURE(`Discrepancy Rate %`) AS discrepancy_rate\n",
+            "  FROM smbc_genie.metrics.mv_trade_operations\n",
+            "  WHERE `Is Client Discrepancy Rising` AND `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Client`,\n",
+            "       max(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN discrepancy_rate END) AS discrepancy_rate_prior_half,\n",
+            "       max(CASE WHEN `Fiscal Half` = :fiscal_half THEN discrepancy_rate END) AS discrepancy_rate_half\n",
+            "FROM r GROUP BY `Client`\n",
+            "ORDER BY discrepancy_rate_half - discrepancy_rate_prior_half DESC"
+          ],
+          "parameters": [
+            {
+              "name": "prior_fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Earlier fiscal half, e.g. FY2025-H2 (Oct-2025 to Mar-2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025-H2"
+                ]
+              }
+            },
+            {
+              "name": "fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Later fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-H1"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"clients with a rising / deteriorating discrepancy rate\", \"discrepancy trend by client\", \"early-warning input from trade documents\"."
+          ]
+        },
+        {
+          "id": "70b3358b2f58990c18eb667500000003",
+          "question": [
+            "Anchor-buyer candidates for new SCF programmes - buyers paying at least 50 distinct suppliers through us since :from_month that are not already an SCF anchor"
+          ],
+          "sql": [
+            "WITH sup AS (\n",
+            "  SELECT `Client`, `Segment`, `Coverage Office`,\n",
+            "         MEASURE(`Distinct Suppliers Paid`) AS distinct_suppliers_paid,\n",
+            "         MEASURE(`Payment Volume USD`)      AS supplier_payments_usd\n",
+            "  FROM smbc_genie.metrics.mv_tb_payments\n",
+            "  WHERE `Month` >= :from_month AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'\n",
+            "  GROUP BY ALL\n",
+            "), anchors AS (\n",
+            "  SELECT `Client`, MEASURE(`Programmes`) AS programmes\n",
+            "  FROM smbc_genie.metrics.mv_tb_scf\n",
+            "  WHERE `Is Latest Month`\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT s.`Client`, s.`Segment`, s.`Coverage Office`, s.distinct_suppliers_paid, s.supplier_payments_usd\n",
+            "FROM sup s LEFT ANTI JOIN anchors a ON a.`Client` = s.`Client`\n",
+            "WHERE s.distinct_suppliers_paid >= 50\n",
+            "ORDER BY s.supplier_payments_usd DESC"
+          ],
+          "parameters": [
+            {
+              "name": "from_month",
+              "type_hint": "DATE",
+              "description": [
+                "First month of the look-back as its first day; 2025-10-01 = the last 12 months"
+              ],
+              "default_value": {
+                "values": [
+                  "2025-10-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"SCF anchor candidates / prospects\", \"buyers with 50+ suppliers\", \"who could anchor a supplier finance programme\"; a payments CTE anti-joined to the SCF anchors (metric views cannot be joined directly)."
+          ]
+        },
+        {
+          "id": "70b3358b2f58990c18eb667500000004",
+          "question": [
+            "Trade outstanding in carbon-intensive commodities at each fiscal quarter-end since :from_quarter, and its share of total outstanding"
+          ],
+          "sql": [
+            "WITH q AS (\n",
+            "  SELECT `Fiscal Quarter`, `Is Carbon-Intensive Commodity`, MEASURE(`Outstanding USD`) AS outstanding_usd\n",
+            "  FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+            "  WHERE `Fiscal Quarter` >= :from_quarter\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Fiscal Quarter`,\n",
+            "       sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END) AS carbon_intensive_outstanding_usd,\n",
+            "       sum(outstanding_usd) AS total_outstanding_usd,\n",
+            "       sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END) / sum(outstanding_usd) AS carbon_intensive_share\n",
+            "FROM q GROUP BY `Fiscal Quarter`\n",
+            "ORDER BY `Fiscal Quarter`"
+          ],
+          "parameters": [
+            {
+              "name": "from_quarter",
+              "type_hint": "STRING",
+              "description": [
+                "First fiscal quarter label, e.g. FY2024-Q1 (outstanding history starts Apr-2024)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2024-Q1"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"carbon-intensive / high-carbon trade exposure trend\", \"transition-risk commodities by quarter\", \"brown commodity share of the trade book\"."
+          ]
+        },
+        {
+          "id": "70b3358b2f58990c18eb667500000005",
+          "question": [
+            "Import LCs into Vietnam and India of electronics and auto parts from China, Korea and Japan - :fiscal_half vs :prior_fiscal_half, growth and the share booked in Singapore"
+          ],
+          "sql": [
+            "WITH h AS (\n",
+            "  SELECT `Fiscal Half`, `Booking Country`, MEASURE(`Transactions`) AS import_lcs\n",
+            "  FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+            "  WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half) AND `Product` = 'Import LC'\n",
+            "    AND `Corridor To` IN ('VN', 'IN') AND `Corridor From` IN ('CN', 'KR', 'JP')\n",
+            "    AND `Commodity` IN ('Electronics', 'Auto Parts')\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN import_lcs END) AS import_lcs_half,\n",
+            "       sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN import_lcs END) AS import_lcs_prior_half,\n",
+            "       sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN import_lcs END)\n",
+            "         / sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN import_lcs END) - 1 AS import_lc_growth_yoy,\n",
+            "       sum(CASE WHEN `Fiscal Half` = :fiscal_half AND `Booking Country` = 'SG' THEN import_lcs END)\n",
+            "         / sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN import_lcs END) AS share_booked_in_singapore\n",
+            "FROM h"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-H1"
+                ]
+              }
+            },
+            {
+              "name": "prior_fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Same half one year earlier, e.g. FY2025-H1"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025-H1"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"VN / IN import surge\", \"electronics and auto-parts import LCs into Vietnam and India\", \"how much of the surge is booked in the Singapore hub\"."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "0408d62130b3ecb7a7f6427f00000000",
+          "identifier": "smbc_genie.gold.fn_scf_anchor_candidates"
+        },
+        {
+          "id": "0408d62130b3ecb7a7f6427f00000001",
+          "identifier": "smbc_genie.gold.fn_trade_corridor_growth"
+        },
+        {
+          "id": "0408d62130b3ecb7a7f6427f00000002",
+          "identifier": "smbc_genie.gold.fn_trade_group_profile"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "154c148fbb2704dc730fa27a00000000",
+          "question": [
+            "Which 10 trade corridors grew trade-finance issuance fastest in H1 FY2026 versus H1 FY2025, among corridors with at least USD 20m of issuance in H1 FY2025? Show both halves' issuance and the growth."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH h AS (\n",
+                "  SELECT `Corridor`, `Fiscal Half`, MEASURE(`Issuance USD`) AS issuance_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "  WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\n",
+                "  GROUP BY ALL\n",
+                "), c AS (\n",
+                "  SELECT `Corridor`,\n",
+                "         sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN issuance_usd END) AS issuance_h1_fy2025_usd,\n",
+                "         sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN issuance_usd END) AS issuance_h1_fy2026_usd\n",
+                "  FROM h GROUP BY `Corridor`\n",
+                ")\n",
+                "SELECT `Corridor`, issuance_h1_fy2025_usd, issuance_h1_fy2026_usd,\n",
+                "       issuance_h1_fy2026_usd / issuance_h1_fy2025_usd - 1 AS issuance_growth_yoy\n",
+                "FROM c\n",
+                "WHERE issuance_h1_fy2025_usd >= 20000000\n",
+                "ORDER BY issuance_growth_yoy DESC\n",
+                "LIMIT 10"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000001",
+          "question": [
+            "Show trade-finance issuance by product for H1 FY2025 and H1 FY2026, with the growth."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH h AS (\n",
+                "  SELECT `Product`, `Fiscal Half`, MEASURE(`Issuance USD`) AS issuance_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "  WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Product`,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN issuance_usd END) AS issuance_h1_fy2025_usd,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN issuance_usd END) AS issuance_h1_fy2026_usd,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN issuance_usd END)\n",
+                "         / sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN issuance_usd END) - 1 AS issuance_growth_yoy\n",
+                "FROM h GROUP BY `Product`\n",
+                "ORDER BY issuance_growth_yoy DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000002",
+          "question": [
+            "What were the number and value of import LCs into Vietnam and India this fiscal year, by destination country, commodity and client segment?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Corridor To`, `Commodity`, `Segment`,\n",
+                "       MEASURE(`Transactions`) AS import_lcs,\n",
+                "       MEASURE(`Issuance USD`) AS import_lc_volume_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Product` = 'Import LC' AND `Corridor To` IN ('VN', 'IN')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY import_lc_volume_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000003",
+          "question": [
+            "For import LCs into Vietnam and India of electronics and auto parts shipped from China, Korea or Japan, how many were issued in H1 FY2026 and in H1 FY2025, what was the growth, and what share of the H1 FY2026 ones was booked in Singapore?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH h AS (\n",
+                "  SELECT `Fiscal Half`, `Booking Country`, MEASURE(`Transactions`) AS import_lcs\n",
+                "  FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "  WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1') AND `Product` = 'Import LC' AND `Corridor To` IN ('VN', 'IN')\n",
+                "    AND `Corridor From` IN ('CN', 'KR', 'JP') AND `Commodity` IN ('Electronics', 'Auto Parts')\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN import_lcs END) AS import_lcs_h1_fy2026,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN import_lcs END) AS import_lcs_h1_fy2025,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN import_lcs END)\n",
+                "         / sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN import_lcs END) - 1 AS import_lc_growth_yoy,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' AND `Booking Country` = 'SG' THEN import_lcs END)\n",
+                "         / sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN import_lcs END) AS share_booked_in_singapore\n",
+                "FROM h"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000004",
+          "question": [
+            "Show every SCF programme today with its anchor, anchor country and utilisation band, plus the programme limit, financed outstanding, utilisation, suppliers in the register, suppliers onboarded, suppliers active and the supplier activation rate."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Programme`, `Client` AS anchor, `Anchor Country`, `Utilisation Band`,\n",
+                "       MEASURE(`Programme Limit USD`)       AS programme_limit_usd,\n",
+                "       MEASURE(`Financed Outstanding USD`)  AS financed_outstanding_usd,\n",
+                "       MEASURE(`Utilisation %`)             AS utilisation,\n",
+                "       MEASURE(`Suppliers in Register`)     AS suppliers_in_register,\n",
+                "       MEASURE(`Suppliers Onboarded`)       AS suppliers_onboarded,\n",
+                "       MEASURE(`Suppliers Active`)          AS suppliers_active,\n",
+                "       MEASURE(`Supplier Activation %`)     AS supplier_activation_rate\n",
+                "FROM smbc_genie.metrics.mv_tb_scf\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY utilisation DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000005",
+          "question": [
+            "What is the LC document discrepancy rate by booking country this fiscal year, with the number of examined presentations?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Booking Country`,\n",
+                "       MEASURE(`Examined Presentations`) AS examined_presentations,\n",
+                "       MEASURE(`Discrepancy Rate %`)     AS discrepancy_rate\n",
+                "FROM smbc_genie.metrics.mv_trade_operations\n",
+                "WHERE `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY discrepancy_rate DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000006",
+          "question": [
+            "discrepancy rate by booking country this year, and how many presentations were examined?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Booking Country`,\n",
+                "       MEASURE(`Examined Presentations`) AS examined_presentations,\n",
+                "       MEASURE(`Discrepancy Rate %`)     AS discrepancy_rate\n",
+                "FROM smbc_genie.metrics.mv_trade_operations\n",
+                "WHERE `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY discrepancy_rate DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000007",
+          "question": [
+            "How many discrepant presentations were there by discrepancy type this fiscal year? Count discrepant presentations only."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Discrepancy Type`,\n",
+                "       MEASURE(`Discrepant Presentations`) AS discrepant_presentations\n",
+                "FROM smbc_genie.metrics.mv_trade_operations\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Is Discrepant`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY discrepant_presentations DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000008",
+          "question": [
+            "List all clients flagged with a rising LC discrepancy rate, with each client's discrepancy rate in H2 FY2025 and in H1 FY2026."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH r AS (\n",
+                "  SELECT `Client`, `Fiscal Half`, MEASURE(`Discrepancy Rate %`) AS discrepancy_rate\n",
+                "  FROM smbc_genie.metrics.mv_trade_operations\n",
+                "  WHERE `Is Client Discrepancy Rising` AND `Fiscal Half` IN ('FY2025-H2', 'FY2026-H1')\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Client`,\n",
+                "       max(CASE WHEN `Fiscal Half` = 'FY2025-H2' THEN discrepancy_rate END) AS discrepancy_rate_h2_fy2025,\n",
+                "       max(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN discrepancy_rate END) AS discrepancy_rate_h1_fy2026\n",
+                "FROM r GROUP BY `Client`\n",
+                "ORDER BY discrepancy_rate_h1_fy2026 - discrepancy_rate_h2_fy2025 DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000009",
+          "question": [
+            "What was the median LC examination turnaround in hours by product and booking country this fiscal year versus the 24-hour SLA? Show examined presentations, the median hours, the SLA hours and the share over SLA."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Product`, `Booking Country`,\n",
+                "       MEASURE(`Examined Presentations`)  AS examined_presentations,\n",
+                "       MEASURE(`Median Turnaround Hours`) AS median_turnaround_hours,\n",
+                "       MEASURE(`SLA Hours`)               AS sla_hours,\n",
+                "       MEASURE(`Over SLA %`)              AS share_over_sla\n",
+                "FROM smbc_genie.metrics.mv_trade_operations\n",
+                "WHERE `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY median_turnaround_hours DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a0000000a",
+          "question": [
+            "Which entities are active in the CN->VN electronics corridor (visible from their trade-settlement payments) but have no trade product with us? Show their segment, coverage office and trade-settlement payments."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Segment`, `Coverage Office`,\n",
+                "       MEASURE(`Trade Settlement Payments USD`) AS trade_settlement_payments_usd\n",
+                "FROM smbc_genie.metrics.mv_trade_corridors\n",
+                "WHERE `Corridor` = 'CN->VN' AND `Commodity` = 'Electronics' AND `Is Payment Visible` AND NOT `Has Trade Product Today`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY trade_settlement_payments_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a0000000b",
+          "question": [
+            "For the CN->VN electronics corridor in FY2025 and FY2026 to date, show the corridor market volume, SMBC trade-finance volume, SMBC share estimate, clients active in the corridor and clients without a trade product."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Fiscal Year`,\n",
+                "       MEASURE(`Corridor Volume USD`)                       AS corridor_market_volume_usd,\n",
+                "       MEASURE(`SMBC Trade Finance USD`)                    AS smbc_trade_finance_usd,\n",
+                "       MEASURE(`SMBC Share Estimate %`)                     AS smbc_share_estimate,\n",
+                "       MEASURE(`Clients Active in Corridor`)                AS clients_active,\n",
+                "       MEASURE(`Clients in Corridor Without Trade Product`) AS clients_without_trade_product\n",
+                "FROM smbc_genie.metrics.mv_trade_corridors\n",
+                "WHERE `Corridor` = 'CN->VN' AND `Commodity` = 'Electronics' AND `Fiscal Year` IN ('FY2025', 'FY2026')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Fiscal Year`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a0000000c",
+          "question": [
+            "How much did the external market volume of the electronics and auto-parts import corridors into Vietnam and India from China, Korea and Japan grow in H1 FY2026 versus H1 FY2025? Show both halves' volume and the growth."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Corridor Volume USD`)            AS corridor_market_volume_h1_fy2026_usd,\n",
+                "       MEASURE(`Corridor Volume Prior Year USD`) AS corridor_market_volume_h1_fy2025_usd,\n",
+                "       MEASURE(`Corridor Growth YoY %`)          AS corridor_growth_yoy\n",
+                "FROM smbc_genie.metrics.mv_trade_corridors\n",
+                "WHERE `Fiscal Half` = 'FY2026-H1' AND `Corridor To` IN ('VN', 'IN') AND `Corridor From` IN ('CN', 'KR', 'JP')\n",
+                "  AND `Commodity` IN ('Electronics', 'Auto Parts')"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a0000000d",
+          "question": [
+            "Show guarantees and SBLCs outstanding today by beneficiary country and expiry quarter, with the number of live guarantees and the outstanding amount."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Beneficiary Country`, `Expiry Quarter`,\n",
+                "       MEASURE(`Live Instruments`) AS live_guarantees,\n",
+                "       MEASURE(`Outstanding USD`)  AS outstanding_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "WHERE `Is Latest Month` AND `Product` = 'Guarantee / SBLC'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Outstanding USD`) > 0\n",
+                "ORDER BY outstanding_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a0000000e",
+          "question": [
+            "guarantees and SBLCs outstandng today by beneficiary country and expiry quarter - how many guarantees are live and the amount outstanding"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Beneficiary Country`, `Expiry Quarter`,\n",
+                "       MEASURE(`Live Instruments`) AS live_guarantees,\n",
+                "       MEASURE(`Outstanding USD`)  AS outstanding_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "WHERE `Is Latest Month` AND `Product` = 'Guarantee / SBLC'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Outstanding USD`) > 0\n",
+                "ORDER BY outstanding_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a0000000f",
+          "question": [
+            "What was the trade fee yield in FY2025 and FY2026 to date for Japanese corporates versus non-Japanese clients, keeping unclassified clients (no Japanese-corporate flag) as their own group? Show fee yield in bps, fee income and the number of instruments."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Fiscal Year`, `Is Japanese Corporate`,\n",
+                "       MEASURE(`Fee Yield bps`)  AS fee_yield_bps,\n",
+                "       MEASURE(`Fee Income USD`) AS fee_income_usd,\n",
+                "       MEASURE(`Transactions`)   AS instruments\n",
+                "FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "WHERE `Fiscal Year` IN ('FY2025', 'FY2026')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Fiscal Year`, `Is Japanese Corporate`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000010",
+          "question": [
+            "What was the fee yield in bps by segment and product in FY2025, for Japanese Corporate versus Non-Japanese Large Corporate clients?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Segment`, `Product`, MEASURE(`Fee Yield bps`) AS fee_yield_bps\n",
+                "FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "WHERE `Fiscal Year` = 'FY2025' AND `Segment` IN ('Japanese Corporate', 'Non-Japanese Large Corporate')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Product`, `Segment`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000011",
+          "question": [
+            "Which buyers paid 50 or more distinct suppliers through us in the last 12 months and are not already an SCF anchor? Show their segment, coverage office, distinct suppliers paid and supplier payment value."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH sup AS (\n",
+                "  SELECT `Client`, `Segment`, `Coverage Office`,\n",
+                "         MEASURE(`Distinct Suppliers Paid`) AS distinct_suppliers_paid,\n",
+                "         MEASURE(`Payment Volume USD`)      AS supplier_payments_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_payments\n",
+                "  WHERE `Month` >= DATE'2025-10-01' AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'\n",
+                "  GROUP BY ALL\n",
+                "), anchors AS (\n",
+                "  SELECT `Client`, MEASURE(`Programmes`) AS programmes\n",
+                "  FROM smbc_genie.metrics.mv_tb_scf\n",
+                "  WHERE `Is Latest Month`\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT s.`Client`, s.`Segment`, s.`Coverage Office`, s.distinct_suppliers_paid, s.supplier_payments_usd\n",
+                "FROM sup s LEFT ANTI JOIN anchors a ON a.`Client` = s.`Client`\n",
+                "WHERE s.distinct_suppliers_paid >= 50\n",
+                "ORDER BY s.supplier_payments_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000012",
+          "question": [
+            "SCF anchor prospects - names with 50+ suppliers paid through us over the last 12m that don't anchor a programme yet, with segment, coverage office, supplier count and supplier spend"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH sup AS (\n",
+                "  SELECT `Client`, `Segment`, `Coverage Office`,\n",
+                "         MEASURE(`Distinct Suppliers Paid`) AS distinct_suppliers_paid,\n",
+                "         MEASURE(`Payment Volume USD`)      AS supplier_payments_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_payments\n",
+                "  WHERE `Month` >= DATE'2025-10-01' AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'\n",
+                "  GROUP BY ALL\n",
+                "), anchors AS (\n",
+                "  SELECT `Client`, MEASURE(`Programmes`) AS programmes\n",
+                "  FROM smbc_genie.metrics.mv_tb_scf\n",
+                "  WHERE `Is Latest Month`\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT s.`Client`, s.`Segment`, s.`Coverage Office`, s.distinct_suppliers_paid, s.supplier_payments_usd\n",
+                "FROM sup s LEFT ANTI JOIN anchors a ON a.`Client` = s.`Client`\n",
+                "WHERE s.distinct_suppliers_paid >= 50\n",
+                "ORDER BY s.supplier_payments_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "154c148fbb2704dc730fa27a00000013",
+          "question": [
+            "Show trade finance outstanding in carbon-intensive commodities at each fiscal quarter-end since FY2024-Q1, with total outstanding and the carbon-intensive share."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH q AS (\n",
+                "  SELECT `Fiscal Quarter`, `Is Carbon-Intensive Commodity`, MEASURE(`Outstanding USD`) AS outstanding_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_trade_finance\n",
+                "  WHERE `Fiscal Quarter` >= 'FY2024-Q1'\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Fiscal Quarter`,\n",
+                "       sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END) AS carbon_intensive_outstanding_usd,\n",
+                "       sum(outstanding_usd) AS total_outstanding_usd,\n",
+                "       sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END) / sum(outstanding_usd) AS carbon_intensive_share\n",
+                "FROM q GROUP BY `Fiscal Quarter`\n",
+                "ORDER BY `Fiscal Quarter`"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

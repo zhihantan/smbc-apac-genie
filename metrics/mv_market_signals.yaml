@@ -1,0 +1,187 @@
+# Space 10, Signals & Sentiment (WP8f). Listed parents' market data: prices, spreads, ratings in force and APAC
+# exposure are POINT-IN-TIME (window last over Date: a month / quarter returns its last trading day); rating
+# actions and 52-week-low events are flows. Answers: metrics/_answers/signals_sentiment.sql.
+view: mv_market_signals
+space: signals_sentiment
+comment: >-
+  Market signals on the listed parents of APAC client groups (220 listed parents, trading days Apr-2025 to
+  Sep-2026, fictional market-data vendor): share-price change 1D / 30D, CDS-like spread and its 30-day change,
+  parents at their 52-week low, the agency rating and outlook in force, agency downgrades / upgrades /
+  negative outlook changes, and the group's APAC credit exposure (drawn lending + trade finance outstanding,
+  USD). Prices, spreads, counts of parents and exposure are POINT-IN-TIME: they return the last trading day of
+  the selection (filter Date = DATE'2026-09-30' for today); rating actions and 52-week-low events add up.
+grain: one row per listed parent per trading day (gold.fact_market_signal_daily)
+source: ${catalog}.gold.fact_market_signal_daily
+blocks:
+  calendar: {date: source.trade_date, grain: day, what: the trading day}
+  client_group: {key: source.client_group_id}
+dimensions:
+  - name: Listed Parent
+    expr: source.issuer_name
+    display_name: Listed Parent
+    comment: Listed parent company of the client group (fictional, e.g. Hagiwara Steel KK) - one per group.
+    synonyms: [listed parent, parent company, issuer, listed company, holding company, quoted parent, ticker name]
+  - name: External Rating
+    expr: source.external_rating
+    display_name: External Rating (in force)
+    comment: >-
+      Agency rating of the listed parent in force on the trading day (primary agency first; fictional agencies;
+      AAA ... D scale).
+    synonyms: [external rating, agency rating, credit rating, public rating, issuer rating, rating]
+  - name: Outlook
+    expr: source.external_outlook
+    display_name: Rating Outlook (in force)
+    comment: "Outlook attached to the rating in force: Stable, Positive or Negative."
+    synonyms: [outlook, rating outlook, credit outlook, negative outlook, positive outlook]
+  - name: At 52-Week Low
+    expr: source.is_52w_low
+    display_name: At 52-Week Low
+    comment: True when the parent closed at (or below) its 52-week low that trading day.
+    synonyms: [52 week low, at 52-week low, new low, year low, share price low, trading at lows]
+  - name: APAC Exposure Above 100m
+    expr: source.is_apac_exposure_above_100m
+    display_name: Group APAC Exposure Above USD 100m
+    comment: True when the group's APAC credit exposure is above USD 100m (gold.dim_threshold MARKET_APAC_EXPOSURE_USD).
+    synonyms: [exposure above 100m, large exposure, material exposure, exposure over 100 million, big exposure]
+measures:
+  - name: Listed Parents
+    expr: COUNT(DISTINCT source.issuer_id)
+    display_name: Listed Parents (latest trading day)
+    comment: Listed parents with a close on the last trading day of the selection (point-in-time).
+    synonyms: [listed parents, issuers, listed groups, quoted parents, number of listed parents]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &eod
+      - {order: Date, range: current, semiadditive: last}
+  - name: Average Share Price Change 1D %
+    expr: AVG(source.price_change_1d_pct)
+    display_name: Average Share Price Change 1D
+    comment: Average 1-day share-price return of the parents on the last trading day of the selection (fraction).
+    synonyms: [daily return, 1 day price change, share price change today, daily move, 1D return]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+    window: *eod
+  - name: Average Share Price Change 30D %
+    expr: AVG(source.price_change_30d_pct)
+    display_name: Average Share Price Change 30D
+    comment: >-
+      Average share-price change vs 30 calendar days earlier of the parents on the last trading day of the
+      selection (fraction; -0.20 = -20%).
+    synonyms: [30 day price change, share price change 30D, monthly return, price performance, stock move 30 days, drawdown]
+    format: *pct
+    window: *eod
+  - name: Average CDS Spread bps
+    expr: AVG(source.cds_spread_bps)
+    display_name: Average CDS Spread (bps)
+    comment: Average CDS-like credit spread of the parents on the last trading day of the selection, in basis points.
+    synonyms: [CDS spread, credit spread, CDS, spread level, default swap spread]
+    format: &bps {type: number, decimal_places: {type: max, places: 1}}
+    window: *eod
+  - name: Average CDS Change 30D bps
+    expr: AVG(source.cds_change_30d_bps)
+    display_name: Average CDS Change 30D (bps)
+    comment: >-
+      Average change of the CDS spread over the last 30 days, bps, on the last trading day of the selection
+      (positive = widening = worse).
+    synonyms: [CDS change, spread widening, CDS widening, 30 day spread change, credit spread move]
+    format: *bps
+    window: *eod
+  - name: Groups at 52-Week Low
+    expr: COUNT(DISTINCT CASE WHEN source.is_52w_low THEN source.client_group_id END)
+    display_name: Groups at a 52-Week Low
+    comment: Client groups whose listed parent closed at its 52-week low on the last trading day of the selection.
+    synonyms: [groups at 52 week low, parents at lows, 52-week lows, groups at year lows, stressed listed parents]
+    format: *count
+    window: *eod
+  - name: APAC Exposure USD
+    expr: SUM(source.apac_exposure_usd)
+    display_name: Group APAC Exposure (USD)
+    comment: >-
+      APAC credit exposure of the groups (drawn lending + trade finance outstanding at the latest month-end) on
+      the last trading day of the selection, USD - point-in-time.
+    synonyms: [APAC exposure, exposure, credit exposure, group exposure, lending exposure, total exposure, risk exposure]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: *eod
+  - name: APAC Exposure at 52-Week Low USD
+    expr: SUM(CASE WHEN source.is_52w_low THEN source.apac_exposure_usd ELSE 0 END)
+    display_name: APAC Exposure of Groups at a 52-Week Low (USD)
+    comment: APAC exposure of the groups whose parent is at its 52-week low, on the last trading day of the selection (USD).
+    synonyms: [exposure at 52 week low, exposure to stressed parents, exposure at lows, at-risk exposure]
+    format: *usd
+    window: *eod
+  - name: Market Cap USD
+    expr: SUM(source.market_cap_usd)
+    display_name: Market Capitalisation (USD)
+    comment: Market capitalisation of the listed parents on the last trading day of the selection, USD.
+    synonyms: [market cap, market capitalisation, market value, equity value, capitalisation]
+    format: *usd
+    window: *eod
+  - name: Rating Downgrades
+    expr: SUM(source.rating_downgrades)
+    display_name: Agency Rating Downgrades
+    comment: Agency downgrades of the listed parents (any agency) over the selected days - a flow.
+    synonyms: [downgrades, rating downgrades, agency downgrades, cuts, rating actions down, notch downgrades]
+    format: *count
+  - name: Rating Upgrades
+    expr: SUM(source.rating_upgrades)
+    display_name: Agency Rating Upgrades
+    comment: Agency upgrades of the listed parents over the selected days - a flow.
+    synonyms: [upgrades, rating upgrades, agency upgrades, rating actions up]
+    format: *count
+  - name: Outlook Changes to Negative
+    expr: SUM(source.outlook_negative_changes)
+    display_name: Outlook Changes to Negative
+    comment: Agency outlook revisions to Negative over the selected days - a flow.
+    synonyms: [negative outlook changes, outlook to negative, outlook revisions, negative watch, outlook cuts]
+    format: *count
+  - name: 52-Week Low Events
+    expr: COUNT(1) FILTER (WHERE source.is_52w_low_event)
+    display_name: 52-Week Low Events
+    comment: First days at a 52-week low after 30 days without one (the MARKET_52W_LOW signals) over the selected days.
+    synonyms: [52 week low events, new lows, 52-week low signals, low alerts, MARKET_52W_LOW]
+    format: *count
+validate:
+  dims: [Month, Industry]
+reconcile:
+  - name: groups_at_52w_low_sep30
+    measure: Groups at 52-Week Low
+    where: "`Date` = DATE'2026-09-30'"
+    gold: SELECT count(DISTINCT client_group_id) FROM ${catalog}.gold.fact_market_signal_daily WHERE trade_date = DATE'2026-09-30' AND is_52w_low
+  - name: exposure_at_52w_low_above_100m_by_group_sep30
+    measure: APAC Exposure USD
+    by: [Client Group]
+    where: "`Date` = DATE'2026-09-30' AND `At 52-Week Low` AND `APAC Exposure Above 100m`"
+    gold: >-
+      SELECT g.group_name, sum(m.apac_exposure_usd) FROM ${catalog}.gold.fact_market_signal_daily m
+      JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = m.client_group_id
+      WHERE m.trade_date = DATE'2026-09-30' AND m.is_52w_low AND m.is_apac_exposure_above_100m GROUP BY 1
+  - name: apac_exposure_by_month_fy2026
+    measure: APAC Exposure USD
+    by: [Month]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      WITH last_day AS (SELECT trunc(trade_date, 'MM') AS m, max(trade_date) AS d FROM ${catalog}.gold.fact_market_signal_daily
+                        WHERE trade_date >= DATE'2026-04-01' GROUP BY 1)
+      SELECT l.m, sum(f.apac_exposure_usd) FROM ${catalog}.gold.fact_market_signal_daily f JOIN last_day l ON l.d = f.trade_date GROUP BY 1
+  - name: avg_price_change_30d_by_industry_sep30
+    measure: Average Share Price Change 30D %
+    by: [Industry]
+    where: "`Date` = DATE'2026-09-30'"
+    gold: >-
+      SELECT g.group_industry_sector, avg(m.price_change_30d_pct) FROM ${catalog}.gold.fact_market_signal_daily m
+      JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = m.client_group_id
+      WHERE m.trade_date = DATE'2026-09-30' GROUP BY 1
+  - name: downgrades_fy2026
+    measure: Rating Downgrades
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: SELECT sum(rating_downgrades) FROM ${catalog}.gold.fact_market_signal_daily WHERE trade_date >= DATE'2026-04-01'
+  - name: negative_outlook_changes_by_quarter
+    measure: Outlook Changes to Negative
+    by: [Fiscal Quarter]
+    gold: >-
+      SELECT d.fiscal_quarter_label, sum(m.outlook_negative_changes) FROM ${catalog}.gold.fact_market_signal_daily m
+      JOIN ${catalog}.gold.dim_date d ON d.date = m.trade_date GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Point-in-time measures take the last trading day per group of the result (a parent that stopped trading
+      shows its last day): filter Date = DATE'2026-09-30' (or a Month) for "today". APAC exposure is the same
+      drawn-lending + trade definition as mv_er_exposure_impact; the EAD view is in the Early Warning space.

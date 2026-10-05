@@ -1,0 +1,36 @@
+table: dim_product
+domain: hub
+comment: >-
+  SMBC APAC product hierarchy: business line > product family > product (Lending: Corporate / Structured
+  Lending; Transaction Banking: Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance; Markets:
+  FX, Rates; Sustainable Finance), plus the CRM sales products used in opportunities, next-best-product
+  scores and signals (e.g. Cash Management Mandate, Trade Finance Line). Facts carrying a product name
+  join on product_name to get product_id.
+grain: one row per product
+primary_key: [product_id]
+cluster_by: [product_family]
+min_rows: 40
+columns:
+  product_id: {type: STRING, comment: "Product key PRD-<NAME> (upper-case name, non-alphanumerics as '-'), e.g. PRD-IMPORT-LC."}
+  product_name: {type: STRING, comment: "Product name as used by the source systems (unique), e.g. Import LC, Revolving Credit Facility."}
+  product_family: {type: STRING}
+  business_line: {type: STRING}
+  product_type: {type: STRING, comment: "Core product (booked in a product system) or CRM sales product (a coverage / sales bundle used in opportunities, NBP and signals)."}
+  is_credit_product: {type: BOOLEAN, comment: "True for exposure-bearing products (loans, trade finance instruments, SCF financing, sustainable loans)."}
+  is_deposit_product: {type: BOOLEAN, comment: "True for deposit / account products (current, savings, time deposit, money market, investment, correspondent accounts)."}
+  is_tb_product: {type: BOOLEAN, comment: "True for Transaction Banking products (cash, liquidity, payments, trade finance, SCF)."}
+  is_sustainable: {type: BOOLEAN, comment: True for sustainable-finance products (green and sustainability-linked loans).}
+  product_description: {type: STRING, comment: Short product description.}
+checks:
+  - name: unique_product_names
+    sql: SELECT count(*) - count(DISTINCT product_name) FROM ${table}
+  - name: covers_silver_product_names     # every product name used by a silver feed resolves
+    sql: >-
+      SELECT count(*) FROM (
+        SELECT product AS p FROM ${catalog}.silver.crm_opportunity UNION SELECT product FROM ${catalog}.silver.crm_nbp_score
+        UNION SELECT recommended_product FROM ${catalog}.silver.crm_next_best_product UNION SELECT recommended_product FROM ${catalog}.silver.crm_signal
+        UNION SELECT facility_type FROM ${catalog}.silver.credit_facility_terms UNION SELECT product FROM ${catalog}.silver.fin_deal_pricing
+        UNION SELECT product_type FROM ${catalog}.silver.trade_finance_txn UNION SELECT product_type FROM ${catalog}.silver.tsy_fx_deal
+        UNION SELECT account_type FROM ${catalog}.silver.core_account UNION SELECT structure_type FROM ${catalog}.silver.core_liquidity_structure
+        UNION SELECT programme_type FROM ${catalog}.silver.scf_programme UNION SELECT primary_product FROM ${catalog}.silver.kyc_case
+      ) s LEFT ANTI JOIN ${table} d ON d.product_name = s.p WHERE s.p IS NOT NULL

@@ -1,0 +1,70 @@
+table: fact_financial_statement_annual
+domain: credit
+comment: >-
+  Spread financial statements of credit clients in long format (credit memo pack, brief 5.3): one row per
+  credit obligor record x fiscal year x statement line (P&L, Balance Sheet, Cash Flow) for FY2023-FY2025,
+  in USD and local currency, with the prior-year amount, YoY growth, audit basis and the spreading task
+  (analyst, checker, status). Each client keeps its own fiscal year-end (December or March, D17). A derived
+  Net Debt line (Total Debt - Cash) is included (is_derived_line). Costs and outflows (COGS, operating
+  expenses, D&A, interest expense, tax, capex, dividends paid) are stored as positive amounts. Amounts are
+  annual flows (P&L, cash flow) or year-end balances (balance sheet): never add different line items or
+  balance-sheet years together. FY2025 statements still being spread have is_spread = false.
+grain: one row per credit obligor x fiscal year x statement line item
+primary_key: [obligor_id, fiscal_year, line_item]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [spreading_analyst_id], references: dim_employee}
+  - {columns: [spreading_checker_id], references: dim_employee}
+cluster_by: [fiscal_year_end_date, golden_client_sk]
+min_rows: 60000
+columns:
+  obligor_id: {type: STRING, comment: "Credit-system obligor id (CRD-nnnnnn) the statements were spread under; a golden client can have two obligor records (duplicate credit files), each with its own statements."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  fiscal_year: {type: INT, comment: "Client's own fiscal year of the statement (2023-2025); FY2025 = the year ending Dec-2025 or Mar-2026 depending on the client's year-end."}
+  fiscal_year_label: {type: STRING, comment: "Statement fiscal year label, e.g. FY2025."}
+  fiscal_year_end_date: {type: DATE, comment: "Balance-sheet date / end of the client's fiscal year (31 Dec or 31 Mar); join to gold.dim_date."}
+  fye_month: {type: INT, comment: "Month of the client's fiscal year-end: 12 (December) or 3 (March)."}
+  statement_type: {type: STRING, comment: "Statement: P&L, Balance Sheet or Cash Flow."}
+  line_item: {type: STRING, comment: "Standard spread line, e.g. Revenue, COGS, EBITDA, EBIT, Interest Expense, Net Income, Cash, Receivables, Inventory, Payables, Total Assets, Short-Term Debt, Long-Term Debt, Total Debt, Net Debt (derived), Equity, Cash Flow from Operations, Capex, Free Cash Flow, Dividends Paid."}
+  line_order: {type: INT, comment: "Display order of the line within the spread (P&L 10-110, Balance Sheet 210-310, Cash Flow 410-440)."}
+  is_cost_or_outflow: {type: BOOLEAN, comment: "True for cost / outflow lines stored as positive amounts (COGS, Operating Expenses, D&A, Interest Expense, Tax, Capex, Dividends Paid)."}
+  is_subtotal: {type: BOOLEAN, comment: "True for subtotal lines (Gross Profit, EBITDA, EBIT, Pre-Tax Profit, Net Income, Total Current Assets, Total Assets, Total Debt, Net Debt, Free Cash Flow)."}
+  is_derived_line: {type: BOOLEAN, comment: "True for lines derived in gold (Net Debt = Total Debt - Cash), false for spread source lines."}
+  amount_usd: {type: DOUBLE, comment: "Line amount in USD (statement-year flow or year-end balance); costs positive; Free Cash Flow and Net Debt can be negative."}
+  amount_lcy: {type: DOUBLE, comment: "Line amount in the statement's local currency (see currency)."}
+  currency: {type: STRING, comment: "ISO currency of the statements (local reporting currency)."}
+  prior_year_amount_usd: {type: DOUBLE, comment: "Same line in the previous fiscal year, USD (null for FY2023, the first spread year)."}
+  prior_year_amount_lcy: {type: DOUBLE, comment: "Same line in the previous fiscal year, local currency (null for FY2023)."}
+  yoy_growth_pct: {type: DOUBLE, comment: "Year-on-year change of the line in local currency as a fraction (0.05 = +5%); null when the prior year is missing or not positive. Aggregate growth across clients as SUM(amount_usd) / SUM(prior_year_amount_usd) - 1."}
+  is_audited: {type: BOOLEAN, comment: "True when the statement year is audited (false = management / unaudited accounts)."}
+  statement_basis: {type: STRING, comment: "Basis recorded on the spreading task: Audited or Unaudited / Management."}
+  is_spread: {type: BOOLEAN, comment: "True when the statement year has been spread into the credit system; false = received but not yet spread (FY2025 backlog)."}
+  spread_date: {type: DATE, comment: "Date the statement year was spread (null when not yet spread)."}
+  spreading_task_id: {type: STRING, comment: "Spreading task id (SPR-...) of the obligor and fiscal year; see fact_credit_review_workflow."}
+  spreading_status: {type: STRING, comment: "Spreading task status: Checked, In Progress or Received - Not Started."}
+  statement_received_date: {type: DATE, comment: "Date the bank received the statements for spreading."}
+  spreading_analyst_id: {type: STRING, comment: "Credit analyst (employee_id) who spreads the statements; join to gold.dim_employee."}
+  spreading_checker_id: {type: STRING, comment: "Second-line checker (employee_id) who checked the spread; null until checked."}
+checks:
+  - name: one_spread_task_per_statement_year
+    sql: SELECT count_if(spreading_task_id IS NULL) FROM ${table}
+  - name: net_debt_matches_components
+    sql: >-
+      SELECT count(*) FROM (SELECT obligor_id, fiscal_year,
+        sum(CASE WHEN line_item = 'Net Debt' THEN amount_usd END) AS nd,
+        sum(CASE WHEN line_item = 'Total Debt' THEN amount_usd END) - sum(CASE WHEN line_item = 'Cash' THEN amount_usd END) AS calc
+        FROM ${table} GROUP BY obligor_id, fiscal_year) WHERE abs(nd - calc) > 1
+  - name: every_line_has_order
+    sql: SELECT count_if(line_order IS NULL) FROM ${table}
+reconcile:
+  - name: source_lines_vs_silver
+    gold: SELECT count(*) FROM ${table} WHERE NOT is_derived_line
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_financial_statement
+  - name: usd_total_vs_silver
+    gold: SELECT round(sum(amount_usd) / 1e6) FROM ${table} WHERE NOT is_derived_line
+    silver: SELECT round(sum(amount_usd) / 1e6) FROM ${catalog}.silver.credit_financial_statement

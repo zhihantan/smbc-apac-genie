@@ -1,0 +1,86 @@
+table: fact_account_plan_annual
+domain: rm
+comment: >-
+  Account plan progress per client group, fiscal year and product family (Account Planning, mv_account_plan_progress;
+  FY2023-FY2026): the CRM plan's original revenue target and mid-year revised target, plan status and owner RM,
+  actual revenue year to date (FY2026 = Apr-Sep 2026; past years = full year) from the gold revenue fact (summed
+  over the group's APAC clients), the same period one year earlier, the full-year run-rate, the bankable wallet
+  estimate with SMBC share of wallet and the top competitor, and the plan's initiative counts. Every group with
+  revenue or a wallet estimate has rows, with or without a plan (group_has_plan). Attainment % = SUM(revenue_actual_ytd_usd)
+  / SUM(effective_target_usd); Revenue YoY % = SUM(revenue_actual_ytd_usd) / SUM(revenue_prior_ytd_usd) - 1;
+  Share of Wallet % = SUM(wallet_smbc_revenue_annualised_usd) / SUM(estimated_wallet_usd). Amounts add across
+  families and groups within one fiscal year.
+grain: one row per client group x fiscal year x product family
+primary_key: [client_group_id, fiscal_year, product_family]
+foreign_keys:
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [lead_golden_client_sk], references: dim_client}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+  - {columns: [owner_rm_id], references: dim_employee}
+  - {columns: [top_competitor_bank_id], references: dim_competitor_bank}
+cluster_by: [fiscal_year_end_date, client_group_id]
+min_rows: 5000
+columns:
+  client_group_id: {type: STRING}
+  lead_golden_client_sk: {type: BIGINT, comment: "dim_client version of the group's lead entity valid at the fiscal year end (or the as-of date for FY2026) - client attributes for group-grain rows (D12)."}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_year_end_date: {type: DATE, comment: "Last day of the fiscal year (31-Mar), e.g. 2027-03-31 for FY2026."}
+  product_family: {type: STRING, comment: "Plan product family: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX or Sustainable Finance."}
+  is_current_fiscal_year: {type: BOOLEAN, comment: "True for FY2026, the fiscal year of the as-of date."}
+  months_elapsed: {type: BIGINT, comment: "Months of the fiscal year elapsed at the as-of date (12 for past years, 6 for FY2026) - run-rate factor 12 / months."}
+  group_has_plan: {type: BOOLEAN, comment: "True when the group has an account plan for the fiscal year (any family)."}
+  has_plan_line: {type: BOOLEAN, comment: "True when the plan has a target line for this product family."}
+  plan_id: {type: STRING, comment: "CRM account plan id of the group for the fiscal year (AP-<FY>-CRM-nnnnnn); null without a plan."}
+  plan_line_id: {type: STRING, comment: "CRM plan line id (plan x product family); null without a line."}
+  plan_crm_account_id: {type: STRING, comment: "CRM account the group plan is held on (normally the lead entity)."}
+  plan_status: {type: STRING, comment: "Plan status: Active (current year), Revised (reset mid-year) or Closed (past years)."}
+  plan_approved_date: {type: DATE, comment: "Date the plan was approved."}
+  strategic_priority: {type: STRING, comment: "Plan priority of the group: High, Medium or Low."}
+  plan_objective: {type: STRING, comment: "Plan narrative / objectives (short text), e.g. deepen cash-management coverage."}
+  owner_rm_code: {type: STRING, comment: "CRM code of the RM owning the plan (RM001-RM120)."}
+  owner_rm_id: {type: STRING, comment: "Employee id of the plan owner RM; join to gold.dim_employee (name, coverage office) for RM book questions."}
+  plan_revised_mid_year: {type: BOOLEAN, comment: "True when the group's plan for the year was revised mid-year (any line), e.g. Kinokawa FY2026."}
+  revenue_target_usd: {type: DOUBLE, comment: "Original full-year revenue target of the plan line in USD (null without a plan line)."}
+  revised_target_usd: {type: DOUBLE, comment: "Mid-year revised full-year target in USD; null when the line was not revised."}
+  effective_target_usd: {type: DOUBLE, comment: "Target in force = revised target when revised, else the original target, in USD - the attainment denominator."}
+  mid_year_revision: {type: BOOLEAN, comment: "True when this plan line was revised mid-year."}
+  revision_date: {type: DATE, comment: "Date of the mid-year revision."}
+  revision_reason: {type: STRING, comment: "Reason recorded for the mid-year revision (short text)."}
+  plan_optimism: {type: DOUBLE, comment: "Uplift of the original target over the prior-year actual (fraction, e.g. 0.10 = +10%)."}
+  wallet_share_target: {type: DOUBLE, comment: "Share-of-wallet target set in the plan (fraction)."}
+  revenue_actual_ytd_usd: {type: DOUBLE, comment: "Actual revenue in USD for the fiscal year to the as-of date (FY2026 = Apr-Sep 2026; past years = full year); Finance revenue from the product feeds, or the CRM-recorded actual for Supply Chain Finance and FY2023 (see actual_basis)."}
+  actual_basis: {type: STRING, comment: "Source of revenue_actual_ytd_usd: Finance revenue (gold revenue fact) or CRM recorded actual."}
+  crm_actual_revenue_usd: {type: DOUBLE, comment: "Actual revenue recorded on the CRM plan line in USD (for comparison)."}
+  revenue_prior_ytd_usd: {type: DOUBLE, comment: "Revenue for the same months one year earlier in USD (FY2026: Apr-Sep 2025; past years: the prior full year) - Revenue YoY % denominator."}
+  prior_year_actual_usd: {type: DOUBLE, comment: "Prior full-year actual revenue recorded in the CRM plan in USD."}
+  estimated_wallet_usd: {type: DOUBLE, comment: "Estimated bankable full-year wallet of the group for the family in USD (all banks)."}
+  wallet_smbc_revenue_usd: {type: DOUBLE, comment: "SMBC revenue used by the wallet estimate in USD (full year, or H1 YTD for FY2026 - see smbc_revenue_basis)."}
+  smbc_revenue_basis: {type: STRING, comment: "Period of wallet_smbc_revenue_usd: Full Year or H1 YTD."}
+  wallet_smbc_revenue_annualised_usd: {type: DOUBLE, comment: "wallet_smbc_revenue_usd annualised (x 12 / months_elapsed) - Share of Wallet numerator."}
+  share_of_wallet: {type: DOUBLE, comment: "SMBC share of the group's wallet for the family (fraction) as estimated; aggregate with SUM(wallet_smbc_revenue_annualised_usd) / SUM(estimated_wallet_usd)."}
+  top_competitor_bank_id: {type: STRING, comment: "Bank id of the competitor with the largest share of the wallet; join to gold.dim_competitor_bank."}
+  top_competitor_bank: {type: STRING, comment: "Name of the top competitor bank (fictional)."}
+  top_competitor_share: {type: DOUBLE, comment: "Share of the wallet held by the top competitor (fraction)."}
+  estimation_method: {type: STRING, comment: "Wallet estimation method: Bottom-up from client flows, Treasury FX wallet estimate or Peer benchmark."}
+  initiatives_planned: {type: BIGINT, comment: "Account-plan initiatives for the group, year and family (detail in gold.dim_account_plan_initiative)."}
+  initiatives_completed: {type: BIGINT, comment: "Initiatives with status Completed."}
+  initiatives_open: {type: BIGINT, comment: "Initiatives still open at the as-of date (Not Started, In Progress, At Risk, Delayed)."}
+  initiatives_overdue: {type: BIGINT, comment: "Open initiatives past their due date at the as-of date."}
+  initiatives_target_revenue_usd: {type: DOUBLE, comment: "Target revenue of the initiatives in USD."}
+checks:
+  - name: effective_target_rule
+    sql: SELECT count_if(effective_target_usd <> coalesce(revised_target_usd, revenue_target_usd)) FROM ${table}
+  - name: kinokawa_fy2026_revised
+    sql: SELECT 1 - count_if(plan_revised_mid_year) FROM (SELECT DISTINCT plan_revised_mid_year FROM ${table} WHERE client_group_id = 'SYN-G-0001' AND fiscal_year = 2026)
+reconcile:
+  - name: plan_lines_vs_silver
+    gold: SELECT count_if(has_plan_line) FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_account_plan
+  - name: wallet_lines_vs_silver
+    gold: SELECT count(estimated_wallet_usd) FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_wallet_estimate
+  - name: targets_vs_silver
+    gold: SELECT sum(revenue_target_usd) FROM ${table}
+    silver: SELECT sum(planned_revenue_usd) FROM ${catalog}.silver.crm_account_plan
+    tolerance: 1

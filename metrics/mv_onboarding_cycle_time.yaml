@@ -1,0 +1,181 @@
+# Space 6, Client Onboarding & KYC (WP9b / WP8d). Onboarding cycle time over gold.fact_onboarding_stage_event (one row
+# per case x stage). Case-level measures (cases, median / P90 days to live) read the primary row (is_case_primary_row
+# = the stage-1 row, once per case); stage measures (average days in stage, SLA met %) use every stage row. Date = the
+# case's request date (request cohorts). Storyline 7: the Feb-2026 KYC workflow migration (KYC Migration Period).
+view: mv_onboarding_cycle_time
+space: client_onboarding_kyc
+comment: >-
+  Onboarding cycle time of SMBC APAC requests, Apr-2024 to Sep-2026: median, P90 and average days from request
+  to go-live (live cases), average days per funnel stage (Request, KYC Docs, Screening, Risk Assessment,
+  Credit/Product Approval, Account Open, First Transaction), SLA met %, stages and cases over SLA, by request
+  month, booking country, segment and the KYC-migration period (Feb-2026 workflow migration; Mar-May 2026 backlog
+  peak). Date = request date. Medians and P90 are exact percentiles over cases, never sums.
+grain: one row per onboarding case x stage entered (gold.fact_onboarding_stage_event)
+source: ${catalog}.gold.fact_onboarding_stage_event
+blocks:
+  calendar: {date: source.request_date, grain: day, what: the onboarding request}
+  client: {key: source.golden_client_sk}
+overrides:
+  Date:
+    comment: >-
+      Request date of the case (every stage row carries it) - Month = Request Month. "Requests before Feb-2026" =
+      Date < DATE'2026-02-01'. Today is 30-Sep-2026 (never CURRENT_DATE).
+    synonyms: [request date, application date, request day, onboarding request date, submitted date]
+dimensions:
+  - name: Stage
+    expr: source.stage_name
+    display_name: Onboarding Stage
+    comment: "Funnel stage: Request, KYC Docs, Screening, Risk Assessment, Credit/Product Approval, Account Open, First Transaction (activation)."
+    synonyms: [stage, onboarding stage, funnel stage, step, KYC docs, screening, account opening]
+  - name: Stage Number
+    expr: source.stage_no
+    display_name: Stage Number
+    comment: Stage number 1-7 in funnel order (ORDER BY it).
+    synonyms: [stage number, stage order, step number, stage no]
+    format: {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: Booking location of the case (ISO-2) - every case, including applicants.
+    synonyms: [booking country, country, booking location, onboarding country, branch, market]
+  - name: Request Segment
+    expr: source.segment
+    display_name: Request Segment
+    comment: >-
+      Segment of the requesting entity (Japanese Corporate, Non-Japanese Large Corporate, Financial Institution,
+      Sponsor & Structured Finance, Public Sector) - "FI clients" = Financial Institution.
+    synonyms: [segment, request segment, applicant segment, FI, financial institution, client type]
+  - name: Case Status
+    expr: source.case_status
+    display_name: Case Status
+    comment: "Case status at 30-Sep-2026: Open, Live, Withdrawn or Rejected."
+    synonyms: [status, case status, outcome, live, open]
+  - name: KYC Migration Period
+    expr: source.kyc_migration_period
+    display_name: KYC Migration Period
+    comment: >-
+      Request period vs the Feb-2026 KYC workflow migration: Pre-migration (before Feb-2026), Migration (Feb-2026),
+      Backlog peak (Mar-May 2026), Recovery (from Jun-2026).
+    synonyms: [migration period, KYC migration, before or after migration, backlog period, workflow migration]
+  - name: Is After KYC Migration
+    expr: source.is_after_kyc_migration
+    display_name: After Feb-2026 Migration
+    comment: True for cases requested on or after 1-Feb-2026 ("did it change after February 2026").
+    synonyms: [after February 2026, post migration, after migration, since Feb 2026]
+  - name: Is Current Stage
+    expr: source.is_current_stage
+    display_name: Is Current Stage
+    comment: True for the stage a case is in now (not exited) - with Case Status = Open, where open cases sit.
+    synonyms: [current stage, in progress stage, open stage, where it is now]
+measures:
+  - name: Cases
+    expr: COUNT(1) FILTER (WHERE source.is_case_primary_row)
+    display_name: Cases
+    comment: Onboarding cases (counted once, on the stage-1 row).
+    synonyms: [cases, requests, onboarding cases, applications, number of cases]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Live Cases
+    expr: COUNT(1) FILTER (WHERE source.is_case_primary_row AND source.case_status = 'Live')
+    display_name: Live Cases
+    comment: Cases that went live (counted once).
+    synonyms: [live cases, onboarded, go-lives, completed onboardings]
+    format: *count
+  - name: Median Days to Live
+    expr: MEDIAN(CASE WHEN source.is_case_primary_row THEN source.case_days_to_live END)
+    display_name: Median Days to Go Live
+    comment: Median calendar days from request to go-live over live cases (exact median, once per case).
+    synonyms: [median days to live, median time to onboard, median onboarding time, median TAT, days to go live]
+    format: &days {type: number, decimal_places: {type: max, places: 1}}
+  - name: P90 Days to Live
+    expr: PERCENTILE(CASE WHEN source.is_case_primary_row THEN source.case_days_to_live END, 0.9)
+    display_name: P90 Days to Go Live
+    comment: 90th percentile of days from request to go-live over live cases (exact, interpolated).
+    synonyms: [P90 days to live, 90th percentile, tail onboarding time, worst-case onboarding time, P90 TAT]
+    format: *days
+  - name: Average Days to Live
+    expr: AVG(CASE WHEN source.is_case_primary_row THEN source.case_days_to_live END)
+    display_name: Average Days to Go Live
+    comment: Average days from request to go-live over live cases.
+    synonyms: [average days to live, mean onboarding time, average TAT, average time to onboard]
+    format: *days
+  - name: Average Days in Stage
+    expr: AVG(CASE WHEN source.is_stage_completed THEN source.days_in_stage END)
+    display_name: Average Days in Stage (completed stages)
+    comment: Average days spent in the stage over completed (exited) stages - group by Stage to see which stage adds the most days.
+    synonyms: [days in stage, stage duration, time in stage, average stage time, stage cycle time, dwell time]
+    format: *days
+  - name: Stages Completed
+    expr: COUNT(1) FILTER (WHERE source.is_stage_completed)
+    display_name: Stages Completed
+    comment: Stage passages completed (exited) in the selection.
+    synonyms: [stages completed, completed stages, stage exits, passed stages]
+    format: *count
+  - name: SLA Met %
+    expr: COUNT(1) FILTER (WHERE source.is_stage_completed AND source.is_sla_met) / NULLIF(COUNT(1) FILTER (WHERE source.is_stage_completed), 0)
+    display_name: SLA Met
+    comment: Completed stages finished within their SLA days / completed stages (fraction).
+    synonyms: [SLA met, SLA compliance, within SLA, on-time rate, SLA attainment]
+    format: {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Stages Over SLA
+    expr: COUNT(1) FILTER (WHERE source.is_over_sla)
+    display_name: Stages Over SLA
+    comment: Stage passages that ran (or are running) over their SLA.
+    synonyms: [stages over SLA, SLA breaches, late stages, stage overruns]
+    format: *count
+  - name: Cases Over SLA
+    expr: COUNT(DISTINCT CASE WHEN source.is_over_sla THEN source.case_id END)
+    display_name: Cases with a Stage Over SLA
+    comment: Cases with at least one stage over its SLA.
+    synonyms: [cases over SLA, late cases, cases breaching SLA, delayed cases]
+    format: *count
+  - name: Open Cases Over SLA Now
+    expr: COUNT(DISTINCT CASE WHEN source.is_current_stage AND source.is_over_sla AND source.case_status = 'Open' THEN source.case_id END)
+    display_name: Open Cases Over SLA Now
+    comment: Open cases whose current stage is over its SLA at 30-Sep-2026.
+    synonyms: [open over SLA, currently over SLA, breaching now, stuck cases now]
+    format: *count
+  - name: Average Days Over SLA
+    expr: AVG(CASE WHEN source.is_over_sla THEN source.days_over_sla END)
+    display_name: Average Days Over SLA
+    comment: Average days beyond the stage SLA, over stages that ran over.
+    synonyms: [days over SLA, SLA overrun days, delay days, overrun]
+    format: *days
+validate:
+  dims: [Month, Stage]
+reconcile:
+  - name: median_days_to_live_pre_migration
+    measure: Median Days to Live
+    where: "`Date` < DATE'2026-02-01'"
+    gold: >-
+      SELECT percentile(days_to_live, 0.5) FROM ${catalog}.gold.fact_onboarding_case WHERE is_live AND request_date < DATE'2026-02-01'
+  - name: median_days_to_live_backlog_peak
+    measure: Median Days to Live
+    where: "`KYC Migration Period` = 'Backlog peak (Mar-May 2026)'"
+    gold: >-
+      SELECT percentile(days_to_live, 0.5) FROM ${catalog}.gold.fact_onboarding_case
+      WHERE is_live AND request_date BETWEEN DATE'2026-03-01' AND DATE'2026-05-31'
+  - name: p90_days_to_live_by_country_fy2025
+    measure: P90 Days to Live
+    by: [Booking Country]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT booking_country, percentile(days_to_live, 0.9) FROM ${catalog}.gold.fact_onboarding_case
+      WHERE is_live AND request_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31' GROUP BY 1
+  - name: fi_kyc_docs_days_by_period
+    measure: Average Days in Stage
+    by: [KYC Migration Period]
+    where: "`Request Segment` = 'Financial Institution' AND `Stage` = 'KYC Docs'"
+    gold: >-
+      SELECT kyc_migration_period, avg(days_in_stage) FROM ${catalog}.gold.fact_onboarding_stage_event
+      WHERE segment = 'Financial Institution' AND stage_name = 'KYC Docs' AND is_stage_completed GROUP BY 1
+  - name: sla_met_by_stage
+    measure: SLA Met %
+    by: [Stage]
+    gold: >-
+      SELECT stage_name, count_if(is_stage_completed AND is_sla_met) / count_if(is_stage_completed)
+      FROM ${catalog}.gold.fact_onboarding_stage_event GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Days to live exist for live cases only; medians / P90 are computed once per case (stage-1 row). Average days in
+      stage use completed stages; the First Transaction stage measures activation after go-live.

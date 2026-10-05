@@ -1,0 +1,1805 @@
+{
+  "title": "APAC Genie - Client Onboarding & KYC",
+  "description": "Ask about client onboarding (funnel, cycle time, SLA, documents, group matching) and KYC health (periodic reviews, screening, satisfaction) for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000000",
+          "question": [
+            "Median and P90 days to go live by booking country, by request month since April 2025"
+          ]
+        },
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000001",
+          "question": [
+            "Which stage adds the most days for Financial Institution clients, and did it change after February 2026?"
+          ]
+        },
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000002",
+          "question": [
+            "Open onboarding cases over SLA right now, by owner and blocker reason"
+          ]
+        },
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000003",
+          "question": [
+            "Documents outstanding by type for cases stuck in KYC Docs more than 15 days"
+          ]
+        },
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000004",
+          "question": [
+            "Break down all new onboarding cases by match timing (at intake, only after account opening, new group): how many cases and what share of all cases?"
+          ]
+        },
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000005",
+          "question": [
+            "Periodic KYC reviews overdue by risk rating and country, trend since January 2026"
+          ]
+        },
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000006",
+          "question": [
+            "Screening true-match rate and average resolution hours by list"
+          ]
+        },
+        {
+          "id": "dd911fb421b5c2f1daeb72aa00000007",
+          "question": [
+            "Post-onboarding satisfaction by country and the most common negative comment themes"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_strategic_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "n_apac_countries",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_amer",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_emea",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_global",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.dim_onboarding_stage",
+          "column_configs": [
+            {
+              "column_name": "stage_description",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "stage_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_carbon_intensive",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_deposit_only",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_group_lead",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_single_product_lending",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product_propensity",
+              "exclude": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "open_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_other_bank_share_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "product_families_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "products_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "revenue_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_prior_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_yoy_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "time_deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_outstanding_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_kyc_health",
+          "column_configs": [
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client Risk Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "exclude": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Hit Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "exclude": true
+            },
+            {
+              "column_name": "List",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "List Category",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Record Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Review Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Screening Context",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_onboarding_cycle_time",
+          "column_configs": [
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Case Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "exclude": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Migration Period",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Request Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "exclude": true
+            },
+            {
+              "column_name": "Stage",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_onboarding_funnel",
+          "column_configs": [
+            {
+              "column_name": "Blocker Reason",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Case Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "exclude": true
+            },
+            {
+              "column_name": "Current Stage",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Document Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Feedback Theme",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Go-Live Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Match Timing",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Owner",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product Requested",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Request Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "exclude": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "8ee72f3ab1a94f7489e9f24900000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Onboarding requests: use Booking Country and Request Segment (applicants that never went live have no client record); \"FI\" = Request Segment 'Financial Institution'. Date = the request date (request cohorts); statuses (open, live, over SLA, outstanding) are as of 30-Sep-2026.\n",
+            "- Cases, documents and KYC reviews are per legal entity: list every matching row (no top-20 cut) with Client and Booking Country. When counting by a label (owner, blocker, document type, risk rating, country, theme), keep only groups whose count is > 0 (HAVING MEASURE(...) > 0).\n",
+            "- mv_onboarding_funnel: \"open cases over SLA right now\" = Case Status 'Open' with Cases Over SLA; \"stuck in KYC Docs > 15 days\" = Stuck in KYC Docs 15D; Documents Outstanding by Document Type; Product Requests by Product Requested; group matches by Match Timing (At Intake / After Account Opening / New Group); Average Satisfaction and Negative Responses by Feedback Theme.\n",
+            "- mv_onboarding_cycle_time: Median / P90 / Average Days to Live are per live case - add Case Status = 'Live' when grouping by month or country; Average Days in Stage by Stage Number and Stage (1-6 = request to account open, 7 = first transaction); \"after February 2026\" = Is After KYC Migration; migration periods = KYC Migration Period.\n",
+            "- mv_kyc_health: Overdue and High-Risk Overdue are month-end point-in-time - filter one Month or group by Month (Is Latest Month = today); \"high-risk\" = Client Risk Rating 'High' (KYC master); screening = Record Type 'Screening' by List (Screening Alerts, True Matches, Screening True Match Rate %, Average Resolution Hours).\n",
+            "- \"This fiscal year vs last\" for requests = Fiscal Half 'FY2026-H1' vs 'FY2025-H1' (same months), plus full Fiscal Year 'FY2025' when asked; \"onboarded in FY2026\" = Go-Live Fiscal Year 'FY2026'.\n",
+            "- Case-level detail of open cases (case id, applicant, days in stage vs SLA, owner) = fn_onboarding_open_cases(booking_country or 'ALL'); the list of KYC reviews overdue today = fn_kyc_overdue_reviews(booking_country or 'ALL').\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "b04b73c30a61d0eb98f4d91100000000",
+          "question": [
+            "Median and P90 days to go live by booking country and request month since :from_month"
+          ],
+          "sql": [
+            "SELECT `Booking Country`, `Month` AS request_month,\n",
+            "       MEASURE(`Live Cases`)          AS live_cases,\n",
+            "       MEASURE(`Median Days to Live`) AS median_days_to_live,\n",
+            "       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\n",
+            "FROM smbc_genie.metrics.mv_onboarding_cycle_time\n",
+            "WHERE `Date` >= :from_month AND `Case Status` = 'Live'\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Booking Country`, request_month"
+          ],
+          "parameters": [
+            {
+              "name": "from_month",
+              "type_hint": "DATE",
+              "description": [
+                "First request month (first day of the month)"
+              ],
+              "default_value": {
+                "values": [
+                  "2025-04-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for onboarding cycle time / time to go live / TAT by booking country and request month; medians and P90 are per live case, so keep Case Status = 'Live'."
+          ]
+        },
+        {
+          "id": "b04b73c30a61d0eb98f4d91100000001",
+          "question": [
+            "Average days in each onboarding stage for :request_segment clients, before vs from February 2026"
+          ],
+          "sql": [
+            "WITH st AS (\n",
+            "  SELECT `Stage Number`, `Stage`, `Is After KYC Migration`, MEASURE(`Average Days in Stage`) AS avg_days_in_stage\n",
+            "  FROM smbc_genie.metrics.mv_onboarding_cycle_time\n",
+            "  WHERE `Request Segment` = :request_segment AND `Stage Number` <= 6\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Stage Number`, `Stage`,\n",
+            "       max(CASE WHEN NOT `Is After KYC Migration` THEN avg_days_in_stage END) AS avg_days_before_feb_2026,\n",
+            "       max(CASE WHEN `Is After KYC Migration` THEN avg_days_in_stage END)     AS avg_days_from_feb_2026\n",
+            "FROM st\n",
+            "GROUP BY `Stage Number`, `Stage`\n",
+            "ORDER BY `Stage Number`"
+          ],
+          "parameters": [
+            {
+              "name": "request_segment",
+              "type_hint": "STRING",
+              "description": [
+                "Request Segment, e.g. Financial Institution, Japanese Corporate"
+              ],
+              "default_value": {
+                "values": [
+                  "Financial Institution"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for which stage adds the most days, stage bottlenecks, or before / after the Feb-2026 KYC workflow migration for a segment (\"FI\" = Financial Institution); one row per stage with the two periods side by side."
+          ]
+        },
+        {
+          "id": "b04b73c30a61d0eb98f4d91100000002",
+          "question": [
+            "Open onboarding cases over SLA right now in :booking_country, by owner and blocker reason"
+          ],
+          "sql": [
+            "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\n",
+            "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+            "WHERE `Case Status` = 'Open' AND (:booking_country = 'ALL' OR `Booking Country` = :booking_country)\n",
+            "GROUP BY ALL\n",
+            "HAVING MEASURE(`Cases Over SLA`) > 0\n",
+            "ORDER BY cases_over_sla DESC, `Owner`"
+          ],
+          "parameters": [
+            {
+              "name": "booking_country",
+              "type_hint": "STRING",
+              "description": [
+                "Booking country ISO-2 code (SG, HK, ...) or ALL for every country"
+              ],
+              "default_value": {
+                "values": [
+                  "ALL"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for open cases breaching SLA, late or stuck onboarding cases by owner / blocker; pass ALL for every booking country. Keep only owner x blocker groups with cases over SLA."
+          ]
+        },
+        {
+          "id": "b04b73c30a61d0eb98f4d91100000003",
+          "question": [
+            ":review_type KYC reviews overdue by client risk rating and booking country at each month-end since :from_month"
+          ],
+          "sql": [
+            "SELECT `Month`, `Client Risk Rating`, `Booking Country`, MEASURE(`Overdue`) AS overdue_reviews\n",
+            "FROM smbc_genie.metrics.mv_kyc_health\n",
+            "WHERE `Review Type` = :review_type AND `Month` >= :from_month\n",
+            "GROUP BY ALL\n",
+            "HAVING MEASURE(`Overdue`) > 0\n",
+            "ORDER BY `Month`, `Client Risk Rating`, `Booking Country`"
+          ],
+          "parameters": [
+            {
+              "name": "review_type",
+              "type_hint": "STRING",
+              "description": [
+                "Review Type: Periodic, Trigger or Onboarding"
+              ],
+              "default_value": {
+                "values": [
+                  "Periodic"
+                ]
+              }
+            },
+            {
+              "name": "from_month",
+              "type_hint": "DATE",
+              "description": [
+                "First month-end month (first day of the month)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-01-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for overdue KYC / CDD reviews, the KYC backlog or its trend by risk rating and country; overdue is a month-end position, so group by Month and keep only groups with overdue reviews."
+          ]
+        },
+        {
+          "id": "b04b73c30a61d0eb98f4d91100000004",
+          "question": [
+            "Onboarding requests by request segment and product requested, :fiscal_year to date vs the same period of :prior_fiscal_year and the full prior year"
+          ],
+          "sql": [
+            "WITH p AS (\n",
+            "  SELECT `Request Segment`, `Product Requested`, `Fiscal Year`, `Fiscal Half`, MEASURE(`Product Requests`) AS requests\n",
+            "  FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+            "  WHERE `Fiscal Year` IN (:fiscal_year, :prior_fiscal_year)\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Request Segment`, `Product Requested`,\n",
+            "       sum(CASE WHEN `Fiscal Half` = CONCAT(:fiscal_year, '-H1') THEN requests ELSE 0 END)       AS fytd_h1_requests,\n",
+            "       sum(CASE WHEN `Fiscal Half` = CONCAT(:prior_fiscal_year, '-H1') THEN requests ELSE 0 END) AS prior_h1_requests,\n",
+            "       sum(CASE WHEN `Fiscal Year` = :prior_fiscal_year THEN requests ELSE 0 END)                AS prior_full_year_requests\n",
+            "FROM p\n",
+            "WHERE `Product Requested` IS NOT NULL\n",
+            "GROUP BY ALL\n",
+            "ORDER BY fytd_h1_requests DESC, prior_full_year_requests DESC"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Current fiscal year label, e.g. FY2026"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            },
+            {
+              "name": "prior_fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Prior fiscal year label, e.g. FY2025"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for onboarding requests / demand by segment and product, this fiscal year vs last; FY2026 to date = FY2026-H1 (Apr-Sep), compared with FY2025-H1 and full FY2025."
+          ]
+        },
+        {
+          "id": "b04b73c30a61d0eb98f4d91100000005",
+          "question": [
+            "Booking-country scorecard: median days to go live for :fiscal_year requests vs KYC reviews overdue at :month"
+          ],
+          "sql": [
+            "WITH ct AS (\n",
+            "  SELECT `Booking Country`, MEASURE(`Live Cases`) AS live_cases, MEASURE(`Median Days to Live`) AS median_days_to_live\n",
+            "  FROM smbc_genie.metrics.mv_onboarding_cycle_time\n",
+            "  WHERE `Fiscal Year` = :fiscal_year AND `Case Status` = 'Live'\n",
+            "  GROUP BY ALL\n",
+            "),\n",
+            "kyc AS (\n",
+            "  SELECT `Booking Country`, MEASURE(`Overdue`) AS overdue_reviews, MEASURE(`High-Risk Overdue`) AS high_risk_overdue\n",
+            "  FROM smbc_genie.metrics.mv_kyc_health\n",
+            "  WHERE `Month` = :month AND `Record Type` = 'Review Snapshot'\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT COALESCE(ct.`Booking Country`, kyc.`Booking Country`) AS booking_country,\n",
+            "       ct.live_cases, ct.median_days_to_live, kyc.overdue_reviews, kyc.high_risk_overdue\n",
+            "FROM ct FULL OUTER JOIN kyc ON kyc.`Booking Country` = ct.`Booking Country`\n",
+            "ORDER BY kyc.overdue_reviews DESC NULLS LAST, booking_country"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Request fiscal year label, e.g. FY2026"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            },
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Month-end month for the KYC position (first day of the month)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Cross-view pattern (cycle time + KYC health) - wrap each metric-view query in a CTE and join the CTEs on Booking Country; use when a question combines onboarding speed with KYC backlog per country."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "eeed68e9fe7ff67a3247991f00000000",
+          "identifier": "smbc_genie.gold.fn_onboarding_open_cases"
+        },
+        {
+          "id": "eeed68e9fe7ff67a3247991f00000001",
+          "identifier": "smbc_genie.gold.fn_kyc_overdue_reviews"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000000",
+          "question": [
+            "Median and P90 days to go live by booking country and request month, for live cases requested since April 2025, with the number of live cases."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Booking Country`, `Month` AS request_month,\n",
+                "       MEASURE(`Live Cases`)          AS live_cases,\n",
+                "       MEASURE(`Median Days to Live`) AS median_days_to_live,\n",
+                "       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\n",
+                "FROM smbc_genie.metrics.mv_onboarding_cycle_time\n",
+                "WHERE `Date` >= DATE'2025-04-01' AND `Case Status` = 'Live'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Booking Country`, request_month"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000001",
+          "question": [
+            "Median and P90 days to go live by KYC migration period, with the number of live cases."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `KYC Migration Period`,\n",
+                "       MEASURE(`Live Cases`)          AS live_cases,\n",
+                "       MEASURE(`Median Days to Live`) AS median_days_to_live,\n",
+                "       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\n",
+                "FROM smbc_genie.metrics.mv_onboarding_cycle_time\n",
+                "WHERE `Case Status` = 'Live'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY median_days_to_live"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000002",
+          "question": [
+            "Which onboarding stage adds the most days for Financial Institution clients, and did it change after February 2026? Show the average days in each stage (stages 1-6) for requests before February 2026 and from February 2026."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH st AS (\n",
+                "  SELECT `Stage Number`, `Stage`, `Is After KYC Migration`, MEASURE(`Average Days in Stage`) AS avg_days_in_stage\n",
+                "  FROM smbc_genie.metrics.mv_onboarding_cycle_time\n",
+                "  WHERE `Request Segment` = 'Financial Institution' AND `Stage Number` <= 6\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Stage Number`, `Stage`,\n",
+                "       max(CASE WHEN NOT `Is After KYC Migration` THEN avg_days_in_stage END) AS avg_days_before_feb_2026,\n",
+                "       max(CASE WHEN `Is After KYC Migration` THEN avg_days_in_stage END)     AS avg_days_from_feb_2026\n",
+                "FROM st\n",
+                "GROUP BY `Stage Number`, `Stage`\n",
+                "ORDER BY `Stage Number`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000003",
+          "question": [
+            "Open onboarding cases over SLA right now, by owner and blocker reason."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "WHERE `Case Status` = 'Open'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Cases Over SLA`) > 0\n",
+                "ORDER BY cases_over_sla DESC, `Owner`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000004",
+          "question": [
+            "Documents outstanding by document type for cases stuck in KYC Docs more than 15 days."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Document Type`, MEASURE(`Documents Outstanding`) AS outstanding_documents\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "WHERE `Stuck in KYC Docs 15D`\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Documents Outstanding`) > 0\n",
+                "ORDER BY outstanding_documents DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000005",
+          "question": [
+            "What share of new onboarding cases was matched to an existing client group? Break it down by match timing with cases, share of all cases, live cases and share of all live cases (shares as fractions)."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH m AS (\n",
+                "  SELECT `Match Timing`, MEASURE(`Cases Opened`) AS cases, MEASURE(`Cases Live`) AS live_cases\n",
+                "  FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Match Timing`, cases, cases / SUM(cases) OVER () AS share_of_cases,\n",
+                "       live_cases, live_cases / SUM(live_cases) OVER () AS share_of_live_cases\n",
+                "FROM m\n",
+                "ORDER BY cases DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000006",
+          "question": [
+            "Which onboarding cases were matched to their client group only after account opening? Show client, client group, booking country, request date and the number of such cases."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Client Group`, `Booking Country`, `Date` AS request_date,\n",
+                "       MEASURE(`Matched After Account Opening`) AS cases\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "WHERE `Match Timing` = 'After Account Opening'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Matched After Account Opening`) > 0\n",
+                "ORDER BY request_date"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000007",
+          "question": [
+            "Periodic KYC reviews overdue by client risk rating and booking country at each month-end since January 2026."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Month`, `Client Risk Rating`, `Booking Country`, MEASURE(`Overdue`) AS overdue_reviews\n",
+                "FROM smbc_genie.metrics.mv_kyc_health\n",
+                "WHERE `Review Type` = 'Periodic' AND `Month` >= DATE'2026-01-01'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Overdue`) > 0\n",
+                "ORDER BY `Month`, `Client Risk Rating`, `Booking Country`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000008",
+          "question": [
+            "High-risk periodic KYC reviews overdue at each month-end since April 2025, alongside all overdue periodic reviews."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Month`, MEASURE(`High-Risk Overdue`) AS high_risk_overdue, MEASURE(`Overdue`) AS all_overdue\n",
+                "FROM smbc_genie.metrics.mv_kyc_health\n",
+                "WHERE `Review Type` = 'Periodic' AND `Month` >= DATE'2025-04-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Month`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000009",
+          "question": [
+            "Onboarding requests by request segment and product requested: FY2026 H1 vs FY2025 H1, and full-year FY2025."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH p AS (\n",
+                "  SELECT `Request Segment`, `Product Requested`, `Fiscal Half`, MEASURE(`Product Requests`) AS requests\n",
+                "  FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "  WHERE `Fiscal Year` IN ('FY2025', 'FY2026')\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Request Segment`, `Product Requested`,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN requests ELSE 0 END)           AS fy2026_h1_requests,\n",
+                "       sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN requests ELSE 0 END)           AS fy2025_h1_requests,\n",
+                "       sum(CASE WHEN `Fiscal Half` LIKE 'FY2025-%' THEN requests ELSE 0 END)         AS fy2025_full_year_requests\n",
+                "FROM p\n",
+                "WHERE `Product Requested` IS NOT NULL\n",
+                "GROUP BY ALL\n",
+                "ORDER BY fy2026_h1_requests DESC, fy2025_full_year_requests DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef530000000a",
+          "question": [
+            "Onboarding cases opened by request segment, primary product and fiscal half for FY2025-H1 and FY2026-H1 - one row per segment, product and half."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Request Segment`, `Primary Product`, `Fiscal Half`, MEASURE(`Cases Opened`) AS requests\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Request Segment`, `Primary Product`, `Fiscal Half`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef530000000b",
+          "question": [
+            "Which clients onboarded in FY2026 have not transacted within 60 days of go-live? Show client, booking country, the number of such cases and the average days to first transaction."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Booking Country`,\n",
+                "       MEASURE(`Not Transacted Within 60D`)          AS not_transacted_within_60d,\n",
+                "       MEASURE(`Average First Transaction Lag Days`) AS days_to_first_transaction\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "WHERE `Go-Live Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Not Transacted Within 60D`) > 0\n",
+                "ORDER BY days_to_first_transaction DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef530000000c",
+          "question": [
+            "Screening true-match rate and average resolution hours by list, with the number of alerts and true matches."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `List`,\n",
+                "       MEASURE(`Screening Alerts`)            AS alerts,\n",
+                "       MEASURE(`True Matches`)                AS true_matches,\n",
+                "       MEASURE(`Screening True Match Rate %`) AS true_match_rate,\n",
+                "       MEASURE(`Average Resolution Hours`)    AS avg_resolution_hours\n",
+                "FROM smbc_genie.metrics.mv_kyc_health\n",
+                "WHERE `Record Type` = 'Screening'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY true_match_rate DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef530000000d",
+          "question": [
+            "Post-onboarding satisfaction by booking country: survey responses, average satisfaction and negative responses."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Booking Country`,\n",
+                "       MEASURE(`Survey Responses`)     AS responses,\n",
+                "       MEASURE(`Average Satisfaction`) AS avg_satisfaction,\n",
+                "       MEASURE(`Negative Responses`)   AS negative_responses\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Survey Responses`) > 0\n",
+                "ORDER BY avg_satisfaction"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef530000000e",
+          "question": [
+            "What are the most common negative comment themes after onboarding, by number of negative responses?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Feedback Theme`, MEASURE(`Negative Responses`) AS negative_responses\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Negative Responses`) > 0\n",
+                "ORDER BY negative_responses DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef530000000f",
+          "question": [
+            "which onboarding cases are blowing through SLA at the moment? split it by owner and blocker"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "WHERE `Case Status` = 'Open'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Cases Over SLA`) > 0\n",
+                "ORDER BY cases_over_sla DESC, `Owner`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000010",
+          "question": [
+            "screning true match rate and avg resolution hours by list, incl alerts and true matches"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `List`,\n",
+                "       MEASURE(`Screening Alerts`)            AS alerts,\n",
+                "       MEASURE(`True Matches`)                AS true_matches,\n",
+                "       MEASURE(`Screening True Match Rate %`) AS true_match_rate,\n",
+                "       MEASURE(`Average Resolution Hours`)    AS avg_resolution_hours\n",
+                "FROM smbc_genie.metrics.mv_kyc_health\n",
+                "WHERE `Record Type` = 'Screening'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY true_match_rate DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000011",
+          "question": [
+            "median & P90 days-to-live by KYC migration period + live case count"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `KYC Migration Period`,\n",
+                "       MEASURE(`Live Cases`)          AS live_cases,\n",
+                "       MEASURE(`Median Days to Live`) AS median_days_to_live,\n",
+                "       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\n",
+                "FROM smbc_genie.metrics.mv_onboarding_cycle_time\n",
+                "WHERE `Case Status` = 'Live'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY median_days_to_live"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000012",
+          "question": [
+            "high-risk CDD backlog: periodic KYC refreshes overdue at each month-end since Apr-25 vs total periodic overdue"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Month`, MEASURE(`High-Risk Overdue`) AS high_risk_overdue, MEASURE(`Overdue`) AS all_overdue\n",
+                "FROM smbc_genie.metrics.mv_kyc_health\n",
+                "WHERE `Review Type` = 'Periodic' AND `Month` >= DATE'2025-04-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Month`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f83e7fb196d7363dd8fcef5300000013",
+          "question": [
+            "what are clients complaining about after onboarding? rank the negative comment themes"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Feedback Theme`, MEASURE(`Negative Responses`) AS negative_responses\n",
+                "FROM smbc_genie.metrics.mv_onboarding_funnel\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Negative Responses`) > 0\n",
+                "ORDER BY negative_responses DESC"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

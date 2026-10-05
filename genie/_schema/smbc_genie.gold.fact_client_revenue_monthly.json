@@ -1,0 +1,313 @@
+{
+ "columns": [
+  {
+   "comment": "First day of the revenue month (Apr-2024 to Sep-2026).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Last calendar day of the month.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter 1-4 (Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar).",
+   "is_measure": false,
+   "name": "fiscal_quarter",
+   "type": "int"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half, H1 (Apr-Sep) or H2 (Oct-Mar).",
+   "is_measure": false,
+   "name": "fiscal_half",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product family of the revenue line: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, FX (product feeds) or Other TB & Advisory (relationship P&L only).",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Business line of the family: Lending, Transaction Banking or Markets.",
+   "is_measure": false,
+   "name": "business_line",
+   "type": "string"
+  },
+  {
+   "comment": "Product feed (silver.fin_client_revenue), Relationship P&L allocation (Other TB & Advisory from silver.fin_relationship_pnl) or Prior-year only (zero row kept so prior-year sums are complete).",
+   "is_measure": false,
+   "name": "revenue_source",
+   "type": "string"
+  },
+  {
+   "comment": "True for the families in the finance relationship P&L (Corporate Lending, Cash, Liquidity, Payments, Other TB & Advisory); FX trading and trade-finance fees sit outside it.",
+   "is_measure": false,
+   "name": "is_relationship_pnl_line",
+   "type": "boolean"
+  },
+  {
+   "comment": "Net interest income in USD for the month (lending margin, deposit spread).",
+   "is_measure": false,
+   "name": "nii_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Fee and commission income in USD for the month (commitment / arrangement, payments, trade, other TB and advisory fees).",
+   "is_measure": false,
+   "name": "fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Trading revenue in USD for the month (FX).",
+   "is_measure": false,
+   "name": "trading_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Total revenue in USD for the month = nii_usd + fee_usd + trading_usd. Additive.",
+   "is_measure": false,
+   "name": "total_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Volume behind the revenue in USD (drawn balance, deposit balance, payment count, FX notional or trade value) - a driver, not money earned; never add across families.",
+   "is_measure": false,
+   "name": "activity_basis_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Direct product cost allocated to the line in USD (cost to serve).",
+   "is_measure": false,
+   "name": "direct_cost_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Relationship-manager cost allocated to the line in USD.",
+   "is_measure": false,
+   "name": "rm_cost_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Operations cost allocated in USD (account upkeep, payment processing).",
+   "is_measure": false,
+   "name": "operations_cost_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Head-office overhead allocated in USD.",
+   "is_measure": false,
+   "name": "ho_allocation_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Total allocated cost (opex) in USD = direct + RM + operations + HO. Additive.",
+   "is_measure": false,
+   "name": "allocated_cost_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Credit cost = expected loss for the month in USD (PD x LGD x EAD / 12), on the Corporate Lending row only (0 elsewhere). Additive.",
+   "is_measure": false,
+   "name": "credit_cost_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Month-on-month change in the IFRS 9 ECL allowance in USD (impairment charge; positive = provision build), Corporate Lending row only - information, not part of net contribution.",
+   "is_measure": false,
+   "name": "ecl_charge_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Net contribution in USD = total revenue - allocated cost - credit cost (pre-tax, product view incl. FX and trade). Additive.",
+   "is_measure": false,
+   "name": "net_contribution_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Exposure at default at the month-end in USD (Corporate Lending row only). Monthly balance - average it, never sum across months.",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Risk-weighted assets at the month-end in USD (Corporate Lending row only). Monthly balance: RoRWA = 12 x SUM(relationship_net_profit_usd) / SUM(rwa_usd); Average RWA = SUM(rwa_usd) / months.",
+   "is_measure": false,
+   "name": "rwa_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Economic (unexpected-loss) capital at the month-end in USD (Corporate Lending row only) - the RAROC denominator. Monthly balance.",
+   "is_measure": false,
+   "name": "economic_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Capital allocated at the 12.5% target CET1 ratio of RWA in USD (Corporate Lending row only). Monthly balance.",
+   "is_measure": false,
+   "name": "allocated_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Book equity allocated at 9% of EAD in USD (finance relationship-ROE basis; Corporate Lending row only). Monthly balance.",
+   "is_measure": false,
+   "name": "book_equity_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Monthly charge for allocated capital at the 10% cost of equity in USD (Corporate Lending row only). Additive.",
+   "is_measure": false,
+   "name": "cost_of_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Relationship net profit (pre-tax) on the finance hurdle basis in USD: the quarterly relationship P&L (lending + deposit + payments + other TB and advisory revenue - cost to serve - expected loss, excl. FX and trade fees) spread evenly over the quarter's months; Corporate Lending row only, null without credit. Numerator of RoRWA and RAROC. Additive.",
+   "is_measure": false,
+   "name": "relationship_net_profit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "total_revenue_usd of the same client, family and month one year earlier (0 when none) - Revenue YoY % = SUM(total_revenue_usd) / SUM(total_revenue_py_usd) - 1 (prior year available from Apr-2025).",
+   "is_measure": false,
+   "name": "total_revenue_py_usd",
+   "type": "double"
+  },
+  {
+   "comment": "net_contribution_usd of the same client, family and month one year earlier (0 when none).",
+   "is_measure": false,
+   "name": "net_contribution_py_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True on the Corporate Lending row of a client-month with credit exposure - the only row carrying RWA, capital, credit cost and relationship net profit.",
+   "is_measure": false,
+   "name": "is_capital_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on exactly one row per client-month with current activity (the capital row, else the largest revenue line): count clients and read the client-month / quarter attributes on it.",
+   "is_measure": false,
+   "name": "is_primary_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for zero rows kept because the line had revenue 12 months earlier (all current amounts 0).",
+   "is_measure": false,
+   "name": "is_prior_year_only",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the line belongs to a credit relationship whose revenue ties to the cent to the quarterly relationship P&L.",
+   "is_measure": false,
+   "name": "is_pnl_reconciled",
+   "type": "boolean"
+  },
+  {
+   "comment": "Products the client held or used at the month-end (gold.fact_product_holding_monthly) - Products per Client = SUM on primary rows / clients.",
+   "is_measure": false,
+   "name": "products_held_count",
+   "type": "bigint"
+  },
+  {
+   "comment": "Bucket of products_held_count: 0 products, 1 product, 2 products, 3-4 products, 5-7 products or 8+ products.",
+   "is_measure": false,
+   "name": "product_count_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Client-month flag: the client's only products are credit facilities (no deposits, payments, trade, FX or cash management).",
+   "is_measure": false,
+   "name": "is_single_product_lending",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client-month flag: the client holds nothing but deposit products.",
+   "is_measure": false,
+   "name": "is_deposit_only",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client is known only to the credit system - a credit obligor with no core-banking customer, treasury counterparty or trade party record (storyline 8 lending-only relationships).",
+   "is_measure": false,
+   "name": "is_lending_only_relationship",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has RWA in the fiscal quarter of the month (a credit relationship with a return to measure).",
+   "is_measure": false,
+   "name": "has_rwa_in_quarter",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client RoRWA for the fiscal quarter of the month (12 x relationship net profit / RWA over the quarter's months), winsorised to -0.25..1.00 like the finance P&L; primary rows only - use MEDIAN across clients, not AVG.",
+   "is_measure": false,
+   "name": "rorwa_fq",
+   "type": "double"
+  },
+  {
+   "comment": "Client RAROC for the fiscal quarter of the month (12 x relationship net profit / economic capital), winsorised to -0.25..1.00; primary rows only - use MEDIAN across clients.",
+   "is_measure": false,
+   "name": "raroc_fq",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client's unwinsorised RoRWA over the fiscal quarter of the month is below the RoRWA hurdle (1.2%, dim_threshold RORWA_HURDLE) - the below-hurdle flag (also for questions saying 8% hurdle). Repeated on every row of the client's months in that quarter; null without RWA.",
+   "is_measure": false,
+   "name": "below_rorwa_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client's unwinsorised RAROC over the fiscal quarter of the month is below the 12% RAROC hurdle (dim_threshold RAROC_HURDLE); null without RWA.",
+   "is_measure": false,
+   "name": "below_raroc_hurdle",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Client revenue and profitability by product family and month (integration fact of Account Planning, Opportunity Identification and Client Profitability; Apr-2024 to Sep-2026): revenue (NII, fees, trading), allocated cost, credit cost (expected loss), net contribution and the capital consumed (RWA, economic and allocated capital, carried on the Corporate Lending row). Revenue = the product feeds plus the relationship P&L line 'Other TB & Advisory' (other transaction-banking, advisory, structuring and agency fees reported only in the quarterly relationship P&L). Returns: RoRWA = 12 x SUM(relationship_net_profit_usd) / SUM(rwa_usd) and RAROC = 12 x SUM(relationship_net_profit_usd) / SUM(economic_capital_usd) over any set of months (hurdles RoRWA 1.2% and RAROC 12%, gold.dim_threshold; 'below the 8% hurdle' means below_rorwa_hurdle). Revenue, cost, net contribution and profit are additive; RWA and capital are monthly balances (sum them only inside the annualised ratios, or average them). Grain: one row per golden client x month x product family.",
+ "identifier": "smbc_genie.gold.fact_client_revenue_monthly",
+ "type": "MANAGED"
+}

@@ -1,0 +1,200 @@
+# Space 10, Signals & Sentiment (WP8f). RM call notes as an internal qualitative signal: counts and averages are
+# flows / means over the selected days; divergence compares each note with its group's news of the 90 days to
+# the note; blind-spot groups and the group 90-day sentiments are statuses as of 30-Sep-2026 (gold flags).
+# Answers: metrics/_answers/signals_sentiment.sql.
+view: mv_internal_sentiment
+space: signals_sentiment
+comment: >-
+  Internal sentiment from RM call notes, Apr-2024 to Sep-2026: notes, average note sentiment -1..+1 (negative
+  <= -0.2, positive >= 0.2), negative / positive notes, the client group's news sentiment around each note,
+  internal-vs-external divergence, blind-spot notes and groups (news turned negative while RM notes stayed
+  positive, as of 30-Sep-2026), follow-up actions open / overdue, and the agreement of the Databricks
+  ai_analyze_sentiment label with the score label. Notes and actions add up over days; sentiment is an average.
+grain: one row per RM call note / CRM activity (gold.fact_rm_note_sentiment)
+source: ${catalog}.gold.fact_rm_note_sentiment
+blocks:
+  calendar: {date: source.note_date, grain: day, what: the RM activity the note records}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: au
+    source: ${catalog}.gold.dim_employee
+    'on': source.employee_id = au.employee_id
+dimensions:
+  - name: Note RM
+    expr: au.employee_name
+    display_name: RM Who Wrote the Note
+    comment: >-
+      Relationship manager who logged the activity and wrote the note (fictional name) - "by RM" in note
+      questions means this; Primary RM is the client's covering RM.
+    synonyms: [RM, note author, relationship manager, banker, author, coverage banker, who met the client]
+  - name: Note Topic
+    expr: source.note_topic
+    display_name: Note Topic
+    comment: >-
+      Primary topic extracted from the note text: Credit & Liquidity, Pricing, Competition, Service Quality,
+      Market & FX, Relationship, New Business or General.
+    synonyms: [topic, note topic, discussion topic, theme, subject area, what was discussed, call topic]
+  - name: Sentiment Polarity
+    expr: source.sentiment_label
+    display_name: Note Sentiment Polarity
+    comment: "Sentiment of the note from its score: Negative (<= -0.2), Positive (>= 0.2) or Neutral."
+    synonyms: [polarity, tone, note tone, sentiment, positive or negative, sentiment label]
+  - name: AI Sentiment Label
+    expr: source.ai_sentiment_label
+    display_name: AI Sentiment Label (ai_analyze_sentiment)
+    comment: >-
+      Label returned by Databricks ai_analyze_sentiment on the note text: Positive, Negative, Neutral or
+      Mixed - stored beside the score label (D18 / D36).
+    synonyms: [AI sentiment, AI label, ai_analyze_sentiment, model sentiment, LLM sentiment, machine sentiment]
+  - name: Action Required
+    expr: source.action_required
+    display_name: Action Required
+    comment: True when the note records a follow-up action for the RM.
+    synonyms: [action required, follow up required, next step, action item, follow-up, to do]
+  - name: Action Status
+    expr: source.next_action_status
+    display_name: Follow-up Action Status
+    comment: "Status of the follow-up action at 30-Sep-2026: Completed, Open or Overdue (null = no action)."
+    synonyms: [action status, follow-up status, next action status, open actions, overdue actions]
+measures:
+  - name: Notes
+    expr: COUNT(1)
+    display_name: RM Notes
+    comment: RM call notes (CRM activities with a note) on the selected clients and days - a flow.
+    synonyms: [notes, call notes, RM notes, call reports, meeting notes, visit reports, activities]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Average Note Sentiment
+    expr: AVG(source.sentiment_score)
+    display_name: Average RM-Note Sentiment
+    comment: Mean sentiment of the selected notes, -1 (very negative) to +1 (very positive).
+    synonyms: [note sentiment, internal sentiment, RM sentiment, average note sentiment, call note tone, relationship sentiment]
+    format: &sent {type: number, decimal_places: {type: max, places: 3}}
+  - name: Negative Notes
+    expr: COUNT(1) FILTER (WHERE source.is_negative)
+    display_name: Negative Notes
+    comment: Notes with sentiment <= -0.2.
+    synonyms: [negative notes, negative calls, bad meetings, negative call reports, unhappy clients]
+    format: *count
+  - name: Positive Notes
+    expr: COUNT(1) FILTER (WHERE source.is_positive)
+    display_name: Positive Notes
+    comment: Notes with sentiment >= 0.2.
+    synonyms: [positive notes, positive calls, good meetings, positive call reports, happy clients]
+    format: *count
+  - name: Negative Note Share %
+    expr: MEASURE(`Negative Notes`) / NULLIF(MEASURE(`Notes`), 0)
+    display_name: Negative Note Share
+    comment: Negative notes / all notes (fraction).
+    synonyms: [negative note share, share of negative notes, negative note ratio, negative call rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: External News Sentiment
+    expr: AVG(source.group_news_sentiment_90d)
+    display_name: Group News Sentiment Around the Notes
+    comment: >-
+      Average news sentiment of each note's client group over the 90 days up to the note date (the external
+      view at the time; notes without news are ignored).
+    synonyms: [external sentiment, news sentiment, market sentiment, outside view, media view, external view]
+    format: *sent
+  - name: Sentiment Divergence
+    expr: AVG(source.sentiment_divergence)
+    display_name: Internal vs External Divergence
+    comment: >-
+      Average of note sentiment minus the group's 90-day news sentiment (positive = RMs more upbeat than the
+      news; large positive values flag possible blind spots). Notes without news are ignored.
+    synonyms: [divergence, sentiment gap, internal vs external, RM vs news, blind spot gap, optimism gap]
+    format: *sent
+  - name: Blind Spot Notes
+    expr: COUNT(1) FILTER (WHERE source.is_blind_spot_note)
+    display_name: Blind-Spot Notes
+    comment: Positive notes (>= 0.2) written while the group's news of the previous 90 days was negative (<= -0.2).
+    synonyms: [blind spot notes, positive notes on negative news, optimistic notes, divergent notes]
+    format: *count
+  - name: Blind Spot Groups
+    expr: COUNT(DISTINCT CASE WHEN source.is_blind_spot_group THEN source.client_group_id END)
+    display_name: Blind-Spot Client Groups
+    comment: >-
+      Client groups whose external sentiment turned negative (last-90-day news average <= -0.2, prior 90 days
+      not) while their RM notes stayed positive (last-90-day note average >= 0.2), as of 30-Sep-2026.
+    synonyms: [blind spots, blind spot groups, groups with a blind spot, sentiment divergence groups, groups RMs are missing]
+    format: *count
+    caveat: Group status as of 30-Sep-2026 (gold is_blind_spot_group), counted for groups with notes in the selection.
+  - name: Group News Sentiment Last 90D
+    expr: AVG(source.group_news_sentiment_last_90d)
+    display_name: Group News Sentiment, Last 90 Days (as of today)
+    comment: >-
+      Average news sentiment of the group over 3-Jul .. 30-Sep-2026 (a group status as of today; per group it
+      is that group's value).
+    synonyms: [group news sentiment, external sentiment today, news sentiment last 90 days, current external view]
+    format: *sent
+  - name: Group Note Sentiment Last 90D
+    expr: AVG(source.group_note_sentiment_last_90d)
+    display_name: Group RM-Note Sentiment, Last 90 Days (as of today)
+    comment: >-
+      Average RM-note sentiment of the group over 3-Jul .. 30-Sep-2026 (a group status as of today; per group
+      it is that group's value).
+    synonyms: [group note sentiment, internal sentiment today, RM view, note sentiment last 90 days, current internal view]
+    format: *sent
+  - name: Actions Open
+    expr: COUNT(1) FILTER (WHERE source.is_action_open)
+    display_name: Follow-up Actions Open
+    comment: Follow-up actions from the notes still Open or Overdue at 30-Sep-2026.
+    synonyms: [actions open, open actions, open follow-ups, pending actions, outstanding actions, to-dos]
+    format: *count
+  - name: Actions Overdue
+    expr: COUNT(1) FILTER (WHERE source.is_action_overdue)
+    display_name: Follow-up Actions Overdue
+    comment: Follow-up actions past their due date and not completed at 30-Sep-2026.
+    synonyms: [overdue actions, late actions, missed follow-ups, overdue follow-ups, past due actions]
+    format: *count
+  - name: AI Label Agreement %
+    expr: COUNT(1) FILTER (WHERE source.ai_agrees_with_score) / NULLIF(COUNT(source.ai_agrees_with_score), 0)
+    display_name: AI vs Score Label Agreement
+    comment: >-
+      Share of notes where the ai_analyze_sentiment label equals the score label (Mixed never agrees) -
+      about 64% overall.
+    synonyms: [AI agreement, label agreement, AI accuracy, model agreement, AI vs score, sentiment agreement]
+    format: *pct
+validate:
+  dims: [Month, Note Topic]
+reconcile:
+  - name: notes_by_topic_fy2026
+    measure: Notes
+    by: [Note Topic]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT note_topic, count(*) FROM ${catalog}.gold.fact_rm_note_sentiment
+      WHERE note_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' GROUP BY 1
+  - name: note_sentiment_by_ai_label
+    measure: Average Note Sentiment
+    by: [AI Sentiment Label]
+    gold: SELECT ai_sentiment_label, avg(sentiment_score) FROM ${catalog}.gold.fact_rm_note_sentiment GROUP BY 1
+  - name: negative_note_share_by_segment
+    measure: Negative Note Share %
+    by: [Segment]
+    gold: >-
+      SELECT c.segment, avg(CASE WHEN n.is_negative THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_rm_note_sentiment n
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = n.golden_client_sk GROUP BY 1
+  - name: blind_spot_groups
+    measure: Blind Spot Groups
+    gold: SELECT count(DISTINCT client_group_id) FROM ${catalog}.gold.fact_rm_note_sentiment WHERE is_blind_spot_group
+  - name: divergence_last_90d
+    measure: Sentiment Divergence
+    where: "`Date` > DATE'2026-07-02'"
+    gold: SELECT avg(sentiment_divergence) FROM ${catalog}.gold.fact_rm_note_sentiment WHERE is_last_90d
+  - name: ai_label_agreement
+    measure: AI Label Agreement %
+    gold: >-
+      SELECT avg(CASE WHEN ai_agrees_with_score THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_rm_note_sentiment
+      WHERE ai_agrees_with_score IS NOT NULL
+  - name: actions_open_by_coverage_office
+    measure: Actions Open
+    by: [Coverage Office]
+    gold: >-
+      SELECT c.coverage_office, count(*) FROM ${catalog}.gold.fact_rm_note_sentiment n
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = n.golden_client_sk WHERE n.is_action_open GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Note sentiment is synthetic (template tone + noise, D18); the AI label is the Databricks
+      ai_analyze_sentiment output stored at build time (D36). Blind-spot groups and the group 90-day sentiments
+      are statuses as of 30-Sep-2026. News sentiment by topic / industry is in mv_news_sentiment.

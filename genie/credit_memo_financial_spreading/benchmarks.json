@@ -1,0 +1,262 @@
+[
+  {
+    "id": "1e33de78089a40dff34d0e3e00000000",
+    "key": "Q1",
+    "question": "Credit memo pack for Sunda Energi Nusantara (Jakarta): show its spread P&L and balance sheet for the last 3 fiscal years - fiscal year, statement type, statement line, line order and amount in USD.",
+    "expected_sql": "SELECT `Fiscal Year`, `Statement Type`, `Statement Line`, `Line Order`, MEASURE(`Amount USD`) AS amount_usd\nFROM smbc_genie.metrics.mv_financial_spreads\nWHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%' AND `Statement Type` IN ('P&L', 'Balance Sheet')\nGROUP BY ALL\nORDER BY `Line Order`, `Fiscal Year`",
+    "expected_checks": {
+      "rows": 69
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000001",
+    "key": "Q1b",
+    "question": "For the Sunda Energi Nusantara (Jakarta) memo pack, show Net Debt/EBITDA, ICR, DSCR, Current Ratio and EBITDA Margin by fiscal year with the ratio value, the peer median, the percentile rank in the peer group and the worse-than-peer-P25 count.",
+    "expected_sql": "SELECT `Ratio Name`, `Fiscal Year`,\n       MEASURE(`Ratio Value`)                     AS ratio_value,\n       MEASURE(`Peer Median`)                     AS peer_median,\n       MEASURE(`Percentile Rank in Peer Group %`) AS peer_percentile_rank,\n       MEASURE(`Clients Below Peer P25`)          AS worse_than_p25\nFROM smbc_genie.metrics.mv_financial_ratios_vs_peers\nWHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'\n  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR', 'DSCR', 'Current Ratio', 'EBITDA Margin')\nGROUP BY ALL\nORDER BY `Ratio Name`, `Fiscal Year`",
+    "expected_checks": {
+      "rows": 15
+    },
+    "answer_ref": "Q1b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000002",
+    "key": "Q1c",
+    "question": "List all facilities of Sunda Energi Nusantara (Jakarta) with facility type, status, security type, guarantor type, committed limit, drawn amount, margin in bps, collateral value and highest LTV.",
+    "expected_sql": "SELECT `Facility`, `Facility Type`, `Facility Status`, `Security Type`, `Guarantor Type`,\n       MEASURE(`Limit USD`)            AS limit_usd,\n       MEASURE(`Drawn USD`)            AS drawn_usd,\n       MEASURE(`Weighted Margin bps`)  AS margin_bps,\n       MEASURE(`Collateral Value USD`) AS collateral_value_usd,\n       MEASURE(`Max LTV %`)            AS max_ltv\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'\nGROUP BY ALL\nORDER BY drawn_usd DESC",
+    "expected_checks": {
+      "rows": 4
+    },
+    "answer_ref": "Q1c",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000003",
+    "key": "Q1d",
+    "question": "Show the covenant tests of Sunda Energi Nusantara (Jakarta) since 31 Dec 2025: facility, covenant type, test date, whether it is the latest test, actual, threshold, headroom and number of breaches.",
+    "expected_sql": "SELECT `Facility`, `Covenant Type`, `Date` AS test_date, `Is Latest Test`,\n       MEASURE(`Covenant Actual`)         AS actual,\n       MEASURE(`Covenant Threshold`)      AS threshold,\n       MEASURE(`Min Covenant Headroom %`) AS headroom,\n       MEASURE(`Breaches`)                AS breaches\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%' AND `Record Type` = 'Covenant Test' AND `Date` >= DATE'2025-12-31'\nGROUP BY ALL\nORDER BY `Facility`, `Covenant Type`, test_date",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q1d",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000004",
+    "key": "Q1e",
+    "question": "What is the current exposure of Sunda Energi Nusantara (Jakarta) at 30 Sep 2026: drawn, limit, EAD, RWA, ECL, Stage 3 exposure and overdue amount?",
+    "expected_sql": "SELECT drawn_usd, limit_usd, ead_usd, rwa_usd, ecl_usd, stage3_exposure_usd, overdue_usd\nFROM smbc_genie.gold.fn_credit_memo_exposure('Sunda Energi Nusantara (Jakarta)')",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": null,
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000005",
+    "key": "Q2",
+    "question": "Which legal entities breached or have less than 10% headroom on a leverage covenant at the latest test? Show client, facility, headroom bucket, watchlist flag, actual, threshold and headroom.",
+    "expected_sql": "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`,\n       MEASURE(`Covenant Actual`)         AS actual,\n       MEASURE(`Covenant Threshold`)      AS threshold,\n       MEASURE(`Min Covenant Headroom %`) AS headroom\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'\n  AND `Headroom Bucket` IN ('Breached', '0-10%')\nGROUP BY ALL\nORDER BY headroom",
+    "expected_checks": {
+      "rows": 6
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000006",
+    "key": "Q3",
+    "question": "Net Debt/EBITDA and ICR for all Indonesian mining clients vs their peer median, FY2023-FY2025: client, subsector, ratio, fiscal year, ratio value, peer median and gap to the peer median.",
+    "expected_sql": "SELECT `Client`, `Subsector`, `Ratio Name`, `Fiscal Year`,\n       MEASURE(`Ratio Value`)        AS ratio_value,\n       MEASURE(`Peer Median`)        AS peer_median,\n       MEASURE(`Gap to Peer Median`) AS gap_to_peer_median\nFROM smbc_genie.metrics.mv_financial_ratios_vs_peers\nWHERE `Coverage Office` = 'ID' AND `Subsector` IN ('Mining', 'Minerals', 'Natural Resources', 'Oil, Gas & Coal')\n  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR')\nGROUP BY ALL\nORDER BY `Client`, `Ratio Name`, `Fiscal Year`",
+    "expected_checks": {
+      "rows": 18
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000007",
+    "key": "Q4",
+    "question": "For FY2025 financials not yet spread, how many statements does each analyst have outstanding, and what are the average and maximum days overdue?",
+    "expected_sql": "SELECT `Analyst`,\n       MEASURE(`Not Yet Spread`)       AS statements_not_spread,\n       MEASURE(`Average Days Overdue`) AS avg_days_overdue,\n       MEASURE(`Max Days Overdue`)     AS max_days_overdue\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = 'FY2025' AND `Is Not Yet Spread`\nGROUP BY ALL\nORDER BY statements_not_spread DESC, max_days_overdue DESC",
+    "expected_checks": {
+      "rows": 43
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000008",
+    "key": "Q4b",
+    "question": "Which clients' FY2025 financials are not yet spread? List client, analyst, spreading status and days overdue.",
+    "expected_sql": "SELECT `Client`, `Analyst`, `Status`, MEASURE(`Max Days Overdue`) AS days_overdue\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = 'FY2025' AND `Is Not Yet Spread`\nGROUP BY ALL\nORDER BY days_overdue DESC",
+    "expected_checks": {
+      "rows": 128
+    },
+    "answer_ref": "Q4b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000009",
+    "key": "Q5",
+    "question": "Annual reviews due in Q3 FY2026 by analyst and current status: number of reviews due and average days in preparation.",
+    "expected_sql": "SELECT `Analyst`, `Status`,\n       MEASURE(`Reviews Due`)                 AS reviews_due,\n       MEASURE(`Average Days in Preparation`) AS avg_days_in_preparation\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'Annual' AND `Fiscal Quarter` = 'FY2026-Q3'\nGROUP BY ALL\nORDER BY `Analyst`, `Status`",
+    "expected_checks": {
+      "rows": 65
+    },
+    "answer_ref": "Q5",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e0000000a",
+    "key": "Q6",
+    "question": "Collateral coverage on active facilities: list the collateral with LTV above 70% or a valuation older than 24 months - client, facility, collateral type, collateral value, LTV and valuation age in months.",
+    "expected_sql": "SELECT `Client`, `Facility`, `Collateral Type`,\n       MEASURE(`Collateral Value USD`)     AS collateral_value_usd,\n       MEASURE(`Max LTV %`)                AS ltv,\n       MEASURE(`Max Valuation Age Months`) AS valuation_age_months\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Collateral' AND `Facility Status` = 'Active'\nGROUP BY ALL\nHAVING MEASURE(`Collateral Needing Review`) > 0\nORDER BY ltv DESC",
+    "expected_checks": {
+      "rows": 308
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e0000000b",
+    "key": "Q6b",
+    "question": "Summarise collateral needing review on active facilities by collateral type: items needing review, items with LTV above 70% and items with valuations older than 24 months.",
+    "expected_sql": "SELECT `Collateral Type`,\n       MEASURE(`Collateral Needing Review`) AS items_needing_review,\n       MEASURE(`High LTV Items`)            AS ltv_over_70,\n       MEASURE(`Stale Valuations`)          AS valuation_over_24m\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Collateral' AND `Facility Status` = 'Active'\nGROUP BY ALL\nORDER BY items_needing_review DESC",
+    "expected_checks": {
+      "rows": 5
+    },
+    "answer_ref": "Q6b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e0000000c",
+    "key": "Q7",
+    "question": "Which Japanese-corporate subsidiaries rely on a parent guarantee or keepwell on their active facilities, and what is the parent's external rating from the Japan share? Show client, client group, guarantor type, parent rating, number of facilities and drawn amount.",
+    "expected_sql": "SELECT `Client`, `Client Group`, `Guarantor Type`, `Parent Rating`,\n       MEASURE(`Facilities`) AS facilities,\n       MEASURE(`Drawn USD`)  AS drawn_usd\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Facility' AND `Facility Status` = 'Active' AND `Is Japanese Corporate`\n  AND `Guarantor Type` IN ('Parent Guarantee', 'Keepwell')\nGROUP BY ALL\nORDER BY drawn_usd DESC",
+    "expected_checks": {
+      "rows": 159
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e0000000d",
+    "key": "Q8",
+    "question": "Working-capital cycle trend for electronics-sector clients, FY2023-FY2025: for DSO, DIO, DPO and the cash conversion cycle, show by fiscal year the number of clients, the client average days and the peer median days.",
+    "expected_sql": "SELECT `Ratio Name`, `Fiscal Year`,\n       MEASURE(`Clients`)     AS clients,\n       MEASURE(`Ratio Value`) AS client_average_days,\n       MEASURE(`Peer Median`) AS peer_median_days\nFROM smbc_genie.metrics.mv_financial_ratios_vs_peers\nWHERE `Subsector` IN ('Electronics', 'Electronic Devices') AND `Ratio Name` IN ('DSO', 'DIO', 'DPO', 'Cash Conversion Cycle')\nGROUP BY ALL\nORDER BY `Ratio Name`, `Fiscal Year`",
+    "expected_checks": {
+      "rows": 12
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e0000000e",
+    "key": "Q9",
+    "question": "How many covenant waivers were granted this fiscal year, what exposure is associated with them, and how many covenant tests were run in FY2026?",
+    "expected_sql": "SELECT MEASURE(`Waivers`)                   AS waivers,\n       MEASURE(`Exposure with Waivers USD`) AS exposure_with_waivers_usd,\n       MEASURE(`Covenant Tests`)            AS covenant_tests_fy2026\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Covenant Test' AND `Fiscal Year` = 'FY2026'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q9",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e0000000f",
+    "key": "Q10",
+    "question": "New-money requests approved in H1 FY2026 by coverage office: number approved, requested amount, weighted margin in bps and average days to approval.",
+    "expected_sql": "SELECT `Coverage Office`,\n       MEASURE(`Approved`)                 AS approvals,\n       MEASURE(`Requested Amount USD`)     AS amount_usd,\n       MEASURE(`Weighted Margin bps`)      AS weighted_margin_bps,\n       MEASURE(`Average Days to Approval`) AS avg_days_to_approval\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'New Money' AND `Approval Fiscal Half` = 'FY2026-H1' AND `Outcome` IN ('Approved', 'Approved with Conditions')\nGROUP BY ALL\nORDER BY amount_usd DESC",
+    "expected_checks": {
+      "rows": 9
+    },
+    "answer_ref": "Q10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000010",
+    "key": "Q2-jargon",
+    "question": "Leverage covenant trips or sub-10% cushion at the last test - which obligors? Give facility, headroom bucket, WL flag, actual vs threshold and headroom.",
+    "expected_sql": "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`,\n       MEASURE(`Covenant Actual`)         AS actual,\n       MEASURE(`Covenant Threshold`)      AS threshold,\n       MEASURE(`Min Covenant Headroom %`) AS headroom\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'\n  AND `Headroom Bucket` IN ('Breached', '0-10%')\nGROUP BY ALL\nORDER BY headroom",
+    "expected_checks": {
+      "rows": 6
+    },
+    "answer_ref": "Q2",
+    "variant_of": "Q2",
+    "allow_extra_columns": false,
+    "variant_of_id": "1e33de78089a40dff34d0e3e00000005"
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000011",
+    "key": "Q10-abbrev",
+    "question": "new money approvals H1 FY26 by office - count, amt, wtd margin bps, avg days to approve",
+    "expected_sql": "SELECT `Coverage Office`,\n       MEASURE(`Approved`)                 AS approvals,\n       MEASURE(`Requested Amount USD`)     AS amount_usd,\n       MEASURE(`Weighted Margin bps`)      AS weighted_margin_bps,\n       MEASURE(`Average Days to Approval`) AS avg_days_to_approval\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'New Money' AND `Approval Fiscal Half` = 'FY2026-H1' AND `Outcome` IN ('Approved', 'Approved with Conditions')\nGROUP BY ALL\nORDER BY amount_usd DESC",
+    "expected_checks": {
+      "rows": 9
+    },
+    "answer_ref": "Q10",
+    "variant_of": "Q10",
+    "allow_extra_columns": false,
+    "variant_of_id": "1e33de78089a40dff34d0e3e0000000f"
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000012",
+    "key": "Q4b-typo",
+    "question": "list clients with FY2025 finacials not yet spred, with analyst, status and days overdue",
+    "expected_sql": "SELECT `Client`, `Analyst`, `Status`, MEASURE(`Max Days Overdue`) AS days_overdue\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = 'FY2025' AND `Is Not Yet Spread`\nGROUP BY ALL\nORDER BY days_overdue DESC",
+    "expected_checks": {
+      "rows": 128
+    },
+    "answer_ref": "Q4b",
+    "variant_of": "Q4b",
+    "allow_extra_columns": false,
+    "variant_of_id": "1e33de78089a40dff34d0e3e00000008"
+  },
+  {
+    "id": "1e33de78089a40dff34d0e3e00000013",
+    "key": "Q9-casual",
+    "question": "did we waive any covenants this year? how much exposure did that cover, and how many covenant tests did we run in FY2026?",
+    "expected_sql": "SELECT MEASURE(`Waivers`)                   AS waivers,\n       MEASURE(`Exposure with Waivers USD`) AS exposure_with_waivers_usd,\n       MEASURE(`Covenant Tests`)            AS covenant_tests_fy2026\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Covenant Test' AND `Fiscal Year` = 'FY2026'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q9",
+    "variant_of": "Q9",
+    "allow_extra_columns": false,
+    "variant_of_id": "1e33de78089a40dff34d0e3e0000000e"
+  }
+]

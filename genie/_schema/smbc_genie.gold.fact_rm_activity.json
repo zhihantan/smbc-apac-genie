@@ -1,0 +1,235 @@
+{
+ "columns": [
+  {
+   "comment": "CRM activity id.",
+   "is_measure": false,
+   "name": "activity_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the activity.",
+   "is_measure": false,
+   "name": "activity_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of the activity.",
+   "is_measure": false,
+   "name": "activity_month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account id (source record of the CRM platform) the row was recorded against.",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Employee id of the RM who logged the activity; join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "rm_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the RM who logged the activity (RM001-RM120).",
+   "is_measure": false,
+   "name": "rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office of the RM (APAC booking location, e.g. SG).",
+   "is_measure": false,
+   "name": "rm_office",
+   "type": "string"
+  },
+  {
+   "comment": "Client contact met (CRM contact id); join to gold.dim_contact.",
+   "is_measure": false,
+   "name": "contact_id",
+   "type": "string"
+  },
+  {
+   "comment": "Role of the contact: CFO, Treasurer, CEO, Procurement Head, Other or Unknown.",
+   "is_measure": false,
+   "name": "contact_role",
+   "type": "string"
+  },
+  {
+   "comment": "Seniority of the contact as recorded in CRM.",
+   "is_measure": false,
+   "name": "contact_seniority",
+   "type": "string"
+  },
+  {
+   "comment": "Call, Meeting, Email, Video Call or Site Visit.",
+   "is_measure": false,
+   "name": "activity_type",
+   "type": "string"
+  },
+  {
+   "comment": "True for meetings and site visits.",
+   "is_measure": false,
+   "name": "is_in_person",
+   "type": "boolean"
+  },
+  {
+   "comment": "Purpose: Account Planning, Relationship Review, Product Discussion, Deal Progress, Signal Follow-up, Credit Review, Service Review, Market Update or Courtesy Visit.",
+   "is_measure": false,
+   "name": "purpose",
+   "type": "string"
+  },
+  {
+   "comment": "Subject line of the activity.",
+   "is_measure": false,
+   "name": "subject",
+   "type": "string"
+  },
+  {
+   "comment": "Product discussed (CRM sales product, e.g. Supply Chain Finance, Cash Management Mandate); null when none.",
+   "is_measure": false,
+   "name": "product_discussed",
+   "type": "string"
+  },
+  {
+   "comment": "dim_product key of product_discussed.",
+   "is_measure": false,
+   "name": "product_discussed_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product family of the product discussed; null when none.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "RM call note (synthetic, <= 40 words).",
+   "is_measure": false,
+   "name": "note_text",
+   "type": "string"
+  },
+  {
+   "comment": "Tone of the note as written: Positive, Neutral or Negative.",
+   "is_measure": false,
+   "name": "note_tone",
+   "type": "string"
+  },
+  {
+   "comment": "Note sentiment -1 (very negative) .. +1 (very positive), deterministic from the tone; average it.",
+   "is_measure": false,
+   "name": "sentiment_score",
+   "type": "double"
+  },
+  {
+   "comment": "True when the activity set a follow-up action.",
+   "is_measure": false,
+   "name": "action_required",
+   "type": "boolean"
+  },
+  {
+   "comment": "Follow-up action agreed (short text).",
+   "is_measure": false,
+   "name": "next_action",
+   "type": "string"
+  },
+  {
+   "comment": "Due date of the follow-up action.",
+   "is_measure": false,
+   "name": "next_action_due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Status of the follow-up at the as-of date: Open, Overdue or Completed (null without an action).",
+   "is_measure": false,
+   "name": "next_action_status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the follow-up is still open at the as-of date (Open or Overdue) - Next Actions Open.",
+   "is_measure": false,
+   "name": "is_next_action_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the follow-up is overdue at the as-of date.",
+   "is_measure": false,
+   "name": "is_next_action_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "Opportunity signal the activity followed up (fact_opportunity_signal.signal_id).",
+   "is_measure": false,
+   "name": "related_signal_id",
+   "type": "string"
+  },
+  {
+   "comment": "Pipeline opportunity the activity progressed (fact_pipeline_opportunity.opportunity_id).",
+   "is_measure": false,
+   "name": "related_opportunity_id",
+   "type": "string"
+  },
+  {
+   "comment": "Duration of the activity in minutes.",
+   "is_measure": false,
+   "name": "duration_minutes",
+   "type": "int"
+  },
+  {
+   "comment": "Days from the activity to the as-of date 30-Sep-2026.",
+   "is_measure": false,
+   "name": "days_before_as_of",
+   "type": "int"
+  },
+  {
+   "comment": "True for activities in the 90 days to the as-of date (1-Jul to 30-Sep-2026).",
+   "is_measure": false,
+   "name": "is_last_90_days",
+   "type": "boolean"
+  }
+ ],
+ "comment": "RM engagement log (Account Planning, mv_rm_engagement): one row per CRM activity with a client - calls, meetings, emails, video calls and site visits from Apr-2024 to Sep-2026 - with the RM, the client contact and role (CFO, Treasurer, CEO, Procurement Head), the purpose and product discussed, a short note (<= 40 words), the note sentiment (-1 negative .. +1 positive) and the follow-up action with its status at the as-of date. Count rows for activity volumes and distinct golden_client_id for clients touched; average sentiment_score. Grain: one row per CRM activity.",
+ "identifier": "smbc_genie.gold.fact_rm_activity",
+ "type": "MANAGED"
+}

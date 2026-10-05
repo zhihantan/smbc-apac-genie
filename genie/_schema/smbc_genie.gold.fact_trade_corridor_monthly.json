@@ -1,0 +1,169 @@
+{
+ "columns": [
+  {
+   "comment": "Row key = yyyy-MM | origin | destination | HS chapter | golden client id (MARKET for market residual rows).",
+   "is_measure": false,
+   "name": "corridor_row_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client (an SMBC client active in the corridor) or Market residual (vendor statistics of a corridor-month with no active SMBC client).",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the month.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Corridor from: goods origin country (ISO-2).",
+   "is_measure": false,
+   "name": "origin_country",
+   "type": "string"
+  },
+  {
+   "comment": "Corridor to: goods destination country (ISO-2).",
+   "is_measure": false,
+   "name": "destination_country",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor origin->destination, e.g. CN->VN (goods shipped from China into Vietnam).",
+   "is_measure": false,
+   "name": "corridor",
+   "type": "string"
+  },
+  {
+   "comment": "HS chapter of the goods (00 = unclassified: payment-only activity of a client whose industry has no main traded goods).",
+   "is_measure": false,
+   "name": "hs_chapter",
+   "type": "string"
+  },
+  {
+   "comment": "Commodity of the HS chapter (e.g. Electronics = HS 85, Auto Parts = HS 87); Unclassified for HS 00.",
+   "is_measure": false,
+   "name": "commodity",
+   "type": "string"
+  },
+  {
+   "comment": "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats).",
+   "is_measure": false,
+   "name": "is_carbon_intensive_commodity",
+   "type": "boolean"
+  },
+  {
+   "comment": "dim_client version of the client valid in the month (as-was, D11); null on market residual rows.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client active in the corridor (null on market residual rows). Clients Active in Corridor = count distinct golden_client_id.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "SMBC trade-finance instruments issued for the client on the corridor in the month (flow).",
+   "is_measure": false,
+   "name": "tf_transactions",
+   "type": "int"
+  },
+  {
+   "comment": "USD amount of those instruments - SMBC trade finance volume on the corridor (flow).",
+   "is_measure": false,
+   "name": "tf_issuance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Commission on those instruments, USD (flow).",
+   "is_measure": false,
+   "name": "tf_fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "The client's cross-border trade-settlement payments on the goods corridor in the month (visible from payments; flow).",
+   "is_measure": false,
+   "name": "trade_settlement_payments",
+   "type": "int"
+  },
+  {
+   "comment": "USD value of those payments (flow).",
+   "is_measure": false,
+   "name": "trade_settlement_usd",
+   "type": "double"
+  },
+  {
+   "comment": "tf_issuance_usd + trade_settlement_usd - the client's visible activity on the corridor, the allocation key of the market value.",
+   "is_measure": false,
+   "name": "activity_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client's trade-settlement payments show it trading on the corridor in the month.",
+   "is_measure": false,
+   "name": "is_payment_visible",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client had an SMBC trade-finance instrument issued in the 12 months to the month-end or live at the month-end (any corridor). Payment-visible clients without one = trade finance opportunity.",
+   "is_measure": false,
+   "name": "has_trade_product_12m",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has a live SMBC trade-finance instrument at 30-Sep-2026 or one issued Oct-2025 to Sep-2026 (today's view, repeated on all its rows).",
+   "is_measure": false,
+   "name": "has_trade_product_as_of",
+   "type": "boolean"
+  },
+  {
+   "comment": "External trade statistics (vendor, USD) of the corridor x HS chapter x month allocated to the row: split over the active SMBC clients in proportion to activity_usd, or the full value on the market residual row. Additive - SUM = corridor market value.",
+   "is_measure": false,
+   "name": "market_value_allocated_usd",
+   "type": "double"
+  },
+  {
+   "comment": "External trade value of the same corridor x HS chapter 12 months earlier, allocated to the row with the same keys as market_value_allocated_usd (additive; null before Apr-2024 = no prior-year statistics). Corridor Growth YoY = SUM(market_value_allocated_usd) / SUM(market_value_prior_year_allocated_usd) - 1.",
+   "is_measure": false,
+   "name": "market_value_prior_year_allocated_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Full external trade value of the corridor x HS chapter x month (corridor attribute repeated on every row; do not sum).",
+   "is_measure": false,
+   "name": "market_value_corridor_usd",
+   "type": "double"
+  },
+  {
+   "comment": "External trade value of the same corridor x HS chapter 12 months earlier (corridor attribute; do not sum).",
+   "is_measure": false,
+   "name": "market_value_prior_year_corridor_usd",
+   "type": "double"
+  },
+  {
+   "comment": "market_value_corridor_usd / market_value_prior_year_corridor_usd - 1 (corridor attribute; e.g. 0.37 = +37% YoY).",
+   "is_measure": false,
+   "name": "market_yoy_growth_corridor",
+   "type": "double"
+  },
+  {
+   "comment": "Status of the vendor statistic: Final, Preliminary or Flash Estimate (latest months are estimates).",
+   "is_measure": false,
+   "name": "market_data_status",
+   "type": "string"
+  }
+ ],
+ "comment": "Monthly trade-corridor activity at client grain with the external trade statistics allocated (Apr-2023 to Sep-2026). Goods corridor = origin -> destination country x HS chapter (commodity). record_type 'Client' rows: one per golden client x corridor x HS chapter x month with SMBC trade finance issued on the corridor (instruments, USD, fees) and the client's cross-border trade-settlement payments mapped to the goods corridor (outbound = the client imports: counterparty -> client country; inbound = exports; commodity = the client's main traded goods from its industry), whether the client holds a trade product with SMBC, and its allocated share of the corridor market. record_type 'Market residual' rows: corridor-months of the vendor statistics where no SMBC client is active, holding the full market value. SUM(market_value_allocated_usd) over any set of corridors / commodities / months = the external market value (no double count), so SMBC Share Estimate = SUM(tf_issuance_usd) / SUM(market_value_allocated_usd). Flows (additive by month). Corridor-level market attributes (market_value_corridor_usd, prior-year value, YoY growth) repeat on every row of the corridor-month - do not sum them.",
+ "identifier": "smbc_genie.gold.fact_trade_corridor_monthly",
+ "type": "MANAGED"
+}

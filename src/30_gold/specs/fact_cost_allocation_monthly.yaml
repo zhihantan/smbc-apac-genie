@@ -1,0 +1,45 @@
+table: fact_cost_allocation_monthly
+domain: profitability
+comment: >-
+  Cost to serve allocated to each golden client, product family and month (Apr-2024 to Sep-2026, Client
+  Profitability): direct product cost, relationship-manager cost, operations cost (account upkeep, payment
+  processing) and head-office allocation, in USD, with the same line's revenue for cost / income ratios
+  (SUM(total_cost_usd) / SUM(total_revenue_usd)). Costs are monthly flows: additive across months, families and
+  clients. For credit relationships the quarterly totals tie to the cost to serve of the relationship P&L.
+grain: one row per golden client x month x product family
+primary_key: [golden_client_id, month, product_family]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [month], references: dim_date}
+cluster_by: [month, golden_client_sk]
+min_rows: 100000
+columns:
+  month: {type: DATE, comment: "First day of the cost month."}
+  month_end_date: {type: DATE}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_quarter_label: {type: STRING}
+  fiscal_half_label: {type: STRING}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  product_family: {type: STRING, comment: "Product family the cost is allocated to: Corporate Lending, Cash, Liquidity, Payments, Trade Finance or FX."}
+  direct_cost_usd: {type: DOUBLE, comment: "Direct product cost in USD for the month (share of the coverage cost base driven by the product)."}
+  rm_cost_usd: {type: DOUBLE, comment: "Relationship-manager coverage cost in USD for the month."}
+  operations_cost_usd: {type: DOUBLE, comment: "Operations cost in USD for the month: account upkeep on deposit families, payment processing on Payments."}
+  ho_allocation_usd: {type: DOUBLE, comment: "Head-office overhead allocation in USD for the month."}
+  total_cost_usd: {type: DOUBLE, comment: "Total allocated cost (opex) in USD = direct + RM + operations + HO. Additive."}
+  total_revenue_usd: {type: DOUBLE, comment: "Revenue of the same client, month and family in USD (product feeds) - denominator of the cost / income ratio."}
+  n_source_records: {type: BIGINT, comment: "Source finance records (client references) summed into the row - more than 1 when entity resolution merged records."}
+  is_pnl_reconciled: {type: BOOLEAN, comment: "True when the cost belongs to a credit relationship whose quarterly cost ties to the relationship P&L cost to serve."}
+checks:
+  - name: cost_lines_add_up
+    sql: SELECT count_if(abs(direct_cost_usd + rm_cost_usd + operations_cost_usd + ho_allocation_usd - total_cost_usd) > 0.05) FROM ${table}
+reconcile:
+  - name: total_cost_vs_silver
+    gold: SELECT sum(total_cost_usd) FROM ${table}
+    silver: SELECT sum(total_cost_usd) FROM ${catalog}.silver.fin_cost_allocation
+    tolerance: 1
+  - name: rows_vs_silver_golden_grain
+    silver: SELECT count(*) FROM (SELECT DISTINCT golden_client_id, month, product_family FROM ${catalog}.silver.fin_cost_allocation)

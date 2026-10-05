@@ -1,0 +1,202 @@
+# Space 10, Signals & Sentiment (WP8f). The unified signal feed (CRM opportunity signals, EWS triggers, news,
+# market moves, agency and JP parent rating actions, RM notes): every measure is a flow (counts / averages of
+# signal events over the selected days). Answers: metrics/_answers/signals_sentiment.sql.
+view: mv_signal_feed
+space: signals_sentiment
+comment: >-
+  Unified signal feed consumed by Opportunity Identification and Early Warning, Apr-2023 to Sep-2026: every
+  signal on an APAC client from CRM opportunity signals (e.g. DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH), EWS
+  triggers (monthly, e.g. UTIL_HIGH, DPD_30), news items (NEWS_*), market moves on listed parents (MARKET_*),
+  agency rating actions (EXT_RATING_*, EXT_OUTLOOK_NEGATIVE), JP parent rating actions from the Japan share
+  (PARENT_RATING_*) and positive / negative RM notes (RM_NOTE_*): signals, opportunity vs risk signals,
+  average strength 0-1, unacknowledged signals (no RM follow-up), days to acknowledge and signals with no
+  pipeline. Group-level signals (market, agency, JP parent) sit on the group's lead entity. All measures add
+  up over days.
+grain: one row per signal event (gold.fact_signal_event)
+source: ${catalog}.gold.fact_signal_event
+blocks:
+  calendar: {date: source.signal_date, grain: day, what: the signal (EWS signals - first day of the month evaluated)}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Signal Type
+    expr: source.signal_code
+    display_name: Signal Type (code)
+    comment: >-
+      Signal code, e.g. DEPOSIT_SURPLUS, FX_FLOW_VIA_OTHER_BANK, TRADE_CORRIDOR_GROWTH, CAPEX_NEWS (CRM);
+      UTIL_HIGH, DPD_30, COV_BREACH, NEWS_NEGATIVE (EWS); NEWS_EXPANSION, NEWS_REGULATORY, NEWS_LITIGATION
+      (news topics); MARKET_52W_LOW, MARKET_CDS_WIDENING; EXT_RATING_DOWNGRADE, EXT_OUTLOOK_NEGATIVE;
+      PARENT_RATING_UPGRADE / _DOWNGRADE (Japan share); RM_NOTE_POSITIVE / _NEGATIVE. See gold.dim_signal_type.
+    synonyms: [signal type, signal code, signal, trigger, alert type, signal name, event type]
+  - name: Polarity
+    expr: source.polarity
+    display_name: Signal Polarity
+    comment: >-
+      Opportunity (positive / sales), Risk (negative / early warning) or Neutral. News takes the item sentiment;
+      upgrades are Opportunity, downgrades and negative outlooks Risk.
+    synonyms: [polarity, signal polarity, positive or negative, opportunity or risk, direction, signal direction]
+  - name: Source Quadrant
+    expr: source.source_quadrant
+    display_name: Source Quadrant
+    comment: "Data quadrant of the signal: Internal Quantitative, Internal Qualitative, External Quantitative or External Qualitative."
+    synonyms: [quadrant, data quadrant, internal or external, qualitative or quantitative, data type]
+  - name: Consumed By
+    expr: source.consumed_by
+    display_name: Consumed By
+    comment: "Workflow that acts on the signal type: Opportunity Identification, Early Warning or Both."
+    synonyms: [consumed by, consuming workflow, used by, opportunity or EWS, workflow, consumer]
+  - name: Source Feed
+    expr: source.source_feed
+    display_name: Signal Source Feed
+    comment: >-
+      Feed the signal came from: crm_signal (CRM opportunity engine), ews_signal (early-warning engine), news,
+      market (listed-parent market data), ext_rating (agencies), jp_parent_rating (Japan / Tokyo HO Delta Share)
+      or rm_note (RM call notes).
+    synonyms: [source feed, feed, signal source, source, data source, origin, engine]
+  - name: Source Region
+    expr: source.source_region
+    display_name: Data Provider Region
+    comment: >-
+      JP for signals from the Japan (Tokyo head office) Delta Share - the JP parent rating actions; APAC for
+      local feeds and vendors. "Rating actions from JP-shared parent data" means Source Region = JP.
+    synonyms: [source region, provider region, JP share, Japan data, Tokyo HO data, shared data region]
+  - name: Acknowledged
+    expr: source.is_acknowledged
+    display_name: Acknowledged by RM
+    comment: >-
+      True when an RM acknowledged the signal: CRM signals whose status moved beyond New; RM notes (raised by
+      the RM); any other signal when an RM logged an activity with the client group within 30 days after it.
+    synonyms: [acknowledged, actioned, followed up, seen by RM, handled, unacknowledged, open signal]
+  - name: Has Pipeline
+    expr: source.has_pipeline
+    display_name: Has Pipeline
+    comment: >-
+      True when the client (group-level signals - the group) has an open pipeline opportunity at 30-Sep-2026 or
+      one created on or after the signal date; false = a signal with no pipeline.
+    synonyms: [has pipeline, pipeline, converted to pipeline, opportunity created, no pipeline, followed by opportunity]
+measures:
+  - name: Signals
+    expr: COUNT(1)
+    display_name: Signals
+    comment: Signal events on the selected clients and days (a flow).
+    synonyms: [signals, alerts, signal count, triggers, events, number of signals, notifications]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Average Strength
+    expr: AVG(source.strength)
+    display_name: Average Signal Strength
+    comment: >-
+      Mean signal strength 0-1 (CRM engine strength; EWS severity High 1.0 / Medium 0.6 / Low 0.3; news 0.5 x
+      relevance + 0.5 x |sentiment|; size of the market move; rating notches; |note sentiment|).
+    synonyms: [strength, signal strength, average strength, intensity, signal score, confidence]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+  - name: Opportunity Signals
+    expr: COUNT(1) FILTER (WHERE source.is_opportunity_signal)
+    display_name: Opportunity Signals
+    comment: Signals with polarity Opportunity.
+    synonyms: [opportunity signals, positive signals, sales signals, cross-sell signals, upside signals, leads]
+    format: *count
+  - name: Risk Signals
+    expr: COUNT(1) FILTER (WHERE source.is_risk_signal)
+    display_name: Risk Signals
+    comment: Signals with polarity Risk (early-warning side).
+    synonyms: [risk signals, negative signals, warning signals, red flags, early warning signals, adverse signals]
+    format: *count
+  - name: Unacknowledged Signals
+    expr: COUNT(1) FILTER (WHERE NOT source.is_acknowledged)
+    display_name: Unacknowledged Signals
+    comment: Signals no RM has acknowledged (see Acknowledged).
+    synonyms: [unacknowledged signals, open signals, unactioned signals, ignored signals, pending signals, not followed up]
+    format: *count
+  - name: Unacknowledged Risk Signals
+    expr: COUNT(1) FILTER (WHERE source.is_risk_signal AND NOT source.is_acknowledged)
+    display_name: Unacknowledged Risk Signals
+    comment: Risk signals with no RM acknowledgement - group by Primary RM for "unacknowledged risk signals by RM".
+    synonyms: [unacknowledged risk signals, open risk alerts, unactioned red flags, missed warnings, risk signals not followed up]
+    format: *count
+  - name: Acknowledged %
+    expr: (MEASURE(`Signals`) - MEASURE(`Unacknowledged Signals`)) / NULLIF(MEASURE(`Signals`), 0)
+    display_name: Acknowledged Share
+    comment: Acknowledged signals / all signals (fraction).
+    synonyms: [acknowledgement rate, follow-up rate, actioned rate, response rate, coverage of signals]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Average Days to Acknowledge
+    expr: AVG(source.days_to_acknowledge)
+    display_name: Average Days to Acknowledge
+    comment: Average days from a signal to its acknowledgement (acknowledged signals only).
+    synonyms: [days to acknowledge, response time, time to action, follow-up lag, reaction time]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Signals Without Pipeline
+    expr: COUNT(1) FILTER (WHERE NOT source.has_pipeline)
+    display_name: Signals With No Pipeline
+    comment: Signals whose client (group) has no open pipeline opportunity and none created since the signal.
+    synonyms: [signals without pipeline, no pipeline, unconverted signals, signals not converted, missed opportunities]
+    format: *count
+  - name: Groups Signalled
+    expr: COUNT(DISTINCT source.client_group_id)
+    display_name: Client Groups With Signals
+    comment: Client groups with at least one signal in the selection.
+    synonyms: [groups with signals, groups signalled, groups flagged, number of groups, groups alerted]
+    format: *count
+  - name: Signals per Group
+    expr: MEASURE(`Signals`) / NULLIF(MEASURE(`Groups Signalled`), 0)
+    display_name: Signals per Client Group
+    comment: Signals / client groups with signals.
+    synonyms: [signals per group, signal density, alerts per group, average signals per group]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Clients Signalled
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients With Signals
+    comment: Legal entities (golden clients) with at least one signal in the selection.
+    synonyms: [clients with signals, entities signalled, clients flagged, number of clients]
+    format: *count
+validate:
+  dims: [Month, Source Feed]
+reconcile:
+  - name: signals_by_feed_fy2026
+    measure: Signals
+    by: [Source Feed]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT source_feed, count(*) FROM ${catalog}.gold.fact_signal_event
+      WHERE signal_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' GROUP BY 1
+  - name: unacknowledged_risk_last_90d_by_feed
+    measure: Unacknowledged Risk Signals
+    by: [Source Feed]
+    where: "`Date` > DATE'2026-07-02'"
+    gold: >-
+      SELECT source_feed, count(*) FROM ${catalog}.gold.fact_signal_event
+      WHERE is_last_90d AND is_risk_signal AND NOT is_acknowledged GROUP BY 1
+  - name: acknowledged_pct_by_feed
+    measure: Acknowledged %
+    by: [Source Feed]
+    gold: SELECT source_feed, avg(CASE WHEN is_acknowledged THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_signal_event GROUP BY 1
+  - name: jp_share_rating_actions_fy2026
+    measure: Signals
+    where: "`Source Region` = 'JP' AND `Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_signal_event WHERE source_region = 'JP'
+      AND signal_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30'
+  - name: tanaka_parent_upgrade_18jun26
+    measure: Signals
+    where: "`Client Group` = 'Tanaka Chemical' AND `Signal Type` = 'PARENT_RATING_UPGRADE' AND `Date` = DATE'2026-06-18'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_signal_event WHERE client_group_id = 'SYN-G-0003'
+      AND signal_code = 'PARENT_RATING_UPGRADE' AND signal_date = DATE'2026-06-18'
+  - name: expansion_without_pipeline_au_in_fy2026
+    measure: Signals Without Pipeline
+    by: [Coverage Office]
+    where: "`Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity' AND `Coverage Office` IN ('AU', 'IN') AND `Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT c.coverage_office, count(*) FROM ${catalog}.gold.fact_signal_event s
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = s.golden_client_sk
+      WHERE s.signal_code IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND s.polarity = 'Opportunity' AND c.coverage_office IN ('AU', 'IN')
+      AND s.signal_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' AND NOT s.has_pipeline GROUP BY 1
+  - name: average_strength_by_polarity
+    measure: Average Strength
+    by: [Polarity]
+    gold: SELECT polarity, avg(strength) FROM ${catalog}.gold.fact_signal_event GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Acknowledgement of non-CRM signals is a proxy (an RM activity with the group within 30 days); EWS signals
+      repeat monthly while the condition holds (gold is_new_occurrence). Signals on clients without RM coverage
+      have no Primary RM. News sentiment detail is in mv_news_sentiment, market detail in mv_market_signals.

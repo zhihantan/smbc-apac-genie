@@ -1,0 +1,1098 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 9,
+      "columns": [
+        "Source Feed",
+        "Signal Type",
+        "signals",
+        "risk_signals",
+        "opportunity_signals",
+        "unacknowledged_signals"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "crm_signal",
+          "SCF_ANCHOR_CANDIDATE",
+          "1",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "crm_signal",
+          "TRADE_CORRIDOR_GROWTH",
+          "1",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "crm_signal",
+          "CAPEX_NEWS",
+          "1",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "7bda61f7a5c16101",
+      "sorted_by": null
+    },
+    "Q1-casual": {
+      "rows": 9,
+      "columns": [
+        "Source Feed",
+        "Signal Type",
+        "signals",
+        "risk_signals",
+        "opportunity_signals",
+        "unacknowledged_signals"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "crm_signal",
+          "SCF_ANCHOR_CANDIDATE",
+          "1",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "crm_signal",
+          "TRADE_CORRIDOR_GROWTH",
+          "1",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "crm_signal",
+          "CAPEX_NEWS",
+          "1",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "7bda61f7a5c16101",
+      "sorted_by": null
+    },
+    "Q1b": {
+      "rows": 1,
+      "columns": [
+        "Client Group",
+        "news_items_90d",
+        "news_sentiment_90d",
+        "rm_notes_90d",
+        "rm_note_sentiment_90d",
+        "external_rating",
+        "outlook",
+        "share_price_change_30d",
+        "cds_change_30d_bps",
+        "at_52_week_low",
+        "apac_exposure_usd"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG",
+        "DOUBLE",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kinokawa Precision",
+          "2",
+          "0.44400000000000006",
+          "11",
+          "0.2400909090909091",
+          "A+",
+          "Stable",
+          "-0.052494",
+          "-1.1",
+          "0",
+          "2.1405613611E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "67617ce8c5aab88a",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 8,
+      "columns": [
+        "Client Group",
+        "news_sentiment_last_90d",
+        "news_sentiment_change_90d",
+        "rm_note_sentiment_last_90d"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Tasman Property",
+          "-0.688",
+          "-1.087",
+          "0.4852999999999999"
+        ],
+        [
+          "Isurugi Marine Logistics",
+          "-0.686",
+          null,
+          "0.282"
+        ],
+        [
+          "Kapuas Petrochem",
+          "-0.674",
+          null,
+          "0.265"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "fed991862b4b1ed6",
+      "sorted_by": null
+    },
+    "Q2-jargon": {
+      "rows": 8,
+      "columns": [
+        "Client Group",
+        "news_sentiment_last_90d",
+        "news_sentiment_change_90d",
+        "rm_note_sentiment_last_90d"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Tasman Property",
+          "-0.688",
+          "-1.087",
+          "0.4852999999999999"
+        ],
+        [
+          "Isurugi Marine Logistics",
+          "-0.686",
+          null,
+          "0.282"
+        ],
+        [
+          "Kapuas Petrochem",
+          "-0.674",
+          null,
+          "0.265"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "fed991862b4b1ed6",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 16,
+      "columns": [
+        "Industry",
+        "top_negative_topic",
+        "negative_items",
+        "avg_sentiment",
+        "industry_negative_items"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Transport & Logistics",
+          "Earnings",
+          "41",
+          "-0.5714146341463415",
+          "119"
+        ],
+        [
+          "Materials",
+          "Earnings",
+          "29",
+          "-0.5346551724137931",
+          "69"
+        ],
+        [
+          "Energy",
+          "Earnings",
+          "15",
+          "-0.6845333333333333",
+          "51"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e8e36c35387d73de",
+      "sorted_by": null
+    },
+    "Q3-abbrev": {
+      "rows": 16,
+      "columns": [
+        "Industry",
+        "top_negative_topic",
+        "negative_items",
+        "avg_sentiment",
+        "industry_negative_items"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Transport & Logistics",
+          "Earnings",
+          "41",
+          "-0.5714146341463415",
+          "119"
+        ],
+        [
+          "Materials",
+          "Earnings",
+          "29",
+          "-0.5346551724137931",
+          "69"
+        ],
+        [
+          "Energy",
+          "Earnings",
+          "15",
+          "-0.6845333333333333",
+          "51"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e8e36c35387d73de",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 1,
+      "columns": [
+        "Client Group",
+        "Listed Parent",
+        "External Rating",
+        "Outlook",
+        "apac_exposure_usd",
+        "share_price_change_30d"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Hagiwara Steel",
+          "Hagiwara Steel KK",
+          "AA",
+          "Stable",
+          "2.8974863928E8",
+          "-0.176692"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "a0e528ec9659be06",
+      "sorted_by": null
+    },
+    "Q4-typo": {
+      "rows": 1,
+      "columns": [
+        "Client Group",
+        "Listed Parent",
+        "External Rating",
+        "Outlook",
+        "apac_exposure_usd",
+        "share_price_change_30d"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Hagiwara Steel",
+          "Hagiwara Steel KK",
+          "AA",
+          "Stable",
+          "2.8974863928E8",
+          "-0.176692"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "a0e528ec9659be06",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 11,
+      "columns": [
+        "rm",
+        "rm_office",
+        "unacknowledged_risk_signals",
+        "clients_with_signals"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "(no RM coverage)",
+          null,
+          "139",
+          "71"
+        ],
+        [
+          "Tomo Devi",
+          "VN",
+          "8",
+          "3"
+        ],
+        [
+          "Hana Reddy",
+          "ID",
+          "7",
+          "4"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "24062eb5604141d1",
+      "sorted_by": null
+    },
+    "Q5-jargon": {
+      "rows": 11,
+      "columns": [
+        "rm",
+        "rm_office",
+        "unacknowledged_risk_signals",
+        "clients_with_signals"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "(no RM coverage)",
+          null,
+          "139",
+          "71"
+        ],
+        [
+          "Tomo Devi",
+          "VN",
+          "8",
+          "3"
+        ],
+        [
+          "Hana Reddy",
+          "ID",
+          "7",
+          "4"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "24062eb5604141d1",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 9,
+      "columns": [
+        "Coverage Office",
+        "Client",
+        "Signal Type",
+        "Date",
+        "signals",
+        "strength"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DATE",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AU",
+          "Shishido Foods (Sydney) Pty Ltd",
+          "NEWS_EXPANSION",
+          "2026-05-19",
+          "1",
+          "0.691"
+        ],
+        [
+          "AU",
+          "Shishido Foods (Sydney) Pty Ltd",
+          "CAPEX_NEWS",
+          "2026-05-20",
+          "1",
+          "0.509"
+        ],
+        [
+          "AU",
+          "Sakaida Materials Group Ltd",
+          "NEWS_EXPANSION",
+          "2026-05-29",
+          "1",
+          "0.678"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "b9d406e2eca82b50",
+      "sorted_by": null
+    },
+    "Q6-casual": {
+      "rows": 9,
+      "columns": [
+        "Coverage Office",
+        "Client",
+        "Signal Type",
+        "Date",
+        "signals",
+        "strength"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DATE",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AU",
+          "Shishido Foods (Sydney) Pty Ltd",
+          "NEWS_EXPANSION",
+          "2026-05-19",
+          "1",
+          "0.691"
+        ],
+        [
+          "AU",
+          "Shishido Foods (Sydney) Pty Ltd",
+          "CAPEX_NEWS",
+          "2026-05-20",
+          "1",
+          "0.509"
+        ],
+        [
+          "AU",
+          "Sakaida Materials Group Ltd",
+          "NEWS_EXPANSION",
+          "2026-05-29",
+          "1",
+          "0.678"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "b9d406e2eca82b50",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 20,
+      "columns": [
+        "Sector Theme",
+        "Fiscal Quarter",
+        "news_items",
+        "avg_sentiment",
+        "negative_items"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Coal",
+          "FY2024-Q1",
+          "5",
+          "-0.017200000000000003",
+          "1"
+        ],
+        [
+          "Coal",
+          "FY2024-Q2",
+          "7",
+          "-0.16157142857142856",
+          "3"
+        ],
+        [
+          "Coal",
+          "FY2024-Q3",
+          "9",
+          "-0.1918888888888889",
+          "5"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "06e477f1c3c59c65",
+      "sorted_by": null
+    },
+    "Q7-typo": {
+      "rows": 20,
+      "columns": [
+        "Sector Theme",
+        "Fiscal Quarter",
+        "news_items",
+        "avg_sentiment",
+        "negative_items"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Coal",
+          "FY2024-Q1",
+          "5",
+          "-0.017200000000000003",
+          "1"
+        ],
+        [
+          "Coal",
+          "FY2024-Q2",
+          "7",
+          "-0.16157142857142856",
+          "3"
+        ],
+        [
+          "Coal",
+          "FY2024-Q3",
+          "9",
+          "-0.1918888888888889",
+          "5"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "06e477f1c3c59c65",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 42,
+      "columns": [
+        "Date",
+        "Client Group",
+        "Signal Type",
+        "signals",
+        "strength"
+      ],
+      "types": [
+        "DATE",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "2026-06-08",
+          "Harashima Devices Holdings",
+          "PARENT_RATING_UPGRADE",
+          "1",
+          "0.6"
+        ],
+        [
+          "2026-06-18",
+          "Sakaida Materials Group",
+          "PARENT_RATING_DOWNGRADE",
+          "1",
+          "0.6"
+        ],
+        [
+          "2026-06-18",
+          "Sakaida Prime Semiconductor",
+          "PARENT_RATING_UPGRADE",
+          "1",
+          "0.6"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "bda5532f209e9a12",
+      "sorted_by": null
+    },
+    "Q8-abbrev": {
+      "rows": 42,
+      "columns": [
+        "Date",
+        "Client Group",
+        "Signal Type",
+        "signals",
+        "strength"
+      ],
+      "types": [
+        "DATE",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "2026-06-08",
+          "Harashima Devices Holdings",
+          "PARENT_RATING_UPGRADE",
+          "1",
+          "0.6"
+        ],
+        [
+          "2026-06-18",
+          "Sakaida Materials Group",
+          "PARENT_RATING_DOWNGRADE",
+          "1",
+          "0.6"
+        ],
+        [
+          "2026-06-18",
+          "Sakaida Prime Semiconductor",
+          "PARENT_RATING_UPGRADE",
+          "1",
+          "0.6"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "bda5532f209e9a12",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 1,
+      "columns": [
+        "items",
+        "min_sentiment",
+        "max_sentiment",
+        "avg_sentiment"
+      ],
+      "types": [
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "8",
+          "-0.659",
+          "-0.514",
+          "-0.5858749999999999"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "7765ee41da914069",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 1,
+      "columns": [
+        "Client Group",
+        "items",
+        "avg_sentiment"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Banksia Renewables Partners",
+          "6",
+          "0.7120000000000001"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "68c9bdbe43bec5a1",
+      "sorted_by": null
+    },
+    "Q11": {
+      "rows": 1,
+      "columns": [
+        "Date",
+        "Client Group",
+        "Client",
+        "Signal Type",
+        "Source Region",
+        "signals"
+      ],
+      "types": [
+        "DATE",
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "2026-06-18",
+          "Tanaka Chemical",
+          "Tanaka Chemical (Singapore) Pte Ltd",
+          "PARENT_RATING_UPGRADE",
+          "JP",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "67d063c324c65a4c",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_news_sentiment",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2023-04-03",
+      "last": "2026-09-30",
+      "periods": 871
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_internal_sentiment",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-04-15",
+      "last": "2026-09-30",
+      "periods": 640
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_market_signals",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2025-04-01",
+      "last": "2026-09-30",
+      "periods": 392
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_signal_feed",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2023-04-03",
+      "last": "2026-09-30",
+      "periods": 948
+    },
+    {
+      "asset": "smbc_genie.gold.dim_signal_type",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:53:23+00:00",
+  "questions_captured_at": "2026-10-04T15:59:43+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "What has been happening around Kinokawa Precision in the last 90 days?",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_group_signal_digest`(client_group => 'Kinokawa Precision', days => '90')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "source_feed",
+        "signal_type",
+        "signals",
+        "risk_signals",
+        "opportunity_signals",
+        "unacknowledged_signals"
+      ],
+      "genie_rows": 9,
+      "seconds": 14.2,
+      "asked_at": "2026-10-04T14:53:23+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Show the risk signals behind that, by date and entity.",
+      "after": "S1",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (8 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Date` AS date, `Client` AS entity, `Signal Type` AS signal_type, MEASURE(`Signals`) AS signals, MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE lower(`Client Group`) LIKE lower('%Kinokawa Precision%')\n  AND `Date` BETWEEN DATE'2026-07-03' AND DATE'2026-09-30'\n  AND `Polarity` = 'Risk'\n  AND `Date` IS NOT NULL\n  AND `Client` IS NOT NULL\n  AND `Signal Type` IS NOT NULL\nGROUP BY ALL\nORDER BY date ASC, entity ASC, signal_type ASC, signals DESC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "date",
+        "entity",
+        "signal_type",
+        "signals",
+        "unacknowledged_signals"
+      ],
+      "genie_rows": 8,
+      "seconds": 27.6,
+      "asked_at": "2026-10-04T15:59:15+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which groups are sentiment blind spots today - negative news while RM notes stay positive?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_sentiment_blind_spots`()",
+      "genie_parameters": [],
+      "genie_columns": [
+        "client_group",
+        "news_sentiment_last_90d",
+        "news_sentiment_change_90d",
+        "rm_note_sentiment_last_90d"
+      ],
+      "genie_rows": 8,
+      "seconds": 19.3,
+      "asked_at": "2026-10-04T14:53:38+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "What are the most common topics behind negative news, by industry, over the last 12 months?",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH t AS (\n  SELECT `Industry`, `Topic`,\n         MEASURE(`Negative Items`)    AS negative_items,\n         MEASURE(`Average Sentiment`) AS avg_sentiment\n  FROM smbc_genie.metrics.mv_news_sentiment\n  WHERE `Date` >= :from_date AND `Sentiment Polarity` = 'Negative'\n  GROUP BY ALL\n)\nSELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,\n       SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items\nFROM t\nQUALIFY ROW_NUMBER() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1\nORDER BY industry_negative_items DESC",
+      "genie_parameters": [
+        {
+          "keyword": "from_date",
+          "value": "2025-10-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Industry",
+        "top_negative_topic",
+        "negative_items",
+        "avg_sentiment",
+        "industry_negative_items"
+      ],
+      "genie_rows": 16,
+      "seconds": 18.8,
+      "asked_at": "2026-10-04T14:53:58+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "Which listed parents are at a 52-week low with APAC exposure above USD 100m?",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": "Q4",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,\n       MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,\n       MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d\nFROM smbc_genie.metrics.mv_market_signals\nWHERE `Date` = :as_of_date AND `At 52-Week Low` AND `APAC Exposure Above 100m`\nGROUP BY ALL\nORDER BY apac_exposure_usd DESC",
+      "genie_parameters": [
+        {
+          "keyword": "as_of_date",
+          "value": "2026-09-30",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Client Group",
+        "Listed Parent",
+        "External Rating",
+        "Outlook",
+        "apac_exposure_usd",
+        "share_price_change_30d"
+      ],
+      "genie_rows": 1,
+      "seconds": 19.1,
+      "asked_at": "2026-10-04T14:54:17+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Show unacknowledged risk signals by RM for the last 90 days",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie lists 66 rows; its first 11 are exactly the benchmark's answer",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,\n       MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,\n       MEASURE(`Clients Signalled`)           AS clients_with_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Date` >= :from_date AND `Polarity` = 'Risk' AND NOT `Acknowledged`\nGROUP BY ALL\nHAVING MEASURE(`Unacknowledged Risk Signals`) >= CAST(:min_signals AS INT)\nORDER BY unacknowledged_risk_signals DESC",
+      "genie_parameters": [
+        {
+          "keyword": "from_date",
+          "value": "2026-07-03",
+          "sql_type": "DATE"
+        },
+        {
+          "keyword": "min_signals",
+          "value": "1",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "rm",
+        "rm_office",
+        "unacknowledged_risk_signals",
+        "clients_with_signals"
+      ],
+      "genie_rows": 66,
+      "seconds": 18.2,
+      "asked_at": "2026-10-04T14:54:36+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Which entities in Australia and India had positive expansion signals this fiscal year with no pipeline?",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,\n       MEASURE(`Signals`)          AS signals,\n       MEASURE(`Average Strength`) AS strength\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'\n  AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = :fiscal_year\nGROUP BY ALL\nORDER BY `Coverage Office`, `Date`",
+      "genie_parameters": [
+        {
+          "keyword": "fiscal_year",
+          "value": "FY2026",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Coverage Office",
+        "Client",
+        "Signal Type",
+        "Date",
+        "signals",
+        "strength"
+      ],
+      "genie_rows": 9,
+      "seconds": 17.8,
+      "asked_at": "2026-10-04T14:54:55+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "How has news sentiment trended for the coal and shipping sectors by fiscal quarter?",
+      "after": null,
+      "benchmark": "Q7",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie returns 28 rows, the benchmark 20; the benchmark's rows are included but some figures differ",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Fiscal Quarter`, `Sector Theme`, MEASURE(`Average Sentiment`) AS `average_sentiment`, MEASURE(`News Items`) AS `news_items`\nFROM `smbc_genie`.`metrics`.`mv_news_sentiment`\nWHERE `Sector Theme` IN ('Coal', 'Shipping')\n  AND `Fiscal Quarter` IS NOT NULL\n  AND `Sector Theme` IS NOT NULL\nGROUP BY ALL\nORDER BY `Fiscal Quarter` ASC, `Sector Theme` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Fiscal Quarter",
+        "Sector Theme",
+        "average_sentiment",
+        "news_items"
+      ],
+      "genie_rows": 28,
+      "seconds": 21.1,
+      "asked_at": "2026-10-04T14:55:13+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "List the rating actions from the JP-shared parent data this fiscal year",
+      "after": null,
+      "benchmark": "Q8",
+      "matched": "Q8",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Date`,\n  `Client Group`,\n  `Signal Type`,\n  MEASURE(`Signals`) AS `signals`,\n  MEASURE(`Average Strength`) AS `average_strength`\nFROM `smbc_genie`.`metrics`.`mv_signal_feed`\nWHERE `Fiscal Year` = 'FY2026'\n  AND `Source Region` = 'JP'\n  AND `Signal Type` IN ('PARENT_RATING_UPGRADE', 'PARENT_RATING_DOWNGRADE')\n  AND `Date` IS NOT NULL\n  AND `Client Group` IS NOT NULL\n  AND `Signal Type` IS NOT NULL\nGROUP BY ALL\nORDER BY `Date` ASC, `Client Group` ASC, `Signal Type` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Date",
+        "Client Group",
+        "Signal Type",
+        "signals",
+        "average_strength"
+      ],
+      "genie_rows": 42,
+      "seconds": 21.5,
+      "asked_at": "2026-10-04T14:55:34+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "signals_sentiment",
+  "space_id": "my-agent-id"
+}

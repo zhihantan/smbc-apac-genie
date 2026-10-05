@@ -1,0 +1,187 @@
+{
+ "columns": [
+  {
+   "comment": "Structure member (a header / participant account of a cash pool) or Group (one row per client group and month-end).",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "Row key: structure_id|member_account_id for Structure member rows, client_group_id for Group rows.",
+   "is_measure": false,
+   "name": "base_row_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end of the snapshot.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of month_end_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version (as-was at the month-end) used for the standard client block: the member account holder (Structure member rows) or the group lead entity (Group rows).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client id behind golden_client_sk (member holder or group lead).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the group's lead entity (version valid on this row's date) - the client attributes used for group-grain facts (D12).",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Liquidity structure id (Structure member rows; null on Group rows).",
+   "is_measure": false,
+   "name": "structure_id",
+   "type": "string"
+  },
+  {
+   "comment": "Notional Pooling, Physical Pooling, Sweep or Interest Optimisation (Structure member rows).",
+   "is_measure": false,
+   "name": "structure_type",
+   "type": "string"
+  },
+  {
+   "comment": "Product of the structure type (Structure member rows); join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Booking country of the structure's header account (Structure member rows).",
+   "is_measure": false,
+   "name": "header_country",
+   "type": "string"
+  },
+  {
+   "comment": "Booking country of the member account - the participant country (Structure member rows).",
+   "is_measure": false,
+   "name": "member_country",
+   "type": "string"
+  },
+  {
+   "comment": "Currency of the member account (Structure member rows).",
+   "is_measure": false,
+   "name": "member_currency",
+   "type": "string"
+  },
+  {
+   "comment": "Pooling / reporting currency of the structure (Structure member rows).",
+   "is_measure": false,
+   "name": "pooling_currency",
+   "type": "string"
+  },
+  {
+   "comment": "Header or Participant (Structure member rows).",
+   "is_measure": false,
+   "name": "member_role",
+   "type": "string"
+  },
+  {
+   "comment": "True on the header row of a structure-month: Structures = SUM(CASE WHEN is_header THEN 1 ELSE 0 END).",
+   "is_measure": false,
+   "name": "is_header",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on participant rows: Participants = SUM(CASE WHEN is_participant THEN 1 ELSE 0 END).",
+   "is_measure": false,
+   "name": "is_participant",
+   "type": "boolean"
+  },
+  {
+   "comment": "Month-end balance of the member account in USD - Pooled Balance (point-in-time; 0 on Group rows).",
+   "is_measure": false,
+   "name": "member_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Estimated interest saved in the month on the member balance (USD, monthly flow; 0 on Group rows).",
+   "is_measure": false,
+   "name": "interest_saved_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Monthly structure fee (USD, header rows only; 0 elsewhere).",
+   "is_measure": false,
+   "name": "monthly_fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Total month-end deposits of the client group across all its APAC accounts, USD (Group rows; 0 on member rows; point-in-time).",
+   "is_measure": false,
+   "name": "group_deposits_usd",
+   "type": "double"
+  },
+  {
+   "comment": "CASA part of group_deposits_usd (Group rows).",
+   "is_measure": false,
+   "name": "group_casa_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Time / money-market deposit part of group_deposits_usd (Group rows).",
+   "is_measure": false,
+   "name": "group_td_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Distinct APAC booking countries in which the group holds deposit accounts at the month-end (Group rows; attribute - do not sum).",
+   "is_measure": false,
+   "name": "group_apac_countries",
+   "type": "int"
+  },
+  {
+   "comment": "Golden clients of the group holding deposit accounts at the month-end (Group rows).",
+   "is_measure": false,
+   "name": "group_clients_with_accounts",
+   "type": "int"
+  },
+  {
+   "comment": "Liquidity structures of the group active at the month-end (Group rows).",
+   "is_measure": false,
+   "name": "group_active_structures",
+   "type": "int"
+  },
+  {
+   "comment": "True when the group runs at least one active liquidity structure at the month-end (Group rows).",
+   "is_measure": false,
+   "name": "group_has_active_structure",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on Group rows for multi-country groups (>= 3 APAC countries, dim_threshold POOLING_MIN_COUNTRIES) with no active liquidity structure - the pooling cross-sell list. Clients Without Pooling = count distinct client_group_id where true.",
+   "is_measure": false,
+   "name": "is_pooling_candidate",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the as-of month-end 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_latest_month_end",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Metric-view base for the TB liquidity-structures view (D13 record_type union, month-end grain from Apr-2023): record_type 'Structure member' = one row per liquidity structure x member account x month-end (from fact_liquidity_structure_monthly: structure type, header / member country, currency, member balance, interest saved, fee) and record_type 'Group' = one row per client group x month-end (from fact_deposit_balance_monthly: the group's total / CASA / TD deposits, the APAC countries it holds accounts in, whether it runs an active liquidity structure and the pooling-candidate flag: >= 3 APAC countries and no active structure). Measures never mix the two: member_* / interest / fee columns are 0 or null on Group rows and group_* columns are 0 or null on member rows. Balances are POINT-IN-TIME (one month-end; never sum across months).",
+ "identifier": "smbc_genie.gold.mvb_group_liquidity",
+ "type": "MANAGED"
+}

@@ -1,0 +1,102 @@
+table: fact_ews_score_daily
+domain: ews
+comment: >-
+  Daily early-warning score per client (brief 5.4), 1-Apr-2025 to 30-Sep-2026, every calendar day: composite
+  EWS score 0-100 = 1.12 x 100 x (0.45 credit-health + 0.20 utilisation + 0.15 covenant + 0.12 deposit-outflow
+  + 0.08 wallet-leakage stress), the model (computed) band and the final band after steward overrides (Green
+  < 40, Amber 40-69, Red >= 70), previous band, band change (e.g. Green to Amber), band 30 days ago, days in
+  the current band, override flags (override in force, override event day, parent-support override,
+  source_data_stale = override confirmed while the JP share feed was stale), the four explainable
+  sub-components (external = news, informational only), the top three triggers of the month, the watchlist
+  flag and the client's month-end exposure / EAD / ECL. Scores and exposure are point-in-time: never sum
+  across days; count clients per day or take the latest day (score_date = 30-Sep-2026 is today).
+grain: one row per golden client x score date
+primary_key: [golden_client_id, score_date]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [score_date], references: dim_date}
+  - {columns: [top_trigger_1], references: dim_ews_trigger}
+  - {columns: [top_trigger_2], references: dim_ews_trigger}
+  - {columns: [top_trigger_3], references: dim_ews_trigger}
+cluster_by: [score_date, golden_client_sk]
+min_rows: 400000
+columns:
+  golden_client_id: {type: STRING, not_null: true}
+  score_date: {type: DATE, comment: "Score date (daily, including weekends); 30-Sep-2026 = today."}
+  golden_client_sk: {type: BIGINT}
+  client_group_id: {type: STRING}
+  obligor_id: {type: STRING, comment: "Credit obligor record whose score is shown (the worst of the day when the client has duplicate credit records)."}
+  n_obligors_scored: {type: INT, comment: "Credit obligor records of the client scored that day (normally 1)."}
+  composite_score: {type: DOUBLE, comment: "Composite EWS score 0-100 (higher = riskier); point-in-time - average or take the latest, never sum."}
+  computed_band: {type: STRING, comment: "Model band from the composite score before overrides: Green (< 40), Amber (40-69) or Red (>= 70)."}
+  final_band: {type: STRING, comment: "Final EWS band after steward overrides - the band to report (Green, Amber, Red)."}
+  prev_final_band: {type: STRING, comment: "Final band on the previous day (null on the first scored day)."}
+  prev_computed_band: {type: STRING, comment: "Model band on the previous day."}
+  final_band_changed: {type: BOOLEAN, comment: "True when the final band differs from the previous day's."}
+  band_change: {type: STRING, comment: "Band move on this day, e.g. Green to Amber, Amber to Red (null when unchanged)."}
+  moved_green_to_amber: {type: BOOLEAN, comment: "True on the day the final band moved from Green to Amber."}
+  entered_red: {type: BOOLEAN, comment: "True on the day the final band entered Red from Green or Amber."}
+  final_band_30d_ago: {type: STRING, comment: "Final band 30 days earlier (null in the first 30 days of the series)."}
+  moved_green_to_amber_30d: {type: BOOLEAN, comment: "True when the final band is Amber today but was Green 30 days earlier - robust to day-to-day flicker; use on the as-of date for clients that moved Green to Amber in the last 30 days."}
+  score_30d_ago: {type: DOUBLE, comment: "Composite score 30 days earlier."}
+  score_change_30d: {type: DOUBLE, comment: "Composite score change over 30 days (points; positive = deteriorating)."}
+  days_in_final_band: {type: INT, comment: "Consecutive days the client has been in the current final band up to this day (counted from 1-Apr-2025 at the earliest)."}
+  is_band_overridden: {type: BOOLEAN, comment: "True when the final band differs from the model band (an override changed the band)."}
+  is_overridden: {type: BOOLEAN, comment: "True when a steward override is in force on the day (including overrides that affirm the model band)."}
+  override_event_flag: {type: BOOLEAN, comment: "True on the day an override was made or re-confirmed (count these for 'overrides this year')."}
+  override_id: {type: STRING, comment: "Override in force (EWS-OVR-...); null when none."}
+  override_date: {type: DATE, comment: "Date the override in force was made / re-confirmed."}
+  override_direction: {type: STRING, comment: "Override direction: Soften (band lowered), Escalate (band raised) or Affirm."}
+  override_model_band: {type: STRING, comment: "Model band the steward overrode at the override date."}
+  override_reason: {type: STRING, comment: "Override rationale, e.g. Parent support confirmed (JP data): keepwell from the Japanese parent ..."}
+  override_analyst_name: {type: STRING, comment: "Credit steward who made the override (name as recorded by the EWS engine)."}
+  override_evidence_ref: {type: STRING, comment: "Evidence reference of the override, e.g. the JP-share support letter id (JPSL-...)."}
+  is_parent_support_override: {type: BOOLEAN, comment: "True when the override cites parent support confirmed from Japan (JP share data)."}
+  source_data_stale: {type: BOOLEAN, comment: "True when the override in force was confirmed on a day the JP share feed it relies on was stale (refresh lag > 24h in the share refresh log) - audit flag."}
+  credit_component: {type: DOUBLE, comment: "Credit sub-score 0-100 (health, utilisation, covenant)."}
+  liquidity_component: {type: DOUBLE, comment: "Liquidity sub-score 0-100 (deposit outflow)."}
+  behavioural_component: {type: DOUBLE, comment: "Behavioural sub-score 0-100 (payments routed to other banks)."}
+  external_component: {type: DOUBLE, comment: "External sub-score 0-100 from news sentiment - informational, not part of the composite."}
+  top_trigger_1: {type: STRING, comment: "Strongest trigger fired in the score's month (most score points, then severity); join to gold.dim_ews_trigger."}
+  top_trigger_2: {type: STRING, comment: "Second trigger of the month."}
+  top_trigger_3: {type: STRING, comment: "Third trigger of the month."}
+  top_triggers_text: {type: STRING, comment: "Top three triggers of the month as text, e.g. COV_BREACH, UTIL_HIGH, DPD_30."}
+  n_triggers_month: {type: INT, comment: "Triggers fired for the client in the score's month."}
+  is_watchlisted: {type: BOOLEAN, comment: "True when the client is on the credit watchlist on the day (watchlist register membership)."}
+  exposure_drawn_usd: {type: DOUBLE, comment: "Client's drawn lending exposure at the month-end of the score month, USD - 'exposure' (point-in-time: sum across clients on one day, never across days)."}
+  exposure_limit_usd: {type: DOUBLE, comment: "Client's committed facility limits at the month-end of the score month, USD."}
+  ead_usd: {type: DOUBLE, comment: "Client's exposure at default for the score month, USD (from Apr-2024; null when not computed)."}
+  ecl_usd: {type: DOUBLE, comment: "Client's expected credit loss provision (IFRS 9) for the score month, USD."}
+  is_month_end: {type: BOOLEAN, comment: "True on calendar month-ends (use for month-end snapshots, e.g. exposure in Amber / Red at each month-end)."}
+  is_as_of_date: {type: BOOLEAN, comment: "True on 30-Sep-2026 (today)."}
+checks:
+  - name: storyline1_sunda_red_30jun
+    sql: >-
+      SELECT count_if(s.final_band <> 'Red' OR s.composite_score NOT BETWEEN 76 AND 80) + 1 - count(*) FROM ${table} s
+      JOIN ${catalog}.gold.dim_client d ON d.golden_client_sk = s.golden_client_sk
+      WHERE d.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%' AND s.score_date = DATE'2026-06-30'
+  - name: storyline4_tanaka_amber_overridden_to_green   # 80-92 days computed Amber and final Green from 6-Jul-2026
+    sql: >-
+      SELECT CASE WHEN count_if(computed_band = 'Amber') BETWEEN 80 AND 92 AND count_if(final_band = 'Green') BETWEEN 80 AND 92
+      THEN 0 ELSE 1 END FROM ${table} s
+      WHERE s.score_date >= DATE'2026-07-06' AND s.golden_client_id IN
+        (SELECT golden_client_id FROM ${table} WHERE is_parent_support_override AND client_group_id = 'SYN-G-0003')
+  - name: stale_flag_matches_silver_override
+    sql: >-
+      SELECT count(*) FROM ${table} s JOIN ${catalog}.silver.ews_override o ON o.override_id = s.override_id
+      WHERE s.source_data_stale <> o.source_data_stale
+  - name: final_band_matches_silver
+    sql: >-
+      SELECT count(*) FROM ${table} g JOIN ${catalog}.silver.ews_score s
+      ON s.obligor_id = g.obligor_id AND s.score_date = g.score_date WHERE s.final_band <> g.final_band
+reconcile:
+  - name: client_days_vs_silver
+    silver: >-
+      SELECT count(*) FROM (SELECT DISTINCT golden_client_id, score_date FROM ${catalog}.silver.ews_score
+      WHERE golden_client_id IS NOT NULL AND score_date <= DATE'${as_of_date}')
+  - name: red_today_vs_silver
+    gold: SELECT count_if(final_band = 'Red') FROM ${table} WHERE score_date = DATE'${as_of_date}'
+    silver: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.silver.ews_score
+      WHERE score_date = DATE'${as_of_date}' AND final_band = 'Red'

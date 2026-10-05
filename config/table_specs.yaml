@@ -1,0 +1,2638 @@
+# Silver table specs (Phase 4b; PLAN §6; DECISIONS D11, D13, D22, D25) — read by smbc_genie_lib.silver / .dq.
+#
+# One entry per bronze / shared fact or reference table (identity masters are resolved by entity
+# resolution: silver.client_source_record / xref_client_source / client_golden_identity).
+#   source    bronze.<t> | shared.<t>            silver table = silver.<same name>
+#   keys      business key: rows are de-duplicated on it (survivor: original delivery, earliest ingest)
+#   client    identity key -> golden_client_id via silver.xref_client_source; `system` defaults from
+#             conform.identity_keys, `via` resolves through a lookup (adds the looked-up id column),
+#             `system_column` names a per-row source system; required: false = rows without a key
+#             carry no golden client; scope = SQL predicate for the rows the key must resolve on
+#   group     group-master key -> client_group_id (checked against conform.group_master)
+#   date      business date (history start, freshness)
+#   columns   silver types: string | code (trimmed, upper-cased) | date | timestamp | int | bigint |
+#             double | boolean | decimal(p,s). Strings are trimmed, blanks become NULL; ISO strings
+#             parse to DATE / TIMESTAMP with try_cast. Bronze columns not listed are carried through.
+#   checks    generate the DQ rules (smbc_genie_lib.dq): required, enum, enum_ref, range (bounds may
+#             be '@as_of'), date_order, fk (+ fk_blocking: orphans quarantined), not_future (business
+#             dates after the as-of date are quarantined), fresh {lag_days | min}
+version: 1
+conform:
+  xref: silver.xref_client_source
+  golden: silver.client_golden_identity
+  group_master: shared.share_jp_group_master.global_group_id   # Tokyo HO global group master (D27)
+  identity_keys:            # identity column -> ER source system (bronze identity master)
+    cust_no: core_customer
+    obligor_id: credit_obligor
+    crm_account_id: crm_account
+    kyc_id: kyc_customer
+    party_id: trade_party
+    cpty_id: tsy_counterparty
+    company_id: ext_company_master
+  lookups:                  # rows keyed by a child id resolve through the parent's identity column
+    account: {table: bronze.core_account, key: account_id, identity: cust_no, system: core_customer}
+    facility: {table: bronze.credit_facility_terms, key: facility_id, identity: obligor_id, system: credit_obligor}
+    trade_txn: {table: bronze.trade_finance_txn, key: txn_id, identity: party_id, system: trade_party}
+    kyc_case: {table: bronze.kyc_case, key: case_id, identity: kyc_id, system: kyc_customer}
+    issuer: {table: bronze.ext_issuer, key: issuer_id, identity: parent_company_id}   # -> client group
+  reprocessed_batch_pattern: "_R$"   # replayed / reprocessed files rank after the original delivery
+  dedup_order: ["_ingest_ts ASC", "_batch_id ASC"]
+# "all core sources" for golden-record coverage (brief §5.11 Clients in All Core Sources %)
+core_sources: [core_customer, crm_account, kyc_customer]
+# golden attribute completeness (silver.golden_attribute_completeness): attribute -> where it is read.
+#   as: output column; golden: silver.client_golden_identity column; records: silver.client_source_record
+#   column (highest-priority record holding it, ER source priority); facts: silver <table>.<column> on the
+#   client's rows (latest by the table's date); group_fallback: else the value most often held in the
+#   client's group. Order: golden, records, facts, group.
+attribute_sources:
+  legal_name: {as: legal_name, golden: legal_name}
+  lei: {as: lei_like_id, golden: lei_like_id}
+  tax_id: {as: tax_id, records: tax_id_as_recorded}
+  country: {as: country_of_incorporation, golden: country_of_incorporation}
+  group: {as: client_group_id, golden: client_group_id}
+  segment: {as: segment, records: segment_label, facts: [crm_opportunity.segment, fin_relationship_pnl.segment], group_fallback: true}
+  tier: {as: relationship_tier, facts: [crm_opportunity.relationship_tier, fin_relationship_pnl.relationship_tier], group_fallback: true}
+  rm: {as: primary_rm_code, records: rm_code}
+  rating: {as: internal_rating_grade, records: internal_grade, facts: [core_rating_history.internal_grade]}
+  kyc_risk: {as: kyc_risk_rating, records: kyc_risk_rating}
+# UC tags on every silver table (DECISIONS D37: smbc_-prefixed keys, as Phase 2 set on the schemas)
+tags:
+  fixed: {smbc_domain: customer360, smbc_layer: silver, smbc_pii: "false", smbc_synthetic: "true"}
+  quadrant_by_prefix:       # brief §3.2 / §6.1 four quadrants
+    core_: internal_quantitative
+    pay_: internal_quantitative
+    trade_: internal_quantitative
+    scf_: internal_quantitative
+    tsy_: internal_quantitative
+    crm_: internal_quantitative
+    credit_: internal_quantitative
+    kyc_: internal_quantitative
+    ews_: internal_quantitative
+    fin_: internal_quantitative
+    cf_: internal_quantitative
+    ext_: external_quantitative
+    share_: internal_quantitative
+    ref_: reference
+    fx_: reference
+    dq_: platform
+  quadrant_overrides:
+    crm_activity: internal_qualitative
+    credit_review: internal_qualitative
+    kyc_feedback: internal_qualitative
+    credit_financial_statement: external_quantitative
+    credit_ratio: external_quantitative
+    ext_news: external_qualitative
+  source_region_by_prefix: {share_jp_: JP, share_emea_: EMEA, share_amer_: AMER}
+  source_region_default: APAC
+tables:
+  cf_actual_monthly:
+    source: bronze.cf_actual_monthly
+    domain: cashflow
+    comment: >-
+      Monthly cash-flow actuals per core-banking customer, derived from the payments hub: inflows, outflows,
+      net flow and payment count (USD). Grain: cust_no x month.
+    keys: [cust_no, month]
+    client: {key: cust_no}
+    date: month
+    columns:
+      cust_no: string
+      month: date
+      inflows_usd: double
+      outflows_usd: double
+      net_cf_usd: double
+      n_payments: bigint
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {inflows_usd: [0, null], outflows_usd: [0, null], n_payments: [0, null]}
+      fresh: {lag_days: 31}
+  cf_event:
+    source: bronze.cf_event
+    domain: cashflow
+    comment: >-
+      Liquidity-need events raised by the cash-flow forecasting service: predicted shortfalls / surpluses with
+      RCF headroom and the action taken (RCF drawdown, TD placement). Grain: one event.
+    keys: [event_id]
+    client: {key: cust_no}
+    date: event_date
+    columns:
+      event_id: string
+      cust_no: string
+      event_type: string
+      event_date: date
+      forecast_run_date: date
+      forecast_target_month: date
+      model_version: string
+      horizon_days: int
+      forecast_inflows_usd: double
+      expected_outflows_usd: double
+      predicted_net_usd: double
+      predicted_amount_usd: double
+      severity_ratio: double
+      has_rcf: boolean
+      undrawn_rcf_usd: double
+      action_taken: string
+      action_date: date
+      days_to_action: int
+      action_amount_usd: double
+      linked_facility_id: string
+      linked_schedule_event_id: string
+      est_action_revenue_usd: double
+      event_status: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {event_type: [Predicted Surplus, Predicted Shortfall], model_version: [v1, v2], action_taken: [None, RCF Drawdown, TD Placed], event_status: [Open, Actioned, Closed - No Action]}
+      date_order: [[forecast_run_date, event_date], [event_date, action_date]]
+      fk: {linked_facility_id: silver.credit_facility_terms.facility_id, linked_schedule_event_id: silver.core_loan_schedule.schedule_event_id}
+  cf_forecast:
+    source: bronze.cf_forecast
+    domain: cashflow
+    comment: >-
+      Monthly cash-inflow forecasts per customer and model version (v1 until May-2026, v2 from Jun-2026)
+      against the realised inflows, with absolute percentage error. Grain: cust_no x run date x target month x
+      model.
+    keys: [cust_no, forecast_run_date, target_month, model_version]
+    client: {key: cust_no}
+    date: forecast_run_date
+    columns:
+      cust_no: string
+      forecast_run_date: date
+      target_month: date
+      model_version: string
+      forecast_inflows_usd: double
+      actual_inflows_usd: double
+      abs_pct_error: double
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {model_version: [v1, v2]}
+      range: {abs_pct_error: [0, 1], forecast_inflows_usd: [0, null]}
+      date_order: [[forecast_run_date, target_month]]
+      fresh: {lag_days: 62}
+  cf_projection:
+    source: bronze.cf_projection
+    domain: cashflow
+    comment: >-
+      Forward six-month inflow projection by client segment (seasonal method) with lower / upper bounds, USD.
+      Grain: segment x target month x method.
+    keys: [segment, target_month, method]
+    date: target_month
+    columns:
+      segment: string
+      target_month: date
+      projected_inflows_usd: double
+      lower_usd: double
+      upper_usd: double
+      method: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {segment: [Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance, Public Sector]}
+      date_order: [[lower_usd, upper_usd]]
+  core_account:
+    source: bronze.core_account
+    domain: deposits
+    comment: >-
+      Core-banking deposit accounts (current, savings, time deposit, money market) with currency, open date
+      and status. Grain: one account.
+    keys: [account_id]
+    client: {key: cust_no}
+    date: open_date
+    columns:
+      cust_no: string
+      account_id: string
+      account_type: string
+      currency: code
+      open_date: date
+      status: string
+      _source_system: string
+      _source_file: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      required: [account_type, currency, open_date, status]
+      enum: {account_type: [Current Account, Savings Account, Time Deposit, Money Market Deposit], status: [ACTIVE, DORMANT, CLOSED]}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      range: {open_date: [null, '@as_of']}
+  core_deposit_balance_daily:
+    source: bronze.core_deposit_balance_daily
+    domain: deposits
+    comment: >-
+      Daily end-of-day deposit balances per account for the bounded daily window (Dec-2025 to the as-of date),
+      local currency and USD, CASA vs TD class. Grain: account x date.
+    keys: [account_id, balance_date]
+    client: {key: cust_no}
+    date: balance_date
+    columns:
+      account_id: string
+      cust_no: string
+      balance_date: date
+      currency: code
+      balance_lcy: double
+      balance_usd: double
+      deposit_class: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {deposit_class: [CASA, TD]}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      range: {balance_usd: [0, null], balance_lcy: [0, null]}
+      fk: {account_id: silver.core_account.account_id}
+      fk_blocking: [account_id]
+      not_future: [balance_date]
+      fresh: {lag_days: 3}
+  core_deposit_balance_monthly:
+    source: bronze.core_deposit_balance_monthly
+    domain: deposits
+    comment: >-
+      Month-end deposit balances per account (local currency and USD) with the month's average balance and
+      CASA / TD class. Point-in-time: never sum across months. Grain: account x month-end.
+    keys: [account_id, balance_date]
+    client: {key: cust_no}
+    date: balance_date
+    columns:
+      account_id: string
+      cust_no: string
+      balance_date: date
+      currency: code
+      balance_lcy: double
+      balance_usd: double
+      avg_balance_usd: double
+      deposit_class: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {deposit_class: [CASA, TD]}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      range: {balance_usd: [0, null], balance_lcy: [0, null], avg_balance_usd: [0, null]}
+      fk: {account_id: silver.core_account.account_id}
+      fk_blocking: [account_id]
+      not_future: [balance_date]
+      fresh: {lag_days: 0}
+  core_dpd:
+    source: bronze.core_dpd
+    domain: credit_risk
+    comment: >-
+      Daily days-past-due records for facilities in arrears: overdue amount, DPD bucket, arrears episode, due
+      and cure dates. Grain: facility x date.
+    keys: [facility_id, dpd_date]
+    client: {key: obligor_id}
+    date: dpd_date
+    columns:
+      facility_id: string
+      obligor_id: string
+      dpd_date: date
+      days_past_due: int
+      dpd_bucket: string
+      overdue_amount_lcy: double
+      overdue_amount_usd: double
+      currency: code
+      arrears_episode_id: string
+      due_date: date
+      cure_date: date
+      is_cured: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {dpd_bucket: [1-29, 30-59, 60-89, 90+]}
+      range: {days_past_due: [1, null], overdue_amount_usd: [0, null], cure_date: [null, '@as_of']}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      date_order: [[due_date, dpd_date]]
+      fk: {facility_id: silver.credit_facility_terms.facility_id}
+      fk_blocking: [facility_id]
+      not_future: [dpd_date]
+  core_facility_balance_monthly:
+    source: bronze.core_facility_balance_monthly
+    domain: lending
+    comment: >-
+      Month-end lending balances per facility: limit, drawn (USD and local currency) and utilisation. Point-
+      in-time: never sum across months. Grain: facility x month-end.
+    keys: [facility_id, balance_date]
+    client: {key: obligor_id}
+    date: balance_date
+    columns:
+      facility_id: string
+      obligor_id: string
+      balance_date: date
+      currency: code
+      limit_usd: double
+      drawn_usd: double
+      drawn_lcy: double
+      utilisation_pct: double
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      range: {limit_usd: [0, null], drawn_usd: [0, null], utilisation_pct: [0, 1.1]}
+      fk: {facility_id: silver.credit_facility_terms.facility_id}
+      fk_blocking: [facility_id]
+      not_future: [balance_date]
+      fresh: {lag_days: 0}
+  core_liquidity_structure:
+    source: bronze.core_liquidity_structure
+    domain: liquidity
+    comment: >-
+      Cash-management liquidity structures (notional / physical pooling, sweeps, interest optimisation):
+      header customer and account, pooling currency, sweep frequency, fees. Grain: one structure.
+    keys: [structure_id]
+    client: {key: header_cust_no, system: core_customer}
+    date: start_date
+    columns:
+      structure_id: string
+      structure_name: string
+      structure_type: string
+      group_master_id: string
+      header_cust_no: string
+      header_account_id: string
+      header_country: code
+      pooling_currency: code
+      sweep_frequency: string
+      is_cross_border: boolean
+      interest_benefit_bps: double
+      monthly_fee_usd: double
+      start_date: date
+      end_date: date
+      status: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {structure_type: [Notional Pooling, Physical Pooling, Interest Optimisation, Sweep], status: [Active, Terminated]}
+      enum_ref: {pooling_currency: silver.ref_currency.currency_code}
+      date_order: [[start_date, end_date]]
+      fk: {header_account_id: silver.core_account.account_id}
+  core_liquidity_structure_participant:
+    source: bronze.core_liquidity_structure_participant
+    domain: liquidity
+    comment: >-
+      Accounts participating in each liquidity structure with role (header / participant), sweep direction,
+      target balance and join / leave dates. Grain: structure x participant account.
+    keys: [structure_id, participant_account_id]
+    client: {key: participant_cust_no, system: core_customer}
+    date: join_date
+    columns:
+      structure_id: string
+      participant_account_id: string
+      participant_cust_no: string
+      participant_country: code
+      participant_currency: code
+      role: string
+      sweep_direction: string
+      target_balance_lcy: double
+      join_date: date
+      leave_date: date
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {role: [Header, Participant]}
+      date_order: [[join_date, leave_date]]
+      fk: {structure_id: silver.core_liquidity_structure.structure_id, participant_account_id: silver.core_account.account_id}
+      fk_blocking: [structure_id]
+  core_loan_schedule:
+    source: bronze.core_loan_schedule
+    domain: lending
+    comment: >-
+      Loan drawdown, repayment, prepayment and maturity events per facility (settled and scheduled), with the
+      drawn balance after each event. Grain: one schedule event.
+    keys: [schedule_event_id]
+    client: {key: obligor_id}
+    date: event_date
+    columns:
+      schedule_event_id: string
+      facility_id: string
+      obligor_id: string
+      event_type: string
+      event_date: date
+      amount_lcy: double
+      amount_usd: double
+      currency: code
+      drawn_after_usd: double
+      is_contractual: boolean
+      status: string
+      purpose: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {event_type: [Drawdown, Repayment, Prepayment, Maturity], status: [Settled, Scheduled]}
+      range: {amount_usd: [0, null], drawn_after_usd: [0, null]}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      fk: {facility_id: silver.credit_facility_terms.facility_id}
+      fk_blocking: [facility_id]
+  core_rating_history:
+    source: bronze.core_rating_history
+    domain: credit_risk
+    comment: >-
+      Internal rating actions per credit obligor: grade (1-10), rating equivalent, IFRS 9 stage, action
+      (Initial / Affirm / Upgrade / Downgrade), reason and approver. Grain: one rating event.
+    keys: [rating_event_id]
+    client: {key: obligor_id}
+    date: effective_date
+    columns:
+      rating_event_id: string
+      obligor_id: string
+      effective_date: date
+      rating_action: string
+      previous_grade: int
+      internal_grade: int
+      notch_change: int
+      rating_equivalent: string
+      origination_grade: int
+      ifrs9_stage: int
+      previous_stage: int
+      action_reason: string
+      rating_model: string
+      review_id: string
+      approver_id: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {rating_action: [Initial, Affirm, Upgrade, Downgrade]}
+      range: {internal_grade: [1, 10], previous_grade: [1, 10], ifrs9_stage: [1, 3], effective_date: [null, '@as_of']}
+      fk: {review_id: silver.credit_review.review_id}
+      fresh: {lag_days: 31}
+  core_time_deposit:
+    source: bronze.core_time_deposit
+    domain: deposits
+    comment: >-
+      Time-deposit placements: placement and maturity dates, tenor, principal (local currency and USD), rate,
+      maturity instruction and funding source. Grain: one placement.
+    keys: [placement_id]
+    client: {key: cust_no}
+    date: placement_date
+    columns:
+      placement_id: string
+      account_id: string
+      cust_no: string
+      currency: code
+      placement_date: date
+      maturity_date: date
+      tenor_months: int
+      principal_lcy: double
+      principal_usd: double
+      interest_rate_pct: double
+      interest_at_maturity_lcy: double
+      maturity_instruction: string
+      funding_source: string
+      funding_account_id: string
+      status: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {tenor_months: [1, 3, 6, 12], status: [Active, Matured]}
+      range: {principal_usd: [0, null], interest_rate_pct: [0, 15], placement_date: [null, '@as_of']}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      date_order: [[placement_date, maturity_date]]
+      fk: {account_id: silver.core_account.account_id}
+      fk_blocking: [account_id]
+  credit_collateral:
+    source: bronze.credit_collateral
+    domain: credit
+    comment: >-
+      Collateral items securing credit facilities: type, appraised value (USD), last valuation date and loan-
+      to-value. Grain: one collateral item.
+    keys: [collateral_id]
+    client: {key: facility_id, via: facility}
+    date: last_valuation_date
+    columns:
+      _batch_id: string
+      _ingest_ts: timestamp
+      _source_system: string
+      appraised_value_usd: double
+      collateral_id: string
+      collateral_type: string
+      facility_id: string
+      last_valuation_date: date
+      ltv_pct: double
+    checks:
+      enum: {collateral_type: [Fixed Assets, Real Estate, Receivables, Inventory, Cash]}
+      range: {appraised_value_usd: [0, null], ltv_pct: [0, 1.5], last_valuation_date: [null, '@as_of']}
+  credit_covenant_test:
+    source: bronze.credit_covenant_test
+    domain: credit
+    comment: >-
+      Financial covenant tests per facility (Net Debt/EBITDA, ICR): actual vs threshold, headroom, breach and
+      waiver flags, latest-test flag. Grain: facility x covenant x test date.
+    keys: [facility_id, covenant_type, test_date]
+    client: {key: obligor_id}
+    date: test_date
+    columns:
+      _batch_id: string
+      _ingest_ts: timestamp
+      _source_system: string
+      actual: double
+      breached: boolean
+      covenant_type: string
+      facility_id: string
+      headroom_pct: double
+      is_latest_test: boolean
+      obligor_id: string
+      test_basis: string
+      test_date: date
+      threshold: double
+      waiver: boolean
+    checks:
+      enum: {covenant_type: [Net Debt/EBITDA, ICR]}
+      range: {threshold: [0, null]}
+      fk: {facility_id: silver.credit_facility_terms.facility_id}
+      fk_blocking: [facility_id]
+      fresh: {lag_days: 92}
+  credit_facility_terms:
+    source: bronze.credit_facility_terms
+    domain: lending
+    comment: >-
+      Credit facility terms: type, limit (USD), currency, margin, origination / maturity dates, guarantor and
+      security type, status. Grain: one facility.
+    keys: [facility_id]
+    client: {key: obligor_id}
+    date: origination_date
+    columns:
+      _batch_id: string
+      _ingest_ts: timestamp
+      _source_system: string
+      closed_date: date
+      currency: code
+      facility_id: string
+      facility_type: string
+      guarantor_type: string
+      has_covenant: boolean
+      limit_usd: double
+      margin_bps: int
+      maturity_date: date
+      obligor_id: string
+      origination_date: date
+      security_type: string
+      status: string
+    checks:
+      required: [facility_type, limit_usd, currency, origination_date, maturity_date, status]
+      enum: {facility_type: [Term Loan, Revolving Credit Facility, Bilateral Loan, Syndicated Loan, Overdraft, Trade Loan], guarantor_type: [None, Parent Guarantee, Corporate Guarantee, Keepwell, Sponsor Support], status: [Active, Matured, Prepaid, Cancelled]}
+      range: {limit_usd: [0, null], margin_bps: [0, 1000]}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      date_order: [[origination_date, maturity_date], [origination_date, closed_date]]
+  credit_financial_statement:
+    source: bronze.credit_financial_statement
+    domain: credit
+    comment: >-
+      Spread financial statements per obligor and fiscal year in long format (balance sheet, P&L, cash flow
+      line items; USD and local currency; audited and spread flags). Grain: obligor x FY x statement x line
+      item.
+    keys: [obligor_id, fiscal_year, statement_type, line_item]
+    client: {key: obligor_id}
+    date: fiscal_year
+    columns:
+      obligor_id: string
+      fiscal_year: int
+      fiscal_year_label: string
+      fiscal_year_end: string
+      statement_type: string
+      line_item: string
+      amount_usd: double
+      amount_lcy: double
+      currency: code
+      is_audited: boolean
+      is_spread: boolean
+      spread_date: date
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {statement_type: [Balance Sheet, P&L, Cash Flow]}
+      range: {fiscal_year: [2019, 2026]}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      fresh: {min: 2025}
+  credit_ratio:
+    source: bronze.credit_ratio
+    domain: credit
+    comment: >-
+      Financial ratios per obligor and fiscal year computed from the spread statements (leverage, coverage,
+      liquidity, margins, working-capital days), with the peer group. Grain: obligor x FY x ratio.
+    keys: [obligor_id, fiscal_year, ratio_name]
+    client: {key: obligor_id}
+    date: fiscal_year
+    columns:
+      obligor_id: string
+      fiscal_year: int
+      fiscal_year_label: string
+      fiscal_year_end: string
+      ratio_name: string
+      ratio_value: double
+      peer_group_id: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {fiscal_year: [2019, 2026]}
+      fk: {peer_group_id: silver.ref_industry_peer.peer_group_id}
+      fresh: {min: 2025}
+  credit_review:
+    source: bronze.credit_review
+    domain: credit
+    comment: >-
+      Credit reviews (annual, new money, amendment, watchlist): due / submitted / approved dates, lateness,
+      outcome, grades, pricing exceptions, analyst and approver, memo excerpt and tone. Grain: one review.
+    keys: [review_id]
+    client: {key: obligor_id}
+    date: due_date
+    columns:
+      review_id: string
+      obligor_id: string
+      facility_id: string
+      review_type: string
+      review_fiscal_year: int
+      due_date: date
+      preparation_start_date: date
+      submitted_date: date
+      approved_date: date
+      status: string
+      days_late: int
+      days_in_preparation: int
+      submission_count: int
+      outcome: string
+      blocker_reason: string
+      current_grade: int
+      recommended_grade: int
+      approved_grade: int
+      requested_amount_usd: double
+      proposed_margin_bps: int
+      is_pricing_exception: boolean
+      exception_reason: string
+      analyst_id: string
+      approver_id: string
+      memo_excerpt: string
+      memo_tone: string
+      memo_sentiment_score: double
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {review_type: [Annual, New Money, Watchlist, Amendment], status: [Not Started, In Preparation, Overdue, Submitted - Awaiting Approval, Approved, Declined], memo_tone: [Positive, Neutral, Negative]}
+      range: {recommended_grade: [1, 10], approved_grade: [1, 10], memo_sentiment_score: [-1, 1], days_late: [0, null]}
+      date_order: [[preparation_start_date, submitted_date], [submitted_date, approved_date]]
+      fk: {facility_id: silver.credit_facility_terms.facility_id}
+  credit_spreading_task:
+    source: bronze.credit_spreading_task
+    domain: credit
+    comment: >-
+      Financial-spreading tasks per obligor and fiscal-year statement: received, due, spread and checked
+      dates, analyst / checker, status and overdue days. Grain: obligor x FY.
+    keys: [task_id]
+    client: {key: obligor_id}
+    date: received_date
+    columns:
+      task_id: string
+      obligor_id: string
+      fiscal_year: int
+      fiscal_year_label: string
+      fiscal_year_end: string
+      statement_basis: string
+      received_date: date
+      due_date: date
+      spread_date: date
+      checked_date: date
+      analyst_id: string
+      checker_id: string
+      status: string
+      days_to_spread: int
+      days_overdue: int
+      is_overdue: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {status: [Received - Not Started, In Progress, Checked]}
+      date_order: [[received_date, spread_date], [spread_date, checked_date]]
+      range: {days_overdue: [0, null]}
+  crm_account_plan:
+    source: bronze.crm_account_plan
+    domain: crm
+    comment: >-
+      Account-plan lines per client group, fiscal year and product family: prior-year actual, planned and
+      revised targets, mid-year revision, actual revenue, status and owner RM. Grain: one plan line.
+    keys: [plan_line_id]
+    client: {key: crm_account_id}
+    group: {key: group_ref}
+    date: fiscal_year
+    columns:
+      plan_line_id: string
+      plan_id: string
+      crm_account_id: string
+      group_ref: string
+      fiscal_year: int
+      fiscal_year_label: string
+      product_family: string
+      prior_year_actual_usd: double
+      plan_optimism: double
+      planned_revenue_usd: double
+      revised_target_usd: double
+      mid_year_revision: boolean
+      revision_date: date
+      revision_reason: string
+      actual_revenue_usd: double
+      plan_status: string
+      approved_date: date
+      owner_rm: string
+      strategic_priority: string
+      wallet_share_target: double
+      plan_objective: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance], plan_status: [Active, Closed, Revised], strategic_priority: [High, Medium, Low]}
+      range: {planned_revenue_usd: [0, null], plan_optimism: [0, 0.5], wallet_share_target: [0, 1]}
+      fresh: {min: 2026}
+  crm_account_plan_initiative:
+    source: bronze.crm_account_plan_initiative
+    domain: crm
+    comment: >-
+      Account-plan initiatives: product family, target revenue, status, due / completed dates, owner and
+      linked opportunity. Grain: one initiative.
+    keys: [initiative_id]
+    client: {key: crm_account_id}
+    group: {key: group_ref}
+    date: created_date
+    columns:
+      initiative_id: string
+      plan_id: string
+      crm_account_id: string
+      group_ref: string
+      fiscal_year: int
+      product_family: string
+      initiative_name: string
+      description: string
+      target_revenue_usd: double
+      status: string
+      due_date: date
+      completed_date: date
+      owner_employee_id: string
+      owner_rm: string
+      priority: string
+      linked_opportunity_id: string
+      created_date: date
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance], priority: [High, Medium, Low], status: [Not Started, In Progress, At Risk, Delayed, Completed, Not Achieved, Cancelled]}
+      range: {target_revenue_usd: [0, null]}
+      date_order: [[created_date, completed_date]]
+      fk: {plan_id: silver.crm_account_plan.plan_id, linked_opportunity_id: silver.crm_opportunity.opportunity_id}
+  crm_account_team_history:
+    source: bronze.crm_account_team_history
+    domain: crm
+    comment: >-
+      CRM coverage-team assignments per account (primary / secondary RM, TB sales, credit analyst) with
+      validity dates and change reason. Grain: one assignment.
+    keys: [assignment_id]
+    client: {key: crm_account_id}
+    date: valid_from
+    columns:
+      assignment_id: string
+      crm_account_id: string
+      team_role: string
+      employee_id: string
+      rm_code: string
+      member_name: string
+      member_office: string
+      is_primary: boolean
+      valid_from: date
+      valid_to: date
+      is_current: boolean
+      change_reason: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {team_role: [Primary RM, Secondary RM, TB Sales, Credit Analyst]}
+      date_order: [[valid_from, valid_to]]
+  crm_activity:
+    source: bronze.crm_activity
+    domain: crm
+    comment: >-
+      RM activities (meetings, calls, video calls, emails, site visits) with purpose, product discussed, short
+      note text, raw tone and sentiment score, follow-up action. Grain: one activity.
+    keys: [activity_id]
+    client: {key: crm_account_id}
+    date: activity_date
+    columns:
+      activity_id: string
+      crm_account_id: string
+      activity_date: date
+      activity_type: string
+      rm_code: string
+      contact_id: string
+      purpose: string
+      subject: string
+      product_discussed: string
+      product_family: string
+      note_text: string
+      raw_tone: string
+      sentiment_score: double
+      action_required: boolean
+      next_action: string
+      next_action_due_date: date
+      next_action_status: string
+      related_signal_id: string
+      related_opportunity_id: string
+      duration_minutes: int
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {activity_type: [Meeting, Call, Video Call, Email, Site Visit], raw_tone: [Positive, Neutral, Negative]}
+      range: {sentiment_score: [-1, 1], duration_minutes: [0, 600], activity_date: ['2023-04-01', '@as_of']}
+      fk: {contact_id: silver.crm_contact.contact_id}
+      fresh: {lag_days: 7}
+  crm_contact:
+    source: bronze.crm_contact
+    domain: crm
+    comment: >-
+      Client contacts in CRM (fictional): name, title, function, role, seniority, primary flag, preferred
+      channel, relationship strength and activity status. Grain: one contact.
+    keys: [contact_id]
+    client: {key: crm_account_id}
+    date: created_date
+    columns:
+      contact_id: string
+      crm_account_id: string
+      first_name: string
+      last_name: string
+      full_name: string
+      job_title: string
+      function: string
+      contact_role: string
+      seniority: string
+      is_primary: boolean
+      email: string
+      preferred_channel: string
+      relationship_strength: string
+      created_date: date
+      is_active: boolean
+      inactive_since: date
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {contact_role: [CFO, Treasurer, CEO, Procurement Head, Other], relationship_strength: [Strong, Medium, Weak], seniority: [C-Suite, Head, Manager]}
+      required: [full_name, job_title]
+  crm_nbp_score:
+    source: bronze.crm_nbp_score
+    domain: crm
+    comment: >-
+      Monthly next-best-product propensity scores per CRM account and product for the last six months, with
+      rank and top drivers. Grain: account x month x product.
+    keys: [crm_account_id, score_month, product]
+    client: {key: crm_account_id}
+    date: score_month
+    columns:
+      crm_account_id: string
+      score_month: date
+      product: string
+      product_family: string
+      propensity: double
+      rank: int
+      top_drivers: string
+      expected_revenue_usd: double
+      model_version: string
+      owner_rm: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance]}
+      range: {propensity: [0, 1], rank: [1, 12]}
+      fresh: {lag_days: 31}
+  crm_next_best_product:
+    source: bronze.crm_next_best_product
+    domain: crm
+    comment: >-
+      Latest top-3 next-best-product recommendations per CRM account with rationale, propensity and expected
+      revenue. Grain: account x score month x rank.
+    keys: [crm_account_id, score_month, rank]
+    client: {key: crm_account_id}
+    date: score_month
+    columns:
+      crm_account_id: string
+      owner_rm: string
+      rank: int
+      recommended_product: string
+      product_family: string
+      rationale: string
+      propensity_score: double
+      expected_revenue_usd: double
+      segment: string
+      score_month: date
+      model_version: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance]}
+      range: {propensity_score: [0, 1], rank: [1, 3]}
+      fresh: {lag_days: 31}
+  crm_opportunity:
+    source: bronze.crm_opportunity
+    domain: crm
+    comment: >-
+      Pipeline opportunities: product, stage, status, win probability, amount and expected revenue (USD),
+      created / expected / actual close dates, source and source signal. Grain: one opportunity.
+    keys: [opportunity_id]
+    client: {key: crm_account_id}
+    date: created_date
+    columns:
+      opportunity_id: string
+      crm_account_id: string
+      owner_rm: string
+      product: string
+      product_family: string
+      stage: string
+      status: string
+      win_probability: double
+      amount_usd: double
+      expected_revenue_usd: double
+      created_date: date
+      expected_close_date: date
+      actual_close_date: date
+      lost_reason: string
+      source_type: string
+      source_signal_id: string
+      segment: string
+      relationship_tier: string
+      booking_country: code
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {stage: [Prospecting, Qualification, Proposal, Negotiation, Won, Lost], status: [Open, Won, Lost], product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance], relationship_tier: [Strategic, Core, Transactional], segment: [Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance, Public Sector]}
+      range: {win_probability: [0, 1], amount_usd: [0, null]}
+      date_order: [[created_date, actual_close_date]]
+      fk: {source_signal_id: silver.crm_signal.signal_id}
+  crm_signal:
+    source: bronze.crm_signal
+    domain: crm
+    comment: >-
+      Opportunity signals detected from client behaviour and news (FX flow via other bank, corridor growth,
+      deposit surplus, SCF anchor, ...): strength, amounts, status and linked opportunity. Grain: one signal.
+    keys: [signal_id]
+    client: {key: crm_account_id}
+    date: detected_date
+    columns:
+      signal_id: string
+      crm_account_id: string
+      signal_code: string
+      signal_name: string
+      signal_category: string
+      polarity: string
+      source_quadrant: string
+      detected_date: date
+      strength: double
+      confidence: double
+      estimated_revenue_usd: double
+      observed_amount_usd: double
+      metric_value: double
+      currency_pair: string
+      corridor_origin: code
+      corridor_destination: code
+      related_ref: string
+      recommended_product: string
+      signal_detail: string
+      owner_rm: string
+      status: string
+      status_date: date
+      actioned_date: date
+      actioned_by: string
+      dismissed_reason: string
+      linked_opportunity_id: string
+      detection_engine: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {status: [New, Actioned, Converted, Dismissed], polarity: [Opportunity, Risk, Neutral]}
+      range: {strength: [0, 1], confidence: [0, 1]}
+      date_order: [[detected_date, actioned_date]]
+      fk: {linked_opportunity_id: silver.crm_opportunity.opportunity_id}
+      fresh: {lag_days: 7}
+  crm_wallet_estimate:
+    source: bronze.crm_wallet_estimate
+    domain: crm
+    comment: >-
+      Estimated client-group wallet per fiscal year and product family with SMBC revenue, share of wallet and
+      top competitor. Grain: one estimate.
+    keys: [wallet_id]
+    client: {key: crm_account_id, required: false}
+    group: {key: group_ref}
+    date: fiscal_year
+    columns:
+      wallet_id: string
+      group_ref: string
+      crm_account_id: string
+      fiscal_year: int
+      fiscal_year_label: string
+      product_family: string
+      estimated_wallet_usd: double
+      smbc_revenue_usd: double
+      smbc_revenue_basis: string
+      share_of_wallet: double
+      top_competitor_bank: string
+      top_competitor_share: double
+      estimation_method: string
+      estimate_date: date
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance]}
+      range: {estimated_wallet_usd: [0, null], share_of_wallet: [0, 1], top_competitor_share: [0, 1]}
+  dq_share_refresh_log:
+    source: bronze.dq_share_refresh_log
+    domain: governance
+    comment: >-
+      Daily Delta Sharing refresh log per provider region, share and shared table: scheduled vs actual
+      refresh, provider version, lag hours vs the 24h SLA, stale and schema-drift flags. Grain: date x region
+      x share x table.
+    keys: [log_date, provider_region, share_name, table_name]
+    date: log_date
+    columns:
+      log_date: date
+      checked_at: timestamp
+      provider_region: string
+      share_name: string
+      table_name: string
+      scheduled_refresh_at: timestamp
+      refresh_status: string
+      refreshed_at: timestamp
+      provider_version: int
+      lag_hours: double
+      is_stale: boolean
+      sla_hours: int
+      row_count: int
+      schema_version: int
+      schema_drift_flag: boolean
+      schema_change: string
+      error_message: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {provider_region: [JP, EMEA, AMER], refresh_status: [Success, Late, Failed]}
+      range: {lag_hours: [0, null]}
+      fresh: {lag_days: 1}
+  ews_override:
+    source: bronze.ews_override
+    domain: early_warning
+    comment: >-
+      Analyst overrides of the early-warning band: system vs override band, direction, rationale, expiry,
+      status and the stale-source flag. Grain: one override.
+    keys: [override_id]
+    client: {key: obligor_id}
+    date: override_date
+    columns:
+      override_id: string
+      obligor_id: string
+      override_date: date
+      analyst: string
+      system_band: string
+      override_band: string
+      direction: string
+      lead_category: string
+      rationale: string
+      expiry_date: date
+      status: string
+      source_data_stale: boolean
+      evidence_ref: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {system_band: [Green, Amber, Red], override_band: [Green, Amber, Red], direction: [Escalate, Affirm, Soften], status: [Active, Superseded, Expired]}
+      date_order: [[override_date, expiry_date]]
+  ews_score:
+    source: bronze.ews_score
+    domain: early_warning
+    comment: >-
+      Daily early-warning composite score per obligor (0-100) with component scores, computed and final band
+      (Green < 40, Amber 40-69, Red >= 70), override and watchlist flags. Grain: obligor x date.
+    keys: [obligor_id, score_date]
+    client: {key: obligor_id}
+    date: score_date
+    columns:
+      obligor_id: string
+      score_date: date
+      composite_score: double
+      band: string
+      final_band: string
+      is_overridden: boolean
+      credit_component: double
+      liquidity_component: double
+      behavioural_component: double
+      external_component: double
+      prev_day_band: string
+      score_30d_delta: double
+      is_watchlisted: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {band: [Green, Amber, Red], final_band: [Green, Amber, Red]}
+      range: {composite_score: [0, 100]}
+      not_future: [score_date]
+      fresh: {lag_days: 3}
+  ews_signal:
+    source: bronze.ews_signal
+    domain: early_warning
+    comment: >-
+      Monthly early-warning trigger hits per obligor (trigger, category, observed value, severity, points).
+      Grain: obligor x month x trigger.
+    keys: [obligor_id, signal_month, trigger_code]
+    client: {key: obligor_id}
+    date: signal_month
+    columns:
+      obligor_id: string
+      signal_month: date
+      trigger_code: string
+      category: string
+      signal_value: double
+      severity: string
+      points_contributed: double
+      detail: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {severity: [Low, Medium, High], category: [Credit, Liquidity, Behavioural, External]}
+      enum_ref: {trigger_code: silver.ews_trigger_catalog.trigger_code}
+      fresh: {lag_days: 31}
+  ews_trigger_catalog:
+    source: bronze.ews_trigger_catalog
+    domain: reference
+    comment: >-
+      Early-warning rule book: trigger code, name, category, default severity, threshold and active flag.
+      Grain: one trigger.
+    keys: [trigger_code]
+    columns:
+      trigger_code: string
+      trigger_name: string
+      category: string
+      default_severity: string
+      threshold_desc: string
+      description: string
+      is_active: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {category: [Credit, Liquidity, Behavioural, External], default_severity: [Low, Medium, High]}
+  ews_watchlist:
+    source: bronze.ews_watchlist
+    domain: early_warning
+    comment: >-
+      Watchlist membership at the as-of date: band, model band, score, lead reason, months on watch, owner RM
+      and next review date. Grain: obligor x as-of date.
+    keys: [obligor_id, as_of_date]
+    client: {key: obligor_id}
+    date: as_of_date
+    columns:
+      obligor_id: string
+      as_of_date: date
+      band: string
+      model_band: string
+      composite_score: double
+      lead_category: string
+      lead_reason: string
+      months_on_watch: int
+      owner_rm: string
+      review_date: date
+      status: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {band: [Green, Amber, Red], model_band: [Green, Amber, Red], status: [New, Active]}
+      fresh: {lag_days: 0}
+  ews_watchlist_event:
+    source: bronze.ews_watchlist_event
+    domain: early_warning
+    comment: >-
+      Watchlist events (added, escalated, de-escalated, removed) with band change, lead reason, follow-up
+      action, due / completed dates and overdue days. Grain: one event.
+    keys: [event_id]
+    client: {key: obligor_id}
+    date: event_date
+    columns:
+      event_id: string
+      obligor_id: string
+      event_date: date
+      event_type: string
+      band_from: string
+      band_to: string
+      composite_score: double
+      lead_category: string
+      lead_reason: string
+      owner_rm: string
+      action_type: string
+      action_due_date: date
+      action_completed_date: date
+      action_status: string
+      days_overdue: int
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {event_type: [Added, Escalated, De-escalated, Removed], band_from: [Green, Amber, Red], band_to: [Green, Amber, Red]}
+      date_order: [[event_date, action_completed_date]]
+  ext_issuer:
+    source: bronze.ext_issuer
+    domain: external
+    comment: >-
+      External issuer master: listed or rated parent per client group with ticker, listing venue / currency,
+      shares outstanding and CDS-reference flag. Grain: one issuer.
+    keys: [issuer_id]
+    group: {key: parent_company_id}
+    columns:
+      issuer_id: string
+      issuer_name: string
+      parent_company_id: string
+      hq_country: code
+      industry_sector: string
+      issuer_type: string
+      is_listed: boolean
+      ticker: string
+      listing_venue: string
+      listing_currency: code
+      shares_outstanding: bigint
+      listing_date: date
+      is_cds_reference: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {issuer_type: [Listed Parent, Rated Issuer]}
+  ext_market_daily:
+    source: bronze.ext_market_daily
+    domain: external
+    comment: >-
+      Daily market data for listed parents: close price, return, 30-day volatility, volume, market cap (local
+      and USD), CDS-like spread and 52-week range. Grain: issuer x trade date.
+    keys: [issuer_id, trade_date]
+    group: {key: issuer_id, via: issuer}
+    date: trade_date
+    columns:
+      issuer_id: string
+      ticker: string
+      trade_date: date
+      currency: code
+      close_price: double
+      daily_return: double
+      volatility_30d: double
+      volume: bigint
+      market_cap_lcy: double
+      market_cap_usd: double
+      cds_spread_bps: double
+      high_52w: double
+      low_52w: double
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {close_price: [0, null], volatility_30d: [0, 5], cds_spread_bps: [0, null]}
+      fk: {issuer_id: silver.ext_issuer.issuer_id}
+      fk_blocking: [issuer_id]
+      fresh: {lag_days: 4}
+  ext_news:
+    source: bronze.ext_news
+    domain: external
+    comment: >-
+      News items about APAC companies from fictional outlets: headline, summary, topic, raw sentiment (-1..1)
+      and relevance. Grain: one news item.
+    keys: [news_id]
+    client: {key: company_id, required: false}
+    date: published_date
+    columns:
+      news_id: string
+      published_date: date
+      published_ts: timestamp
+      company_id: string
+      issuer_id: string
+      outlet: string
+      source_type: string
+      headline: string
+      summary: string
+      topic: string
+      subtopic: string
+      raw_sentiment: double
+      relevance: double
+      region: string
+      language: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {raw_sentiment: [-1, 1], relevance: [0, 1], published_date: ['2023-04-01', '@as_of']}
+      fk: {issuer_id: silver.ext_issuer.issuer_id}
+      fresh: {lag_days: 7}
+  ext_peer_benchmark:
+    source: bronze.ext_peer_benchmark
+    domain: reference
+    comment: >-
+      External peer-group ratio benchmarks per fiscal year (25th / 50th / 75th percentile, number of clients).
+      Grain: peer group x ratio x FY.
+    keys: [peer_group_id, ratio_name, fiscal_year]
+    date: fiscal_year
+    columns:
+      peer_group_id: string
+      ratio_name: string
+      fiscal_year: int
+      p25: double
+      p50: double
+      p75: double
+      n_clients: bigint
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      fk: {peer_group_id: silver.ref_industry_peer.peer_group_id}
+      date_order: [[p25, p50], [p50, p75]]
+  ext_rating:
+    source: bronze.ext_rating
+    domain: external
+    comment: >-
+      External agency rating actions per issuer (fictional agencies): rating, outlook, action, date, notch
+      change, investment-grade flag. Grain: one rating action.
+    keys: [rating_id]
+    group: {key: issuer_id, via: issuer}
+    date: action_date
+    columns:
+      rating_id: string
+      issuer_id: string
+      agency: string
+      rating_type: string
+      rating: string
+      rating_rank: int
+      previous_rating: string
+      outlook: string
+      previous_outlook: string
+      action: string
+      action_date: date
+      notch_change: int
+      is_investment_grade: boolean
+      rationale: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {outlook: [Stable, Positive, Negative], action: [New Rating, Affirmed, Upgrade, Downgrade, Outlook Revised]}
+      fk: {issuer_id: silver.ext_issuer.issuer_id}
+      fk_blocking: [issuer_id]
+      range: {action_date: [null, '@as_of']}
+  ext_trade_statistics:
+    source: bronze.ext_trade_statistics
+    domain: external
+    comment: >-
+      External monthly trade statistics by origin / destination country and HS chapter (fictional vendor):
+      import value USD, data status and release date. Grain: one record.
+    keys: [record_id]
+    date: period_month
+    columns:
+      record_id: string
+      period_month: date
+      origin_country: code
+      destination_country: code
+      flow_type: string
+      hs_chapter: string
+      hs_description: string
+      trade_value_usd: double
+      data_status: string
+      release_date: date
+      vendor: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {data_status: [Final, Preliminary, Flash Estimate]}
+      range: {trade_value_usd: [0, null], release_date: [null, '@as_of']}
+      date_order: [[period_month, release_date]]
+  fin_capital_allocation:
+    source: bronze.fin_capital_allocation
+    domain: profitability
+    comment: >-
+      Monthly capital and impairment per obligor: EAD, RWA, risk weight, PD, LGD, IFRS 9 stage, 12-month /
+      lifetime ECL, expected loss, economic and allocated capital (USD). Point-in-time. Grain: obligor x
+      month.
+    keys: [obligor_id, month]
+    client: {key: obligor_id}
+    date: month
+    columns:
+      obligor_id: string
+      month: date
+      as_of_date: date
+      fiscal_year: int
+      fiscal_quarter: int
+      internal_grade: int
+      rating_equivalent: string
+      ifrs9_stage: int
+      days_past_due_max: int
+      dpd_bucket: string
+      drawn_usd: double
+      limit_usd: double
+      ead_usd: double
+      ccf: double
+      risk_weight: double
+      rwa_usd: double
+      pd_12m: double
+      pd_lifetime: double
+      lgd: double
+      remaining_tenor_years: double
+      ecl_12m_usd: double
+      ecl_lifetime_usd: double
+      ecl_usd: double
+      ecl_change_usd: double
+      expected_loss_usd: double
+      economic_capital_usd: double
+      book_equity_usd: double
+      allocated_capital_usd: double
+      cost_of_capital_usd: double
+      is_individually_assessed: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {ifrs9_stage: [1, 3], pd_12m: [0, 1], lgd: [0, 1], ead_usd: [0, null], rwa_usd: [0, null], ecl_usd: [0, null]}
+      enum: {dpd_bucket: [Current, 1-29, 30-59, 60-89, 90+]}
+      fresh: {lag_days: 31}
+  fin_client_revenue:
+    source: bronze.fin_client_revenue
+    domain: profitability
+    comment: >-
+      Monthly client revenue per product family (NII, fees, trading; USD) keyed by the booking source record.
+      Grain: source record x month x product family.
+    keys: [client_source_system, client_source_id, month, product_family]
+    client: {key: client_source_id, system_column: client_source_system}
+    date: month
+    columns:
+      client_source_system: string
+      client_source_id: string
+      month: date
+      fiscal_year: int
+      fiscal_quarter: int
+      business_line: string
+      product_family: string
+      nii_usd: double
+      fee_usd: double
+      trading_usd: double
+      total_revenue_usd: double
+      activity_basis_usd: double
+      is_pnl_reconciled: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {client_source_system: [core_customer, credit_obligor, tsy_counterparty, trade_party, crm_account, kyc_customer, ext_company_master], product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance], business_line: [Lending, Transaction Banking, Markets, Sustainable Finance]}
+      range: {total_revenue_usd: [0, null]}
+      fresh: {lag_days: 31}
+  fin_cost_allocation:
+    source: bronze.fin_cost_allocation
+    domain: profitability
+    comment: >-
+      Monthly cost to serve per client and product family (direct, RM, operations, head-office allocation;
+      USD). Grain: source record x month x product family.
+    keys: [client_source_system, client_source_id, month, product_family]
+    client: {key: client_source_id, system_column: client_source_system}
+    date: month
+    columns:
+      client_source_system: string
+      client_source_id: string
+      month: date
+      fiscal_year: int
+      fiscal_quarter: int
+      product_family: string
+      direct_cost_usd: double
+      rm_cost_usd: double
+      operations_cost_usd: double
+      ho_allocation_usd: double
+      total_cost_usd: double
+      is_pnl_reconciled: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {client_source_system: [core_customer, credit_obligor, tsy_counterparty, trade_party, crm_account, kyc_customer, ext_company_master], product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance]}
+      range: {total_cost_usd: [0, null]}
+      fresh: {lag_days: 31}
+  fin_deal_pricing:
+    source: bronze.fin_deal_pricing
+    domain: profitability
+    comment: >-
+      Deal pricing at facility signing: margin vs hurdle margin, standalone RoRWA, origination and realised
+      RAROC, below-hurdle approvals, exceptions and catch-up. Grain: one facility.
+    keys: [facility_id]
+    client: {key: obligor_id}
+    date: signing_date
+    columns:
+      facility_id: string
+      obligor_id: string
+      signing_date: date
+      signing_quarter: string
+      product: string
+      amount_usd: double
+      internal_grade: int
+      ead: double
+      rwa: double
+      lgd: double
+      priced_margin_bps: double
+      hurdle_margin_bps: double
+      margin_gap_bps: double
+      standalone_rorwa: double
+      meets_standalone_hurdle: boolean
+      pricing_status: string
+      origination_raroc: double
+      approved_below_hurdle: boolean
+      realised_raroc: double
+      caught_up: boolean
+      exception_approver: string
+      exception_reason: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {pricing_status: [Above hurdle, At hurdle, Below hurdle]}
+      range: {amount_usd: [0, null], lgd: [0, 1]}
+      fk: {facility_id: silver.credit_facility_terms.facility_id}
+      fk_blocking: [facility_id]
+  fin_relationship_pnl:
+    source: bronze.fin_relationship_pnl
+    domain: profitability
+    comment: >-
+      Quarterly relationship P&L per obligor: revenue by type, cost to serve, expected loss, net profit, EAD /
+      RWA / capital and RoRWA / RAROC / ROE with hurdle flags. Grain: obligor x fiscal quarter.
+    keys: [obligor_id, fiscal_year, fiscal_quarter]
+    client: {key: obligor_id}
+    date: fiscal_year
+    columns:
+      obligor_id: string
+      fiscal_year: int
+      fiscal_quarter: int
+      fiscal_quarter_label: string
+      segment: string
+      relationship_tier: string
+      industry_sector: string
+      industry_subsector: string
+      ead: double
+      rwa: double
+      economic_capital: double
+      book_equity: double
+      internal_grade: int
+      rev_lending: double
+      rev_deposits: double
+      rev_payments: double
+      rev_other: double
+      revenue_total: double
+      cost_to_serve: double
+      expected_loss: double
+      net_profit: double
+      net_profit_annualised: double
+      rorwa: double
+      raroc: double
+      roe: double
+      below_rorwa_hurdle: boolean
+      below_raroc_hurdle: boolean
+      below_roe_hurdle: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {segment: [Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance, Public Sector], relationship_tier: [Strategic, Core, Transactional]}
+      range: {fiscal_quarter: [1, 4], revenue_total: [0, null], rwa: [0, null]}
+      fresh: {min: 2026}
+  fin_tb_fee:
+    source: bronze.fin_tb_fee
+    domain: transaction_banking
+    comment: >-
+      Monthly transaction-banking fees per core customer (account maintenance, channel, liquidity structure),
+      local currency and USD. Grain: one fee line.
+    keys: [fee_id]
+    client: {key: cust_no}
+    date: fee_month
+    columns:
+      fee_id: string
+      cust_no: string
+      fee_month: date
+      fee_type: string
+      product_family: string
+      fee_currency: code
+      fee_amount_lcy: double
+      fee_amount_usd: double
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {product_family: [Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates, Sustainable Finance]}
+      range: {fee_amount_usd: [0, null]}
+      enum_ref: {fee_currency: silver.ref_currency.currency_code}
+      fresh: {lag_days: 31}
+  fx_rate_daily:
+    source: bronze.fx_rate_daily
+    domain: reference
+    comment: >-
+      Daily FX reference rates per currency (units per USD and USD per unit). Grain: currency x date.
+    keys: [currency_code, date]
+    date: date
+    columns:
+      currency_code: code
+      date: date
+      rate_per_usd: double
+      usd_per_unit: double
+    checks:
+      range: {rate_per_usd: [0, null], usd_per_unit: [0, null]}
+      enum_ref: {currency_code: silver.ref_currency.currency_code}
+  kyc_case:
+    source: bronze.kyc_case
+    domain: onboarding
+    comment: >-
+      Onboarding cases: applicant, booking country, segment, products, request date, current stage, status,
+      blocker / outcome reason, owner and intake group match. Grain: one case.
+    keys: [case_id]
+    client: {key: kyc_id, required: false}
+    date: request_date
+    columns:
+      case_id: string
+      applicant_id: string
+      kyc_id: string
+      applicant_name: string
+      booking_country: code
+      segment: string
+      products_requested: string
+      primary_product: string
+      request_date: date
+      current_stage: string
+      status: string
+      status_date: date
+      blocker_reason: string
+      outcome_reason: string
+      documents_outstanding: int
+      owner_id: string
+      rm_code: string
+      intake_group_match: boolean
+      intake_group_ref: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {status: [Open, Live, Withdrawn, Rejected], segment: [Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance, Public Sector], current_stage: [Request, KYC Docs, Screening, Risk Assessment, Credit/Product Approval, Account Open, First Transaction, Complete]}
+      range: {documents_outstanding: [0, null], request_date: ['2023-04-01', '@as_of']}
+      date_order: [[request_date, status_date]]
+  kyc_case_stage:
+    source: bronze.kyc_case_stage
+    domain: onboarding
+    comment: >-
+      Onboarding stage events per case (Request -> KYC Docs -> Screening -> Risk Assessment -> Credit/Product
+      Approval -> Account Open -> First Transaction): entered / exited dates, days in stage, SLA. Grain: case
+      x stage.
+    keys: [case_id, stage_no]
+    client: {key: case_id, via: kyc_case, required: false}
+    date: entered_date
+    columns:
+      case_id: string
+      stage_no: int
+      stage_name: string
+      entered_date: date
+      exited_date: date
+      days_in_stage: int
+      sla_days: int
+      is_sla_met: boolean
+      is_current: boolean
+      actor_id: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {stage_no: [1, 7], days_in_stage: [0, null]}
+      date_order: [[entered_date, exited_date]]
+      fk: {case_id: silver.kyc_case.case_id}
+      fk_blocking: [case_id]
+  kyc_document:
+    source: bronze.kyc_document
+    domain: onboarding
+    comment: >-
+      Documents requested per onboarding case: type, mandatory flag, requested / received dates and status.
+      Grain: one document.
+    keys: [document_id]
+    client: {key: case_id, via: kyc_case, required: false}
+    date: requested_date
+    columns:
+      document_id: string
+      case_id: string
+      document_type: string
+      is_mandatory: boolean
+      requested_date: date
+      received_date: date
+      status: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {status: [Received, Outstanding, Waived, Cancelled]}
+      date_order: [[requested_date, received_date]]
+      fk: {case_id: silver.kyc_case.case_id}
+      fk_blocking: [case_id]
+  kyc_feedback:
+    source: bronze.kyc_feedback
+    domain: onboarding
+    comment: >-
+      Post-go-live onboarding survey responses: score (1-5), comment and theme. Grain: one response.
+    keys: [feedback_id]
+    client: {key: kyc_id}
+    date: survey_date
+    columns:
+      feedback_id: string
+      case_id: string
+      kyc_id: string
+      survey_date: date
+      score: int
+      comment_text: string
+      theme: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {score: [1, 5]}
+      fk: {case_id: silver.kyc_case.case_id}
+  kyc_review:
+    source: bronze.kyc_review
+    domain: onboarding
+    comment: >-
+      KYC review history (onboarding, periodic, trigger): due and completed dates, status, days overdue, risk
+      before / after and reviewer. Grain: one review.
+    keys: [review_id]
+    client: {key: kyc_id}
+    date: due_date
+    columns:
+      review_id: string
+      kyc_id: string
+      review_type: string
+      trigger_reason: string
+      due_date: date
+      completed_date: date
+      status: string
+      days_overdue: int
+      risk_before: string
+      risk_after: string
+      reviewer_id: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {review_type: [Onboarding, Periodic, Trigger], status: [Completed, Scheduled, Due Soon, Overdue], risk_before: [Low, Medium, High], risk_after: [Low, Medium, High]}
+      range: {days_overdue: [0, null], completed_date: [null, '@as_of']}
+  kyc_screening:
+    source: bronze.kyc_screening
+    domain: onboarding
+    comment: >-
+      Name-screening hits (sanctions, PEP, adverse media) at onboarding and ongoing: list, hit type, true-
+      match flag, resolution hours and disposition. Grain: one hit.
+    keys: [screening_id]
+    client: {key: subject_ref, system: kyc_customer, required: false, scope: subject_ref LIKE 'KYC-%'}
+    date: screening_date
+    columns:
+      screening_id: string
+      subject_ref: string
+      case_id: string
+      screening_context: string
+      screening_date: date
+      list_name: string
+      hit_type: string
+      is_true_match: boolean
+      resolution_hours: double
+      disposition: string
+      resolved_by: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {screening_context: [Onboarding, Ongoing]}
+      range: {resolution_hours: [0, null]}
+      fk: {case_id: silver.kyc_case.case_id}
+      fresh: {lag_days: 7}
+  pay_channel_usage:
+    source: bronze.pay_channel_usage
+    domain: payments
+    comment: >-
+      Monthly channel usage per core customer and channel: active users, logins, payments initiated and value,
+      STP / manual / digital payments, API calls, files. Grain: month x customer x channel.
+    keys: [usage_month, cust_no, channel]
+    client: {key: cust_no}
+    date: usage_month
+    columns:
+      usage_month: date
+      cust_no: string
+      channel: string
+      active_users: int
+      logins: int
+      payments_initiated: bigint
+      payments_value_usd: double
+      stp_payments: bigint
+      manual_instructions: bigint
+      digital_payments: bigint
+      api_calls: int
+      files_transmitted: int
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {active_users: [0, null], payments_initiated: [0, null], payments_value_usd: [0, null]}
+      fresh: {lag_days: 31}
+  pay_counterparty_bank:
+    source: bronze.pay_counterparty_bank
+    domain: reference
+    comment: >-
+      Payment counterparty banks (SMBC, fictional competitor banks, intercompany). Grain: one bank.
+    keys: [bank_name]
+    columns:
+      bank_name: string
+      bank_type: string
+    checks:
+      enum: {bank_type: [SMBC, Other Bank, Intercompany]}
+  pay_payment_message:
+    source: bronze.pay_payment_message
+    domain: payments
+    comment: >-
+      Payment messages from the payments hub: direction, channel, purpose, countries, counterparty bank,
+      amount (USD), STP and repair details. De-duplicated on payment_id (the 17-Jun-2026 replay batch is
+      removed). Grain: one payment.
+    keys: [payment_id]
+    client: {key: cust_no}
+    date: payment_date
+    columns:
+      payment_id: string
+      cust_no: string
+      account_id: string
+      payment_date: date
+      direction: string
+      channel: string
+      payment_purpose: string
+      debtor_country: code
+      counterparty_country: code
+      is_cross_border: boolean
+      counterparty_bank_type: string
+      counterparty_bank_name: string
+      amount_usd: double
+      counterparty_ref: string
+      stp_flag: boolean
+      repair_reason: string
+      processing_seconds: int
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      required: [direction, channel, amount_usd, payment_date]
+      enum: {direction: [Inbound, Outbound], counterparty_bank_type: [SMBC, Other Bank, Intercompany], payment_purpose: [Supplier, Intercompany, Payroll, Trade Settlement, Tax, Loan Service, Dividend]}
+      range: {amount_usd: [0, null], payment_date: ['2024-04-01', '@as_of'], processing_seconds: [0, null]}
+      fk: {account_id: silver.core_account.account_id}
+      fk_blocking: [account_id]
+      fresh: {lag_days: 3}
+  pay_repair_queue:
+    source: bronze.pay_repair_queue
+    domain: payments
+    comment: >-
+      Payments that needed manual repair: reason, processing seconds and repaired flag. Grain: one payment.
+    keys: [payment_id]
+    client: {key: cust_no}
+    date: payment_date
+    columns:
+      payment_id: string
+      cust_no: string
+      payment_date: date
+      repair_reason: string
+      processing_seconds: int
+      repaired: boolean
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      fk: {payment_id: silver.pay_payment_message.payment_id}
+      fk_blocking: [payment_id]
+      range: {processing_seconds: [0, null]}
+  ref_booking_entity:
+    source: bronze.ref_booking_entity
+    domain: reference
+    comment: >-
+      SMBC booking entities: 13 APAC locations plus the JP / EMEA / AMER provider regions, with city,
+      regulator, local currency, hub and APAC flags. Grain: one booking entity.
+    keys: [booking_entity_id]
+    columns:
+      booking_entity_id: string
+      city: string
+      country_name: string
+      is_apac: boolean
+      is_hub: boolean
+      local_currency: code
+      region_cluster: string
+      regulator: string
+    checks:
+      enum: {region_cluster: [APAC, JP, EMEA, AMER]}
+  ref_calendar:
+    source: bronze.ref_calendar
+    domain: reference
+    comment: >-
+      Calendar 2023-04-01 to 2027-03-31 with Japanese fiscal year (Apr-Mar), quarter, half, month-end, SG
+      business day, FYTD and latest-closed-month flags. Grain: one date.
+    keys: [date]
+    columns:
+      date: date
+      day: int
+      days_before_as_of: int
+      fiscal_half: string
+      fiscal_month_no: int
+      fiscal_quarter: int
+      fiscal_quarter_label: string
+      fiscal_year: int
+      fiscal_year_label: string
+      is_business_day_sg: boolean
+      is_fytd: boolean
+      is_latest_closed_month: boolean
+      is_month_end: boolean
+      month: int
+      year: int
+    checks:
+      range: {fiscal_quarter: [1, 4], fiscal_month_no: [1, 12]}
+      enum: {fiscal_half: [H1, H2]}
+  ref_country:
+    source: bronze.ref_country
+    domain: reference
+    comment: >-
+      Country reference for the booking footprint: ISO-2 code, city, local currency, region cluster,
+      regulator. Grain: one country.
+    keys: [country_code]
+    columns:
+      city: string
+      country_code: code
+      country_name: string
+      is_apac: boolean
+      local_currency: code
+      region_cluster: string
+      regulator: string
+  ref_currency:
+    source: bronze.ref_currency
+    domain: reference
+    comment: >-
+      Currency reference: ISO code, base FX rate per USD and base-currency flag. Grain: one currency.
+    keys: [currency_code]
+    columns:
+      currency_code: code
+      fx_base_per_usd: double
+      is_base: boolean
+    checks:
+      range: {fx_base_per_usd: [0, null]}
+  ref_industry_peer:
+    source: bronze.ref_industry_peer
+    domain: reference
+    comment: >-
+      Industry taxonomy and peer groups: sector, subsector, peer group id, carbon-intensive flag and sector
+      limit (USD). Grain: one peer group.
+    keys: [peer_group_id]
+    columns:
+      industry_sector: string
+      industry_subsector: string
+      is_carbon_intensive: boolean
+      peer_group_id: string
+      sector_limit_usd: double
+    checks:
+      range: {sector_limit_usd: [0, null]}
+  scf_programme:
+    source: bronze.scf_programme
+    domain: scf
+    comment: >-
+      Supply-chain-finance programmes per anchor client: type, launch date, limit, drawn, utilisation,
+      suppliers and primary corridor. Grain: one programme.
+    keys: [programme_id]
+    client: {key: anchor_party_id, system: trade_party}
+    date: launch_date
+    columns:
+      programme_id: string
+      anchor_party_id: string
+      programme_type: string
+      launch_date: date
+      currency: code
+      limit_usd: double
+      drawn_usd: double
+      utilisation: double
+      n_suppliers_total: int
+      primary_corridor: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {programme_type: [Payables Finance, Receivables Finance]}
+      range: {limit_usd: [0, null], drawn_usd: [0, null], utilisation: [0, 1]}
+  scf_supplier:
+    source: bronze.scf_supplier
+    domain: scf
+    comment: >-
+      Suppliers enrolled in SCF programmes: country, onboarding, invoices and amount financed, early-payment
+      days, discount rate and other-bank routing. Grain: one supplier.
+    keys: [supplier_id]
+    client: {key: anchor_party_id, system: trade_party}
+    date: onboarded_date
+    columns:
+      supplier_id: string
+      programme_id: string
+      anchor_party_id: string
+      supplier_name: string
+      supplier_country: code
+      is_onboarded: boolean
+      onboarded_date: date
+      n_invoices_financed: int
+      financed_amount_usd: double
+      avg_days_paid_early: int
+      discount_rate_bps: double
+      routes_to_other_bank: boolean
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {financed_amount_usd: [0, null]}
+      fk: {programme_id: silver.scf_programme.programme_id}
+      fk_blocking: [programme_id]
+  trade_event:
+    source: bronze.trade_event
+    domain: trade
+    comment: >-
+      Lifecycle events per trade-finance instrument (issue, amend, present, accept, pay, claim, expire) with
+      amount and outstanding after the event (USD). Grain: one event.
+    keys: [event_id]
+    client: {key: txn_id, via: trade_txn}
+    date: event_date
+    columns:
+      event_id: string
+      txn_id: string
+      event_seq: int
+      event_type: string
+      event_date: date
+      event_detail: string
+      amount_usd: double
+      outstanding_after_usd: double
+      presentation_id: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {event_type: [Issue, Amend, Present, Accept, Pay, Claim, Expire]}
+      range: {amount_usd: [0, null], outstanding_after_usd: [0, null]}
+      fk: {presentation_id: silver.trade_presentation.presentation_id}
+  trade_finance_txn:
+    source: bronze.trade_finance_txn
+    domain: trade
+    comment: >-
+      Trade-finance instruments (import / export LCs, guarantees / SBLCs, collections, trade loans,
+      receivables purchase): corridor, commodity, amount, tenor, maturity, status, outstanding, fees. Grain:
+      one instrument.
+    keys: [txn_id]
+    client: {key: party_id}
+    date: txn_date
+    columns:
+      txn_id: string
+      party_id: string
+      txn_date: date
+      product_type: string
+      direction: string
+      origin_country: code
+      destination_country: code
+      counterparty_country: code
+      counterparty_bank_country: code
+      beneficiary_country: code
+      commodity: string
+      hs_chapter: string
+      currency: code
+      amount_ccy: double
+      amount_usd: double
+      tenor_days: int
+      maturity_date: date
+      status: string
+      closed_date: date
+      outstanding_usd: double
+      fee_bps: double
+      commission_usd: double
+      is_sustainable_trade: boolean
+      booking_location: code
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {product_type: [Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan, Receivables Purchase], direction: [Import, Export], status: [Issued, Negotiated, Settled, Expired]}
+      range: {amount_usd: [0, null], outstanding_usd: [0, null], tenor_days: [0, null]}
+      enum_ref: {currency: silver.ref_currency.currency_code}
+      date_order: [[txn_date, maturity_date], [txn_date, closed_date]]
+      fresh: {lag_days: 7}
+  trade_presentation:
+    source: bronze.trade_presentation
+    domain: trade
+    comment: >-
+      Document presentations under trade instruments: received / checked times, turnaround vs SLA,
+      discrepancies, decision and amount. Grain: one presentation.
+    keys: [presentation_id]
+    client: {key: txn_id, via: trade_txn}
+    date: received_ts
+    columns:
+      presentation_id: string
+      txn_id: string
+      presentation_no: int
+      is_re_presentation: boolean
+      received_ts: timestamp
+      checked_ts: timestamp
+      turnaround_hours: double
+      sla_hours: double
+      is_over_sla: boolean
+      is_discrepant: boolean
+      discrepancy_count: int
+      discrepancy_types: string
+      primary_discrepancy_type: string
+      decision: string
+      amount_usd: double
+      ops_team: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {turnaround_hours: [0, null], discrepancy_count: [0, null]}
+      date_order: [[received_ts, checked_ts]]
+  trade_scf_invoice:
+    source: bronze.trade_scf_invoice
+    domain: scf
+    comment: >-
+      Invoices in SCF programmes: dates, amount, financed flag and amount, advance and discount rates, days
+      financed, proceeds and status (USD). Grain: one invoice.
+    keys: [invoice_id]
+    client: {key: anchor_party_id, system: trade_party}
+    date: invoice_date
+    columns:
+      invoice_id: string
+      programme_id: string
+      supplier_id: string
+      anchor_party_id: string
+      supplier_invoice_no: string
+      invoice_date: date
+      approval_date: date
+      due_date: date
+      currency: code
+      invoice_amount_usd: double
+      is_financed: boolean
+      financing_date: date
+      financed_amount_usd: double
+      advance_rate: double
+      discount_rate_pct: double
+      days_financed: int
+      discount_amount_usd: double
+      net_proceeds_usd: double
+      status: string
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      enum: {status: [Approved, Financed, Settled, Paid at Maturity]}
+      range: {invoice_amount_usd: [0, null], financed_amount_usd: [0, null], advance_rate: [0, 1]}
+      date_order: [[invoice_date, due_date], [invoice_date, financing_date]]
+      fk: {programme_id: silver.scf_programme.programme_id, supplier_id: silver.scf_supplier.supplier_id}
+      fk_blocking: [programme_id]
+  tsy_fx_deal:
+    source: bronze.tsy_fx_deal
+    domain: fx
+    comment: >-
+      FX deals with treasury counterparties: product, currency pair, direction, notional and revenue (USD),
+      margin, hedge type, tenor and value date. Grain: one deal.
+    keys: [deal_id]
+    client: {key: cpty_id}
+    date: deal_date
+    columns:
+      deal_id: string
+      cpty_id: string
+      deal_date: date
+      product_type: string
+      ccy_pair: code
+      direction: string
+      notional_usd: double
+      margin_bps: double
+      revenue_usd: double
+      hedge_type: string
+      tenor_days: int
+      value_date: date
+      booking_location: code
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {notional_usd: [0, null], deal_date: ['2023-04-01', '@as_of']}
+      date_order: [[deal_date, value_date]]
+      fresh: {lag_days: 7}
+  tsy_fx_wallet_estimate:
+    source: bronze.tsy_fx_wallet_estimate
+    domain: fx
+    comment: >-
+      Quarterly FX wallet estimate per treasury counterparty: total wallet, SMBC volume and share, competitor
+      volume, revenue captured and opportunity (USD). Grain: counterparty x fiscal quarter.
+    keys: [cpty_id, fiscal_year, fiscal_quarter]
+    client: {key: cpty_id}
+    date: fiscal_year
+    columns:
+      cpty_id: string
+      fiscal_year: int
+      fiscal_quarter: int
+      fiscal_quarter_label: string
+      est_total_wallet_usd: double
+      smbc_volume_usd: double
+      n_deals: bigint
+      wallet_share: double
+      competitor_volume_usd: double
+      revenue_captured_usd: double
+      revenue_opportunity_usd: double
+      _source_system: string
+      _batch_id: string
+      _ingest_ts: timestamp
+    checks:
+      range: {est_total_wallet_usd: [0, null], wallet_share: [0, 1], fiscal_quarter: [1, 4]}
+  share_amer_entity_master:
+    source: shared.share_amer_entity_master
+    domain: shared
+    comment: >-
+      AMER lakehouse entity master (Delta Sharing): subsidiaries of the client groups in the Americas with
+      legal name, country, group, segment, office and relationship status. Grain: one provider entity.
+    keys: [provider_entity_id]
+    group: {key: global_group_id}
+    columns:
+      provider_entity_id: string
+      legal_name: string
+      short_name: string
+      country_code: code
+      city: string
+      global_group_id: string
+      immediate_parent_name: string
+      immediate_parent_type: string
+      lei_like_id: string
+      industry_sector: string
+      regional_segment: string
+      booking_office: string
+      regional_rm_code: string
+      reporting_currency: code
+      relationship_start_date: date
+      relationship_status: string
+      closed_date: date
+      naics_code: string
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      enum: {source_region: [AMER], ingest_method: [delta_sharing]}
+  share_amer_exposure_monthly:
+    source: shared.share_amer_exposure_monthly
+    domain: shared
+    comment: >-
+      AMER-booked month-end exposure per subsidiary and product family: committed, drawn and deposits (local
+      and USD). Point-in-time. Grain: entity x month-end x product x office x currency.
+    keys: [provider_entity_id, month_end_date, product_family, booking_office, currency]
+    group: {key: global_group_id}
+    date: month_end_date
+    columns:
+      provider_entity_id: string
+      global_group_id: string
+      month_end_date: date
+      product_family: string
+      booking_office: string
+      currency: code
+      committed_lcy: double
+      committed_usd: double
+      drawn_lcy: double
+      drawn_usd: double
+      deposits_lcy: double
+      deposits_usd: double
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      range: {committed_usd: [0, null], drawn_usd: [0, null], deposits_usd: [0, null]}
+      fk: {provider_entity_id: silver.share_amer_entity_master.provider_entity_id}
+      fk_blocking: [provider_entity_id]
+  share_amer_revenue_monthly:
+    source: shared.share_amer_revenue_monthly
+    domain: shared
+    comment: >-
+      AMER-booked monthly revenue per subsidiary, product family and revenue type (local and USD). Grain:
+      entity x month x product x revenue type x currency.
+    keys: [provider_entity_id, month_end_date, product_family, revenue_type, currency]
+    group: {key: global_group_id}
+    date: month_end_date
+    columns:
+      provider_entity_id: string
+      global_group_id: string
+      month_end_date: date
+      product_family: string
+      revenue_type: string
+      currency: code
+      revenue_lcy: double
+      revenue_usd: double
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      fk: {provider_entity_id: silver.share_amer_entity_master.provider_entity_id}
+      fk_blocking: [provider_entity_id]
+  share_emea_entity_master:
+    source: shared.share_emea_entity_master
+    domain: shared
+    comment: >-
+      EMEA lakehouse entity master (Delta Sharing): subsidiaries of the client groups in EMEA with legal name,
+      country, group, segment, office and relationship status. Grain: one provider entity.
+    keys: [provider_entity_id]
+    group: {key: global_group_id}
+    columns:
+      provider_entity_id: string
+      legal_name: string
+      short_name: string
+      country_code: code
+      city: string
+      global_group_id: string
+      immediate_parent_name: string
+      immediate_parent_type: string
+      lei_like_id: string
+      industry_sector: string
+      regional_segment: string
+      booking_office: string
+      regional_rm_code: string
+      reporting_currency: code
+      relationship_start_date: date
+      relationship_status: string
+      closed_date: date
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      enum: {source_region: [EMEA], ingest_method: [delta_sharing]}
+  share_emea_exposure_monthly:
+    source: shared.share_emea_exposure_monthly
+    domain: shared
+    comment: >-
+      EMEA-booked month-end exposure per subsidiary and product family: committed, drawn and deposits (local
+      and USD), IFRS 9 stage. Point-in-time. Grain: entity x month-end x product x office x currency.
+    keys: [provider_entity_id, month_end_date, product_family, booking_office, currency]
+    group: {key: global_group_id}
+    date: month_end_date
+    columns:
+      provider_entity_id: string
+      global_group_id: string
+      month_end_date: date
+      product_family: string
+      booking_office: string
+      currency: code
+      committed_lcy: double
+      committed_usd: double
+      drawn_lcy: double
+      drawn_usd: double
+      deposits_lcy: double
+      deposits_usd: double
+      ifrs9_stage: int
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      range: {committed_usd: [0, null], drawn_usd: [0, null], deposits_usd: [0, null]}
+      fk: {provider_entity_id: silver.share_emea_entity_master.provider_entity_id}
+      fk_blocking: [provider_entity_id]
+  share_emea_revenue_monthly:
+    source: shared.share_emea_revenue_monthly
+    domain: shared
+    comment: >-
+      EMEA-booked monthly revenue per subsidiary, product family and revenue type (local and USD). Grain:
+      entity x month x product x revenue type x currency.
+    keys: [provider_entity_id, month_end_date, product_family, revenue_type, currency]
+    group: {key: global_group_id}
+    date: month_end_date
+    columns:
+      provider_entity_id: string
+      global_group_id: string
+      month_end_date: date
+      product_family: string
+      revenue_type: string
+      currency: code
+      revenue_lcy: double
+      revenue_usd: double
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      fk: {provider_entity_id: silver.share_emea_entity_master.provider_entity_id}
+      fk_blocking: [provider_entity_id]
+  share_jp_group_master:
+    source: shared.share_jp_group_master
+    domain: shared
+    comment: >-
+      Tokyo head-office global group master (Delta Sharing): global group id, JP parent, HQ, global segment /
+      industry / tier, global RM and coverage. The bank's group-master key. Grain: one group.
+    keys: [global_group_id]
+    group: {key: global_group_id}
+    columns:
+      global_group_id: string
+      group_name_global: string
+      jp_parent_id: string
+      jp_parent_legal_name: string
+      jp_parent_lei: string
+      jp_parent_city: string
+      hq_country: code
+      hq_region: string
+      global_segment: string
+      global_industry: string
+      global_tier: string
+      global_relationship_owner_region: string
+      global_rm_code: string
+      global_rm_name: string
+      global_coverage_unit: string
+      relationship_since: date
+      n_subsidiaries_emea: int
+      n_subsidiaries_amer: int
+      master_status: string
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      enum: {source_region: [JP], ingest_method: [delta_sharing], global_segment: [Japanese Corporate, Non-Japanese Corporate, Financial Institutions, Sponsor Coverage, Public Sector], global_tier: [Global Strategic, Global Core, Global Standard]}
+  share_jp_parent_exposure_monthly:
+    source: shared.share_jp_parent_exposure_monthly
+    domain: shared
+    comment: >-
+      JP-booked month-end exposure and revenue per JP counterparty (parent or JP entity) and product family
+      (local and USD). Point-in-time. Grain: counterparty x month-end x product x office x currency.
+    keys: [jp_counterparty_id, month_end_date, product_family, booking_office, currency]
+    group: {key: global_group_id}
+    date: month_end_date
+    columns:
+      jp_counterparty_id: string
+      jp_counterparty_name: string
+      counterparty_type: string
+      global_group_id: string
+      month_end_date: date
+      product_family: string
+      booking_office: string
+      currency: code
+      committed_lcy: double
+      committed_usd: double
+      drawn_lcy: double
+      drawn_usd: double
+      deposits_lcy: double
+      deposits_usd: double
+      revenue_lcy: double
+      revenue_usd: double
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      range: {committed_usd: [0, null], drawn_usd: [0, null], deposits_usd: [0, null]}
+  share_jp_parent_financials:
+    source: shared.share_jp_parent_financials
+    domain: shared
+    comment: >-
+      JP parent consolidated financials per fiscal year (JPY and USD): revenue, EBITDA, net income, debt,
+      cash, equity and key ratios. Grain: parent x FY.
+    keys: [jp_parent_id, fiscal_year]
+    group: {key: global_group_id}
+    date: fiscal_year
+    columns:
+      jp_parent_id: string
+      global_group_id: string
+      fiscal_year: int
+      fiscal_year_label: string
+      fiscal_year_end: date
+      accounting_standard: string
+      currency: code
+      revenue_jpy: double
+      operating_income_jpy: double
+      ebitda_jpy: double
+      net_income_jpy: double
+      interest_expense_jpy: double
+      total_assets_jpy: double
+      total_debt_jpy: double
+      cash_jpy: double
+      net_debt_jpy: double
+      equity_jpy: double
+      revenue_usd: double
+      operating_income_usd: double
+      ebitda_usd: double
+      net_income_usd: double
+      interest_expense_usd: double
+      total_assets_usd: double
+      total_debt_usd: double
+      cash_usd: double
+      net_debt_usd: double
+      equity_usd: double
+      net_debt_to_ebitda: double
+      interest_coverage: double
+      equity_ratio: double
+      roe: double
+      operating_margin: double
+      n_consolidated_subsidiaries: int
+      audit_opinion: string
+      results_published_date: date
+      ghg_scope12_kt: double
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      range: {fiscal_year: [2019, 2026]}
+  share_jp_parent_rating:
+    source: shared.share_jp_parent_rating
+    domain: shared
+    comment: >-
+      JP parent internal rating history from Tokyo (grade from / to, rating equivalent, outlook, reason,
+      validity). Grain: one rating record.
+    keys: [rating_id]
+    group: {key: global_group_id}
+    date: rating_date
+    columns:
+      rating_id: string
+      jp_parent_id: string
+      global_group_id: string
+      rating_date: date
+      rating_action: string
+      review_type: string
+      grade_from: int
+      grade_to: int
+      rating_equivalent: string
+      outlook: string
+      rating_reason: string
+      next_review_date: date
+      valid_to: date
+      is_current: boolean
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      range: {grade_from: [1, 10], grade_to: [1, 10]}
+      date_order: [[rating_date, valid_to]]
+  share_jp_support_letters:
+    source: shared.share_jp_support_letters
+    domain: shared
+    comment: >-
+      Parent support register from Tokyo: keepwells and guarantees from the JP parent to APAC subsidiaries,
+      coverage, amount, dates and status. Grain: one letter.
+    keys: [letter_id]
+    client: {key: apac_obligor_ref, system: credit_obligor, required: false}
+    group: {key: global_group_id}
+    date: issue_date
+    columns:
+      letter_id: string
+      jp_parent_id: string
+      global_group_id: string
+      support_type: string
+      is_legally_binding: boolean
+      coverage_scope: string
+      covered_facility_id: string
+      apac_obligor_ref: string
+      subsidiary_name: string
+      subsidiary_country: code
+      subsidiary_lei: string
+      beneficiary_booking_entity: string
+      parent_ownership_pct: double
+      support_amount_usd: double
+      currency: code
+      issue_date: date
+      expiry_date: date
+      last_confirmed_date: date
+      status: string
+      status_date: date
+      source_region: string
+      ingest_method: string
+      _share_name: string
+      _provider_version: int
+      _shared_at: timestamp
+    checks:
+      enum: {support_type: [Keepwell, Parent Guarantee], status: [Active, Expired, Released]}
+      range: {parent_ownership_pct: [0, 100]}
+      date_order: [[issue_date, expiry_date]]
+      fk: {covered_facility_id: silver.credit_facility_terms.facility_id}

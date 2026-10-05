@@ -1,0 +1,189 @@
+# Space 11, Customer 360 Data Foundation (WP8f; the +1 view of D14). Group credit exposure under each quarterly ER
+# run vs the same exposure attributed with the previous run's resolution: every amount and count is a per-run
+# SNAPSHOT (window last over Month = the latest run of the selection); changes are ratios of measures.
+# Answers: metrics/_answers/customer360_data_foundation.sql.
+view: mv_er_exposure_impact
+space: customer360_data_foundation
+comment: >-
+  Why entity resolution matters: credit exposure of each client group under each quarterly ER run (Jun-2025 ..
+  Sep-2026, USD; drawn lending + trade finance outstanding at the run date) beside the same exposure
+  attributed with the previous run's resolution - the change caused by re-resolution alone (e.g. Meridian Agri
+  Holdings +38% at the March 2026 v2 run, crossing the USD 500m single-borrower attention threshold) - plus the
+  change vs the previous run, groups with a material (> 20%) resolution change and groups above / crossing the
+  threshold. Per-run snapshots: group by Run or filter Month = DATE'2026-03-01' for the March 2026 resolution;
+  unattributed exposure is one row per run with no client group.
+grain: one row per ER run per client group, plus one unattributed row per run (gold.fact_group_exposure_by_er_run)
+source: ${catalog}.gold.fact_group_exposure_by_er_run
+blocks:
+  calendar: {date: source.run_date, grain: month, what: the ER run (quarter-end)}
+  client_group: {key: source.client_group_id}
+dimensions:
+  - name: Run
+    expr: source.run_id
+    display_name: ER Run
+    comment: >-
+      Entity-resolution run: ER-20250630, ER-20250930, ER-20251231 (v1), ER-20260331 (first v2 run - the March
+      2026 resolution), ER-20260630, ER-20260930 (latest).
+    synonyms: [run, ER run, resolution run, matching run, run id, entity resolution run]
+  - name: Rule Version
+    expr: source.rule_version
+    display_name: ER Rule Set
+    comment: "Rule set of the run: v1 (2025 runs) or v2 (from Mar-2026)."
+    synonyms: [rule version, rule set, matching rules, v1 or v2, ruleset]
+  - name: Attribution Status
+    expr: source.attribution_status
+    display_name: Attribution Status
+    comment: "Attributed (exposure resolved to a client group) or Unattributed (records the run could not attribute)."
+    synonyms: [attribution, attribution status, attributed, unattributed, resolved to group]
+  - name: Material Resolution Change
+    expr: source.is_material_resolution_change
+    display_name: Material Resolution Change (> 20%)
+    comment: >-
+      True when re-resolution in the run changed the group's exposure by more than 20% (gold.dim_threshold
+      ER_EXPOSURE_CHANGE) - "exposures that changed by more than 20% after the resolution".
+    synonyms: [material change, changed more than 20%, big change, significant change, material resolution change]
+  - name: Crossed Threshold on Resolution
+    expr: source.crossed_threshold_on_resolution
+    display_name: Crossed Attention Threshold on Resolution
+    comment: True when re-resolution in the run moved the group across the USD 500m single-borrower attention threshold.
+    synonyms: [crossed threshold, crossed 500m, breached attention threshold, new large exposure, crossed limit]
+  - name: Above Attention Threshold
+    expr: source.is_above_threshold
+    display_name: Above USD 500m Attention Threshold
+    comment: True when the group's exposure under the run is at or above the USD 500m attention threshold.
+    synonyms: [above threshold, above 500m, large exposure, single borrower limit, attention threshold]
+measures:
+  - name: Exposure After Resolution USD
+    expr: SUM(source.total_exposure_usd)
+    display_name: Exposure Under This Run (USD)
+    comment: >-
+      Group credit exposure under the run's resolution (drawn lending + trade finance outstanding at the run
+      date), USD; latest run of the selection (point-in-time).
+    synonyms: [exposure, exposure after resolution, group exposure, credit exposure, total exposure, resolved exposure]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &run
+      - {order: Month, range: current, semiadditive: last}
+  - name: Exposure Before Resolution USD
+    expr: SUM(source.prior_resolution_exposure_usd)
+    display_name: Same Exposure Under the Previous Resolution (USD)
+    comment: The same run-date exposure attributed with the previous run's resolution, USD (null for the first run).
+    synonyms: [exposure before resolution, prior resolution exposure, exposure before, old resolution exposure]
+    format: *usd
+    window: *run
+  - name: Resolution Change USD
+    expr: SUM(source.resolution_change_usd)
+    display_name: Exposure Change From Re-resolution (USD)
+    comment: Exposure under the run minus the same exposure under the previous resolution, USD - the effect of ER alone.
+    synonyms: [resolution change, ER impact, exposure change, change from resolution, re-resolution effect]
+    format: *usd
+    window: *run
+  - name: Resolution Change %
+    expr: MEASURE(`Resolution Change USD`) / NULLIF(MEASURE(`Exposure Before Resolution USD`), 0)
+    display_name: Exposure Change From Re-resolution
+    comment: Resolution change / exposure under the previous resolution (fraction; 0.38 = +38% for Meridian at the Mar-2026 run).
+    synonyms: [resolution change %, ER impact %, change %, exposure change percent, uplift]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Exposure Previous Run USD
+    expr: SUM(source.prev_run_exposure_usd)
+    display_name: Exposure Reported at the Previous Run (USD)
+    comment: Group exposure reported by the previous run (its own date and resolution), USD.
+    synonyms: [previous run exposure, prior run exposure, last run exposure, earlier exposure]
+    format: *usd
+    window: *run
+  - name: Change vs Previous Run %
+    expr: >-
+      (MEASURE(`Exposure After Resolution USD`) - MEASURE(`Exposure Previous Run USD`))
+      / NULLIF(MEASURE(`Exposure Previous Run USD`), 0)
+    display_name: Exposure Change vs Previous Run
+    comment: Change vs the exposure reported at the previous run (resolution plus balance movements; fraction).
+    synonyms: [change vs previous run, run on run change, quarter on quarter change, exposure growth]
+    format: *pct
+  - name: Lending Drawn USD
+    expr: SUM(source.lending_drawn_usd)
+    display_name: Drawn Lending (USD)
+    comment: Drawn lending of the attributed obligor records at the run date, USD (latest run of the selection).
+    synonyms: [drawn lending, loans drawn, drawn balance, lending exposure, outstanding loans]
+    format: *usd
+    window: *run
+  - name: Trade Outstanding USD
+    expr: SUM(source.trade_outstanding_usd)
+    display_name: Trade Finance Outstanding (USD)
+    comment: Trade finance outstanding of the attributed trade party records at the run date, USD.
+    synonyms: [trade outstanding, trade exposure, LCs outstanding, trade finance, documentary credits]
+    format: *usd
+    window: *run
+  - name: Groups
+    expr: COUNT(DISTINCT source.client_group_id)
+    display_name: Client Groups With Exposure
+    comment: Client groups with attributed exposure under the run (latest run of the selection).
+    synonyms: [groups, client groups, number of groups, groups with exposure, obligor groups]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *run
+  - name: Groups With Material Change
+    expr: COUNT(DISTINCT CASE WHEN source.is_material_resolution_change THEN source.group_key END)
+    display_name: Exposures Changed > 20% by Re-resolution
+    comment: Client groups (and the unattributed bucket) whose exposure changed by more than 20% through re-resolution in the run.
+    synonyms: [material changes, groups changed more than 20%, big exposure changes, significant ER changes]
+    format: *count
+    window: *run
+  - name: Groups Above Threshold
+    expr: COUNT(DISTINCT CASE WHEN source.is_above_threshold THEN source.client_group_id END)
+    display_name: Groups Above the USD 500m Attention Threshold
+    comment: Client groups at or above the attention threshold under the run.
+    synonyms: [groups above threshold, large exposures, groups above 500m, single borrower breaches]
+    format: *count
+    window: *run
+  - name: Groups Crossing Threshold
+    expr: COUNT(DISTINCT CASE WHEN source.crossed_threshold_on_resolution THEN source.client_group_id END)
+    display_name: Groups Crossing the Threshold on Re-resolution
+    comment: Client groups moved across the USD 500m attention threshold by re-resolution in the run (Meridian at ER-20260331).
+    synonyms: [groups crossing threshold, new large exposures, crossed 500m, threshold crossings]
+    format: *count
+    window: *run
+  - name: Attention Threshold USD
+    expr: MAX(source.attention_threshold_usd)
+    display_name: Single-Borrower Attention Threshold (USD)
+    comment: The single-borrower attention threshold (USD 500m, gold.dim_threshold SINGLE_BORROWER_ATTENTION_USD).
+    synonyms: [attention threshold, threshold, single borrower threshold, 500m threshold, large exposure limit]
+    format: *usd
+validate:
+  dims: [Month, Run, Industry]
+reconcile:
+  - name: meridian_resolution_change_mar26
+    measure: Resolution Change %
+    where: "`Client Group` = 'Meridian Agri Holdings' AND `Month` = DATE'2026-03-01'"
+    gold: >-
+      SELECT resolution_change_pct FROM ${catalog}.gold.fact_group_exposure_by_er_run
+      WHERE client_group_id = 'SYN-G-0005' AND run_id = 'ER-20260331'
+  - name: material_changes_by_run
+    measure: Groups With Material Change
+    by: [Run]
+    gold: >-
+      SELECT run_id, count(DISTINCT CASE WHEN is_material_resolution_change THEN group_key END)
+      FROM ${catalog}.gold.fact_group_exposure_by_er_run GROUP BY 1
+  - name: exposure_after_by_run
+    measure: Exposure After Resolution USD
+    by: [Run]
+    gold: SELECT run_id, sum(total_exposure_usd) FROM ${catalog}.gold.fact_group_exposure_by_er_run GROUP BY 1
+  - name: exposure_fy2025_is_mar26_run
+    measure: Exposure After Resolution USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT sum(total_exposure_usd) FROM ${catalog}.gold.fact_group_exposure_by_er_run WHERE run_id = 'ER-20260331'
+  - name: resolution_change_pct_by_attribution_mar26
+    measure: Resolution Change %
+    by: [Attribution Status]
+    where: "`Month` = DATE'2026-03-01'"
+    gold: >-
+      SELECT attribution_status, sum(resolution_change_usd) / sum(prior_resolution_exposure_usd)
+      FROM ${catalog}.gold.fact_group_exposure_by_er_run WHERE run_id = 'ER-20260331' GROUP BY 1
+  - name: groups_crossing_threshold_mar26
+    measure: Groups Crossing Threshold
+    where: "`Month` = DATE'2026-03-01'"
+    gold: >-
+      SELECT count(DISTINCT client_group_id) FROM ${catalog}.gold.fact_group_exposure_by_er_run
+      WHERE run_id = 'ER-20260331' AND crossed_threshold_on_resolution
+glossary:
+  caveats:
+    - >-
+      Per-run snapshots (window last): compare runs by grouping by Run. Exposure here = drawn lending + trade
+      finance outstanding (the ER definition); EAD / RWA are in the Early Warning and Profitability spaces.

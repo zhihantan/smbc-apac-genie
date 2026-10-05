@@ -1,0 +1,305 @@
+# APAC Genie - Client Profitability & ROE (brief §5.5, PLAN §8 / §9 / §10). Authored by G1 (p07g1).
+# Must-answer queries: metrics/_answers/client_profitability_roe.sql. Caveats: scratch/genie_caveats.md §5.
+slug: client_profitability_roe
+title: APAC Genie - Client Profitability & ROE
+description: >-
+  Ask about relationship profitability, RoRWA, RAROC, ROE waterfalls and deal pricing vs hurdle for SMBC's APAC
+  clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar).
+  Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_client_profitability
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Primary RM Office: {entity_matching: true, description: "Office (ISO-2) where the primary RM sits - a location, not a person. Filter it for 'RMs in Hong Kong' (= 'HK'); when a question asks for the RM, show `Primary RM`."}
+      Product Family: {entity_matching: true}
+      Business Line: {entity_matching: true}
+      Product Count Bucket: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Fiscal Quarter: {entity_matching: true}
+      Fiscal Half: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_roe_waterfall
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Product Count Bucket: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_deal_pricing
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Product: {entity_matching: true}
+      Exception Reason: {entity_matching: true}
+      Realised Status: {entity_matching: true}
+      Pricing Status: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Fiscal Quarter: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_next_best_product
+    columns:
+      Client Group: {entity_matching: true}
+      Product Family: {entity_matching: true}
+      Product: {entity_matching: true}
+      Propensity Band: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_threshold
+    include_columns: [threshold_code, threshold_name, category, threshold_value, unit, comparison, applies_to, description]
+    columns:
+      threshold_code: {entity_matching: true}
+      category: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, is_japanese_group, group_segment,
+                      group_relationship_tier, is_strategic_group, group_industry_sector, lead_client_name,
+                      lead_office, lead_rm_name, n_entities_apac]
+    columns:
+      group_name: {entity_matching: true}
+      group_segment: {entity_matching: true}
+      lead_office: {entity_matching: true}
+      lead_rm_name: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    include_columns: [golden_client_id, display_name, short_name, aliases_text, group_name, segment,
+                      is_japanese_corporate, relationship_tier, industry_sector, coverage_office, primary_rm_name,
+                      primary_rm_office, revenue_fytd_usd, revenue_prior_fytd_usd, revenue_yoy_pct,
+                      net_contribution_fytd_usd, rorwa_latest_quarter, below_rorwa_hurdle, products_held_count,
+                      is_single_product_lending, next_best_product, next_best_product_propensity, credit_limit_usd,
+                      drawn_usd, ead_usd, rwa_usd, ecl_usd]
+    columns:
+      group_name: {entity_matching: true}
+      segment: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+      primary_rm_name: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- Hurdles (gold.dim_threshold): RoRWA 1.2%, RAROC 12%, ROE 10%. 'Below the (8%) hurdle' for relationships = `Below RoRWA Hurdle` (the configured 1.2% hurdle, D20), a quarter-level flag: filter one `Fiscal Quarter` or `Is Latest Month` (FY2026-Q2)."
+    - "- Monthly revenue, cost, net contribution, RWA, RoRWA / RAROC and revenue per RWA: mv_client_profitability (flows add up over months; returns are annualised ratios of sums). ROE and the P&L waterfall (revenue, opex, credit cost, tax, net income, allocated capital): mv_roe_waterfall, filter ONE `Fiscal Year`. Deal pricing vs hurdle: mv_deal_pricing (signing date)."
+    - "- Group `ROE %` (ratio of sums) is extreme for deposit-rich groups with little capital: rank groups with `Allocated Capital USD` > 0 (or the capital floor asked for) and show `Median Client ROE %` beside it."
+    - "- 'Deals in the last 4 quarters' = `Signed in Last 4 Quarters` (Oct-2025..Sep-2026, mostly not yet seasoned); 'did realised RAROC catch up' = `Signed in Last 4 Seasoned Quarters` (FY2025 deals) with `Deals Caught Up` and `Caught-Up Rate %`."
+    - "- Growth = the `Revenue YoY %` measure (a fraction; never compute it by hand or x100): H1 FY2026 vs H1 FY2025 in one row = `Fiscal Half` = 'FY2026-H1' with `Total Revenue USD`, `Revenue Prior Year USD`, `Revenue YoY %`; side by side = `Fiscal Half` IN ('FY2026-H1', 'FY2025-H1'). 'Lowest revenue per unit of RWA' = `Revenue per RWA %` ascending over groups with `Average RWA USD` > 0; 'credit cost above 30% of revenue' = `Credit Cost Above 30%`."
+    - "- 'RM' / 'per RM' = `Primary RM` (the RM name); 'RMs in Hong Kong' = filter `Primary RM Office` = 'HK'. Products per client by segment = `Products per Client` by `Segment`; RoRWA vs number of products = `Product Count Bucket` with `Median Client RoRWA %`, both on `Is Latest Month`."
+    - "- `Client Group` has a value dictionary (= on the exact name, e.g. 'Hayashi Marine Logistics'); match entity names (`Client`) with LIKE. Relationship-level flags (below hurdle, single-product lending, credit cost > 30%) list `Client` rows with their `Client Group`."
+    - "- Keep NULL groups: clients without a segment (blank `Segment`) or without an RM are real rows, so never add IS NOT NULL filters the user did not ask for."
+
+example_sqls:
+  - question: Top and bottom 20 client groups by ROE in :fiscal_year with more than :min_capital_usd of allocated capital, with revenue, capital and credit cost
+    usage_guidance: Use for "top and bottom N groups by ROE", "best / worst ROE relationships", "ROE ranking"; min_capital_usd = 0 keeps every group with capital, 1000000 = groups with at least USD 1m of capital.
+    parameters:
+      - {name: fiscal_year, type: STRING, description: "Fiscal-year label, e.g. FY2025 (latest full year)", default: FY2025}
+      - {name: min_capital_usd, type: STRING, description: "Allocated capital floor in USD, e.g. 0 or 1000000", default: "0"}
+    sql: |
+      WITH g AS (
+        SELECT `Client Group`,
+               MEASURE(`ROE %`)                 AS roe,
+               MEASURE(`Median Client ROE %`)   AS median_client_roe,
+               MEASURE(`Revenue USD`)           AS revenue_usd,
+               MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,
+               MEASURE(`Credit Cost USD`)       AS credit_cost_usd
+        FROM smbc_genie.metrics.mv_roe_waterfall
+        WHERE `Fiscal Year` = :fiscal_year AND `Client Group` IS NOT NULL
+        GROUP BY ALL
+        HAVING MEASURE(`Allocated Capital USD`) > CAST(:min_capital_usd AS DOUBLE)
+      ), r AS (
+        SELECT g.*, rank() OVER (ORDER BY roe DESC) AS top_rank, rank() OVER (ORDER BY roe ASC) AS bottom_rank FROM g
+      )
+      SELECT CASE WHEN top_rank <= 20 THEN 'Top 20' ELSE 'Bottom 20' END AS list, `Client Group` AS client_group, roe,
+             median_client_roe, revenue_usd, allocated_capital_usd, credit_cost_usd
+      FROM r
+      WHERE top_rank <= 20 OR bottom_rank <= 20
+      ORDER BY roe DESC
+  - question: Cross-sell that would lift the Japanese-corporate single-product lending relationships below the RoRWA hurdle as of :month
+    usage_guidance: Use for "what cross-sell would lift the below-hurdle lending relationships", "next best product for sub-hurdle clients"; one CTE per metric view (profitability + next-best-product), joined on Client.
+    parameters:
+      - {name: month, type: DATE, description: "Month as its first day; latest = 2026-09-01", default: "2026-09-01"}
+    sql: |
+      WITH b AS (
+        SELECT `Client`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter
+        FROM smbc_genie.metrics.mv_client_profitability
+        WHERE `Month` = :month AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`
+        GROUP BY ALL
+      ), n AS (
+        SELECT `Client`, `Product`, MEASURE(`Max Propensity`) AS propensity
+        FROM smbc_genie.metrics.mv_next_best_product
+        WHERE `Month` = :month AND `Is Cross-Sell`
+        GROUP BY ALL
+      )
+      SELECT b.`Client` AS client, b.rorwa_latest_quarter, max_by(n.`Product`, n.propensity) AS top_cross_sell_product,
+             max(n.propensity) AS propensity
+      FROM b LEFT JOIN n ON n.`Client` = b.`Client`
+      GROUP BY ALL
+      ORDER BY b.rorwa_latest_quarter
+  - question: ROE waterfall for the :client_group group, :fiscal_year_a vs :fiscal_year_b
+    usage_guidance: Use for "ROE waterfall / ROE walk / P&L walk for <group>", "revenue to net income to ROE", "compare two fiscal years of ROE for a group".
+    parameters:
+      - {name: client_group, type: STRING, description: "Exact client group name (value dictionary), e.g. Hayashi Marine Logistics", default: Hayashi Marine Logistics}
+      - {name: fiscal_year_a, type: STRING, description: "First fiscal year, e.g. FY2024", default: FY2024}
+      - {name: fiscal_year_b, type: STRING, description: "Second fiscal year, e.g. FY2025", default: FY2025}
+    sql: |
+      SELECT `Fiscal Year`,
+             MEASURE(`Revenue USD`)           AS revenue_usd,
+             MEASURE(`Opex USD`)              AS opex_usd,
+             MEASURE(`Credit Cost USD`)       AS credit_cost_usd,
+             MEASURE(`Pre-Tax Profit USD`)    AS pre_tax_profit_usd,
+             MEASURE(`Tax USD`)               AS tax_usd,
+             MEASURE(`Net Income USD`)        AS net_income_usd,
+             MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,
+             MEASURE(`ROE %`)                 AS roe,
+             MEASURE(`Hurdle Gap pts`)        AS gap_to_roe_hurdle
+      FROM smbc_genie.metrics.mv_roe_waterfall
+      WHERE `Client Group` = :client_group AND `Fiscal Year` IN (:fiscal_year_a, :fiscal_year_b)
+      GROUP BY ALL
+      ORDER BY `Fiscal Year`
+  - question: Revenue mix by product family for :tier_a clients vs :tier_b clients in :fiscal_year
+    usage_guidance: Use for "revenue mix by product family", "product mix of Strategic vs Core clients", "share of revenue by family per tier".
+    parameters:
+      - {name: tier_a, type: STRING, description: "Relationship tier, e.g. Strategic", default: Strategic}
+      - {name: tier_b, type: STRING, description: "Relationship tier, e.g. Core", default: Core}
+      - {name: fiscal_year, type: STRING, description: "Fiscal-year label; this fiscal year = FY2026 (to date)", default: FY2026}
+    sql: |
+      WITH r AS (
+        SELECT `Relationship Tier`, `Product Family`, MEASURE(`Total Revenue USD`) AS revenue_usd
+        FROM smbc_genie.metrics.mv_client_profitability
+        WHERE `Fiscal Year` = :fiscal_year AND `Relationship Tier` IN (:tier_a, :tier_b)
+        GROUP BY ALL
+      )
+      SELECT `Relationship Tier`, `Product Family`, revenue_usd,
+             revenue_usd / SUM(revenue_usd) OVER (PARTITION BY `Relationship Tier`) AS revenue_mix_share
+      FROM r
+      ORDER BY `Relationship Tier`, revenue_usd DESC
+  - question: Net contribution by coverage office and segment, :fiscal_half vs :prior_fiscal_half
+    usage_guidance: Use for "net contribution H1 FY2026 vs H1 FY2025", "contribution by office and segment, half on half", "profit change by booking country".
+    parameters:
+      - {name: fiscal_half, type: STRING, description: "Fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)", default: FY2026-H1}
+      - {name: prior_fiscal_half, type: STRING, description: "Comparison half, e.g. FY2025-H1 (Apr-Sep 2025)", default: FY2025-H1}
+    sql: |
+      WITH n AS (
+        SELECT `Coverage Office`, `Segment`, `Fiscal Half`, MEASURE(`Net Contribution USD`) AS net_contribution_usd
+        FROM smbc_genie.metrics.mv_client_profitability
+        WHERE `Fiscal Half` IN (:fiscal_half, :prior_fiscal_half)
+        GROUP BY ALL
+      )
+      SELECT `Coverage Office`, `Segment`,
+             SUM(CASE WHEN `Fiscal Half` = :fiscal_half THEN net_contribution_usd END)       AS net_contribution_usd,
+             SUM(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN net_contribution_usd END) AS net_contribution_prior_usd,
+             SUM(CASE WHEN `Fiscal Half` = :fiscal_half THEN net_contribution_usd ELSE -net_contribution_usd END) AS change_usd
+      FROM n
+      GROUP BY ALL
+      ORDER BY `Coverage Office`, `Segment`
+  - question: Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA) in :fiscal_year?
+    usage_guidance: Use for "lowest revenue per RWA", "capital-hungry relationships", "most capital relative to revenue", "worst capital efficiency"; only groups with RWA.
+    parameters:
+      - {name: fiscal_year, type: STRING, description: "Fiscal-year label, e.g. FY2025", default: FY2025}
+    sql: |
+      SELECT * FROM (
+        SELECT `Client Group`,
+               MEASURE(`Revenue per RWA %`) AS revenue_per_rwa,
+               MEASURE(`Average RWA USD`)   AS average_rwa_usd,
+               MEASURE(`Total Revenue USD`) AS revenue_usd,
+               MEASURE(`RoRWA %`)           AS rorwa
+        FROM smbc_genie.metrics.mv_client_profitability
+        WHERE `Fiscal Year` = :fiscal_year
+        GROUP BY ALL
+      ) WHERE average_rwa_usd > 0
+      ORDER BY revenue_per_rwa ASC
+      LIMIT 20
+
+sql_functions:
+  - smbc_genie.gold.fn_profitability_below_hurdle_lending
+  - smbc_genie.gold.fn_profitability_deal_exceptions
+  - smbc_genie.gold.fn_profitability_rm_summary
+
+sample_questions:
+  - Top and bottom 20 client groups by ROE in FY2025, with revenue, capital and credit cost.
+  - Which Japanese-corporate relationships are single-product lending with RoRWA below the hurdle, and what cross-sell would lift them?
+  - ROE waterfall for the Hayashi Marine Logistics group, FY2024 vs FY2025.
+  - Revenue mix by product family for Strategic clients vs Core clients.
+  - Deals approved below hurdle in the last 4 quarters - by exception reason and whether realised RAROC caught up.
+  - Net contribution by coverage office and segment, H1 FY2026 vs H1 FY2025.
+  - Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA)?
+  - "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong."
+
+benchmarks:
+  - key: Q1
+    question: Top and bottom 20 client groups by ROE in FY2025 (groups with allocated capital) - label each Top 20 or Bottom 20 and show ROE, median client ROE, revenue, allocated capital and credit cost.
+    answer: Q1
+  - key: Q1b
+    question: Top and bottom 20 client groups by ROE in FY2025 among groups with at least USD 1m of allocated capital - label each Top 20 or Bottom 20 with ROE, median client ROE, revenue, allocated capital and credit cost.
+    answer: Q1b
+  - key: Q2
+    question: Which Japanese-corporate relationships are single-product lending with RoRWA below the 8% hurdle? Show client, group, coverage office, RM, latest-quarter RoRWA, the hurdle, RWA and September revenue.
+    answer: Q2
+    allow_extra_columns: true
+  - key: Q2-jargon
+    question: JC mono-line lending names under the 8% hurdle - RoRWA vs hurdle, RWA, Sep revenue, RM and office
+    variant_of: Q2
+    expected_sql: |
+      SELECT `Client`, `Coverage Office`, `Primary RM`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter, MEASURE(`Average RWA USD`) AS rwa_usd
+      FROM smbc_genie.metrics.mv_client_profitability
+      WHERE `Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`
+      GROUP BY `Client`, `Client Group`, `Coverage Office`, `Primary RM`
+    allow_extra_columns: true
+  - key: Q2b
+    question: What cross-sell would lift the Japanese-corporate single-product lending relationships below the RoRWA hurdle? For each client show its latest-quarter RoRWA, the top cross-sell product from the latest next-best-product scores and its propensity.
+    answer: Q2b
+  - key: Q3
+    question: "ROE waterfall for the Hayashi Marine Logistics group, FY2024 vs FY2025: revenue, opex, credit cost, pre-tax profit, tax, net income, allocated capital, ROE and the gap to the ROE hurdle."
+    answer: Q3
+  - key: Q3-casual
+    question: walk me through hayashi marine logistics' ROE waterfall, FY24 vs FY25
+    variant_of: Q3
+    expected_sql: |
+      SELECT `Fiscal Year`, MEASURE(`Revenue USD`) AS revenue_usd, MEASURE(`Net Income USD`) AS net_income_usd, MEASURE(`ROE %`) AS roe
+      FROM smbc_genie.metrics.mv_roe_waterfall
+      WHERE `Client Group` = 'Hayashi Marine Logistics' AND `Fiscal Year` IN ('FY2024', 'FY2025')
+      GROUP BY ALL
+    allow_extra_columns: true
+  - key: Q4
+    question: Revenue mix by product family for Strategic clients vs Core clients this fiscal year - revenue and each family's share of the tier's revenue.
+    answer: Q4
+  - key: Q5
+    question: "Deals approved below hurdle in the last 4 quarters - by exception reason and whether realised RAROC caught up: deals, amount, deals caught up, caught-up rate, average origination and realised RAROC."
+    answer: Q5
+  - key: Q5b
+    question: Deals approved below hurdle in the rolling last 4 quarters to 30-Sep-2026, by exception reason and realised status - number of deals and amount.
+    answer: Q5b
+  - key: Q6
+    question: Net contribution by coverage office and segment, H1 FY2026 vs H1 FY2025, with the change.
+    answer: Q6
+  - key: Q7
+    question: Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA) in FY2025? Show the 20 lowest with revenue per RWA, average RWA, revenue and RoRWA.
+    answer: Q7
+  - key: Q7-typo
+    question: which groups use the most captial vs revenue in FY2025 - bottom 20 on revenue per RWA with avg RWA, revenue and RoRWA
+    variant_of: Q7
+  - key: Q8
+    question: Clients where credit cost exceeded 30% of revenue in FY2025 - client, group, revenue, credit cost and credit cost / revenue.
+    answer: Q8
+    allow_extra_columns: true
+  - key: Q9a
+    question: Products per client by segment at the latest month-end (one row per segment, including clients with no segment), with the median client RoRWA and the number of clients.
+    answer: Q9a
+  - key: Q9b
+    question: How does RoRWA relate to the number of products held? By product-count bucket at the latest month-end, show clients, median client RoRWA, portfolio RoRWA and clients below the RoRWA hurdle.
+    answer: Q9b
+  - key: Q10
+    question: "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong this fiscal year, with the number of clients."
+    answer: Q10
+  - key: Q10-abbrev
+    question: HK RM P&L by RM - FYTD rev, avg RWA, RoRWA, clients
+    variant_of: Q10
+  - key: X1
+    question: How many FY2025 deals were approved below hurdle on Relationship exceptions, and how many of them caught up?
+    answer: QS8a
+    allow_extra_columns: true
+  - key: X2
+    question: "In one row: the Kinokawa Precision group's revenue in H1 FY2026, its revenue in the same months of FY2025 (H1 FY2025) and the YoY growth."
+    answer: QS2

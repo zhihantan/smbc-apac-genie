@@ -1,0 +1,1 @@
+{"eval_id": "p07-eval-20261004153928-f7492d", "slug": "cashflow_forecasting", "space_id": "my-agent-id", "label": "iteration 1", "method": "eval_runs", "run_id": "my-run-id", "n": 20, "passed": 20, "pass_rate": 1.0, "api_good": 20, "api_bad": 0, "api_needs_review": 0, "sql_ok": 20, "at": "2026-10-04T07:39:28+00:00"}

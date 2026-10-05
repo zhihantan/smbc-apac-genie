@@ -1,0 +1,181 @@
+{
+  "slug": "tb_cash_payments_liquidity",
+  "title": "APAC Genie - Transactional Banking: Cash, Payments & Liquidity",
+  "description": "Ask about operating deposits, CASA behaviour, payment flows and counterparties, liquidity structures (cash pooling) and digital channel adoption for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_tb_deposits",
+    "smbc_genie.metrics.mv_tb_payments",
+    "smbc_genie.metrics.mv_tb_liquidity_structures",
+    "smbc_genie.metrics.mv_tb_channel_adoption",
+    "smbc_genie.gold.vw_client_360",
+    "smbc_genie.gold.dim_client_group"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_tb_deposits.Fiscal Year",
+    "smbc_genie.metrics.mv_tb_deposits.Fiscal Quarter",
+    "smbc_genie.metrics.mv_tb_deposits.Fiscal Half",
+    "smbc_genie.metrics.mv_tb_deposits.Client Group",
+    "smbc_genie.metrics.mv_tb_deposits.Segment",
+    "smbc_genie.metrics.mv_tb_deposits.Relationship Tier",
+    "smbc_genie.metrics.mv_tb_deposits.Industry",
+    "smbc_genie.metrics.mv_tb_deposits.Subsector",
+    "smbc_genie.metrics.mv_tb_deposits.Coverage Office",
+    "smbc_genie.metrics.mv_tb_deposits.Primary RM",
+    "smbc_genie.metrics.mv_tb_deposits.Primary RM Office",
+    "smbc_genie.metrics.mv_tb_deposits.Booking Country",
+    "smbc_genie.metrics.mv_tb_deposits.Account Type",
+    "smbc_genie.metrics.mv_tb_deposits.Currency",
+    "smbc_genie.metrics.mv_tb_deposits.TD Maturity Bucket",
+    "smbc_genie.metrics.mv_tb_payments.Fiscal Year",
+    "smbc_genie.metrics.mv_tb_payments.Fiscal Quarter",
+    "smbc_genie.metrics.mv_tb_payments.Fiscal Half",
+    "smbc_genie.metrics.mv_tb_payments.Client Group",
+    "smbc_genie.metrics.mv_tb_payments.Segment",
+    "smbc_genie.metrics.mv_tb_payments.Relationship Tier",
+    "smbc_genie.metrics.mv_tb_payments.Industry",
+    "smbc_genie.metrics.mv_tb_payments.Coverage Office",
+    "smbc_genie.metrics.mv_tb_payments.Primary RM",
+    "smbc_genie.metrics.mv_tb_payments.Booking Country",
+    "smbc_genie.metrics.mv_tb_payments.Channel",
+    "smbc_genie.metrics.mv_tb_payments.Direction",
+    "smbc_genie.metrics.mv_tb_payments.Payment Purpose",
+    "smbc_genie.metrics.mv_tb_payments.Currency",
+    "smbc_genie.metrics.mv_tb_payments.Corridor",
+    "smbc_genie.metrics.mv_tb_payments.Counterparty Country",
+    "smbc_genie.metrics.mv_tb_payments.Counterparty Bank Type",
+    "smbc_genie.metrics.mv_tb_payments.Counterparty Bank",
+    "smbc_genie.metrics.mv_tb_payments.Repair Reason",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Client Group",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Segment",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Relationship Tier",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Coverage Office",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Primary RM",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Record Type",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Structure Type",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Header Country",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Participant Country",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Currency",
+    "smbc_genie.metrics.mv_tb_liquidity_structures.Member Role",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Fiscal Year",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Client Group",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Segment",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Relationship Tier",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Coverage Office",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Primary RM",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Channel",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Channel Type",
+    "smbc_genie.metrics.mv_tb_channel_adoption.Booking Country",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.segment",
+    "smbc_genie.gold.vw_client_360.relationship_tier",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.vw_client_360.primary_rm_name",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_client_group.hq_country",
+    "smbc_genie.gold.dim_client_group.hq_region",
+    "smbc_genie.gold.dim_client_group.group_segment",
+    "smbc_genie.gold.dim_client_group.lead_office",
+    "smbc_genie.gold.dim_client_group.lead_rm_name"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- Views: mv_tb_deposits = deposit balances, CASA / time deposits (TD), CASA ratio, depositors, top-10 concentration, TD maturities; mv_tb_payments = payment flows, STP and repairs, purpose, counterparty bank (other-bank leakage); mv_tb_liquidity_structures = cash pools and pooling candidates (group level); mv_tb_channel_adoption = digital channels and manual instructions.\n- Point-in-time measures (balances, CASA, CASA ratio, depositors, TD maturing, pooled balance, group deposits, pooling candidates) need ONE `Month` or `Is Latest Month` (today = Sep 2026); CASA Movement, Deposit Movement, Transferred to TD, payments, fees and channel counts are flows that add up over months.\n- 'CASA vs last month' = `CASA Balance USD`, `CASA Balance Prior Month USD` and `CASA Change vs Prior Month USD` on one `Month` (September 2026 = DATE'2026-09-01'). CASA outflow over a quarter = `CASA Movement USD` with `Fiscal Quarter` (Q2 FY2026 = 'FY2026-Q2'); compare it with `Transferred to TD USD` and `Deposit Movement USD` for 'moved to TD or left the bank'.\n- Booking Country = Coverage Office for deposits and payments (use Booking Country). Payment `Corridor` is the money flow payer->payee, e.g. CN->VN = paid from China to Vietnam.\n- 'Supplier payments to other banks' = `Share Paid via Other Banks %` with `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'. Repairs = `Repairs` by `Repair Reason` and `Channel`; STP = `STP Rate %`. Ratios and shares are fractions (0.35 = 35%).\n- Pooling candidates = `Is Pooling Candidate` on `Is Latest Month` (groups with deposit accounts in >= 3 APAC countries and no active structure), ranked by `Unpooled Group Deposits USD`; counts: `Clients Without Pooling`, `Multi-Country Groups`, `Pooling Penetration %`.\n- `Client Group` has a value dictionary: filter it with = on the exact group name. Questions about entities, depositors or 'legal entities' list `Client`; the largest depositors of a country = `Depositor Rank in Country` <= 10 on `Is Latest Month`. Only add LIMIT when the user asks for a top N.\n- Functions (STRING arguments): payment volume down > 30% YoY while deposits held steady = smbc_genie.gold.fn_tb_payment_drop_steady_deposits('FY2026-H1'); CASA by country vs the prior month-end = fn_casa_movement_by_country('2026-09'); one group's cash profile by entity = fn_tb_group_cash_profile('<exact group name>').\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "What was the total CASA balance by booking country at the end of September 2026, and how did it move versus August?",
+    "Which client groups drove the largest CASA outflow in Q2 FY2026, and did it move to time deposits or leave the bank?",
+    "How has the CASA ratio of Japanese vs non-Japanese corporates trended month by month since FY2025?",
+    "How much of our clients' outbound supplier payments this fiscal year went to accounts at other banks?",
+    "Where is the STP rate lowest by channel and currency this fiscal year, and where are repairs concentrated?",
+    "Which multi-country groups have no liquidity pooling structure, ranked by their deposits?",
+    "Which clients' payment volume through us dropped more than 30% year on year while their balances held steady?",
+    "Who still sends manual payment instructions - digital adoption by segment this fiscal year?"
+  ],
+  "trusted_queries": [
+    {
+      "name": "Which client groups drove the largest CASA outflow in :fiscal_quarter, and did it move to time deposits or leave the bank?",
+      "usage_guidance": "Use for \"largest CASA outflows / run-off by group in a quarter\", \"did the CASA go to TD or leave the bank\", \"CASA attrition by client group\", \"CASA to TD migration\".",
+      "parameters": [
+        {
+          "name": "fiscal_quarter",
+          "type": "STRING"
+        }
+      ],
+      "sql": "WITH g AS (\n  SELECT `Client Group`,\n         MEASURE(`CASA Movement USD`)     AS casa_movement_usd,\n         MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,\n         MEASURE(`Deposit Movement USD`)  AS total_deposit_movement_usd\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Fiscal Quarter` = :fiscal_quarter\n  GROUP BY ALL\n)\nSELECT `Client Group`, casa_movement_usd, casa_moved_to_td_usd, total_deposit_movement_usd,\n       CASE WHEN total_deposit_movement_usd >= casa_movement_usd / 2 THEN 'Mostly moved to time deposits'\n            ELSE 'Mostly left the bank' END AS where_it_went\nFROM g\nWHERE casa_movement_usd < 0\nORDER BY casa_movement_usd ASC\nLIMIT 20"
+    },
+    {
+      "name": "Monthly CASA ratio of Japanese corporates vs non-Japanese clients since :from_month",
+      "usage_guidance": "Use for \"CASA ratio trend\", \"CASA mix over time\", \"Japanese vs non-Japanese (JC vs non-JC) CASA ratio by month\".",
+      "parameters": [
+        {
+          "name": "from_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Month`,\n       CASE WHEN `Is Japanese Corporate` THEN 'Japanese corporate' ELSE 'Non-Japanese' END AS client_type,\n       MEASURE(`CASA Ratio %`) AS casa_ratio\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Month` >= :from_month\nGROUP BY ALL\nORDER BY `Month`, client_type"
+    },
+    {
+      "name": "Which entities' payment volume dropped more than 30% in :fiscal_half vs :prior_fiscal_half while their average month-end deposits held steady (within 10%)?",
+      "usage_guidance": "Use for \"payments down but balances steady\", \"payment attrition with stable deposits\", \"clients moving their payments to other banks\"; a payments CTE joined to a deposits CTE (metric views cannot be joined directly).",
+      "parameters": [
+        {
+          "name": "fiscal_half",
+          "type": "STRING"
+        },
+        {
+          "name": "prior_fiscal_half",
+          "type": "STRING"
+        }
+      ],
+      "sql": "WITH pay AS (\n  SELECT `Client`, `Fiscal Half`, MEASURE(`Payment Volume USD`) AS payment_volume_usd\n  FROM smbc_genie.metrics.mv_tb_payments\n  WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)\n  GROUP BY ALL\n), p AS (\n  SELECT `Client`,\n         sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN payment_volume_usd END) AS payments_prior_half_usd,\n         sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN payment_volume_usd END) AS payments_half_usd\n  FROM pay GROUP BY `Client`\n), dep AS (\n  SELECT `Client`, `Fiscal Half`, `Month`, MEASURE(`End of Month Balance USD`) AS deposits_usd\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)\n  GROUP BY ALL\n), d AS (\n  SELECT `Client`,\n         sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN deposits_usd END) / 6 AS avg_deposits_prior_usd,\n         sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN deposits_usd END) / 6 AS avg_deposits_usd\n  FROM dep GROUP BY `Client`\n)\nSELECT p.`Client`, p.payments_prior_half_usd, coalesce(p.payments_half_usd, 0) AS payments_half_usd,\n       coalesce(p.payments_half_usd, 0) / p.payments_prior_half_usd - 1 AS payment_volume_yoy,\n       d.avg_deposits_usd / d.avg_deposits_prior_usd - 1 AS avg_deposits_change\nFROM p JOIN d ON d.`Client` = p.`Client`\nWHERE p.payments_prior_half_usd >= 1000000\n  AND coalesce(p.payments_half_usd, 0) / p.payments_prior_half_usd - 1 < -0.30\n  AND abs(d.avg_deposits_usd / d.avg_deposits_prior_usd - 1) <= 0.10\nORDER BY p.payments_prior_half_usd - coalesce(p.payments_half_usd, 0) DESC"
+    },
+    {
+      "name": "Who are the ten largest depositors in :booking_country today?",
+      "usage_guidance": "Use for \"largest / top depositors in <country>\", \"who holds the most deposits in Singapore\", \"depositor ranking\"; Booking Country is an ISO-2 code.",
+      "parameters": [
+        {
+          "name": "booking_country",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Client`, `Client Group`, `Depositor Rank in Country`,\n       MEASURE(`End of Month Balance USD`) AS deposits_usd\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Is Latest Month` AND `Booking Country` = :booking_country AND `Depositor Rank in Country` <= 10\nGROUP BY ALL\nORDER BY `Depositor Rank in Country`"
+    },
+    {
+      "name": "Multi-country client groups with no liquidity pooling structure at the end of :month, ranked by their deposits",
+      "usage_guidance": "Use for \"pooling candidates\", \"groups in 3+ APAC countries without a cash pool / sweep\", \"liquidity structure cross-sell list\", \"unpooled groups ranked by balances\".",
+      "parameters": [
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Client Group`, `Group APAC Countries`,\n       MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd\nFROM smbc_genie.metrics.mv_tb_liquidity_structures\nWHERE `Month` = :month AND `Is Pooling Candidate`\nGROUP BY ALL\nORDER BY group_deposits_usd DESC\nLIMIT 20"
+    },
+    {
+      "name": "Time deposits maturing in the next 90 days after the end of :month, by booking country and currency",
+      "usage_guidance": "Use for \"TD maturities next 90 days\", \"maturity wall\", \"time deposits rolling off by country / currency\"; keep only pairs with maturities.",
+      "parameters": [
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT * FROM (\n  SELECT `Booking Country`, `Currency`,\n         MEASURE(`TD Maturing Next 90D USD`) AS td_maturing_next_90d_usd\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Month` = :month\n  GROUP BY ALL\n) WHERE td_maturing_next_90d_usd > 0\nORDER BY `Booking Country`, td_maturing_next_90d_usd DESC"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_casa_movement_by_country",
+    "smbc_genie.gold.fn_tb_payment_drop_steady_deposits",
+    "smbc_genie.gold.fn_tb_group_cash_profile"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 6,
+    "example_sqls": 6,
+    "sql_functions": 3,
+    "text_instructions": 1,
+    "instruction_lines": 20,
+    "instructions_total": 10,
+    "sample_questions": 8,
+    "benchmarks": 20,
+    "entity_matching_columns": 65
+  }
+}

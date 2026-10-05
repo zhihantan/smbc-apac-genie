@@ -1,0 +1,47 @@
+table: dim_account_plan_initiative
+domain: hub
+comment: >-
+  Account-plan initiatives (detail dimension, D15): what the RM team planned per client group and fiscal
+  year - initiative text, product family, target revenue, owner, status, due date with its fiscal quarter
+  and half, and whether it is still open or overdue at 30-Sep-2026 (e.g. "initiatives still open for
+  FY2026-Q3 by RM").
+grain: one row per account-plan initiative
+primary_key: [initiative_id]
+foreign_keys:
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [lead_golden_client_sk], references: dim_client}
+  - {columns: [owner_employee_id], references: dim_employee}
+  - {columns: [owner_rm_employee_id], references: dim_employee}
+cluster_by: [client_group_id, fiscal_year]
+columns:
+  initiative_id: {type: STRING, comment: Account-plan initiative id.}
+  plan_id: {type: STRING, comment: Account plan the initiative belongs to (group x fiscal year).}
+  client_group_id: {type: STRING}
+  group_name: {type: STRING, comment: Client group short brand.}
+  crm_account_id: {type: STRING}
+  lead_golden_client_id: {type: STRING, comment: Golden client the plan is held on (group lead entity in CRM).}
+  lead_golden_client_sk: {type: BIGINT, comment: dim_client surrogate key of the plan's client (current version).}
+  fiscal_year: {type: INT, comment: Fiscal year of the account plan (FY2026 = Apr 2026 - Mar 2027).}
+  fiscal_year_label: {type: STRING}
+  product_family: {type: STRING}
+  initiative_name: {type: STRING, comment: Short initiative title.}
+  initiative_description: {type: STRING, comment: Initiative description (synthetic text).}
+  target_revenue_usd: {type: DOUBLE, comment: Annual revenue the initiative targets in USD.}
+  status: {type: STRING, comment: "Initiative status: Not Started, In Progress, At Risk, Delayed (open); Completed, Not Achieved, Cancelled (closed)."}
+  is_open: {type: BOOLEAN, comment: True for open initiatives (Not Started / In Progress / At Risk / Delayed) at the as-of date.}
+  is_overdue: {type: BOOLEAN, comment: True when open and past its due date at 30-Sep-2026.}
+  priority: {type: STRING, comment: Initiative priority.}
+  due_date: {type: DATE, comment: Initiative due date.}
+  due_fiscal_quarter_label: {type: STRING, comment: "Fiscal quarter of the due date, e.g. FY2026-Q3 (Oct-Dec 2026)."}
+  due_fiscal_half_label: {type: STRING, comment: "Fiscal half of the due date, e.g. FY2026-H2."}
+  completed_date: {type: DATE, comment: Completion date; null while open.}
+  created_date: {type: DATE, comment: Date the initiative was created.}
+  owner_employee_id: {type: STRING, comment: Initiative owner (employee_id; RM or a product specialist).}
+  owner_name: {type: STRING, comment: Initiative owner name (fictional).}
+  owner_rm_code: {type: STRING, comment: RM code of the account's RM recorded on the initiative.}
+  owner_rm_employee_id: {type: STRING, comment: employee_id of owner_rm_code.}
+  owner_rm_name: {type: STRING, comment: Name of the account's RM (fictional).}
+  linked_opportunity_id: {type: STRING, comment: "Pipeline opportunity created from the initiative, if any."}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_account_plan_initiative

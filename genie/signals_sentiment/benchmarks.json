@@ -1,0 +1,354 @@
+[
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000000",
+    "key": "Q1",
+    "question": "Everything about Kinokawa Precision in the last 90 days (3 Jul - 30 Sep 2026): signals, risk signals, opportunity signals and unacknowledged signals by source feed and signal type.",
+    "expected_sql": "SELECT `Source Feed`, `Signal Type`,\n       MEASURE(`Signals`)                AS signals,\n       MEASURE(`Risk Signals`)           AS risk_signals,\n       MEASURE(`Opportunity Signals`)    AS opportunity_signals,\n       MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03'\nGROUP BY ALL\nORDER BY `Source Feed`, signals DESC",
+    "expected_checks": {
+      "rows": 9,
+      "must_contain_columns": [
+        "Source Feed",
+        "Signal Type",
+        "signals"
+      ]
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000001",
+    "key": "Q1-casual",
+    "question": "what's been going on with kinokawa precision over the last 90 days? break the signals down by feed and signal type with risk, opportunity and unacknowledged counts",
+    "expected_sql": "SELECT `Source Feed`, `Signal Type`,\n       MEASURE(`Signals`)                AS signals,\n       MEASURE(`Risk Signals`)           AS risk_signals,\n       MEASURE(`Opportunity Signals`)    AS opportunity_signals,\n       MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03'\nGROUP BY ALL\nORDER BY `Source Feed`, signals DESC",
+    "expected_checks": {
+      "rows": 9,
+      "must_contain_columns": [
+        "Source Feed",
+        "Signal Type",
+        "signals"
+      ]
+    },
+    "answer_ref": "Q1",
+    "variant_of": "Q1",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c00000000"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000002",
+    "key": "Q1b",
+    "question": "For Kinokawa Precision, show the news items and average news sentiment and the RM notes and average RM-note sentiment over the last 90 days (3 Jul - 30 Sep 2026), plus its listed parent today: external rating, outlook, 30-day share-price change, 30-day CDS change, whether it is at a 52-week low (count of groups) and APAC exposure.",
+    "expected_sql": "WITH news AS (\n  SELECT `Client Group`, MEASURE(`News Items`) AS news_items_90d, MEASURE(`Average Sentiment`) AS news_sentiment_90d\n  FROM smbc_genie.metrics.mv_news_sentiment\n  WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03' GROUP BY ALL\n), notes AS (\n  SELECT `Client Group`, MEASURE(`Notes`) AS rm_notes_90d, MEASURE(`Average Note Sentiment`) AS rm_note_sentiment_90d\n  FROM smbc_genie.metrics.mv_internal_sentiment\n  WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03' GROUP BY ALL\n), mkt AS (\n  SELECT `Client Group`, `External Rating`, `Outlook`,\n         MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d,\n         MEASURE(`Average CDS Change 30D bps`)       AS cds_change_30d_bps,\n         MEASURE(`Groups at 52-Week Low`)            AS at_52_week_low,\n         MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd\n  FROM smbc_genie.metrics.mv_market_signals\n  WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` = DATE'2026-09-30' GROUP BY ALL\n)\nSELECT n.`Client Group`, n.news_items_90d, n.news_sentiment_90d, r.rm_notes_90d, r.rm_note_sentiment_90d,\n       m.`External Rating` AS external_rating, m.`Outlook` AS outlook, m.share_price_change_30d, m.cds_change_30d_bps,\n       m.at_52_week_low, m.apac_exposure_usd\nFROM news n LEFT JOIN notes r ON r.`Client Group` = n.`Client Group` LEFT JOIN mkt m ON m.`Client Group` = n.`Client Group`",
+    "expected_checks": {
+      "rows": 1,
+      "must_contain_columns": [
+        "Client Group",
+        "apac_exposure_usd"
+      ]
+    },
+    "answer_ref": "Q1b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000003",
+    "key": "Q2",
+    "question": "Which client groups are sentiment blind spots today - external news sentiment turned negative over the last 90 days while RM notes stayed positive? Show each group's last-90-day news sentiment, its 90-day change in news sentiment and its last-90-day RM-note sentiment.",
+    "expected_sql": "WITH blind AS (\n  SELECT `Client Group`,\n         MEASURE(`Group News Sentiment Last 90D`) AS news_sentiment_last_90d,\n         MEASURE(`Group Note Sentiment Last 90D`) AS rm_note_sentiment_last_90d,\n         MEASURE(`Blind Spot Groups`)             AS is_blind_spot\n  FROM smbc_genie.metrics.mv_internal_sentiment\n  GROUP BY ALL\n  HAVING MEASURE(`Blind Spot Groups`) > 0\n), trend AS (\n  SELECT `Client Group`, MEASURE(`Sentiment Change 90D`) AS news_sentiment_change_90d\n  FROM smbc_genie.metrics.mv_news_sentiment GROUP BY ALL\n)\nSELECT b.`Client Group`, b.news_sentiment_last_90d, t.news_sentiment_change_90d, b.rm_note_sentiment_last_90d\nFROM blind b LEFT JOIN trend t ON t.`Client Group` = b.`Client Group`\nORDER BY b.news_sentiment_last_90d",
+    "expected_checks": {
+      "rows": 8,
+      "must_contain_columns": [
+        "Client Group",
+        "news_sentiment_last_90d"
+      ]
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000004",
+    "key": "Q2-jargon",
+    "question": "Blind-spot check: where has adverse media turned negative over the last 90 days while our RM call reports stayed upbeat? Give each group's 90-day news sentiment, the 90-day change in news sentiment and the 90-day RM-note sentiment.",
+    "expected_sql": "WITH blind AS (\n  SELECT `Client Group`,\n         MEASURE(`Group News Sentiment Last 90D`) AS news_sentiment_last_90d,\n         MEASURE(`Group Note Sentiment Last 90D`) AS rm_note_sentiment_last_90d,\n         MEASURE(`Blind Spot Groups`)             AS is_blind_spot\n  FROM smbc_genie.metrics.mv_internal_sentiment\n  GROUP BY ALL\n  HAVING MEASURE(`Blind Spot Groups`) > 0\n), trend AS (\n  SELECT `Client Group`, MEASURE(`Sentiment Change 90D`) AS news_sentiment_change_90d\n  FROM smbc_genie.metrics.mv_news_sentiment GROUP BY ALL\n)\nSELECT b.`Client Group`, b.news_sentiment_last_90d, t.news_sentiment_change_90d, b.rm_note_sentiment_last_90d\nFROM blind b LEFT JOIN trend t ON t.`Client Group` = b.`Client Group`\nORDER BY b.news_sentiment_last_90d",
+    "expected_checks": {
+      "rows": 8,
+      "must_contain_columns": [
+        "Client Group",
+        "news_sentiment_last_90d"
+      ]
+    },
+    "answer_ref": "Q2",
+    "variant_of": "Q2",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c00000003"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000005",
+    "key": "Q3",
+    "question": "Over the last 12 months (Oct 2025 - Sep 2026), what is the single most common topic behind negative news in each industry? Show the industry, that topic, its negative items, the average sentiment of those negative items and the industry's total negative items.",
+    "expected_sql": "WITH t AS (\n  SELECT `Industry`, `Topic`, MEASURE(`Negative Items`) AS negative_items, MEASURE(`Average Sentiment`) AS avg_sentiment\n  FROM smbc_genie.metrics.mv_news_sentiment\n  WHERE `Date` > DATE'2025-09-30' AND `Sentiment Polarity` = 'Negative'\n  GROUP BY ALL\n)\nSELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,\n       SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items\nFROM t\nQUALIFY row_number() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1\nORDER BY industry_negative_items DESC",
+    "expected_checks": {
+      "rows": 16,
+      "must_contain_columns": [
+        "Industry",
+        "top_negative_topic",
+        "negative_items"
+      ]
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000006",
+    "key": "Q3-abbrev",
+    "question": "top negative news topic per industry, last 12m: topic, neg items, avg sentiment of those items, total neg items for the industry",
+    "expected_sql": "WITH t AS (\n  SELECT `Industry`, `Topic`, MEASURE(`Negative Items`) AS negative_items, MEASURE(`Average Sentiment`) AS avg_sentiment\n  FROM smbc_genie.metrics.mv_news_sentiment\n  WHERE `Date` > DATE'2025-09-30' AND `Sentiment Polarity` = 'Negative'\n  GROUP BY ALL\n)\nSELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,\n       SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items\nFROM t\nQUALIFY row_number() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1\nORDER BY industry_negative_items DESC",
+    "expected_checks": {
+      "rows": 16,
+      "must_contain_columns": [
+        "Industry",
+        "top_negative_topic",
+        "negative_items"
+      ]
+    },
+    "answer_ref": "Q3",
+    "variant_of": "Q3",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c00000005"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000007",
+    "key": "Q4",
+    "question": "Which listed parents are at a 52-week low today with APAC exposure above USD 100m? Show the client group, listed parent, external rating, outlook, APAC exposure and 30-day share-price change.",
+    "expected_sql": "SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,\n       MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,\n       MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d\nFROM smbc_genie.metrics.mv_market_signals\nWHERE `Date` = DATE'2026-09-30' AND `At 52-Week Low` AND `APAC Exposure Above 100m`\nGROUP BY ALL\nORDER BY apac_exposure_usd DESC",
+    "expected_checks": {
+      "rows": 1,
+      "top_row_contains": [
+        "Hagiwara Steel"
+      ]
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000008",
+    "key": "Q4-typo",
+    "question": "listed parnets at 52-week lows today with APAC exposure over USD 100m - group, parent, rating, outlook, exposure and 30d share price change",
+    "expected_sql": "SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,\n       MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,\n       MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d\nFROM smbc_genie.metrics.mv_market_signals\nWHERE `Date` = DATE'2026-09-30' AND `At 52-Week Low` AND `APAC Exposure Above 100m`\nGROUP BY ALL\nORDER BY apac_exposure_usd DESC",
+    "expected_checks": {
+      "rows": 1,
+      "top_row_contains": [
+        "Hagiwara Steel"
+      ]
+    },
+    "answer_ref": "Q4",
+    "variant_of": "Q4",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c00000007"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000009",
+    "key": "Q5",
+    "question": "Which RMs have at least 5 unacknowledged risk signals over the last 90 days (3 Jul - 30 Sep 2026)? Show the RM, the RM's office, the unacknowledged risk signals and the number of clients with unacknowledged risk signals.",
+    "expected_sql": "SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,\n       MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,\n       MEASURE(`Clients Signalled`)           AS clients_with_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Date` >= DATE'2026-07-03' AND `Polarity` = 'Risk' AND NOT `Acknowledged`\nGROUP BY ALL\nHAVING MEASURE(`Unacknowledged Risk Signals`) >= 5\nORDER BY unacknowledged_risk_signals DESC",
+    "expected_checks": {
+      "rows": 11,
+      "must_contain_columns": [
+        "rm",
+        "rm_office",
+        "unacknowledged_risk_signals"
+      ],
+      "top_row_contains": [
+        "(no RM coverage)"
+      ]
+    },
+    "answer_ref": null,
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c0000000a",
+    "key": "Q5-jargon",
+    "question": "Which RMs are sitting on 5 or more unactioned red flags from the last 90 days? RM, RM office, number of unacknowledged risk signals and clients affected.",
+    "expected_sql": "SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,\n       MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,\n       MEASURE(`Clients Signalled`)           AS clients_with_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Date` >= DATE'2026-07-03' AND `Polarity` = 'Risk' AND NOT `Acknowledged`\nGROUP BY ALL\nHAVING MEASURE(`Unacknowledged Risk Signals`) >= 5\nORDER BY unacknowledged_risk_signals DESC",
+    "expected_checks": {
+      "rows": 11,
+      "must_contain_columns": [
+        "rm",
+        "rm_office",
+        "unacknowledged_risk_signals"
+      ],
+      "top_row_contains": [
+        "(no RM coverage)"
+      ]
+    },
+    "answer_ref": null,
+    "variant_of": "Q5",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c00000009"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c0000000b",
+    "key": "Q6",
+    "question": "List the legal entities in Australia and India that had positive expansion signals (expansion or capex news) in FY2026 with no pipeline: coverage office, client, signal type, date, signals and signal strength.",
+    "expected_sql": "SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,\n       MEASURE(`Signals`)          AS signals,\n       MEASURE(`Average Strength`) AS strength\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'\n  AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY `Coverage Office`, `Date`",
+    "expected_checks": {
+      "rows": 9,
+      "must_contain_columns": [
+        "Coverage Office",
+        "Client",
+        "Signal Type"
+      ]
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c0000000c",
+    "key": "Q6-casual",
+    "question": "any positive expansion or capex news on our AU or IN entities this fiscal year where we have no pipeline? show office, client, signal type, date, signals and strength",
+    "expected_sql": "SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,\n       MEASURE(`Signals`)          AS signals,\n       MEASURE(`Average Strength`) AS strength\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'\n  AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY `Coverage Office`, `Date`",
+    "expected_checks": {
+      "rows": 9,
+      "must_contain_columns": [
+        "Coverage Office",
+        "Client",
+        "Signal Type"
+      ]
+    },
+    "answer_ref": "Q6",
+    "variant_of": "Q6",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c0000000b"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c0000000d",
+    "key": "Q7",
+    "question": "What is the news sentiment trend for the coal and shipping sectors by fiscal quarter from FY2024 onward? Show news items, average sentiment and negative items per sector theme and quarter.",
+    "expected_sql": "SELECT `Sector Theme`, `Fiscal Quarter`,\n       MEASURE(`News Items`)        AS news_items,\n       MEASURE(`Average Sentiment`) AS avg_sentiment,\n       MEASURE(`Negative Items`)    AS negative_items\nFROM smbc_genie.metrics.mv_news_sentiment\nWHERE `Sector Theme` IN ('Coal', 'Shipping') AND `Date` >= DATE'2024-04-01'\nGROUP BY ALL\nORDER BY `Sector Theme`, `Fiscal Quarter`",
+    "expected_checks": {
+      "rows": 20,
+      "must_contain_columns": [
+        "Sector Theme",
+        "Fiscal Quarter",
+        "avg_sentiment"
+      ]
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c0000000e",
+    "key": "Q7-typo",
+    "question": "sentimnet trend for coal and shipping by fiscal quarter since FY2024 - items, average sentiment and negative items per sector and quarter",
+    "expected_sql": "SELECT `Sector Theme`, `Fiscal Quarter`,\n       MEASURE(`News Items`)        AS news_items,\n       MEASURE(`Average Sentiment`) AS avg_sentiment,\n       MEASURE(`Negative Items`)    AS negative_items\nFROM smbc_genie.metrics.mv_news_sentiment\nWHERE `Sector Theme` IN ('Coal', 'Shipping') AND `Date` >= DATE'2024-04-01'\nGROUP BY ALL\nORDER BY `Sector Theme`, `Fiscal Quarter`",
+    "expected_checks": {
+      "rows": 20,
+      "must_contain_columns": [
+        "Sector Theme",
+        "Fiscal Quarter",
+        "avg_sentiment"
+      ]
+    },
+    "answer_ref": "Q7",
+    "variant_of": "Q7",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c0000000d"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c0000000f",
+    "key": "Q8",
+    "question": "List all rating-action signals from the JP-shared parent data in FY2026: date, client group, signal type, signals and average signal strength.",
+    "expected_sql": "SELECT `Date`, `Client Group`, `Signal Type`, MEASURE(`Signals`) AS signals, MEASURE(`Average Strength`) AS strength\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Source Region` = 'JP' AND `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY `Date`, `Client Group`",
+    "expected_checks": {
+      "rows": 42,
+      "must_contain_columns": [
+        "Client Group",
+        "Signal Type"
+      ]
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000010",
+    "key": "Q8-abbrev",
+    "question": "JP-share parent rating actions FY26 - date, group, signal type, signals, avg strength",
+    "expected_sql": "SELECT `Date`, `Client Group`, `Signal Type`, MEASURE(`Signals`) AS signals, MEASURE(`Average Strength`) AS strength\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Source Region` = 'JP' AND `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY `Date`, `Client Group`",
+    "expected_checks": {
+      "rows": 42,
+      "must_contain_columns": [
+        "Client Group",
+        "Signal Type"
+      ]
+    },
+    "answer_ref": "Q8",
+    "variant_of": "Q8",
+    "allow_extra_columns": false,
+    "variant_of_id": "f2bc1abe2d31d8a1ce1df55c0000000f"
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000011",
+    "key": "Q9",
+    "question": "How many coal-regulation news items did Sunda Energi Nusantara have in January 2026, and what were their lowest, highest and average sentiment?",
+    "expected_sql": "SELECT MEASURE(`News Items`) AS items, MEASURE(`Lowest Sentiment`) AS min_sentiment,\n       MEASURE(`Highest Sentiment`) AS max_sentiment, MEASURE(`Average Sentiment`) AS avg_sentiment\nFROM smbc_genie.metrics.mv_news_sentiment\nWHERE `Client Group` = 'Sunda Energi Nusantara' AND `Subtopic` = 'Coal Regulation' AND `Month` = DATE'2026-01-01'",
+    "expected_checks": {
+      "rows": 1,
+      "must_contain_columns": [
+        "items",
+        "avg_sentiment"
+      ]
+    },
+    "answer_ref": "Q9",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000012",
+    "key": "Q10",
+    "question": "For Banksia Renewables Partners, show the client group, the number of expansion news items and their average sentiment from April to July 2026.",
+    "expected_sql": "SELECT `Client Group`, MEASURE(`News Items`) AS items, MEASURE(`Average Sentiment`) AS avg_sentiment\nFROM smbc_genie.metrics.mv_news_sentiment\nWHERE `Client Group` = 'Banksia Renewables Partners' AND `Topic` = 'Expansion'\n  AND `Date` BETWEEN DATE'2026-04-01' AND DATE'2026-07-31'\nGROUP BY ALL",
+    "expected_checks": {
+      "rows": 1,
+      "top_row_contains": [
+        "Banksia Renewables Partners"
+      ]
+    },
+    "answer_ref": "Q10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f2bc1abe2d31d8a1ce1df55c00000013",
+    "key": "Q11",
+    "question": "When did Tanaka Chemical's JP parent rating action reach the signal feed? Show the date, client group, client, signal type, source region and signals.",
+    "expected_sql": "SELECT `Date`, `Client Group`, `Client`, `Signal Type`, `Source Region`, MEASURE(`Signals`) AS signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Client Group` = 'Tanaka Chemical' AND `Signal Type` LIKE 'PARENT_RATING_%'\nGROUP BY ALL\nORDER BY `Date`",
+    "expected_checks": {
+      "rows": 1,
+      "top_row_contains": [
+        "PARENT_RATING_UPGRADE"
+      ]
+    },
+    "answer_ref": "Q11",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  }
+]

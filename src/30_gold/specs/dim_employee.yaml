@@ -1,0 +1,36 @@
+table: dim_employee
+domain: hub
+comment: >-
+  Fictional SMBC APAC staff seen in the source systems: relationship managers (RM001-RM120), credit
+  analysts, credit approvers, TB sales and onboarding officers, with role, team, coverage office and
+  current client coverage. Facts that record an RM code (e.g. crm_activity.rm_code, owner_rm) join on
+  rm_code to get employee_id. Names come from the CRM team records; staff who never appear there
+  (approvers, onboarding officers) carry a role-based display name.
+grain: one row per staff member (employee_id)
+primary_key: [employee_id]
+foreign_keys:
+  - {columns: [coverage_office], references: dim_booking_entity}
+cluster_by: [role]
+min_rows: 150
+columns:
+  employee_id: {type: STRING}
+  employee_name: {type: STRING, comment: "Staff name (fictional); role + id (e.g. Onboarding Officer SYN-P-0211) when no source records a name."}
+  role: {type: STRING, comment: "Primary role: RM, Credit Analyst, Credit Approver, TB Sales or Onboarding Officer."}
+  roles_seen: {type: STRING, comment: "All roles the person appears in across systems, comma-separated (e.g. Credit Analyst, Credit Analyst (checker))."}
+  team: {type: STRING, comment: "Team: <segment> Coverage for RMs (by the segment most of their accounts belong to), Credit Risk Management, Credit Approval, Transaction Banking Sales or Client Onboarding & KYC."}
+  coverage_office: {type: STRING, comment: "Office (APAC booking location) the person works from: CRM team record; onboarding officers the booking country most of their cases are in; otherwise the Singapore hub."}
+  rm_code: {type: STRING, comment: CRM RM code (RM001-RM120) for relationship managers; null for other roles. Unique.}
+  is_relationship_manager: {type: BOOLEAN, comment: True for relationship managers (primary or secondary RM on CRM accounts).}
+  has_recorded_name: {type: BOOLEAN, comment: True when a source system records the person's name (false = role-based display name).}
+  primary_clients_current: {type: BIGINT, comment: Golden clients for which the person is the current primary RM in CRM.}
+  primary_groups_current: {type: BIGINT, comment: Client groups with at least one client for which the person is the current primary RM.}
+  team_assignments_current: {type: BIGINT, comment: Current CRM account-team assignments in any team role.}
+checks:
+  - name: rm_code_unique
+    sql: SELECT count(*) FROM (SELECT rm_code FROM ${table} WHERE rm_code IS NOT NULL GROUP BY rm_code HAVING count(*) > 1)
+  - name: rm_codes_in_feeds_resolve
+    sql: >-
+      SELECT count(*) FROM (SELECT rm_code AS c FROM ${catalog}.silver.crm_activity UNION SELECT owner_rm FROM ${catalog}.silver.crm_opportunity
+      UNION SELECT owner_rm FROM ${catalog}.silver.crm_signal UNION SELECT owner_rm FROM ${catalog}.silver.crm_account_plan
+      UNION SELECT rm_code FROM ${catalog}.silver.kyc_case UNION SELECT owner_rm FROM ${catalog}.silver.ews_watchlist_event) s
+      LEFT ANTI JOIN ${table} e ON e.rm_code = s.c WHERE s.c IS NOT NULL

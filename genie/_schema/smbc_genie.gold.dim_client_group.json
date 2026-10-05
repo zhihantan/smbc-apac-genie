@@ -1,0 +1,325 @@
+{
+ "columns": [
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Group short brand, e.g. Kinokawa Precision, Hayashi Marine Logistics - match with LIKE '%...%'.",
+   "is_measure": false,
+   "name": "group_name",
+   "type": "string"
+  },
+  {
+   "comment": "ISO-2 country of the group headquarters (JP for Japanese groups).",
+   "is_measure": false,
+   "name": "hq_country",
+   "type": "string"
+  },
+  {
+   "comment": "Country name of the group headquarters.",
+   "is_measure": false,
+   "name": "hq_country_name",
+   "type": "string"
+  },
+  {
+   "comment": "Headquarters region: JP, APAC, EMEA or AMER.",
+   "is_measure": false,
+   "name": "hq_region",
+   "type": "string"
+  },
+  {
+   "comment": "True for groups headquartered in Japan (Japanese corporate groups with a JP parent).",
+   "is_measure": false,
+   "name": "is_japanese_group",
+   "type": "boolean"
+  },
+  {
+   "comment": "Tokyo HO id of the Japanese parent company (Japan share); null for non-Japanese groups without one.",
+   "is_measure": false,
+   "name": "jp_parent_id",
+   "type": "string"
+  },
+  {
+   "comment": "Legal name of the Japanese parent (e.g. Kinokawa Precision KK) from the Japan share.",
+   "is_measure": false,
+   "name": "jp_parent_legal_name",
+   "type": "string"
+  },
+  {
+   "comment": "Group segment (most common segment of its APAC clients).",
+   "is_measure": false,
+   "name": "group_segment",
+   "type": "string"
+  },
+  {
+   "comment": "Group relationship tier (Strategic, Core or Transactional), most common tier of its APAC clients.",
+   "is_measure": false,
+   "name": "group_relationship_tier",
+   "type": "string"
+  },
+  {
+   "comment": "True when the group relationship tier is Strategic.",
+   "is_measure": false,
+   "name": "is_strategic_group",
+   "type": "boolean"
+  },
+  {
+   "comment": "Group industry sector (most common sector of its APAC clients).",
+   "is_measure": false,
+   "name": "group_industry_sector",
+   "type": "string"
+  },
+  {
+   "comment": "Group industry subsector (most common subsector of its APAC clients).",
+   "is_measure": false,
+   "name": "group_industry_subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Segment label of the Tokyo HO group master (e.g. Non-Japanese Corporate, Sponsor Coverage).",
+   "is_measure": false,
+   "name": "global_segment",
+   "type": "string"
+  },
+  {
+   "comment": "Global tier of the Tokyo HO group master (Global Strategic, Global Core, Global Standard).",
+   "is_measure": false,
+   "name": "global_tier",
+   "type": "string"
+  },
+  {
+   "comment": "Industry label of the Tokyo HO group master.",
+   "is_measure": false,
+   "name": "global_industry",
+   "type": "string"
+  },
+  {
+   "comment": "Region owning the global relationship: JP, APAC, EMEA or AMER.",
+   "is_measure": false,
+   "name": "global_relationship_owner_region",
+   "type": "string"
+  },
+  {
+   "comment": "Global relationship manager code in the Tokyo HO master.",
+   "is_measure": false,
+   "name": "global_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Global relationship manager name (fictional) in the Tokyo HO master.",
+   "is_measure": false,
+   "name": "global_rm_name",
+   "type": "string"
+  },
+  {
+   "comment": "Tokyo HO coverage unit of the group.",
+   "is_measure": false,
+   "name": "global_coverage_unit",
+   "type": "string"
+  },
+  {
+   "comment": "Start of the group relationship per the Tokyo HO master.",
+   "is_measure": false,
+   "name": "relationship_since",
+   "type": "date"
+  },
+  {
+   "comment": "Golden client id of the group's lead (relationship) entity.",
+   "is_measure": false,
+   "name": "lead_golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the lead entity's current version.",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Display name of the group's lead (relationship) entity.",
+   "is_measure": false,
+   "name": "lead_client_name",
+   "type": "string"
+  },
+  {
+   "comment": "How the lead entity was chosen: account_plan (entity the group plan is held on) or largest_footprint (most source records, Singapore hub first).",
+   "is_measure": false,
+   "name": "lead_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office (APAC booking location) of the lead entity - the group lead office.",
+   "is_measure": false,
+   "name": "lead_office",
+   "type": "string"
+  },
+  {
+   "comment": "Current primary RM (employee_id) of the lead entity - the group lead RM.",
+   "is_measure": false,
+   "name": "lead_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the group lead RM.",
+   "is_measure": false,
+   "name": "lead_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the group lead RM (fictional).",
+   "is_measure": false,
+   "name": "lead_rm_name",
+   "type": "string"
+  },
+  {
+   "comment": "Worst (highest) internal grade 1-10 among the group's rated APAC clients today; null = no rated client.",
+   "is_measure": false,
+   "name": "worst_internal_rating_grade",
+   "type": "int"
+  },
+  {
+   "comment": "Rating equivalent of the worst-rated APAC client.",
+   "is_measure": false,
+   "name": "worst_rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "Highest IFRS 9 stage among the group's APAC clients today.",
+   "is_measure": false,
+   "name": "worst_ifrs9_stage",
+   "type": "int"
+  },
+  {
+   "comment": "Worst current EWS band among the group's APAC clients (Red > Amber > Green); null = none scored.",
+   "is_measure": false,
+   "name": "worst_ews_band",
+   "type": "string"
+  },
+  {
+   "comment": "APAC clients of the group in the Red EWS band today.",
+   "is_measure": false,
+   "name": "clients_red",
+   "type": "bigint"
+  },
+  {
+   "comment": "APAC clients of the group in the Amber EWS band today.",
+   "is_measure": false,
+   "name": "clients_amber",
+   "type": "bigint"
+  },
+  {
+   "comment": "APAC clients of the group on the credit watchlist today.",
+   "is_measure": false,
+   "name": "clients_on_watchlist",
+   "type": "bigint"
+  },
+  {
+   "comment": "Latest agency rating of the group issuer by the primary agency (fictional agencies); null = unrated.",
+   "is_measure": false,
+   "name": "group_external_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Agency of group_external_rating.",
+   "is_measure": false,
+   "name": "group_external_rating_agency",
+   "type": "string"
+  },
+  {
+   "comment": "Outlook attached to the latest group rating (Stable, Positive, Negative, ...).",
+   "is_measure": false,
+   "name": "group_external_outlook",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the latest group rating action.",
+   "is_measure": false,
+   "name": "group_external_rating_date",
+   "type": "date"
+  },
+  {
+   "comment": "Tokyo HO internal grade of the Japanese parent (1-10, latest to the as-of date) from the Japan share.",
+   "is_measure": false,
+   "name": "jp_parent_grade",
+   "type": "int"
+  },
+  {
+   "comment": "External-scale equivalent of the JP parent grade (Japan share) - the parent's external rating for keepwell / guarantee analysis.",
+   "is_measure": false,
+   "name": "jp_parent_rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "Outlook on the JP parent rating (Japan share).",
+   "is_measure": false,
+   "name": "jp_parent_outlook",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the latest JP parent rating action (Japan share).",
+   "is_measure": false,
+   "name": "jp_parent_rating_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the group parent is listed (market data available).",
+   "is_measure": false,
+   "name": "is_listed_group",
+   "type": "boolean"
+  },
+  {
+   "comment": "APAC legal entities (golden clients) in the group.",
+   "is_measure": false,
+   "name": "n_entities_apac",
+   "type": "bigint"
+  },
+  {
+   "comment": "Distinct APAC booking locations covering the group's entities.",
+   "is_measure": false,
+   "name": "n_apac_countries",
+   "type": "bigint"
+  },
+  {
+   "comment": "APAC booking locations of the group, comma-separated (e.g. CN, SG, TH).",
+   "is_measure": false,
+   "name": "apac_countries_text",
+   "type": "string"
+  },
+  {
+   "comment": "EMEA subsidiaries of the group (EMEA share).",
+   "is_measure": false,
+   "name": "n_entities_emea",
+   "type": "bigint"
+  },
+  {
+   "comment": "AMER subsidiaries of the group (AMER share).",
+   "is_measure": false,
+   "name": "n_entities_amer",
+   "type": "bigint"
+  },
+  {
+   "comment": "Entities worldwide: APAC + EMEA + AMER subsidiaries plus the JP parent when there is one.",
+   "is_measure": false,
+   "name": "n_entities_global",
+   "type": "bigint"
+  },
+  {
+   "comment": "True when the group has an account plan for FY2026 (the as-of fiscal year).",
+   "is_measure": false,
+   "name": "has_account_plan_current_fy",
+   "type": "boolean"
+  },
+  {
+   "comment": "Status of the group in the Tokyo HO master.",
+   "is_measure": false,
+   "name": "master_status",
+   "type": "string"
+  }
+ ],
+ "comment": "Client groups (global parent groups) as of 30-Sep-2026: the Tokyo HO group master (group name, HQ, Japanese parent, global tier / RM) plus the APAC view rolled up from the current dim_client versions - group segment, tier, industry, lead entity, lead office and lead RM, worst internal rating, worst EWS band, watchlist count - with the group's external rating, the JP parent's rating from the Japan share and the entity counts in APAC, EMEA and AMER. Group-grain facts use client_group_id (+ lead_golden_client_sk, D12).",
+ "identifier": "smbc_genie.gold.dim_client_group",
+ "type": "MANAGED"
+}

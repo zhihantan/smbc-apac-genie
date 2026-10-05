@@ -1,0 +1,109 @@
+{
+ "columns": [
+  {
+   "comment": "Screening alert id (SCR-nnnnnnn).",
+   "is_measure": false,
+   "name": "screening_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the alert was raised.",
+   "is_measure": false,
+   "name": "screening_date",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version of the screened client on the screening date (null for applicants that never became clients).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client screened (null for applicants that never became clients).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Screened subject: KYC customer id (ongoing) or applicant id (onboarding).",
+   "is_measure": false,
+   "name": "subject_ref",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding case of an onboarding-screening alert (null for ongoing screening).",
+   "is_measure": false,
+   "name": "case_id",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding (applicant screening) or Ongoing (periodic re-screening of clients).",
+   "is_measure": false,
+   "name": "screening_context",
+   "type": "string"
+  },
+  {
+   "comment": "List hit: UN Sanctions, EU Sanctions, UK HMT Sanctions, US OFAC SDN, PEP Database, Adverse Media, Internal Watchlist or Local Regulator Watchlist.",
+   "is_measure": false,
+   "name": "list_name",
+   "type": "string"
+  },
+  {
+   "comment": "List family: Sanctions, PEP, Adverse Media or Watchlist.",
+   "is_measure": false,
+   "name": "list_category",
+   "type": "string"
+  },
+  {
+   "comment": "How the name matched: Exact Name Match, Alias Match, Fuzzy Name Match or Partial Name Match.",
+   "is_measure": false,
+   "name": "hit_type",
+   "type": "string"
+  },
+  {
+   "comment": "True when the alert was confirmed as a true match (false = false positive cleared).",
+   "is_measure": false,
+   "name": "is_true_match",
+   "type": "boolean"
+  },
+  {
+   "comment": "Outcome: False Positive - Cleared, True Match - Escalated, True Match - EDD Applied or True Match - Rejected.",
+   "is_measure": false,
+   "name": "disposition",
+   "type": "string"
+  },
+  {
+   "comment": "Hours from alert to resolution.",
+   "is_measure": false,
+   "name": "resolution_hours",
+   "type": "double"
+  },
+  {
+   "comment": "Officer who resolved the alert (employee_id).",
+   "is_measure": false,
+   "name": "resolved_by",
+   "type": "string"
+  },
+  {
+   "comment": "Booking location of the screened client / case (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  }
+ ],
+ "comment": "Name-screening alerts (brief 5.6), Apr-2024 to Sep-2026: one row per alert raised by onboarding screening of an applicant or ongoing screening of a KYC client against a list (UN / EU / UK HMT / US OFAC SDN sanctions, PEP database, adverse media, internal and local-regulator watchlists), with hit type, true-match flag, disposition and resolution hours. True-match rate = COUNT_IF(is_true_match) / COUNT(*); average resolution hours = AVG(resolution_hours). Grain: one row per screening alert.",
+ "identifier": "smbc_genie.gold.fact_screening",
+ "type": "MANAGED"
+}

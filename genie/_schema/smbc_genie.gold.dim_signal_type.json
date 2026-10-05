@@ -1,0 +1,73 @@
+{
+ "columns": [
+  {
+   "comment": "Signal code (upper snake case), e.g. DEPOSIT_SURPLUS, UTIL_HIGH, NEWS_ESG_CONTROVERSY.",
+   "is_measure": false,
+   "name": "signal_code",
+   "type": "string"
+  },
+  {
+   "comment": "Signal name.",
+   "is_measure": false,
+   "name": "signal_name",
+   "type": "string"
+  },
+  {
+   "comment": "Category, e.g. Wallet Leakage, Growth, Liquidity, Credit, News, Market, Rating, Internal Sentiment.",
+   "is_measure": false,
+   "name": "signal_category",
+   "type": "string"
+  },
+  {
+   "comment": "Opportunity (positive / sales), Risk (negative / early warning) or Neutral (direction from the item's sentiment).",
+   "is_measure": false,
+   "name": "polarity",
+   "type": "string"
+  },
+  {
+   "comment": "Data quadrant: Internal Quantitative, Internal Qualitative, External Quantitative or External Qualitative.",
+   "is_measure": false,
+   "name": "source_quadrant",
+   "type": "string"
+  },
+  {
+   "comment": "Producing engine / feed: crm_signal_engine, news_alerts, ews_engine, news_vendor, market_data, rating_agency, jp_share or crm_notes.",
+   "is_measure": false,
+   "name": "source_system",
+   "type": "string"
+  },
+  {
+   "comment": "Workflow that acts on it: Opportunity Identification, Early Warning or Both.",
+   "is_measure": false,
+   "name": "consumed_by",
+   "type": "string"
+  },
+  {
+   "comment": "Default strength / weight 0-1 used when ranking a unified signal feed.",
+   "is_measure": false,
+   "name": "default_weight",
+   "type": "double"
+  },
+  {
+   "comment": "How the signal is detected.",
+   "is_measure": false,
+   "name": "description",
+   "type": "string"
+  },
+  {
+   "comment": "True for signal types derived in gold from news / market / rating / RM-note data (not emitted by a source engine).",
+   "is_measure": false,
+   "name": "is_derived_in_gold",
+   "type": "boolean"
+  },
+  {
+   "comment": "Signals of this code recorded by the source engine to the as-of date (0 for gold-derived codes).",
+   "is_measure": false,
+   "name": "signals_recorded",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Catalogue of every signal code in the Customer 360: CRM opportunity signals (e.g. DEPOSIT_SURPLUS, FX_FLOW_VIA_OTHER_BANK, TRADE_CORRIDOR_GROWTH, SCF_ANCHOR_CANDIDATE, CAPEX_NEWS), EWS risk triggers (e.g. UTIL_HIGH, COV_BREACH, DPD_30) and the derived news, market, rating and RM-note signals of the unified signal feed (NEWS_*, MARKET_*, EXT_RATING_*, PARENT_RATING_*, RM_NOTE_*), with polarity, source quadrant, source system, the consuming workflow and a default weight. Grain: one row per signal code.",
+ "identifier": "smbc_genie.gold.dim_signal_type",
+ "type": "MANAGED"
+}

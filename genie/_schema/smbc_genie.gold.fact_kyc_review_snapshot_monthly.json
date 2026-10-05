@@ -1,0 +1,133 @@
+{
+ "columns": [
+  {
+   "comment": "KYC review id (KYR-...); join to fact_kyc_review.",
+   "is_measure": false,
+   "name": "review_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end of the snapshot.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the calendar month the row belongs to (monthly grain).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "KYC customer record reviewed.",
+   "is_measure": false,
+   "name": "kyc_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding, Periodic or Trigger.",
+   "is_measure": false,
+   "name": "review_type",
+   "type": "string"
+  },
+  {
+   "comment": "Client's KYC / AML risk rating from the KYC master: High, Medium or Low.",
+   "is_measure": false,
+   "name": "kyc_risk_rating",
+   "type": "string"
+  },
+  {
+   "comment": "True for High-risk clients (high-risk overdue reviews).",
+   "is_measure": false,
+   "name": "is_high_risk",
+   "type": "boolean"
+  },
+  {
+   "comment": "Risk rating carried by the review (risk going into it, else the rating it set).",
+   "is_measure": false,
+   "name": "review_risk_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Review due date.",
+   "is_measure": false,
+   "name": "due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Review completion date (null while open).",
+   "is_measure": false,
+   "name": "completed_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the review fell due in this month (reviews due).",
+   "is_measure": false,
+   "name": "is_due_in_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the review was completed in this month.",
+   "is_measure": false,
+   "name": "is_completed_in_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when completed in this month on or before its due date.",
+   "is_measure": false,
+   "name": "is_completed_on_time",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when due before the month-end and not completed by it (overdue at month-end).",
+   "is_measure": false,
+   "name": "is_overdue_at_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days past due at the month-end for overdue reviews (0 otherwise) - average over overdue rows.",
+   "is_measure": false,
+   "name": "overdue_days_at_month_end",
+   "type": "int"
+  },
+  {
+   "comment": "Completed (completed in the month), Overdue (open past due at the month-end) or Due (due in the month, not yet overdue).",
+   "is_measure": false,
+   "name": "status_at_month_end",
+   "type": "string"
+  },
+  {
+   "comment": "Client's coverage office / booking location at the month-end (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  }
+ ],
+ "comment": "Month-end KYC review health (brief 5.6, PLAN 7): one row per KYC review x month-end (Apr-2023 to Sep-2026) in which the review fell due, was completed, or was overdue at the month-end (due before the month-end and not completed by it). Carries review type, the client's KYC risk rating, due / completed dates, the month's flags (due, completed, completed on time, overdue at month-end) and overdue days at the month-end, plus booking country and segment. Overdue counts are point-in-time per month-end (never sum them across months); due and completed counts are monthly flows. Storyline 7: high-risk periodic reviews overdue peak at end-May 2026 at ~3x the Apr-2025..Jan-2026 average and ~70% of that backlog was cleared by 30-Sep-2026. Grain: one row per KYC review x month-end with activity (due, completed or overdue).",
+ "identifier": "smbc_genie.gold.fact_kyc_review_snapshot_monthly",
+ "type": "MANAGED"
+}

@@ -1,0 +1,205 @@
+{
+ "columns": [
+  {
+   "comment": "First day of the month of the month-end snapshot (Apr-2023 to Sep-2026).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Last calendar day of the month.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "True for Sep-2026, the month of the as-of date.",
+   "is_measure": false,
+   "name": "is_latest_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Region of the booking: APAC (SMBC APAC), JP (Tokyo HO / Japan), EMEA or AMER.",
+   "is_measure": false,
+   "name": "region",
+   "type": "string"
+  },
+  {
+   "comment": "Entity key within the region: golden_client_id (APAC), JP counterparty id (JPP-nnnn, JP), provider entity id (EMEA / AMER).",
+   "is_measure": false,
+   "name": "entity_id",
+   "type": "string"
+  },
+  {
+   "comment": "Entity name: APAC display name, JP parent / JP-booked entity name, or EMEA / AMER subsidiary legal name.",
+   "is_measure": false,
+   "name": "entity_name",
+   "type": "string"
+  },
+  {
+   "comment": "APAC legal entity, JP Parent, Group Entity (JP-booked), EMEA subsidiary or AMER subsidiary.",
+   "is_measure": false,
+   "name": "entity_type",
+   "type": "string"
+  },
+  {
+   "comment": "ISO-2 country of the entity (country of incorporation for APAC, JP for Japan rows).",
+   "is_measure": false,
+   "name": "entity_country",
+   "type": "string"
+  },
+  {
+   "comment": "Booking entity: the APAC coverage office (ISO-2, e.g. SG) or the provider region JP / EMEA / AMER; join to gold.dim_booking_entity.",
+   "is_measure": false,
+   "name": "booking_entity_id",
+   "type": "string"
+  },
+  {
+   "comment": "Booking office: APAC coverage office code, or the provider's office city (e.g. Tokyo, London, New York).",
+   "is_measure": false,
+   "name": "booking_office",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the group's lead entity (version valid on this row's date) - the client attributes used for group-grain facts (D12).",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "dim_client version of the APAC entity at the month-end (APAC rows only; null for JP / EMEA / AMER).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client id of the APAC entity (APAC rows only; null otherwise).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "True for SMBC APAC rows (region APAC).",
+   "is_measure": false,
+   "name": "is_apac",
+   "type": "boolean"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Sustainable Finance, Cash, Liquidity, Payments, Trade Finance, FX, Rates or Other TB & Advisory.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Booking currency of the local-currency amounts (shared rows); null for APAC rows (aggregated across currencies).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Committed limits at the month-end in USD. Point-in-time.",
+   "is_measure": false,
+   "name": "committed_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn / outstanding exposure at the month-end in USD (APAC: drawn facilities + live trade instruments). Point-in-time.",
+   "is_measure": false,
+   "name": "drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Deposit balances at the month-end in USD. Point-in-time.",
+   "is_measure": false,
+   "name": "deposits_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue earned in the month in USD. Additive across months.",
+   "is_measure": false,
+   "name": "revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue over the trailing 12 months to the month-end in USD (APAC revenue history starts Apr-2024). Point-in-time window - Global Revenue 12M USD.",
+   "is_measure": false,
+   "name": "revenue_12m_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Committed limits in the booking currency (shared rows only).",
+   "is_measure": false,
+   "name": "committed_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn exposure in the booking currency (shared rows only).",
+   "is_measure": false,
+   "name": "drawn_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Deposits in the booking currency (shared rows only).",
+   "is_measure": false,
+   "name": "deposits_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Month revenue in the booking currency (shared rows only).",
+   "is_measure": false,
+   "name": "revenue_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Where the row comes from: gold APAC facts, share_jp_parent_exposure_monthly, or the EMEA / AMER exposure and revenue shares.",
+   "is_measure": false,
+   "name": "source_table",
+   "type": "string"
+  },
+  {
+   "comment": "Provider table version of the shared row (Delta Sharing lineage); null for APAC.",
+   "is_measure": false,
+   "name": "share_provider_version",
+   "type": "int"
+  },
+  {
+   "comment": "Time the provider published the shared row; null for APAC.",
+   "is_measure": false,
+   "name": "share_shared_at",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "False for filler months after the entity-family stopped (all balances 0, kept so revenue_12m_usd stays complete).",
+   "is_measure": false,
+   "name": "has_data",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Global relationship of each client group by region (Account Planning, mv_global_group_relationship): one row per entity x region x product family x month-end, Apr-2023 to Sep-2026. APAC rows are SMBC APAC golden clients (committed = facility limits, drawn = drawn balances + trade instruments live at the month-end, deposits = month-end balances, revenue = gold revenue fact); JP rows are the Japanese parent and JP-booked group entities from the Tokyo HO Delta Share; EMEA / AMER rows are the regional subsidiaries from the EMEA and AMER shares. All amounts in USD (shared rows also in their booking currency). Committed, drawn and deposits are month-end balances (point-in-time: take one month, never sum across months); revenue_usd is the month's revenue (additive); revenue_12m_usd is a trailing 12-month window (point-in-time). APAC Share of Group Revenue % = SUM(revenue_12m_usd) for region APAC / SUM(revenue_12m_usd) all regions, at one month. Grain: one row per entity x region x product family x month-end.",
+ "identifier": "smbc_genie.gold.fact_group_global_exposure_monthly",
+ "type": "MANAGED"
+}

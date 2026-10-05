@@ -1,0 +1,107 @@
+# Group-grain equivalent of the standard client block (PLAN §8, DECISIONS D12): for facts at client-group
+# grain (client_group_id). Same field names as the client block so questions read the same in every space;
+# values are the group-level equivalents from gold.dim_client_group (as of 30-Sep-2026): group segment /
+# tier / industry, lead office and lead RM, worst rating / stage / EWS band of the group's APAC clients,
+# any client on the watchlist, and the KYC risk of the group's lead entity (dim_client nested on the
+# group's lead_golden_client_sk). "Client" becomes "Lead Client" (the group's relationship entity).
+# Join aliases: dg = gold.dim_client_group, dg.lead = the lead entity's current gold.dim_client version.
+block: client_group
+comment: >-
+  Client-group attributes today (gold.dim_client_group, with the lead entity's dim_client version nested):
+  Client Group, Lead Client, Segment, Relationship Tier, Is Japanese Corporate, Industry, Subsector,
+  Coverage Office (lead office), Primary RM (lead RM), Primary RM Office (lead RM's office), Rating Grade
+  (worst), IFRS 9 Stage (worst),
+  Watchlist (any client), KYC Risk Rating (lead entity), EWS Band (worst).
+params:
+  key: {default: source.client_group_id, comment: "expression of the fact's client_group_id"}
+joins:
+  - name: dg        # join aliases must not equal a field name
+    source: ${catalog}.gold.dim_client_group
+    'on': ${key} = dg.client_group_id
+    joins:
+      - name: lead
+        source: ${catalog}.gold.dim_client
+        'on': dg.lead_golden_client_sk = lead.golden_client_sk
+dimensions:
+  - name: Client Group
+    expr: dg.group_name
+    display_name: Client Group
+    comment: >-
+      Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine
+      Logistics). "Client" or "group" without qualification means this level. Match with LIKE '%Kinokawa%'.
+    synonyms: [group, client group, parent group, global parent, parent, relationship, group name, family, keiretsu, house]
+  - name: Lead Client
+    expr: dg.lead_client_name
+    display_name: Lead Client (relationship entity)
+    comment: The group's lead (relationship) legal entity, e.g. the entity holding the account plan.
+    synonyms: [lead entity, relationship entity, lead client, main entity, anchor entity, primary entity]
+  - name: Segment
+    expr: dg.group_segment
+    display_name: Segment (group)
+    comment: >-
+      Group segment (most common segment of its APAC clients): Japanese Corporate, Non-Japanese Large
+      Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.
+    synonyms: [client segment, customer segment, business segment, coverage segment, group segment]
+  - name: Relationship Tier
+    expr: dg.group_relationship_tier
+    display_name: Relationship Tier (group)
+    comment: Group relationship tier - Strategic, Core or Transactional. "Strategic groups" means Relationship Tier = Strategic.
+    synonyms: [tier, client tier, relationship tier, group tier, priority, strategic, core, transactional]
+  - name: Is Japanese Corporate
+    expr: dg.is_japanese_group
+    display_name: Is Japanese Corporate (group)
+    comment: True for groups headquartered in Japan (Japanese corporate groups) - "Japanese corporates" / "JC" means true.
+    synonyms: [Japanese corporate, JC, Japanese group, Japanese client, Japanese parent, Nikkei, Japan desk, Japanese]
+  - name: Industry
+    expr: dg.group_industry_sector
+    display_name: Industry Sector (group)
+    comment: Group industry sector (most common sector of its APAC clients), e.g. Technology, Materials, Energy.
+    synonyms: [industry, sector, industry sector, business sector, vertical, group industry]
+  - name: Subsector
+    expr: dg.group_industry_subsector
+    display_name: Industry Subsector (group)
+    comment: Group industry subsector (most common subsector of its APAC clients), e.g. Automotive Parts, Shipping.
+    synonyms: [subsector, sub-sector, industry subsector, sub industry, niche]
+  - name: Coverage Office
+    expr: dg.lead_office
+    display_name: Coverage Office (group lead office)
+    comment: >-
+      Lead office of the group = coverage office of its lead entity, ISO-2 code (SG Singapore, HK Hong Kong,
+      CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea,
+      TW Taiwan, PH Philippines, NZ New Zealand).
+    synonyms: [lead office, booking country, country, office, booking location, coverage country, branch]
+  - name: Primary RM
+    expr: dg.lead_rm_name
+    display_name: Primary RM (group lead RM)
+    comment: Group lead RM = current primary RM of the group's lead entity (fictional name).
+    synonyms: [RM, lead RM, relationship manager, banker, coverage banker, account manager, group RM]
+  - name: Primary RM Office
+    expr: dg.lead.primary_rm_office
+    display_name: Primary RM Office (group lead RM)
+    comment: Office (APAC booking location, ISO-2) where the group lead RM sits - "RMs in Singapore" means this.
+    synonyms: [RM office, RM location, RM country, banker office, RM based in, lead RM office]
+  - name: Rating Grade
+    expr: dg.worst_internal_rating_grade
+    display_name: Internal Rating Grade (worst in group)
+    comment: Worst (highest) internal rating grade 1-10 among the group's rated APAC clients today; null = no rated client.
+    synonyms: [rating, grade, worst grade, internal rating, credit grade, risk grade, ORR]
+  - name: IFRS 9 Stage
+    expr: dg.worst_ifrs9_stage
+    display_name: IFRS 9 Stage (worst in group)
+    comment: Highest IFRS 9 stage (1-3) among the group's APAC clients today.
+    synonyms: [stage, IFRS9 stage, ECL stage, impairment stage, worst stage, credit stage]
+  - name: Watchlist
+    expr: dg.clients_on_watchlist > 0
+    display_name: On Watchlist (any client in group)
+    comment: True when at least one APAC client of the group is on the credit watchlist today.
+    synonyms: [on watchlist, watch list, watchlisted, credit watchlist, WL, under watch]
+  - name: KYC Risk Rating
+    expr: dg.lead.kyc_risk_rating
+    display_name: KYC Risk Rating (lead entity)
+    comment: KYC / AML risk rating (Low, Medium, High) of the group's lead entity today; null = no KYC record.
+    synonyms: [KYC risk, AML risk, CDD risk, risk rating, KYC rating, customer risk rating]
+  - name: EWS Band
+    expr: dg.worst_ews_band
+    display_name: EWS Band (worst in group)
+    comment: Worst current early-warning band among the group's APAC clients (Red > Amber > Green); null = none scored.
+    synonyms: [early warning band, EWS, RAG, RAG status, warning band, worst band, risk band]

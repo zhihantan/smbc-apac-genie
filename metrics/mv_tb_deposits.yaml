@@ -1,0 +1,333 @@
+# Pilot / reference implementation (WP9a) - space 7, Transactional Banking: Cash, Payments & Liquidity.
+# Point-in-time balances are window measures (D32: range current + semiadditive last over Month); prior-period
+# comparisons use window offsets; period movements are flows (sum of month-on-month changes), so they add up
+# over any run of months. Must-answer queries: metrics/_answers/tb_cash_payments_liquidity.sql.
+view: mv_tb_deposits
+space: tb_cash_payments_liquidity
+comment: >-
+  Deposit balances of SMBC's APAC clients at each month-end, Apr-2023 to Sep-2026 (current, savings, time and
+  money-market accounts, USD): month-end, CASA and time-deposit balances, CASA ratio, average balance,
+  depositors, top-10 depositor concentration, prior-month and prior-year balances, monthly movements and the
+  time deposits maturing in the next 90 days. Balances are POINT-IN-TIME: never sum them across months - group
+  by Month, or filter one Month (Is Latest Month = Sep 2026); any longer period (quarter, half, fiscal year)
+  returns its last month-end. Movement and transfer measures are flows and add up over months.
+grain: one row per deposit account per month-end (gold.fact_deposit_balance_monthly)
+source: ${catalog}.gold.fact_deposit_balance_monthly
+blocks:
+  calendar: {date: source.balance_date, grain: month, what: the balance month-end}
+  client: {key: source.golden_client_sk}
+overrides:
+  Coverage Office:
+    comment: >-
+      Coverage office of the account holder (ISO-2). For deposits it always equals Booking Country - prefer
+      Booking Country in deposit questions.
+    synonyms: [coverage office, office, coverage country, client office, branch]
+dimensions:
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: >-
+      APAC booking location of the deposit account, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH
+      Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH
+      Philippines, NZ New Zealand. "Country" in deposit questions means this.
+    synonyms: [booking country, country, booking location, booking entity, market, location, branch country]
+  - name: Account Type
+    expr: source.account_type
+    display_name: Account Type
+    comment: >-
+      Deposit product: Current Account and Savings Account (together CASA) or Time Deposit and Money Market
+      Deposit (together time deposits, TD).
+    synonyms: [account type, deposit type, deposit product, product, account product, CASA or TD]
+  - name: Currency
+    expr: source.currency
+    display_name: Account Currency
+    comment: ISO 4217 currency of the account (e.g. USD, SGD, HKD, JPY); all measures are converted to USD at month-end FX.
+    synonyms: [currency, account currency, ccy, deposit currency, denomination]
+  - name: TD Maturity Bucket
+    expr: source.td_maturity_bucket
+    display_name: TD Maturity Bucket
+    comment: >-
+      Time to the next maturity of the account's live time-deposit placements at the month-end: 0-30 days,
+      31-90 days, 91-180 days, 181-365 days, Over 365 days, No live TD; null for CASA accounts.
+    synonyms: [maturity bucket, TD maturity, tenor bucket, maturity profile, days to maturity, residual maturity]
+  - name: Depositor Rank in Country
+    expr: source.depositor_rank_in_country
+    display_name: Depositor Rank in Booking Country
+    comment: >-
+      Rank of the account holder (legal entity) by total month-end deposits in its booking country (1 =
+      largest); filter <= 10 for the top-10 depositors of a country at one month-end.
+    synonyms: [depositor rank, rank, top depositors, largest depositors, deposit rank, ranking]
+    format: {type: number, decimal_places: {type: exact, places: 0}}
+measures:
+  - name: End of Month Balance USD
+    expr: SUM(source.balance_usd)
+    display_name: Total Deposits (month-end, USD)
+    comment: >-
+      Total deposit balance at the month-end in USD (CASA + time deposits). Point-in-time: for a quarter, half
+      or fiscal year it is the balance at the last month-end in the selection, never a sum of months.
+    synonyms: [deposits, total deposits, deposit balance, balance, month-end balance, EOM balance, liabilities, funding, deposit book]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: CASA Balance USD
+    expr: SUM(source.casa_balance_usd)
+    display_name: CASA Balance (month-end, USD)
+    comment: >-
+      Current and savings account (CASA) balance at the month-end in USD - the operating, low-cost deposits.
+      Point-in-time (last month-end of the selection).
+    synonyms: [CASA, current and savings, current account balance, operating balances, transactional deposits, sticky deposits, low-cost deposits]
+    format: *usd
+    window: *eom
+  - name: Time Deposit Balance USD
+    expr: SUM(source.td_balance_usd)
+    display_name: Time Deposit Balance (month-end, USD)
+    comment: >-
+      Time and money-market deposit balance at the month-end in USD. Point-in-time (last month-end of the
+      selection).
+    synonyms: [TD, time deposits, TD balance, fixed deposits, term deposits, FD, money market deposits, MMD]
+    format: *usd
+    window: *eom
+  - name: CASA Ratio %
+    expr: MEASURE(`CASA Balance USD`) / NULLIF(MEASURE(`End of Month Balance USD`), 0)
+    display_name: CASA Ratio
+    comment: >-
+      CASA balance / total deposits at the same month-end (fraction: 0.60 = 60%). Ratio of two point-in-time
+      measures, so it is correct at any grain (country, segment, group, month).
+    synonyms: [CASA ratio, CASA share, CASA mix, current account ratio, CASA percentage, low-cost deposit ratio]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Average Balance USD
+    expr: SUM(source.avg_balance_usd) / NULLIF(COUNT(DISTINCT source.balance_date), 0)
+    display_name: Average Deposit Balance (USD)
+    comment: >-
+      Average daily deposit balance in USD: for one month the month's average daily balance; for a longer
+      period the mean of its monthly averages. Use when the user says "average balance".
+    synonyms: [average balance, ADB, average daily balance, mean balance, average deposits, avg balance]
+    format: *usd
+    caveat: Over several months the divisor is the number of month-ends with data in the selection.
+  - name: Depositors
+    expr: COUNT(DISTINCT CASE WHEN source.balance_usd > 0 THEN source.golden_client_id END)
+    display_name: Depositors (month-end)
+    comment: Legal entities (golden clients) with a positive deposit balance at the month-end (point-in-time).
+    synonyms: [depositors, depositing clients, clients with deposits, number of depositors, deposit customers]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *eom
+  - name: Accounts
+    expr: COUNT(DISTINCT source.account_id)
+    display_name: Deposit Accounts (month-end)
+    comment: Deposit accounts open at the month-end (point-in-time count).
+    synonyms: [accounts, number of accounts, account count, deposit accounts, open accounts]
+    format: *count
+    window: *eom
+  - name: Top-10 Depositor Concentration %
+    expr: >-
+      SUM(CASE WHEN source.is_top10_depositor_in_country THEN source.balance_usd ELSE 0 END)
+      / NULLIF(SUM(source.balance_usd), 0)
+    display_name: Top-10 Depositor Concentration
+    comment: >-
+      Share of deposits held by the 10 largest depositors (legal entities) of each booking country at the
+      month-end (fraction). Group by Booking Country for the per-country concentration.
+    synonyms: [top 10 concentration, depositor concentration, concentration, top-10 share, deposit concentration, largest depositors share]
+    format: *pct
+    window: *eom
+    caveat: Ranks are per booking country; above country level it is the share of each country's own top 10.
+  - name: CASA Balance Prior Month USD
+    expr: SUM(source.casa_balance_usd)
+    display_name: CASA Balance at Prior Month-End (USD)
+    comment: >-
+      CASA balance at the previous month-end in USD (Month = Sep 2026 gives 31-Aug-2026). Filter the order field
+      Month (or Fiscal Year / Quarter / Half) - filters on other fields apply before the window.
+    synonyms: [CASA last month, prior month CASA, previous month-end CASA, CASA August, last month CASA balance]
+    format: *usd
+    window:
+      - {order: Month, range: current, semiadditive: last, offset: -1 month}
+  - name: CASA Change vs Prior Month USD
+    expr: MEASURE(`CASA Balance USD`) - MEASURE(`CASA Balance Prior Month USD`)
+    display_name: CASA Change vs Prior Month-End (USD)
+    comment: >-
+      CASA balance at the month-end minus the previous month-end, USD (negative = outflow), e.g. Sep 2026 vs Aug
+      2026. For a single month it equals CASA Movement USD.
+    synonyms: [CASA movement vs last month, CASA change MoM, month-on-month CASA, CASA delta, CASA outflow, CASA inflow]
+    format: *usd
+  - name: End of Month Balance Prior Year USD
+    expr: SUM(source.balance_usd)
+    display_name: Total Deposits a Year Earlier (USD)
+    comment: >-
+      Total deposits at the same month-end one year earlier in USD (Month = Sep 2026 gives 30-Sep-2025);
+      point-in-time.
+    synonyms: [deposits last year, prior year balance, balance a year ago, same month last year, PY deposits]
+    format: *usd
+    window:
+      - {order: Month, range: current, semiadditive: last, offset: -12 month}
+  - name: Balance YoY %
+    expr: >-
+      (MEASURE(`End of Month Balance USD`) - MEASURE(`End of Month Balance Prior Year USD`))
+      / NULLIF(MEASURE(`End of Month Balance Prior Year USD`), 0)
+    display_name: Deposit Growth YoY
+    comment: >-
+      Year-on-year change of total deposits at the month-end (fraction: 0.05 = +5%); "balances held steady"
+      means roughly -10% to +10%.
+    synonyms: [deposit growth, YoY deposits, balance growth, year on year, deposit change YoY, growth %]
+    format: *pct
+  - name: CASA Movement USD
+    expr: SUM(CASE WHEN source.is_casa THEN source.balance_change_mom_usd ELSE 0 END)
+    display_name: CASA Movement (USD)
+    comment: >-
+      Net change of CASA balances over the selected months in USD (negative = outflow): month-end of the last
+      selected month minus the month-end before the first, e.g. Fiscal Quarter FY2026-Q2 = 30-Sep-2026 minus
+      30-Jun-2026. A flow - it adds up over months.
+    synonyms: [CASA outflow, CASA inflow, CASA net flow, CASA change, CASA run-off, CASA attrition, net CASA movement]
+    format: *usd
+  - name: Deposit Movement USD
+    expr: SUM(source.balance_change_mom_usd)
+    display_name: Total Deposit Movement (USD)
+    comment: >-
+      Net change of all deposits (CASA + TD) over the selected months in USD. Compare with CASA Movement:
+      CASA outflow with flat total deposits moved to time deposits; a negative total left the bank. A flow.
+    synonyms: [deposit outflow, deposit inflow, net deposit flow, deposit change, balance movement, net new money]
+    format: *usd
+  - name: Transferred to TD USD
+    expr: SUM(source.transferred_to_td_usd)
+    display_name: CASA Transferred to Time Deposits (USD)
+    comment: >-
+      Principal moved from clients' current accounts into time deposits during the selected months, USD (CASA
+      outflow that stayed with the bank). A flow.
+    synonyms: [CASA to TD, migration to TD, moved to time deposits, TD placements from CASA, CASA-TD switch, transfers to TD]
+    format: *usd
+  - name: TD Maturing Next 90D USD
+    expr: SUM(source.td_principal_maturing_90d_usd)
+    display_name: Time Deposits Maturing in the Next 90 Days (USD)
+    comment: >-
+      Principal of live time-deposit placements maturing within 90 days after the month-end, USD (at Is Latest
+      Month: maturing by 29-Dec-2026). Point-in-time (last month-end of the selection).
+    synonyms: [TD maturities, maturing TDs, maturities next 90 days, TD roll-off, upcoming maturities, maturity wall]
+    format: *usd
+    window: *eom
+  - name: TD Placed USD
+    expr: SUM(source.td_placed_usd)
+    display_name: Time Deposits Placed (USD)
+    comment: >-
+      Principal of time deposits placed during the selected months, USD - new money, rollovers and transfers from
+      current accounts (a flow).
+    synonyms: [TD placements, new TDs, TD bookings, placements, fixed deposits placed, TD inflow]
+    format: *usd
+  - name: TD Matured USD
+    expr: SUM(source.td_matured_usd)
+    display_name: Time Deposits Matured (USD)
+    comment: Principal of time deposits that matured during the selected months, USD (a flow).
+    synonyms: [TD maturities, matured TDs, TD run-off, maturing deposits, TD outflow, matured placements]
+    format: *usd
+  - name: TD Weighted Rate %
+    expr: >-
+      SUM(source.td_weighted_rate_pct / 100.0 * source.td_principal_live_usd)
+      / NULLIF(SUM(CASE WHEN source.td_weighted_rate_pct IS NOT NULL THEN source.td_principal_live_usd END), 0)
+    display_name: TD Weighted Average Rate
+    comment: >-
+      Principal-weighted interest rate of the time-deposit placements live at the month-end (fraction p.a.; 0.032 =
+      3.2%). Point-in-time (last month-end of the selection).
+    synonyms: [TD rate, deposit rate, weighted rate, average TD rate, cost of deposits, TD pricing]
+    format: {type: percentage, decimal_places: {type: max, places: 2}}
+    window: *eom
+validate:
+  dims: [Month, Booking Country]
+reconcile:
+  - name: total_deposits_sep26
+    measure: End of Month Balance USD
+    where: "`Month` = DATE'2026-09-01'"
+    gold: SELECT sum(balance_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly WHERE balance_date = DATE'2026-09-30'
+  - name: casa_by_month_fy2026
+    measure: CASA Balance USD
+    by: [Month]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT month, sum(casa_balance_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE balance_date BETWEEN DATE'2026-04-30' AND DATE'2026-09-30' GROUP BY month
+  - name: balance_by_fiscal_year_is_last_month_end
+    measure: End of Month Balance USD
+    by: [Fiscal Year]
+    gold: >-
+      SELECT concat('FY', CASE WHEN month(balance_date) >= 4 THEN year(balance_date) ELSE year(balance_date) - 1 END) AS fy,
+      sum(balance_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE balance_date IN (DATE'2024-03-31', DATE'2025-03-31', DATE'2026-03-31', DATE'2026-09-30') GROUP BY 1
+  - name: casa_ratio_by_country_sep26
+    measure: CASA Ratio %
+    by: [Booking Country]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT booking_country, sum(casa_balance_usd) / sum(balance_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE is_latest_month_end GROUP BY 1
+  - name: casa_prior_month_by_country
+    measure: CASA Balance Prior Month USD
+    by: [Booking Country]
+    where: "`Month` = DATE'2026-09-01'"
+    gold: >-
+      SELECT booking_country, sum(casa_balance_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE balance_date = DATE'2026-08-31' GROUP BY 1
+  - name: casa_movement_q2_fy2026_equals_sep_minus_jun
+    measure: CASA Movement USD
+    where: "`Fiscal Quarter` = 'FY2026-Q2'"
+    gold: >-
+      SELECT sum(CASE WHEN balance_date = DATE'2026-09-30' THEN casa_balance_usd ELSE 0 END)
+      - sum(CASE WHEN balance_date = DATE'2026-06-30' THEN casa_balance_usd ELSE 0 END)
+      FROM ${catalog}.gold.fact_deposit_balance_monthly
+  - name: balance_yoy_sep26
+    measure: Balance YoY %
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT sum(CASE WHEN balance_date = DATE'2026-09-30' THEN balance_usd END)
+      / sum(CASE WHEN balance_date = DATE'2025-09-30' THEN balance_usd END) - 1
+      FROM ${catalog}.gold.fact_deposit_balance_monthly
+  - name: top10_concentration_by_country_sep26
+    measure: Top-10 Depositor Concentration %
+    by: [Booking Country]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT booking_country, sum(CASE WHEN is_top10_depositor_in_country THEN balance_usd ELSE 0 END) / sum(balance_usd)
+      FROM ${catalog}.gold.fact_deposit_balance_monthly WHERE is_latest_month_end GROUP BY 1
+  - name: depositors_sep26
+    measure: Depositors
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(DISTINCT CASE WHEN balance_usd > 0 THEN golden_client_id END)
+      FROM ${catalog}.gold.fact_deposit_balance_monthly WHERE is_latest_month_end
+  - name: td_maturing_90d_by_currency_sep26
+    measure: TD Maturing Next 90D USD
+    by: [Currency]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT currency, sum(td_principal_maturing_90d_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE is_latest_month_end GROUP BY 1
+  - name: casa_by_client_group_sep26_via_nested_join
+    measure: CASA Balance USD
+    by: [Client Group]
+    where: "`Is Latest Month` AND `Is Japanese Corporate`"
+    gold: >-
+      SELECT g.group_name, sum(f.casa_balance_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      LEFT JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = c.client_group_id
+      WHERE f.is_latest_month_end AND c.is_japanese_corporate GROUP BY 1
+  - name: average_balance_q2_fy2026
+    measure: Average Balance USD
+    where: "`Fiscal Quarter` = 'FY2026-Q2'"
+    gold: >-
+      SELECT sum(avg_balance_usd) / 3 FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE balance_date IN (DATE'2026-07-31', DATE'2026-08-31', DATE'2026-09-30')
+  - name: td_placed_from_casa_hk_jun_aug_2026
+    measure: TD Placed USD
+    where: "`Booking Country` = 'HK' AND `Month` BETWEEN DATE'2026-06-01' AND DATE'2026-08-01'"
+    gold: >-
+      SELECT sum(td_placed_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE booking_country = 'HK' AND balance_date BETWEEN DATE'2026-06-30' AND DATE'2026-08-31'
+  - name: td_weighted_rate_sep26
+    measure: TD Weighted Rate %
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT sum(td_weighted_rate_pct / 100.0 * td_principal_live_usd) / sum(td_principal_live_usd)
+      FROM ${catalog}.gold.fact_deposit_balance_monthly WHERE is_latest_month_end AND td_weighted_rate_pct IS NOT NULL
+glossary:
+  caveats:
+    - >-
+      Balances, counts, ratios and maturities are point-in-time at month-end; movements, transfers, TD placements
+      and maturities are flows. Daily balances (Dec-2025 onwards) are in gold.fact_deposit_balance_daily.
+notes: >-
+  Booking Country = the holder's Coverage Office for 100% of deposit rows (checked 2026-10-04); both are kept
+  because transaction-banking users say "booking country".

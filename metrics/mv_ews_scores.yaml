@@ -1,0 +1,236 @@
+# Space 4, Early Warning Monitoring (WP9b / WP8d). Daily composite EWS score per client (gold.fact_ews_score_daily,
+# every calendar day 1-Apr-2025..30-Sep-2026). Bands, scores and exposure are point-in-time: window measures over
+# Date (semiadditive last = the last day of the selection; by Month = the month's last day). Override events and
+# band entries are flows. "Moved Green to Amber in the last 30 days" uses the gold flag moved_green_to_amber_30d
+# (Green 30 days ago, Amber today) - daily moves flicker around the 40 line.
+view: mv_ews_scores
+space: early_warning_monitoring
+comment: >-
+  Daily early-warning (EWS) scores of SMBC's APAC credit clients, 1-Apr-2025 to 30-Sep-2026: composite score
+  0-100, final band after overrides (Green < 40, Amber 40-69, Red >= 70) and the model band, clients and
+  exposure in Red / Amber, moves Green to Amber over 30 days, entries into Red, days in band, steward overrides
+  (parent support from the JP share, stale-data flag), top triggers and watchlist status. Scores, bands, counts
+  and exposure are POINT-IN-TIME: they return the last day of the selected period (Date = DATE'2026-09-30' or Is
+  Latest Month for today; by Month = month-end). Override events and Red entries are flows.
+grain: one row per client per day (gold.fact_ews_score_daily, daily scoring incl. weekends)
+source: ${catalog}.gold.fact_ews_score_daily
+blocks:
+  calendar: {date: source.score_date, grain: day, what: the score date}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Daily EWS Band
+    expr: source.final_band
+    display_name: EWS Band (daily, final)
+    comment: >-
+      Final EWS band on the score date after steward overrides: Green (score < 40), Amber (40-69) or Red (>= 70) -
+      the band to report ("Red today" = Date 2026-09-30 and Daily EWS Band = Red).
+    synonyms: [band, final band, EWS band today, RAG, RAG status, red amber green, warning band, risk band]
+  - name: Model Band
+    expr: source.computed_band
+    display_name: Model Band (before overrides)
+    comment: Band computed from the composite score before any steward override (Green, Amber, Red).
+    synonyms: [computed band, model band, system band, raw band, band before override, calculated band]
+  - name: Band Change
+    expr: source.band_change
+    display_name: Band Change (vs previous day)
+    comment: Final band move on the day, e.g. Green to Amber, Amber to Red (null when unchanged); daily moves can flicker around 40 / 70.
+    synonyms: [band change, band move, migration, transition, band movement, moved bands]
+  - name: Override Reason
+    expr: source.override_reason
+    display_name: Override Reason
+    comment: >-
+      Rationale of the steward override in force, e.g. Parent support confirmed (JP data): keepwell from the
+      Japanese parent ...; null when no override.
+    synonyms: [override reason, override rationale, reason, steward comment, justification, why overridden]
+  - name: Override Direction
+    expr: source.override_direction
+    display_name: Override Direction
+    comment: "Direction of the override in force: Soften (band lowered), Escalate (band raised) or Affirm; null when none."
+    synonyms: [override direction, override type, soften, escalate, affirm, override]
+  - name: Top Triggers
+    expr: source.top_triggers_text
+    display_name: Top 3 Triggers (month)
+    comment: >-
+      The three strongest EWS triggers of the score's month (most score points, then severity), e.g. UTIL_HIGH,
+      COV_BREACH, DPD_30 - UTIL_HIGH = utilisation >= 90%, COV_BREACH = covenant breach, COV_HEADROOM_LOW =
+      covenant headroom < 10%, NEWS_NEGATIVE = negative news; details in mv_ews_signals.
+    synonyms: [top triggers, drivers, key triggers, main signals, why red, why amber, reasons, top 3 drivers]
+  - name: Watchlisted Daily
+    expr: source.is_watchlisted
+    display_name: On Watchlist (daily)
+    comment: True when the client is on the credit watchlist on the score date (the register membership that day).
+    synonyms: [watchlisted today, on watchlist today, watch list status, under watch, WL today]
+  - name: Credit Analyst
+    expr: dc.credit_analyst_name
+    display_name: Credit Analyst
+    comment: Credit analyst of the client (latest credit review, else the CRM team analyst; fictional name).
+    synonyms: [analyst, credit analyst, credit officer, portfolio analyst, risk analyst]
+measures:
+  - name: Clients Scored
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients Scored
+    comment: Clients with an EWS score on the last day of the selection (point-in-time).
+    synonyms: [clients scored, scored clients, monitored clients, portfolio clients, number of clients]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &lastday
+      - {order: Date, range: current, semiadditive: last}
+  - name: Latest Score
+    expr: AVG(source.composite_score)
+    display_name: Latest EWS Score
+    comment: Composite EWS score (0-100) on the last day of the selection - for one client its latest score, for several their average.
+    synonyms: [score, EWS score, latest score, current score, risk score, warning score, composite score]
+    format: &score {type: number, decimal_places: {type: max, places: 1}}
+    window: *lastday
+  - name: Average Score
+    expr: AVG(source.composite_score)
+    display_name: Average EWS Score (over the period)
+    comment: Average daily composite score over all days of the selection (e.g. a month's average); use Latest Score for the score at a date.
+    synonyms: [average score, mean score, average EWS, monthly average score, avg score]
+    format: *score
+  - name: Clients Red
+    expr: COUNT(DISTINCT CASE WHEN source.final_band = 'Red' THEN source.golden_client_id END)
+    display_name: Clients Red
+    comment: Clients in the Red final band on the last day of the selection (point-in-time).
+    synonyms: [red clients, clients in red, red names, red band clients, high risk names, critical clients]
+    format: *count
+    window: *lastday
+  - name: Clients Amber
+    expr: COUNT(DISTINCT CASE WHEN source.final_band = 'Amber' THEN source.golden_client_id END)
+    display_name: Clients Amber
+    comment: Clients in the Amber final band on the last day of the selection (point-in-time).
+    synonyms: [amber clients, clients in amber, amber names, amber band clients, watch names]
+    format: *count
+    window: *lastday
+  - name: Exposure in Red USD
+    expr: SUM(CASE WHEN source.final_band = 'Red' THEN source.exposure_drawn_usd END)
+    display_name: Exposure in Red (USD)
+    comment: Drawn lending exposure (month-end of the score month) of clients Red on the last day of the selection, USD.
+    synonyms: [red exposure, exposure in red, red band exposure, exposure to red names, drawn exposure red]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: *lastday
+  - name: Exposure in Amber USD
+    expr: SUM(CASE WHEN source.final_band = 'Amber' THEN source.exposure_drawn_usd END)
+    display_name: Exposure in Amber (USD)
+    comment: Drawn lending exposure of clients Amber on the last day of the selection, USD (by Month = month-end).
+    synonyms: [amber exposure, exposure in amber, amber band exposure, exposure to amber names]
+    format: *usd
+    window: *lastday
+  - name: Exposure Scored USD
+    expr: SUM(source.exposure_drawn_usd)
+    display_name: Exposure of Scored Clients (USD)
+    comment: Drawn lending exposure of all scored clients on the last day of the selection, USD.
+    synonyms: [total exposure, scored exposure, portfolio exposure, drawn exposure, book exposure]
+    format: *usd
+    window: *lastday
+  - name: Moved Green to Amber 30D
+    expr: COUNT(DISTINCT CASE WHEN source.moved_green_to_amber_30d THEN source.golden_client_id END)
+    display_name: Moved Green to Amber (last 30 days)
+    comment: >-
+      Clients Amber on the last day of the selection that were Green 30 days earlier (robust to day-to-day flicker)
+      - with Date = 2026-09-30 it answers "moved from Green to Amber in the last 30 days".
+    synonyms: [green to amber, moved to amber, newly amber, deteriorated to amber, migrated to amber, downgraded band]
+    format: *count
+    window: *lastday
+  - name: Entered Red
+    expr: COUNT(DISTINCT CASE WHEN source.entered_red THEN source.golden_client_id END)
+    display_name: Clients Entering Red
+    comment: Clients whose final band entered Red (from Green or Amber) on a day in the selection - a flow over the period.
+    synonyms: [entered red, new red, moved to red, turned red, red entries, newly red]
+    format: *count
+  - name: Average Days in Current Band
+    expr: AVG(source.days_in_final_band)
+    display_name: Days in Current Band (average)
+    comment: Average consecutive days the clients have been in their current final band on the last day of the selection.
+    synonyms: [days in band, time in band, band duration, days in red, days in amber, ageing in band]
+    format: *score
+    window: *lastday
+  - name: Override Events
+    expr: COUNT(1) FILTER (WHERE source.override_event_flag)
+    display_name: Override Events
+    comment: Steward overrides made or re-confirmed on days in the selection (this year = Fiscal Year FY2026) - a flow.
+    synonyms: [overrides, override events, manual overrides, steward overrides, band overrides, overrides made]
+    format: *count
+  - name: Parent Support Overrides
+    expr: COUNT(1) FILTER (WHERE source.override_event_flag AND source.is_parent_support_override)
+    display_name: Overrides Citing Parent Support (JP data)
+    comment: Override events whose reason is parent support confirmed from the Japan share (keepwell / parent rating).
+    synonyms: [parent support overrides, JP parent support, keepwell overrides, parent support from Japan, JP data overrides]
+    format: *count
+  - name: Overrides on Stale Data
+    expr: COUNT(1) FILTER (WHERE source.override_event_flag AND source.source_data_stale)
+    display_name: Overrides on Stale JP Data
+    comment: Override events confirmed on a day the JP share feed was stale (refresh lag > 24h) - audit flag.
+    synonyms: [stale data overrides, source data stale, stale overrides, overrides on stale feed, audit exceptions]
+    format: *count
+  - name: Clients Overridden
+    expr: COUNT(DISTINCT CASE WHEN source.is_band_overridden THEN source.golden_client_id END)
+    display_name: Clients with Band Overridden
+    comment: Clients whose final band differs from the model band on the last day of the selection.
+    synonyms: [overridden clients, clients with override, overridden names, band overridden]
+    format: *count
+    window: *lastday
+  - name: Watchlisted Clients
+    expr: COUNT(DISTINCT CASE WHEN source.is_watchlisted THEN source.golden_client_id END)
+    display_name: Watchlisted Clients
+    comment: Scored clients on the credit watchlist on the last day of the selection.
+    synonyms: [watchlist clients, watchlisted, clients on watchlist, names on watch]
+    format: *count
+    window: *lastday
+  - name: Client Days
+    expr: COUNT(1)
+    display_name: Client-Days
+    comment: Client-days scored in the selection (a flow), e.g. days a client spent in a band (group by Daily EWS Band or Model Band).
+    synonyms: [client days, days, scored days, days in band count, number of days]
+    format: *count
+validate:
+  dims: [Month, Daily EWS Band]
+reconcile:
+  - name: red_exposure_today
+    measure: Exposure in Red USD
+    where: "`Date` = DATE'2026-09-30'"
+    gold: >-
+      SELECT sum(exposure_drawn_usd) FROM ${catalog}.gold.fact_ews_score_daily WHERE score_date = DATE'2026-09-30' AND final_band = 'Red'
+  - name: clients_red_by_month_fy2026
+    measure: Clients Red
+    by: [Month]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT trunc(score_date, 'MM'), count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_ews_score_daily
+      WHERE final_band = 'Red' AND score_date IN (DATE'2026-04-30', DATE'2026-05-31', DATE'2026-06-30', DATE'2026-07-31',
+      DATE'2026-08-31', DATE'2026-09-30') GROUP BY 1
+  - name: amber_exposure_by_industry_jun26
+    measure: Exposure in Amber USD
+    by: [Industry]
+    where: "`Month` = DATE'2026-06-01'"
+    gold: >-
+      SELECT c.industry_sector, sum(CASE WHEN f.final_band = 'Amber' THEN f.exposure_drawn_usd END)
+      FROM ${catalog}.gold.fact_ews_score_daily f JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.score_date = DATE'2026-06-30' GROUP BY 1
+  - name: sunda_score_30jun26
+    measure: Latest Score
+    where: "`Date` = DATE'2026-06-30' AND `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'"
+    gold: >-
+      SELECT avg(f.composite_score) FROM ${catalog}.gold.fact_ews_score_daily f JOIN ${catalog}.gold.dim_client c
+      ON c.golden_client_sk = f.golden_client_sk WHERE f.score_date = DATE'2026-06-30' AND c.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%'
+  - name: green_to_amber_30d_today
+    measure: Moved Green to Amber 30D
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_ews_score_daily
+      WHERE score_date = DATE'2026-09-30' AND moved_green_to_amber_30d
+  - name: override_events_fy2026
+    measure: Override Events
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: SELECT count_if(override_event_flag) FROM ${catalog}.gold.fact_ews_score_daily WHERE score_date >= DATE'2026-04-01'
+  - name: tanaka_computed_amber_days
+    measure: Client Days
+    where: "`Date` >= DATE'2026-07-06' AND `Model Band` = 'Amber' AND `Override Reason` LIKE 'Parent support confirmed (JP data)%'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_ews_score_daily WHERE score_date >= DATE'2026-07-06' AND computed_band = 'Amber'
+      AND override_reason LIKE 'Parent support confirmed (JP data)%'
+glossary:
+  caveats:
+    - >-
+      Point-in-time: filter a Date or Month (Date = 2026-09-30 / Is Latest Month = today); grouped by a client or
+      industry without a date, each group shows its own last scored day. Exposure is the client's drawn lending at
+      the month-end of the score month. EWS composite excludes the informational news and DPD triggers.

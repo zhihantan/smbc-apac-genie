@@ -1,0 +1,139 @@
+{
+ "columns": [
+  {
+   "comment": "SCF programme id.",
+   "is_measure": false,
+   "name": "programme_id",
+   "type": "string"
+  },
+  {
+   "comment": "Programme label = anchor short name + programme type (e.g. Meridian Agri Holdings Payables Finance).",
+   "is_measure": false,
+   "name": "programme_name",
+   "type": "string"
+  },
+  {
+   "comment": "Payables Finance (buyer-led) or Receivables Finance (seller-led).",
+   "is_measure": false,
+   "name": "programme_type",
+   "type": "string"
+  },
+  {
+   "comment": "Trade-platform party id of the anchor (source identity record).",
+   "is_measure": false,
+   "name": "anchor_party_id",
+   "type": "string"
+  },
+  {
+   "comment": "Golden client id of the anchor buyer / seller.",
+   "is_measure": false,
+   "name": "anchor_golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the anchor (current version).",
+   "is_measure": false,
+   "name": "anchor_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Display name of the anchor.",
+   "is_measure": false,
+   "name": "anchor_client_name",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office (APAC booking location) of the anchor.",
+   "is_measure": false,
+   "name": "anchor_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Programme launch date.",
+   "is_measure": false,
+   "name": "launch_date",
+   "type": "date"
+  },
+  {
+   "comment": "Programme currency.",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Programme limit in USD.",
+   "is_measure": false,
+   "name": "limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Financed (drawn) amount outstanding at the as-of date in USD.",
+   "is_measure": false,
+   "name": "drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn / limit at the as-of date (0-1; 0.85 = 85%).",
+   "is_measure": false,
+   "name": "utilisation",
+   "type": "double"
+  },
+  {
+   "comment": "Above 85%, 40-85% or Below 40% (dim_threshold SCF_UTILISATION_HIGH / LOW).",
+   "is_measure": false,
+   "name": "utilisation_band",
+   "type": "string"
+  },
+  {
+   "comment": "Suppliers listed in the programme's supplier register (onboarded + prospective).",
+   "is_measure": false,
+   "name": "n_suppliers_total",
+   "type": "int"
+  },
+  {
+   "comment": "Suppliers onboarded (able to finance invoices).",
+   "is_measure": false,
+   "name": "n_suppliers_onboarded",
+   "type": "bigint"
+  },
+  {
+   "comment": "Suppliers that have financed at least one invoice.",
+   "is_measure": false,
+   "name": "n_suppliers_financing",
+   "type": "bigint"
+  },
+  {
+   "comment": "Distinct supplier countries.",
+   "is_measure": false,
+   "name": "n_supplier_countries",
+   "type": "bigint"
+  },
+  {
+   "comment": "Suppliers whose payments route to other banks (account-opening opportunity).",
+   "is_measure": false,
+   "name": "n_suppliers_banking_elsewhere",
+   "type": "bigint"
+  },
+  {
+   "comment": "Main supplier country / corridor of the programme.",
+   "is_measure": false,
+   "name": "primary_corridor",
+   "type": "string"
+  },
+  {
+   "comment": "Whole months from launch to the as-of date.",
+   "is_measure": false,
+   "name": "programme_age_months",
+   "type": "int"
+  }
+ ],
+ "comment": "Supply chain finance programmes: anchor buyer (golden client), programme type (payables / receivables finance), limit, drawn amount and utilisation at the as-of date, supplier counts and the primary trade corridor. SCF drawdown and programme-month facts reference programme_id. Grain: one row per SCF programme.",
+ "identifier": "smbc_genie.gold.dim_scf_programme",
+ "type": "MANAGED"
+}

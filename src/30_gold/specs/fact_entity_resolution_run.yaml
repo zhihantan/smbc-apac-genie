@@ -1,0 +1,81 @@
+table: fact_entity_resolution_run
+domain: foundation
+comment: >-
+  Entity-resolution run quality: the six quarterly ER runs (30-Jun-2025, 30-Sep-2025 and 31-Dec-2025 with
+  rule set v1; 31-Mar-2026, 30-Jun-2026 and 30-Sep-2026 with v2) per identity source system, plus one ALL
+  row per run for the run as a whole. Records in, matched deterministically / fuzzily / by a data steward,
+  unmatched, within-source duplicates merged, golden records, candidate pairs, steward items and the
+  pairwise precision / recall and cluster purity the ER job measured against the synthetic truth. Counts of
+  the ALL row are the run totals; per-source rows count pairs involving that source, so pair counts and
+  golden records of the source rows do not add up to ALL - use the ALL row for run totals.
+grain: one row per ER run per source system (plus source_system ALL for the whole run)
+primary_key: [run_id, source_system]
+foreign_keys:
+  - {columns: [run_date], references: dim_date}
+cluster_by: [run_date, source_system]
+min_rows: 40
+columns:
+  run_id: {type: STRING, comment: "ER run id ER-yyyymmdd (the as-of date of the source snapshot it resolved)."}
+  run_date: {type: DATE, comment: As-of date of the source-record snapshot the run resolved (the grain date).}
+  rule_version: {type: STRING, comment: "Rule set: v1 (2025 runs) or v2 (from the Mar-2026 run: abbreviation expansion, name + country exact match, cross-country blocking)."}
+  rule_set_note: {type: STRING, comment: Short description of the rule set used by the run.}
+  run_seq: {type: INT, comment: Run sequence 1-6 in date order.}
+  is_latest_run: {type: BOOLEAN, comment: True for the latest run (ER-20260930) - the current resolution.}
+  is_rule_version_change: {type: BOOLEAN, comment: True for the first run of a new rule set (ER-20260331 = first v2 run).}
+  source_system: {type: STRING, comment: "Identity source system (core_customer, crm_account, kyc_customer, credit_obligor, trade_party, tsy_counterparty, ext_company_master) or ALL for the whole run."}
+  is_all_sources: {type: BOOLEAN, comment: True for the ALL row (run totals across all source systems).}
+  records_in: {type: BIGINT, comment: Source identity records in the run snapshot (for ALL = all systems).}
+  records_new: {type: BIGINT, comment: Records that were new since the previous run (all records for the first run).}
+  matched_deterministic: {type: BIGINT, comment: "Records linked by a deterministic rule (LEI-like id, tax id + country, v2: name + legal form + country)."}
+  matched_fuzzy: {type: BIGINT, comment: Records linked by an automatic fuzzy match (score >= 0.90).}
+  steward_resolved: {type: BIGINT, comment: Records linked through a data-steward decision (score 0.75-0.90; simulated review).}
+  matched_total: {type: BIGINT, comment: Records matched to at least one other record = deterministic + fuzzy + steward.}
+  unmatched: {type: BIGINT, comment: Records left as singleton golden records (no link accepted).}
+  match_rate: {type: DOUBLE, comment: "Match rate = matched_total / records_in (fraction; 0.987 = 98.7%). For other grains recompute as SUM(matched_total) / SUM(records_in)."}
+  fuzzy_share: {type: DOUBLE, comment: Share of matched records linked by fuzzy matching = matched_fuzzy / matched_total (fraction).}
+  steward_share: {type: DOUBLE, comment: Share of matched records linked by a steward decision = steward_resolved / matched_total (fraction).}
+  duplicates_merged: {type: BIGINT, comment: Within-source duplicates merged = records beyond the first of the same source system in a golden record.}
+  golden_records: {type: BIGINT, comment: "Golden records holding at least one record of the source (ALL = golden records issued by the run)."}
+  records_collapsed: {type: BIGINT, comment: Records minus golden records - how many source records collapsed through resolution.}
+  records_per_golden: {type: DOUBLE, comment: Average source records per golden record.}
+  golden_new: {type: BIGINT, comment: "Golden ids newly issued in the run (ALL row only; null on source rows)."}
+  golden_merged: {type: BIGINT, comment: "Golden records merged into an older golden id in the run (ALL row only)."}
+  golden_split: {type: BIGINT, comment: "Golden records split in the run (ALL row only; 0 in every run so far)."}
+  candidate_pairs: {type: BIGINT, comment: Candidate record pairs produced by blocking and scored.}
+  deterministic_pairs: {type: BIGINT, comment: Candidate pairs linked deterministically.}
+  auto_match_pairs: {type: BIGINT, comment: Candidate pairs auto-matched by the fuzzy score (>= 0.90).}
+  steward_band_pairs: {type: BIGINT, comment: Candidate pairs in the steward band (0.75-0.90).}
+  steward_items: {type: BIGINT, comment: Steward queue items raised by the run (see fact_steward_queue).}
+  steward_items_open: {type: BIGINT, comment: Steward items of the run still open at the as-of date.}
+  links_accepted: {type: BIGINT, comment: Record links accepted (deterministic + fuzzy + steward match).}
+  true_pairs: {type: BIGINT, comment: Same-entity record pairs according to the synthetic truth (evaluation only).}
+  predicted_pairs: {type: BIGINT, comment: Record pairs the run put in the same golden record.}
+  tp_pairs: {type: BIGINT, comment: Predicted pairs that are true pairs (true positives).}
+  precision: {type: DOUBLE, comment: "Pairwise precision = tp_pairs / predicted_pairs vs the synthetic truth (fraction; gate >= 0.97 at the latest run). Recompute SUM(tp_pairs) / SUM(predicted_pairs) within one source system or the ALL row."}
+  recall: {type: DOUBLE, comment: "Pairwise recall = tp_pairs / true_pairs vs the synthetic truth (fraction; gate >= 0.95; v1 runs lower - that is the story)."}
+  purity: {type: DOUBLE, comment: "Cluster purity vs the synthetic truth (ALL row only; fraction)."}
+  precision_change_vs_prev_run: {type: DOUBLE, comment: Change of precision vs the previous run of the same source system (fraction points).}
+  recall_change_vs_prev_run: {type: DOUBLE, comment: Change of recall vs the previous run of the same source system (fraction points; jumps at the first v2 run).}
+  started_at: {type: TIMESTAMP, comment: Simulated start of the run (UTC).}
+  finished_at: {type: TIMESTAMP, comment: Simulated end of the run (UTC).}
+  duration_minutes: {type: DOUBLE, comment: Run duration in minutes.}
+checks:
+  - name: records_in_vs_membership      # per run x source, records_in = memberships in silver
+    sql: >-
+      SELECT count(*) FROM ${table} f FULL OUTER JOIN (
+        SELECT run_id, source_system, count(*) AS n FROM ${catalog}.silver.er_cluster_membership GROUP BY run_id, source_system
+        UNION ALL SELECT run_id, 'ALL' AS source_system, count(*) AS n FROM ${catalog}.silver.er_cluster_membership GROUP BY run_id) m
+      ON m.run_id = f.run_id AND m.source_system = f.source_system
+      WHERE f.records_in IS NULL OR m.n IS NULL OR f.records_in <> m.n
+  - name: golden_records_vs_membership  # ALL row = distinct golden ids of the run
+    sql: >-
+      SELECT count(*) FROM ${table} f JOIN (SELECT run_id, count(DISTINCT golden_client_id) AS g
+        FROM ${catalog}.silver.er_cluster_membership GROUP BY run_id) m ON m.run_id = f.run_id
+      WHERE f.source_system = 'ALL' AND f.golden_records <> m.g
+  - name: latest_run_gates              # PLAN §6 gates at the latest (v2) run
+    sql: SELECT count_if(precision < 0.97 OR recall < 0.95) FROM ${table} WHERE is_latest_run AND source_system = 'ALL'
+  - name: matched_plus_unmatched
+    sql: SELECT count_if(matched_total + unmatched <> records_in) FROM ${table}
+reconcile:
+  - name: rows_vs_run_log
+    silver: SELECT count(*) FROM ${catalog}.ops.entity_resolution_runs

@@ -1,0 +1,17 @@
+table: fn_usd
+kind: function
+domain: hub
+comment: >-
+  Scalar SQL function gold.fn_usd(amount, currency, d): converts a local-currency amount to USD at the
+  gold.fx_rate_daily rate of date d (USD passes through; dates outside the calendar window use the nearest
+  window end; an unknown currency gives NULL). For large facts prefer a direct join to gold.fx_rate_daily.
+checks:
+  - name: usd_passthrough_and_sgd
+    sql: >-
+      SELECT CASE WHEN ${catalog}.gold.fn_usd(100.0, 'USD', DATE'${as_of_date}') = 100.0
+                   AND abs(${catalog}.gold.fn_usd(100.0, 'sgd', DATE'${as_of_date}')
+                           - 100.0 / (SELECT rate_per_usd FROM ${catalog}.gold.fx_rate_daily
+                                      WHERE currency_code = 'SGD' AND date = DATE'${as_of_date}')) < 1e-6
+                   AND ${catalog}.gold.fn_usd(100.0, 'XXX', DATE'${as_of_date}') IS NULL
+                   AND ${catalog}.gold.fn_usd(100.0, 'SGD', DATE'2015-01-01') IS NOT NULL
+             THEN 0 ELSE 1 END

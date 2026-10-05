@@ -1,0 +1,1107 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 1,
+      "columns": [
+        "Client Group",
+        "forecast_inflows_usd",
+        "expected_outflows_usd",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "forecast_net_p90_usd"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kinokawa Precision",
+          "1.5739089495864475E7",
+          "3.549854762833334E7",
+          "-1.9759458132468864E7",
+          "-2.2146702730295718E7",
+          "-1.6408776589322494E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f2cd05aedeae53f4",
+      "sorted_by": null
+    },
+    "Q1-casual": {
+      "rows": 1,
+      "columns": [
+        "Client Group",
+        "forecast_inflows_usd",
+        "expected_outflows_usd",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "forecast_net_p90_usd"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kinokawa Precision",
+          "1.5739089495864475E7",
+          "3.549854762833334E7",
+          "-1.9759458132468864E7",
+          "-2.2146702730295718E7",
+          "-1.6408776589322494E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f2cd05aedeae53f4",
+      "sorted_by": null
+    },
+    "Q1b": {
+      "rows": 21,
+      "columns": [
+        "Client",
+        "Horizon",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "forecast_net_p90_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kinokawa Precision (Bangkok) PCL",
+          "30D",
+          "378110.274212253",
+          "303063.5303955891",
+          "483444.15562877565"
+        ],
+        [
+          "Kinokawa Precision (Bangkok) PCL",
+          "7D",
+          "85379.73933828727",
+          "68433.70041193656",
+          "109164.80933557679"
+        ],
+        [
+          "Kinokawa Precision (Bangkok) PCL",
+          "90D",
+          "1157601.9617408821",
+          "928932.0533596937",
+          "1478557.7792483545"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "46f437adc4e08715",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 25,
+      "columns": [
+        "Client",
+        "Segment",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "deposits_usd",
+        "undrawn_rcf_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Dampier Insurance Group Trading Co Ltd",
+          "Financial Institution",
+          "-374670.29678706656",
+          "-414104.50606175605",
+          "2.783657585E7",
+          "1643494.92"
+        ],
+        [
+          "Barito Capital (Bangkok) Co Ltd",
+          "Financial Institution",
+          "-351154.8192231261",
+          "-376943.29237646214",
+          "1.951914105E7",
+          "9608773.13"
+        ],
+        [
+          "MEKONG VENTURES PARTNERS (BANGKOK)",
+          "Sponsor & Structured Finance",
+          "-229607.38244318278",
+          "-240115.72080033703",
+          "1941780.2700000003",
+          "114443.67000000004"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2199a746054edaab",
+      "sorted_by": null
+    },
+    "Q2-jargon": {
+      "rows": 25,
+      "columns": [
+        "Client",
+        "Segment",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "deposits_usd",
+        "undrawn_rcf_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Dampier Insurance Group Trading Co Ltd",
+          "Financial Institution",
+          "-374670.29678706656",
+          "-414104.50606175605",
+          "2.783657585E7",
+          "1643494.92"
+        ],
+        [
+          "Barito Capital (Bangkok) Co Ltd",
+          "Financial Institution",
+          "-351154.8192231261",
+          "-376943.29237646214",
+          "1.951914105E7",
+          "9608773.13"
+        ],
+        [
+          "MEKONG VENTURES PARTNERS (BANGKOK)",
+          "Sponsor & Structured Finance",
+          "-229607.38244318278",
+          "-240115.72080033703",
+          "1941780.2700000003",
+          "114443.67000000004"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2199a746054edaab",
+      "sorted_by": null
+    },
+    "Q2b": {
+      "rows": 2,
+      "columns": [
+        "Has RCF",
+        "clients_forecast",
+        "clients_forecast_net_negative",
+        "clients_with_material_shortfall",
+        "undrawn_rcf_usd"
+      ],
+      "types": [
+        "BOOLEAN",
+        "LONG",
+        "LONG",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "false",
+          "1662",
+          "1037",
+          "232",
+          "0.0"
+        ],
+        [
+          "true",
+          "131",
+          "84",
+          "25",
+          "4.957760172499998E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "8ea8ac11bae52032",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 10,
+      "columns": [
+        "Horizon",
+        "Segment",
+        "Model Version",
+        "mape",
+        "bias",
+        "p10_p90_coverage",
+        "scored_forecasts"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DECIMAL",
+        "LONG"
+      ],
+      "head": [
+        [
+          "30D",
+          "Financial Institution",
+          "v1",
+          "0.177821911999919",
+          "-0.012982550312321671",
+          "0.80417",
+          "1726"
+        ],
+        [
+          "30D",
+          "Financial Institution",
+          "v2",
+          "0.11951625776864065",
+          "-0.012606144645161382",
+          "0.77346",
+          "309"
+        ],
+        [
+          "30D",
+          "Japanese Corporate",
+          "v1",
+          "0.1784786278667877",
+          "0.006146738957739322",
+          "0.80070",
+          "12614"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f0b4ac479a564dce",
+      "sorted_by": null
+    },
+    "Q3b": {
+      "rows": 2,
+      "columns": [
+        "Model Version",
+        "mape",
+        "p10_p90_coverage",
+        "scored_forecasts"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DECIMAL",
+        "LONG"
+      ],
+      "head": [
+        [
+          "v1",
+          "0.17840348092010544",
+          "0.79995",
+          "26154"
+        ],
+        [
+          "v2",
+          "0.11228316192077369",
+          "0.79979",
+          "4755"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f2c2ac7e1a02ff93",
+      "sorted_by": null
+    },
+    "Q3b-abbrev": {
+      "rows": 2,
+      "columns": [
+        "Model Version",
+        "mape",
+        "p10_p90_coverage",
+        "scored_forecasts"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DECIMAL",
+        "LONG"
+      ],
+      "head": [
+        [
+          "v1",
+          "0.17840348092010544",
+          "0.79995",
+          "26154"
+        ],
+        [
+          "v2",
+          "0.11228316192077369",
+          "0.79979",
+          "4755"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f2c2ac7e1a02ff93",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 13,
+      "columns": [
+        "Client",
+        "event_month",
+        "Event Status",
+        "predicted_surplus_usd"
+      ],
+      "types": [
+        "STRING",
+        "DATE",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Oribe Marine Logistics Inc",
+          "2026-09-01",
+          "Open",
+          "4.881902303E7"
+        ],
+        [
+          "HAGIWARA STEEL (SHANGHAI)",
+          "2026-01-01",
+          "Closed - No Action",
+          "2.051141852E7"
+        ],
+        [
+          "Sakaida Prime Semiconductor (Hong Kong) Ltd",
+          "2025-12-01",
+          "Closed - No Action",
+          "3.985517869E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "213bfe66a07021ce",
+      "sorted_by": null
+    },
+    "Q4-jargon": {
+      "rows": 13,
+      "columns": [
+        "Client",
+        "event_month",
+        "Event Status",
+        "predicted_surplus_usd"
+      ],
+      "types": [
+        "STRING",
+        "DATE",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Oribe Marine Logistics Inc",
+          "2026-09-01",
+          "Open",
+          "4.881902303E7"
+        ],
+        [
+          "HAGIWARA STEEL (SHANGHAI)",
+          "2026-01-01",
+          "Closed - No Action",
+          "2.051141852E7"
+        ],
+        [
+          "Sakaida Prime Semiconductor (Hong Kong) Ltd",
+          "2025-12-01",
+          "Closed - No Action",
+          "3.985517869E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "213bfe66a07021ce",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 16,
+      "columns": [
+        "Industry",
+        "march_index",
+        "september_index",
+        "highest_other_month_index"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Agriculture",
+          "1.311144648284892",
+          "1.18957257303058",
+          "1.1013061462692983"
+        ],
+        [
+          "Sponsor",
+          "1.1664023379629476",
+          "1.1162388161964272",
+          "1.1748499593272823"
+        ],
+        [
+          "Utilities",
+          "1.0634868573322058",
+          "1.074198106016738",
+          "1.124688686030124"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d8d2e473d1f1d31e",
+      "sorted_by": null
+    },
+    "Q5-casual": {
+      "rows": 16,
+      "columns": [
+        "Industry",
+        "march_index",
+        "september_index",
+        "highest_other_month_index"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Agriculture",
+          "1.311144648284892",
+          "1.18957257303058",
+          "1.1013061462692983"
+        ],
+        [
+          "Sponsor",
+          "1.1664023379629476",
+          "1.1162388161964272",
+          "1.1748499593272823"
+        ],
+        [
+          "Utilities",
+          "1.0634868573322058",
+          "1.074198106016738",
+          "1.124688686030124"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d8d2e473d1f1d31e",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 1,
+      "columns": [
+        "predicted_shortfalls",
+        "followed_by_rcf_drawdown_within_10d",
+        "amount_drawn_usd",
+        "annual_revenue_from_actions_usd"
+      ],
+      "types": [
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "23",
+          "15",
+          "5.310389502E7",
+          "679577.0800000001"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e1a6e0f4319345d8",
+      "sorted_by": null
+    },
+    "Q6-typo": {
+      "rows": 1,
+      "columns": [
+        "predicted_shortfalls",
+        "followed_by_rcf_drawdown_within_10d",
+        "amount_drawn_usd",
+        "annual_revenue_from_actions_usd"
+      ],
+      "types": [
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "23",
+          "15",
+          "5.310389502E7",
+          "679577.0800000001"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e1a6e0f4319345d8",
+      "sorted_by": null
+    },
+    "Q6b": {
+      "rows": 15,
+      "columns": [
+        "Client",
+        "event_month",
+        "predicted_shortfall_usd",
+        "days_to_drawdown",
+        "rcf_drawn_usd"
+      ],
+      "types": [
+        "STRING",
+        "DATE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Authority Chaophraya (Sydney) Ltd",
+          "2026-06-01",
+          "838569.04",
+          "2.0",
+          "838569.04"
+        ],
+        [
+          "AKATSUKI MOTOR TRADING (SINGAPORE)",
+          "2026-07-01",
+          "2.181597463E7",
+          "4.0",
+          "2.181597463E7"
+        ],
+        [
+          "KATSURAGI ELECTRONICS (JAKARTA)",
+          "2026-07-01",
+          "898184.98",
+          "4.0",
+          "898184.98"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "09226e7d6b2de253",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 5,
+      "columns": [
+        "Client",
+        "Current EWS Band",
+        "average_monthly_inflow_usd",
+        "inflow_stddev_usd",
+        "inflow_coefficient_of_variation"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Sunda Energi Nusantara (Jakarta) PT Tbk",
+          "Red",
+          "620088.845",
+          "616218.8043750321",
+          "0.9937588933325064"
+        ],
+        [
+          "CHAOPHRAYA ENERGY (TAIPEI)",
+          "Red",
+          "2513200.558333333",
+          "1648479.1534366105",
+          "0.655928213914541"
+        ],
+        [
+          "Batavia Power Corporation Co Ltd",
+          "Amber",
+          "2038620.3591666669",
+          "835355.2968119772",
+          "0.4097650124290174"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ba73f9e595213a9f",
+      "sorted_by": null
+    },
+    "Q7-abbrev": {
+      "rows": 5,
+      "columns": [
+        "Client",
+        "Current EWS Band",
+        "average_monthly_inflow_usd",
+        "inflow_stddev_usd",
+        "inflow_coefficient_of_variation"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Sunda Energi Nusantara (Jakarta) PT Tbk",
+          "Red",
+          "620088.845",
+          "616218.8043750321",
+          "0.9937588933325064"
+        ],
+        [
+          "CHAOPHRAYA ENERGY (TAIPEI)",
+          "Red",
+          "2513200.558333333",
+          "1648479.1534366105",
+          "0.655928213914541"
+        ],
+        [
+          "Batavia Power Corporation Co Ltd",
+          "Amber",
+          "2038620.3591666669",
+          "835355.2968119772",
+          "0.4097650124290174"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ba73f9e595213a9f",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 26,
+      "columns": [
+        "Booking Country",
+        "Model Version",
+        "forecast_bias",
+        "mape"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AU",
+          "v1",
+          "0.017913440057198547",
+          "0.17884839771534955"
+        ],
+        [
+          "AU",
+          "v2",
+          "-0.02385212486502919",
+          "0.1097425401693881"
+        ],
+        [
+          "CN",
+          "v1",
+          "0.017128254873283545",
+          "0.17961303852355853"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2c3efa24776ca3ff",
+      "sorted_by": null
+    },
+    "Q8-casual": {
+      "rows": 26,
+      "columns": [
+        "Booking Country",
+        "Model Version",
+        "forecast_bias",
+        "mape"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AU",
+          "v1",
+          "0.017913440057198547",
+          "0.17884839771534955"
+        ],
+        [
+          "AU",
+          "v2",
+          "-0.02385212486502919",
+          "0.1097425401693881"
+        ],
+        [
+          "CN",
+          "v1",
+          "0.017128254873283545",
+          "0.17961303852355853"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2c3efa24776ca3ff",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_cashflow_forecast",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-03-01",
+      "last": "2026-09-30",
+      "periods": 31
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_forecast_accuracy",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-04-01",
+      "last": "2026-09-01",
+      "periods": 30
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_liquidity_events",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-07-01",
+      "last": "2026-09-01",
+      "periods": 27
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_client_cashflow",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-04-01",
+      "last": "2026-09-30",
+      "periods": 913
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:50:24+00:00",
+  "questions_captured_at": "2026-10-04T15:46:22+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "What is the 30-day net cash-flow forecast for Kinokawa Precision, with P10 and P90?",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client Group`,\n       MEASURE(`Forecast Inflow USD`)  AS forecast_inflows_usd,\n       MEASURE(`Forecast Outflow USD`) AS expected_outflows_usd,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Forecast Net P90 USD`) AS forecast_net_p90_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = :horizon AND `Client Group` = :client_group\nGROUP BY ALL",
+      "genie_parameters": [
+        {
+          "keyword": "client_group",
+          "value": "Kinokawa Precision",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "horizon",
+          "value": "30D",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client Group",
+        "forecast_inflows_usd",
+        "expected_outflows_usd",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "forecast_net_p90_usd"
+      ],
+      "genie_rows": 1,
+      "seconds": 18.6,
+      "asked_at": "2026-10-04T14:50:24+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Show the same for the 90-day horizon.",
+      "after": "S1",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (1 row), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client Group`,\n       MEASURE(`Forecast Inflow USD`)  AS forecast_inflows_usd,\n       MEASURE(`Forecast Outflow USD`) AS expected_outflows_usd,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Forecast Net P90 USD`) AS forecast_net_p90_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = :horizon AND `Client Group` = :client_group\nGROUP BY ALL",
+      "genie_parameters": [
+        {
+          "keyword": "client_group",
+          "value": "Kinokawa Precision",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "horizon",
+          "value": "90D",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client Group",
+        "forecast_inflows_usd",
+        "expected_outflows_usd",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "forecast_net_p90_usd"
+      ],
+      "genie_rows": 1,
+      "seconds": 25.0,
+      "asked_at": "2026-10-04T15:45:57+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which clients are forecast to go negative in the next 30 days, and how much undrawn RCF do they have?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_cashflow_shortfalls_with_rcf`(horizon => '30D')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Segment",
+        "forecast_net_usd",
+        "forecast_net_p10_usd",
+        "deposits_usd",
+        "undrawn_rcf_usd"
+      ],
+      "genie_rows": 25,
+      "seconds": 17.7,
+      "asked_at": "2026-10-04T14:50:43+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "How did forecast accuracy change by horizon and segment after model v2?",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Horizon`, `Segment`, `Model Version`,\n       MEASURE(`MAPE %`)              AS mape,\n       MEASURE(`Bias %`)              AS bias,\n       MEASURE(`Interval Coverage %`) AS p10_p90_coverage,\n       MEASURE(`Scored Forecasts`)    AS scored_forecasts\nFROM smbc_genie.metrics.mv_forecast_accuracy\nWHERE `Month` >= :from_month\nGROUP BY ALL\nORDER BY `Horizon`, `Segment`, `Model Version`",
+      "genie_parameters": [
+        {
+          "keyword": "from_month",
+          "value": "2024-04-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Horizon",
+        "Segment",
+        "Model Version",
+        "mape",
+        "bias",
+        "p10_p90_coverage",
+        "scored_forecasts"
+      ],
+      "genie_rows": 10,
+      "seconds": 17.8,
+      "asked_at": "2026-10-04T14:51:01+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "Which predicted surpluses above USD 20m have not been placed?",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie returns 12 rows, the benchmark 13",
+      "status": "COMPLETED",
+      "genie_sql": "WITH ev AS (\n  SELECT `Client`, MEASURE(`Large Surpluses Not Placed`) AS unplaced_large_surpluses,\n         MEASURE(`Predicted Amount USD`) AS unplaced_surplus_usd\n  FROM smbc_genie.metrics.mv_liquidity_events\n  WHERE `Is Large Surplus` AND `Is Surplus Not Placed` AND `Month` >= :from_month\n  GROUP BY ALL\n), bal AS (\n  SELECT `Client`, MEASURE(`Closing Balance USD`) AS closing_balance_usd\n  FROM smbc_genie.metrics.mv_client_cashflow\n  WHERE `Date` = DATE'2026-09-30'\n  GROUP BY ALL\n), fc AS (\n  SELECT `Client`, MEASURE(`Forecast Net USD`) AS forecast_net_30d_usd\n  FROM smbc_genie.metrics.mv_cashflow_forecast\n  WHERE `Is Latest Forecast` AND `Horizon` = '30D'\n  GROUP BY ALL\n)\nSELECT ev.`Client`, ev.unplaced_large_surpluses, ev.unplaced_surplus_usd,\n       bal.closing_balance_usd, fc.forecast_net_30d_usd\nFROM ev\nLEFT JOIN bal ON bal.`Client` = ev.`Client`\nLEFT JOIN fc ON fc.`Client` = ev.`Client`\nORDER BY ev.unplaced_surplus_usd DESC",
+      "genie_parameters": [
+        {
+          "keyword": "from_month",
+          "value": "2024-07-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Client",
+        "unplaced_large_surpluses",
+        "unplaced_surplus_usd",
+        "closing_balance_usd",
+        "forecast_net_30d_usd"
+      ],
+      "genie_rows": 12,
+      "seconds": 20.8,
+      "asked_at": "2026-10-04T14:51:19+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Which industries have March and September inflow peaks?",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": "Q5",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH s AS (\n  SELECT `Industry`, `Calendar Month`, MEASURE(`Seasonality Index`) AS seasonality_index\n  FROM smbc_genie.metrics.mv_client_cashflow\n  WHERE `Month` BETWEEN :from_month AND :to_month\n  GROUP BY ALL\n)\nSELECT `Industry`,\n       max(CASE WHEN `Calendar Month` = 3 THEN seasonality_index END) AS march_index,\n       max(CASE WHEN `Calendar Month` = 9 THEN seasonality_index END) AS september_index,\n       max(CASE WHEN `Calendar Month` NOT IN (3, 9) THEN seasonality_index END) AS highest_other_month_index\nFROM s WHERE `Industry` IS NOT NULL\nGROUP BY `Industry`\nORDER BY march_index + september_index DESC",
+      "genie_parameters": [
+        {
+          "keyword": "from_month",
+          "value": "2024-04-01",
+          "sql_type": "DATE"
+        },
+        {
+          "keyword": "to_month",
+          "value": "2026-03-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Industry",
+        "march_index",
+        "september_index",
+        "highest_other_month_index"
+      ],
+      "genie_rows": 16,
+      "seconds": 17.1,
+      "asked_at": "2026-10-04T14:51:40+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "How many predicted shortfalls were followed by an RCF drawdown within 10 days?",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT MEASURE(`Shortfall Events`)                     AS predicted_shortfalls,\n       MEASURE(`Shortfalls Covered by RCF Within 10D`) AS followed_by_rcf_drawdown_within_10d,\n       MEASURE(`Action Amount USD`)                    AS amount_drawn_usd,\n       MEASURE(`Revenue from Actions USD`)             AS annual_revenue_from_actions_usd\nFROM smbc_genie.metrics.mv_liquidity_events\nWHERE `Month` BETWEEN :from_month AND :to_month AND `Event Type` = 'Predicted Shortfall'",
+      "genie_parameters": [
+        {
+          "keyword": "from_month",
+          "value": "2026-06-01",
+          "sql_type": "DATE"
+        },
+        {
+          "keyword": "to_month",
+          "value": "2026-09-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "predicted_shortfalls",
+        "followed_by_rcf_drawdown_within_10d",
+        "amount_drawn_usd",
+        "annual_revenue_from_actions_usd"
+      ],
+      "genie_rows": 1,
+      "seconds": 16.1,
+      "asked_at": "2026-10-04T14:51:58+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Rank the Red and Amber EWS clients by inflow volatility.",
+      "after": null,
+      "benchmark": "Q7",
+      "matched": "Q7",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Current EWS Band`,\n       MEASURE(`Average Monthly Inflow USD`) AS average_monthly_inflow_usd,\n       MEASURE(`Inflow Volatility USD`)      AS inflow_stddev_usd,\n       MEASURE(`Inflow Volatility CV %`)     AS inflow_coefficient_of_variation\nFROM smbc_genie.metrics.mv_client_cashflow\nWHERE `Month` >= :from_month AND `Current EWS Band` IN (:band_1, :band_2)\nGROUP BY ALL\nHAVING MEASURE(`Average Monthly Inflow USD`) >= 500000\nORDER BY inflow_coefficient_of_variation DESC",
+      "genie_parameters": [
+        {
+          "keyword": "band_1",
+          "value": "Red",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "band_2",
+          "value": "Amber",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "from_month",
+          "value": "2025-10-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Client",
+        "Current EWS Band",
+        "average_monthly_inflow_usd",
+        "inflow_stddev_usd",
+        "inflow_coefficient_of_variation"
+      ],
+      "genie_rows": 5,
+      "seconds": 18.1,
+      "asked_at": "2026-10-04T14:52:14+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "What is the forecast bias by booking country?",
+      "after": null,
+      "benchmark": "Q8",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie returns 13 rows, the benchmark 26",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Booking Country`, MEASURE(`Bias %`) AS `bias`\nFROM `smbc_genie`.`metrics`.`mv_forecast_accuracy`\nWHERE `Horizon` = '30D'\n  AND `Booking Country` IS NOT NULL\nGROUP BY ALL\nORDER BY `Booking Country` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Booking Country",
+        "bias"
+      ],
+      "genie_rows": 13,
+      "seconds": 20.1,
+      "asked_at": "2026-10-04T14:52:33+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "cashflow_forecasting",
+  "space_id": "my-agent-id"
+}

@@ -1,0 +1,226 @@
+# Space 4, Early Warning Monitoring (WP9b / WP8d). Month-end credit exposure and delinquency per facility
+# (gold.fact_credit_exposure_monthly, Apr-2023..Sep-2026). Balances, DPD positions and capital measures are
+# point-in-time windows over Month; cures and ECL changes are flows. 30+ DPD rate = drawn 30+ DPD / drawn; cure rate
+# = facilities cured in the month / facilities in arrears during the month. EAD / RWA / ECL exist from Apr-2024
+# (Has Capital Measures).
+view: mv_delinquency
+space: early_warning_monitoring
+comment: >-
+  Credit exposure and delinquency of SMBC APAC lending at each month-end, Apr-2023 to Sep-2026: drawn and limit,
+  facilities and clients overdue, overdue amount, 30+ and 90+ DPD rates (drawn-weighted and by facility count),
+  DPD bucket, cures and the cure rate, EAD, RWA, IFRS 9 ECL and Stage 3 exposure (capital measures from Apr-2024).
+  Booking country = the client's Coverage Office. Balances and DPD positions are POINT-IN-TIME: filter or group
+  by Month (Is Latest Month = Sep 2026); a quarter or year returns its last month-end. Cures and ECL change are flows.
+grain: one row per facility per month-end (gold.fact_credit_exposure_monthly)
+source: ${catalog}.gold.fact_credit_exposure_monthly
+blocks:
+  calendar: {date: source.month_end_date, grain: month, what: the exposure month-end}
+  client: {key: source.golden_client_sk}
+overrides:
+  Coverage Office:
+    comment: >-
+      Booking country of the exposure = the client's coverage office (ISO-2: SG Singapore, HK Hong Kong, CN, TH,
+      ID, IN, AU, VN, MY, KR, TW, PH, NZ) - "booking country" and "country" in delinquency questions mean this.
+    synonyms: [booking country, country, office, booking location, coverage office, market, branch]
+dimensions:
+  - name: DPD Bucket
+    expr: source.dpd_bucket
+    display_name: DPD Bucket (month-end)
+    comment: "Days-past-due bucket at the month-end: Current, 1-29, 30-59, 60-89 or 90+ (90+ = default territory)."
+    synonyms: [DPD bucket, days past due bucket, arrears bucket, delinquency bucket, ageing bucket, DPD band]
+  - name: Facility Type
+    expr: source.facility_type
+    display_name: Facility Type
+    comment: Term Loan, Revolving Credit Facility, Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan.
+    synonyms: [facility type, loan type, product, credit product, lending product]
+  - name: Facility
+    expr: source.facility_id
+    display_name: Facility ID
+    comment: Credit facility id (FAC-nnnnnn).
+    synonyms: [facility, facility id, loan, credit line, loan id]
+  - name: Is 30 Plus DPD
+    expr: source.is_30_plus_dpd
+    display_name: 30+ Days Past Due
+    comment: True when the facility is 30 or more days past due at the month-end.
+    synonyms: [30+ DPD, 30 days past due, delinquent, in arrears 30, past due 30]
+  - name: Has Capital Measures
+    expr: source.has_capital_measures
+    display_name: Has Capital Measures
+    comment: True from Apr-2024, when EAD, RWA and ECL are available; earlier months carry balances and DPD only.
+    synonyms: [has capital measures, ECL available, EAD available, capital data available]
+measures:
+  - name: Drawn USD
+    expr: SUM(source.drawn_usd)
+    display_name: Drawn Exposure (USD)
+    comment: Drawn (outstanding) lending at the month-end, USD (point-in-time).
+    synonyms: [drawn, outstanding, exposure, loans outstanding, funded exposure, balance, book]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Limit USD
+    expr: SUM(source.limit_usd)
+    display_name: Committed Limit (USD)
+    comment: Committed facility limits at the month-end, USD (point-in-time).
+    synonyms: [limit, commitments, committed amount, credit limit, approved limit]
+    format: *usd
+    window: *eom
+  - name: Facilities
+    expr: COUNT(DISTINCT source.facility_id)
+    display_name: Facilities
+    comment: Facilities with a balance record at the month-end (point-in-time).
+    synonyms: [facilities, number of facilities, loans, credit lines, accounts]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *eom
+  - name: Facilities Overdue
+    expr: COUNT(DISTINCT CASE WHEN source.is_overdue THEN source.facility_id END)
+    display_name: Facilities Overdue
+    comment: Facilities past due (DPD > 0) at the month-end (point-in-time).
+    synonyms: [facilities overdue, overdue facilities, past due loans, delinquent facilities, facilities in arrears]
+    format: *count
+    window: *eom
+  - name: Clients Overdue
+    expr: COUNT(DISTINCT CASE WHEN source.is_overdue THEN source.golden_client_id END)
+    display_name: Clients Overdue
+    comment: Clients with at least one facility past due at the month-end (point-in-time).
+    synonyms: [clients overdue, delinquent clients, clients in arrears, past due borrowers, overdue names]
+    format: *count
+    window: *eom
+  - name: Overdue Amount USD
+    expr: SUM(source.overdue_amount_usd)
+    display_name: Overdue Amount (USD)
+    comment: Amount past due on the month-end day, USD (point-in-time).
+    synonyms: [overdue amount, arrears, past due amount, amount in arrears, overdue balance, missed payments]
+    format: *usd
+    window: *eom
+  - name: Drawn 30 Plus DPD USD
+    expr: SUM(CASE WHEN source.is_30_plus_dpd THEN source.drawn_usd ELSE 0 END)
+    display_name: Drawn Exposure 30+ DPD (USD)
+    comment: Drawn exposure of facilities 30 or more days past due at the month-end, USD (point-in-time).
+    synonyms: [30+ DPD exposure, delinquent exposure, exposure 30 days past due, arrears exposure]
+    format: *usd
+    window: *eom
+  - name: 30+ DPD Rate %
+    expr: MEASURE(`Drawn 30 Plus DPD USD`) / NULLIF(MEASURE(`Drawn USD`), 0)
+    display_name: 30+ DPD Rate (drawn-weighted)
+    comment: Drawn exposure 30+ days past due / total drawn exposure at the month-end (fraction) - the 30+ DPD rate.
+    synonyms: [30+ DPD rate, delinquency rate, arrears rate, 30 day delinquency, past due ratio, DPD30 rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 2}}
+  - name: Facilities 30 Plus DPD
+    expr: COUNT(DISTINCT CASE WHEN source.is_30_plus_dpd THEN source.facility_id END)
+    display_name: Facilities 30+ DPD
+    comment: Facilities 30 or more days past due at the month-end (point-in-time).
+    synonyms: [facilities 30+ DPD, delinquent facilities 30, loans 30 days past due]
+    format: *count
+    window: *eom
+  - name: 30+ DPD Rate by Count %
+    expr: MEASURE(`Facilities 30 Plus DPD`) / NULLIF(MEASURE(`Facilities`), 0)
+    display_name: 30+ DPD Rate (facility count)
+    comment: Facilities 30+ days past due / facilities at the month-end (fraction).
+    synonyms: [30+ DPD rate by count, delinquency rate by number, facility delinquency rate]
+    format: *pct
+  - name: 90+ DPD Rate %
+    expr: SUM(CASE WHEN source.is_90_plus_dpd THEN source.drawn_usd ELSE 0 END) / NULLIF(SUM(source.drawn_usd), 0)
+    display_name: 90+ DPD Rate (drawn-weighted)
+    comment: Drawn exposure more than 90 days past due (default) / total drawn at the month-end (fraction).
+    synonyms: [90+ DPD rate, default rate, NPL ratio, non-performing ratio, 90 day delinquency]
+    format: *pct
+    window: *eom
+  - name: Facilities Cured
+    expr: COUNT(1) FILTER (WHERE source.is_cured_in_month)
+    display_name: Facilities Cured
+    comment: Facility-months in which an arrears episode was cured (arrears cleared) - a flow over months.
+    synonyms: [cured, cures, facilities cured, arrears cleared, back to current, cured loans]
+    format: *count
+  - name: Facilities in Arrears
+    expr: COUNT(1) FILTER (WHERE source.in_arrears_during_month)
+    display_name: Facility-Months in Arrears
+    comment: Facility-months with any day past due - the denominator of the cure rate (a flow).
+    synonyms: [in arrears, facilities in arrears, arrears facility months, delinquent facility months]
+    format: *count
+  - name: Cure Rate %
+    expr: MEASURE(`Facilities Cured`) / NULLIF(MEASURE(`Facilities in Arrears`), 0)
+    display_name: Cure Rate
+    comment: Facilities cured in the month / facilities in arrears during the month (fraction); over several months a pooled rate.
+    synonyms: [cure rate, cure ratio, recovery rate, roll-back rate, arrears cure rate]
+    format: *pct
+  - name: EAD USD
+    expr: SUM(source.ead_usd)
+    display_name: EAD (USD)
+    comment: Exposure at default at the month-end, USD (from Apr-2024; point-in-time).
+    synonyms: [EAD, exposure at default, credit exposure, regulatory exposure]
+    format: *usd
+    window: *eom
+  - name: RWA USD
+    expr: SUM(source.rwa_usd)
+    display_name: RWA (USD)
+    comment: Risk-weighted assets at the month-end, USD (from Apr-2024; point-in-time).
+    synonyms: [RWA, risk weighted assets, risk assets, capital usage]
+    format: *usd
+    window: *eom
+  - name: ECL USD
+    expr: SUM(source.ecl_usd)
+    display_name: ECL Provision (USD)
+    comment: IFRS 9 expected credit loss provision held at the month-end, USD (12-month in Stage 1, lifetime in Stages 2-3; from Apr-2024).
+    synonyms: [ECL, expected credit loss, provisions, loss allowance, impairment, IFRS 9 provision]
+    format: *usd
+    window: *eom
+  - name: ECL Change USD
+    expr: SUM(source.ecl_change_usd)
+    display_name: ECL Change (USD)
+    comment: Change in the ECL provision over the selected months, USD (positive = provision build) - a flow.
+    synonyms: [ECL change, provision build, impairment charge, credit cost, ECL movement]
+    format: *usd
+  - name: Stage 3 Exposure USD
+    expr: SUM(CASE WHEN source.ifrs9_stage = 3 THEN source.drawn_usd END)
+    display_name: Stage 3 Exposure (USD)
+    comment: Drawn exposure of Stage 3 (credit-impaired) obligors at the month-end, USD (from Apr-2024).
+    synonyms: [stage 3 exposure, impaired exposure, defaulted exposure, NPL exposure, credit-impaired]
+    format: *usd
+    window: *eom
+validate:
+  dims: [Month, DPD Bucket]
+reconcile:
+  - name: drawn_sep26
+    measure: Drawn USD
+    where: "`Is Latest Month`"
+    gold: SELECT sum(drawn_usd) FROM ${catalog}.gold.fact_credit_exposure_monthly WHERE month_end_date = DATE'2026-09-30'
+  - name: dpd30_rate_by_month_fy2026
+    measure: 30+ DPD Rate %
+    by: [Month]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT month, sum(CASE WHEN is_30_plus_dpd THEN drawn_usd ELSE 0 END) / sum(drawn_usd)
+      FROM ${catalog}.gold.fact_credit_exposure_monthly WHERE month >= DATE'2026-04-01' GROUP BY 1
+  - name: overdue_amount_by_country_sep26
+    measure: Overdue Amount USD
+    by: [Coverage Office]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT c.coverage_office, sum(f.overdue_amount_usd) FROM ${catalog}.gold.fact_credit_exposure_monthly f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk WHERE f.month_end_date = DATE'2026-09-30' GROUP BY 1
+  - name: cure_rate_fy2025
+    measure: Cure Rate %
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT count_if(is_cured_in_month) / count_if(in_arrears_during_month) FROM ${catalog}.gold.fact_credit_exposure_monthly
+      WHERE month BETWEEN DATE'2025-04-01' AND DATE'2026-03-01'
+  - name: ecl_fy_is_last_month_end
+    measure: ECL USD
+    by: [Fiscal Year]
+    where: "`Has Capital Measures`"
+    gold: >-
+      SELECT concat('FY', CASE WHEN month(month_end_date) >= 4 THEN year(month_end_date) ELSE year(month_end_date) - 1 END), sum(ecl_usd)
+      FROM ${catalog}.gold.fact_credit_exposure_monthly WHERE month_end_date IN (DATE'2025-03-31', DATE'2026-03-31', DATE'2026-09-30') GROUP BY 1
+  - name: sunda_ecl_change_jan_jun26
+    measure: ECL Change USD
+    where: "`Month` BETWEEN DATE'2026-01-01' AND DATE'2026-06-01' AND `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'"
+    gold: >-
+      SELECT sum(f.ecl_change_usd) FROM ${catalog}.gold.fact_credit_exposure_monthly f JOIN ${catalog}.gold.dim_client c
+      ON c.golden_client_sk = f.golden_client_sk WHERE f.month BETWEEN DATE'2026-01-01' AND DATE'2026-06-01'
+      AND c.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%'
+glossary:
+  caveats:
+    - >-
+      Point-in-time: filter a Month; grouped by facility or client without a month each group shows its own last
+      month-end. EAD / RWA / ECL start Apr-2024 (Has Capital Measures); obligor values are allocated to facilities
+      pro rata to facility EAD, so client and portfolio totals are exact.

@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the forecast was run (backtests: 1st of the month before the target month; forward: the as-of date 30-Sep-2026).",
+   "is_measure": false,
+   "name": "forecast_date",
+   "type": "date"
+  },
+  {
+   "comment": "Forecast horizon in days: 7, 30 or 90 (backtests are 30 = one month ahead).",
+   "is_measure": false,
+   "name": "horizon_days",
+   "type": "int"
+  },
+  {
+   "comment": "Forecast model: v1 (MAPE ~18%, targets to May-2026) or v2 (upgraded model, ~11%, targets from Jun-2026; also the forward run).",
+   "is_measure": false,
+   "name": "model_version",
+   "type": "string"
+  },
+  {
+   "comment": "Backtest (historical forecast scored against actuals) or Forward (forecast from the as-of date).",
+   "is_measure": false,
+   "name": "forecast_type",
+   "type": "string"
+  },
+  {
+   "comment": "True for the latest forecast run (the forward forecasts dated 30-Sep-2026) - use it for 'next 7 / 30 / 90 days' questions.",
+   "is_measure": false,
+   "name": "is_latest_forecast",
+   "type": "boolean"
+  },
+  {
+   "comment": "7D, 30D or 90D.",
+   "is_measure": false,
+   "name": "horizon_label",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the forecast window.",
+   "is_measure": false,
+   "name": "window_start_date",
+   "type": "date"
+  },
+  {
+   "comment": "Last day of the forecast window (30D = the calendar month, 90D = three calendar months).",
+   "is_measure": false,
+   "name": "window_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "How the forecast was produced (collections model backtest, or the seasonal segment projection allocated to the client).",
+   "is_measure": false,
+   "name": "method",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version valid on forecast_date (as-was, D11).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client's coverage office / booking location (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Forecast inflows (collections) over the window, USD.",
+   "is_measure": false,
+   "name": "forecast_inflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Expected outflows over the window = average monthly outflows of the 3 months before the run x window months (pro-rata for 7D); null with fewer than 2 months of history.",
+   "is_measure": false,
+   "name": "forecast_outflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "forecast_inflow_usd - forecast_outflow_usd (USD; negative = predicted net outflow / shortfall).",
+   "is_measure": false,
+   "name": "forecast_net_usd",
+   "type": "double"
+  },
+  {
+   "comment": "P10 (pessimistic) inflows: forecast x the 10th percentile of actual / forecast in the model version's backtests.",
+   "is_measure": false,
+   "name": "forecast_inflow_p10_usd",
+   "type": "double"
+  },
+  {
+   "comment": "P90 (optimistic) inflows: forecast x the 90th percentile of actual / forecast.",
+   "is_measure": false,
+   "name": "forecast_inflow_p90_usd",
+   "type": "double"
+  },
+  {
+   "comment": "P10 net cash flow = P10 inflows - expected outflows (USD).",
+   "is_measure": false,
+   "name": "forecast_net_p10_usd",
+   "type": "double"
+  },
+  {
+   "comment": "P90 net cash flow = P90 inflows - expected outflows (USD).",
+   "is_measure": false,
+   "name": "forecast_net_p90_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Actual inflows of the target month (Backtest rows; null for Forward rows).",
+   "is_measure": false,
+   "name": "actual_inflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Actual outflows of the target month (Backtest rows).",
+   "is_measure": false,
+   "name": "actual_outflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Actual net cash flow of the target month (Backtest rows).",
+   "is_measure": false,
+   "name": "actual_net_usd",
+   "type": "double"
+  },
+  {
+   "comment": "|forecast - actual| / actual inflows (Backtest rows) - MAPE = average over rows.",
+   "is_measure": false,
+   "name": "abs_pct_error",
+   "type": "double"
+  },
+  {
+   "comment": "True when actual inflows fell inside [P10, P90] (Backtest rows) - interval coverage.",
+   "is_measure": false,
+   "name": "is_within_p10_p90",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client's total deposits at the month-end before the window (30-Sep-2026 for forward rows), USD.",
+   "is_measure": false,
+   "name": "opening_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "opening_balance_usd + forecast_net_usd: the deposit position at the end of the window if nothing else changes.",
+   "is_measure": false,
+   "name": "projected_closing_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when forecast_net_usd < 0 (the client is forecast to run a net cash outflow over the window - Clients Forecast Negative).",
+   "is_measure": false,
+   "name": "is_forecast_net_negative",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client's typical gross monthly flow = average monthly (inflows + outflows) over the 6 months before the run, USD - the materiality base of the liquidity-event engine.",
+   "is_measure": false,
+   "name": "typical_gross_flow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "|forecast_net_usd| / (typical_gross_flow_usd x window months), 0-1+ (pro-rata for 7D).",
+   "is_measure": false,
+   "name": "severity_ratio",
+   "type": "double"
+  },
+  {
+   "comment": "True when the forecast net is negative and at least 50% of the typical gross flow (the engine's predicted-shortfall materiality rule) - a liquidity need worth an RCF / overdraft conversation.",
+   "is_measure": false,
+   "name": "is_material_shortfall",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when projected_closing_balance_usd < 0 (the outflow would exhaust the client's deposits - needs RCF / overdraft funding).",
+   "is_measure": false,
+   "name": "is_projected_balance_negative",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has a committed revolving credit facility with a balance at the month-end before the window.",
+   "is_measure": false,
+   "name": "has_rcf",
+   "type": "boolean"
+  },
+  {
+   "comment": "Undrawn committed RCF headroom (sum of limit - drawn over the client's RCFs) at the month-end before the window, USD.",
+   "is_measure": false,
+   "name": "undrawn_rcf_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Months of outflow history (0-3) behind forecast_outflow_usd.",
+   "is_measure": false,
+   "name": "outflow_basis_months",
+   "type": "int"
+  }
+ ],
+ "comment": "Client cash-flow forecasts with intervals and the liquidity headroom behind them. Backtest rows (forecast_type Backtest, Mar-2024 to Aug-2026 runs): the treasury collections model's one-month-ahead (30D) forecast of each client's inflows for the target month - model v1 until May-2026 targets, v2 from Jun-2026 - with the actual inflows / outflows, expected outflows (average of the 3 months before the run, as the liquidity-event engine uses) and net. Forward rows (forecast_type Forward, forecast_date = as-of 30-Sep-2026, is_latest_forecast): 7D (1-7 Oct), 30D (October) and 90D (Oct-Dec 2026) forecasts from the cash-flow engine's segment projection (seasonal method; ai_forecast unavailable, D19) allocated to clients by their share of the segment's inflows over the last 12 months, with the same expected-outflow rule. P10 / P90 = the forecast x the 10th / 90th percentile of actual / forecast inflows in the model version's backtests (empirical interval; the net interval treats outflows as known). Undrawn committed RCF headroom and the opening deposit balance at the month-end before the window answer 'who goes negative and can draw their RCF'. Forecast amounts are flows over the window; never add different horizons or forecast dates together. Grain: one row per golden client x forecast date x horizon (days) x model version.",
+ "identifier": "smbc_genie.gold.fact_cashflow_forecast",
+ "type": "MANAGED"
+}

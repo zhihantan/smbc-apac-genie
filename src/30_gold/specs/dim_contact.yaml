@@ -1,0 +1,38 @@
+table: dim_contact
+domain: hub
+comment: >-
+  Key client contacts recorded in CRM (fictional people): role (e.g. CFO, Treasurer, Procurement Head, CEO),
+  seniority, relationship strength and the last RM interaction, per golden client. RM activity facts
+  reference contact_id.
+grain: one row per CRM contact
+primary_key: [contact_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+cluster_by: [golden_client_id]
+columns:
+  contact_id: {type: STRING, comment: CRM contact id.}
+  crm_account_id: {type: STRING}
+  golden_client_id: {type: STRING}
+  golden_client_sk: {type: BIGINT, comment: dim_client surrogate key of the contact's client (current version).}
+  client_group_id: {type: STRING}
+  full_name: {type: STRING, comment: Contact full name (fictional).}
+  first_name: {type: STRING, comment: Contact first name (fictional).}
+  last_name: {type: STRING, comment: Contact last name (fictional).}
+  job_title: {type: STRING, comment: Job title as recorded in CRM.}
+  contact_function: {type: STRING, comment: "Business function (e.g. Finance, Treasury, Procurement, Executive)."}
+  contact_role: {type: STRING, comment: "Role in the relationship (e.g. CFO, Treasurer, Procurement Head, CEO)."}
+  seniority: {type: STRING, comment: Seniority level of the contact.}
+  is_primary: {type: BOOLEAN, comment: True for the primary contact of the client.}
+  email: {type: STRING, comment: Synthetic e-mail id (not a real address).}
+  preferred_channel: {type: STRING, comment: Preferred contact channel.}
+  relationship_strength: {type: STRING, comment: RM-assessed strength of the relationship with this contact.}
+  is_active: {type: BOOLEAN, comment: True while the contact is active in CRM.}
+  created_date: {type: DATE, comment: Date the contact was created in CRM.}
+  inactive_since: {type: DATE, comment: Date the contact became inactive; null when active.}
+  last_interaction_date: {type: DATE, comment: Date of the latest RM activity with this contact up to the as-of date; null = never.}
+  days_since_last_interaction: {type: INT, comment: Days from the last interaction to the as-of date 30-Sep-2026; null = never contacted.}
+  interactions_12m: {type: BIGINT, comment: RM activities with this contact in the 12 months to the as-of date.}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_contact

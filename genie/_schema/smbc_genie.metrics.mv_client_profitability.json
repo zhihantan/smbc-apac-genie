@@ -1,0 +1,295 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the revenue month as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the revenue month, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the primary relationship manager (fictional) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage. \"RM\" in a list of clients means this column.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Location code (APAC booking location, ISO-2, e.g. HK) where the primary RM sits - a place, not a person. Use it to filter \"RMs in Singapore / Hong Kong\"; never show it as the RM (the RM is Primary RM).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Product family of the revenue line: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, FX or Other TB & Advisory. RWA, capital, credit cost and the RoRWA / RAROC profit sit on Corporate Lending only.",
+   "is_measure": false,
+   "name": "Product Family",
+   "type": "string"
+  },
+  {
+   "comment": "Business line of the product family - Lending, Transaction Banking or Markets.",
+   "is_measure": false,
+   "name": "Business Line",
+   "type": "string"
+  },
+  {
+   "comment": "Number of products the client held at the month-end, bucketed: 0 products, 1 product, 2 products, 3-4 products, 5-7 products, 8+ products (client-month attribute). Group by it only for \"by number of products held\" questions; \"products per client by <segment / office>\" is the measure Products per Client instead.",
+   "is_measure": false,
+   "name": "Product Count Bucket",
+   "type": "string"
+  },
+  {
+   "comment": "True in months when the client's only products are credit facilities (no deposits, payments, trade, FX or cash management) - lending-only relationships to cross-sell.",
+   "is_measure": false,
+   "name": "Is Single-Product Lending",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client is known only to the credit system (a borrower with no core-banking, treasury or trade record) - lending-only relationships (storyline 8: about 40 Japanese corporates below the RoRWA hurdle).",
+   "is_measure": false,
+   "name": "Is Lending-Only Relationship",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client's RoRWA for the fiscal quarter of the month is below the RoRWA hurdle (1.2%, also meant by \"below the 8% hurdle\"); null without RWA. Quarter-level: filter it with one Fiscal Quarter (latest FY2026-Q2).",
+   "is_measure": false,
+   "name": "Below RoRWA Hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "Total revenue in USD = NII + fees + trading revenue, summed over the selected months (a flow).",
+   "is_measure": true,
+   "name": "Total Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "Net interest income in USD (lending margin and deposit spread), summed over the selected months.",
+   "is_measure": true,
+   "name": "NII USD",
+   "type": "double"
+  },
+  {
+   "comment": "Fee and commission income in USD (commitment / arrangement, payments, trade, TB and advisory fees).",
+   "is_measure": true,
+   "name": "Fee Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "Trading revenue in USD (FX sales and trading with the client).",
+   "is_measure": true,
+   "name": "Trading Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "Operating cost allocated to the relationship in USD = direct + RM + operations + head-office costs.",
+   "is_measure": true,
+   "name": "Allocated Cost USD",
+   "type": "double"
+  },
+  {
+   "comment": "Credit cost = expected loss (PD x LGD x EAD per month) in USD, on the Corporate Lending row.",
+   "is_measure": true,
+   "name": "Credit Cost USD",
+   "type": "double"
+  },
+  {
+   "comment": "Net contribution in USD = total revenue - allocated cost - credit cost (pre-tax product view incl. FX and trade), summed over the selected months.",
+   "is_measure": true,
+   "name": "Net Contribution USD",
+   "type": "double"
+  },
+  {
+   "comment": "Pre-tax relationship net profit on the finance hurdle basis in USD (relationship P&L excluding FX and trade fees) - the numerator of RoRWA and RAROC; credit relationships only.",
+   "is_measure": true,
+   "name": "Relationship Net Profit USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average risk-weighted assets in USD over the selected months (sum of month-end RWA / number of months) - the capital consumed by the relationship.",
+   "is_measure": true,
+   "name": "Average RWA USD",
+   "type": "double"
+  },
+  {
+   "comment": "Return on RWA, annualised = 12 x relationship net profit / sum of monthly RWA over the selection (fraction: 0.012 = 1.2%, the hurdle). Correct at any grain; null where there is no RWA.",
+   "is_measure": true,
+   "name": "RoRWA %",
+   "type": "double"
+  },
+  {
+   "comment": "Risk-adjusted return on economic capital, annualised = 12 x relationship net profit / sum of monthly economic capital (fraction; hurdle 12%).",
+   "is_measure": true,
+   "name": "RAROC %",
+   "type": "double"
+  },
+  {
+   "comment": "Annualised total revenue / average RWA (fraction) - lowest values = relationships consuming the most capital relative to revenue.",
+   "is_measure": true,
+   "name": "Revenue per RWA %",
+   "type": "double"
+  },
+  {
+   "comment": "Median across credit clients of their fiscal-quarter RoRWA (winsorised -25%..100%; gold sets it on the client-month primary row and leaves it NULL without RWA), for the latest quarter in the selection - the typical relationship return (use instead of an average).",
+   "is_measure": true,
+   "name": "Median Client RoRWA %",
+   "type": "double"
+  },
+  {
+   "comment": "Median across credit clients of their fiscal-quarter RAROC (winsorised -25%..100%), for the latest quarter in the selection.",
+   "is_measure": true,
+   "name": "Median Client RAROC %",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities (golden clients) with revenue activity in the selected months.",
+   "is_measure": true,
+   "name": "Clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Credit clients whose RoRWA for the latest fiscal quarter in the selection is below the RoRWA hurdle (1.2%; also what \"below the 8% hurdle\" means).",
+   "is_measure": true,
+   "name": "Clients Below RoRWA Hurdle",
+   "type": "bigint"
+  },
+  {
+   "comment": "The configured RoRWA hurdle from gold.dim_threshold (RORWA_HURDLE, 0.012 = 1.2%).",
+   "is_measure": true,
+   "name": "RoRWA Hurdle %",
+   "type": "double"
+  },
+  {
+   "comment": "RoRWA minus the hurdle (fraction; -0.005 = 0.5 percentage points below the hurdle).",
+   "is_measure": true,
+   "name": "RoRWA Gap to Hurdle pts",
+   "type": "double"
+  },
+  {
+   "comment": "Average number of products held per client at the latest month-end of the selection. \"Products per client by segment\" = this measure grouped by Segment alone (one row per segment, not split by Product Count Bucket).",
+   "is_measure": true,
+   "name": "Products per Client",
+   "type": "double"
+  },
+  {
+   "comment": "Total revenue of the same clients, families and months one year earlier, USD (available from Apr-2025). With Fiscal Half = 'FY2026-H1' this is the H1 FY2025 revenue, in the same row as the H1 FY2026 Total Revenue USD.",
+   "is_measure": true,
+   "name": "Revenue Prior Year USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue growth vs the same months one year earlier (fraction: 0.20 = +20%); select months from Apr-2025 on (e.g. Fiscal Half FY2026-H1 vs FY2025-H1). Use this measure for revenue growth - never compute growth by hand or multiply it by 100.",
+   "is_measure": true,
+   "name": "Revenue YoY %",
+   "type": "double"
+  }
+ ],
+ "comment": "Relationship profitability of SMBC's APAC clients by month and product family, Apr-2024 to Sep-2026 (USD): revenue (NII, fees, trading), allocated cost, credit cost (expected loss), net contribution, average RWA and the annualised returns RoRWA, RAROC and revenue per RWA, client medians, clients below the RoRWA hurdle (1.2% from gold.dim_threshold; \"below the 8% hurdle\" means this flag), products per client and revenue growth YoY. Revenue, cost and contribution add up over months; returns are 12 x SUM(monthly profit) / SUM(monthly RWA) for any selection; RWA, capital and profit sit on the Corporate Lending row. Grain: one row per golden client x month x product family (gold.fact_client_revenue_monthly).",
+ "identifier": "smbc_genie.metrics.mv_client_profitability",
+ "type": "METRIC_VIEW"
+}

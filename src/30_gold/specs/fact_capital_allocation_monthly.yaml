@@ -1,0 +1,67 @@
+table: fact_capital_allocation_monthly
+domain: profitability
+comment: >-
+  Capital consumed by each golden client with credit exposure, per month-end (Apr-2024 to Sep-2026, Client
+  Profitability): drawn, limit, EAD, risk-weighted assets, PD / LGD, IFRS 9 stage and ECL, expected loss,
+  economic capital (RAROC denominator), capital allocated at the 12.5% target CET1 ratio of RWA, book equity
+  (9% of EAD) and the monthly cost of that capital at the 10% cost of equity. Balances (drawn, EAD, RWA, ECL,
+  capital) are month-end snapshots: never sum them across months - take the latest month or average.
+  Expected loss, ECL change and cost of capital are monthly flows (additive).
+grain: one row per golden client x month
+primary_key: [golden_client_id, month]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [month], references: dim_date}
+cluster_by: [month, golden_client_sk]
+min_rows: 10000
+columns:
+  month: {type: DATE, comment: "First day of the month of the month-end snapshot."}
+  month_end_date: {type: DATE}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_quarter_label: {type: STRING}
+  fiscal_half_label: {type: STRING}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  n_obligors: {type: BIGINT, comment: "Credit obligor records of the client summed into the row (2 when entity resolution merged two obligors)."}
+  internal_grade: {type: INT, comment: "Internal rating grade 1-10 (1 best, 10 default) at the month-end; worst obligor when several."}
+  rating_equivalent: {type: STRING, comment: "External-scale equivalent of internal_grade (AAA ... B)."}
+  ifrs9_stage: {type: INT, comment: "IFRS 9 stage 1, 2 or 3 at the month-end (worst obligor)."}
+  days_past_due_max: {type: INT, comment: "Maximum days past due across the client's facilities at the month-end."}
+  dpd_bucket: {type: STRING, comment: "Days-past-due bucket at the month-end: Current, 1-29, 30-59, 60-89 or 90+."}
+  drawn_usd: {type: DOUBLE, comment: "Drawn credit balance at the month-end in USD. Point-in-time."}
+  limit_usd: {type: DOUBLE, comment: "Committed credit limits at the month-end in USD. Point-in-time."}
+  utilisation_pct: {type: DOUBLE, comment: "drawn_usd / limit_usd at the month-end (fraction, 0.85 = 85%)."}
+  ead_usd: {type: DOUBLE, comment: "Exposure at default at the month-end in USD (drawn + credit-conversion factor x undrawn). Point-in-time."}
+  rwa_usd: {type: DOUBLE, comment: "Risk-weighted assets at the month-end in USD. Point-in-time - average across months, never sum."}
+  rwa_density: {type: DOUBLE, comment: "rwa_usd / ead_usd (average risk weight, fraction)."}
+  pd_12m: {type: DOUBLE, comment: "12-month probability of default (fraction), EAD-weighted across obligors."}
+  pd_lifetime: {type: DOUBLE, comment: "Lifetime probability of default (fraction), EAD-weighted."}
+  lgd: {type: DOUBLE, comment: "Loss given default (fraction), EAD-weighted."}
+  remaining_tenor_years: {type: DOUBLE, comment: "Remaining tenor of the exposure in years, EAD-weighted."}
+  ecl_12m_usd: {type: DOUBLE, comment: "12-month expected credit loss allowance at the month-end in USD. Point-in-time."}
+  ecl_lifetime_usd: {type: DOUBLE, comment: "Lifetime expected credit loss at the month-end in USD. Point-in-time."}
+  ecl_usd: {type: DOUBLE, comment: "IFRS 9 ECL allowance booked at the month-end in USD (12-month for Stage 1, lifetime for Stages 2-3). Point-in-time."}
+  ecl_change_usd: {type: DOUBLE, comment: "Change in the ECL allowance versus the previous month in USD (positive = provision build, the impairment charge). Additive."}
+  expected_loss_usd: {type: DOUBLE, comment: "Expected loss for the month in USD (PD x LGD x EAD / 12) - the credit cost in client profitability. Additive."}
+  economic_capital_usd: {type: DOUBLE, comment: "Economic (unexpected-loss) capital at the month-end in USD - the RAROC denominator. Point-in-time."}
+  book_equity_usd: {type: DOUBLE, comment: "Book equity allocated at 9% of EAD in USD at the month-end. Point-in-time."}
+  allocated_capital_usd: {type: DOUBLE, comment: "Capital allocated at the 12.5% target CET1 ratio of RWA in USD at the month-end - the ROE denominator. Point-in-time."}
+  cost_of_capital_usd: {type: DOUBLE, comment: "Monthly cost of the allocated capital at the 10% cost of equity in USD. Additive."}
+  is_individually_assessed: {type: BOOLEAN, comment: "True when the ECL is individually assessed (Stage 3 specific provision, e.g. Sunda from Jun-2026)."}
+checks:
+  - name: allocated_capital_is_12_5pct_of_rwa
+    sql: SELECT count_if(abs(allocated_capital_usd - 0.125 * rwa_usd) > 1) FROM ${table}
+reconcile:
+  - name: rows_vs_silver_golden_grain
+    silver: SELECT count(*) FROM (SELECT DISTINCT golden_client_id, month FROM ${catalog}.silver.fin_capital_allocation)
+  - name: rwa_vs_silver
+    gold: SELECT sum(rwa_usd) FROM ${table}
+    silver: SELECT sum(rwa_usd) FROM ${catalog}.silver.fin_capital_allocation
+    tolerance: 1
+  - name: ecl_jun26_vs_silver
+    gold: SELECT sum(ecl_usd) FROM ${table} WHERE month = DATE'2026-06-01'
+    silver: SELECT sum(ecl_usd) FROM ${catalog}.silver.fin_capital_allocation WHERE month = DATE'2026-06-01'
+    tolerance: 1

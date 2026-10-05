@@ -1,0 +1,112 @@
+table: dim_client
+domain: hub
+comment: >-
+  Customer 360 golden client hub (SCD2, D11): one golden client = one legal entity resolved across core
+  banking, CRM, KYC, credit, trade, treasury and the external company master. Identity comes from entity
+  resolution (silver.client_golden_identity); segment, tier, industry and coverage office are resolved once
+  (best source first, then the client group, then the Tokyo HO group master); month-end states of primary
+  RM, internal rating / IFRS 9 stage, EWS band, watchlist, KYC risk / next review, account plan and
+  external rating are collapsed into versions with valid_from / valid_to / is_current. Facts carry the
+  golden_client_sk of the version valid on their date (as-was); is_current = true gives today's view
+  (as of 30-Sep-2026). Arrays (aliases, source_systems_present) also exist as text copies.
+grain: one row per golden client version (calendar-month validity; current version open-ended to 9999-12-31)
+primary_key: [golden_client_sk]
+foreign_keys:
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [country_of_incorporation], references: dim_country}
+  - {columns: [coverage_office], references: dim_booking_entity}
+  - {columns: [industry_sector, industry_subsector], references: dim_industry}
+  - {columns: [peer_group_id], references: dim_peer_group}
+  - {columns: [primary_rm_id], references: dim_employee}
+  - {columns: [credit_analyst_id], references: dim_employee}
+  - {columns: [primary_rm_office], references: dim_booking_entity}
+cluster_by: [golden_client_id, valid_from]
+scd2: {key: golden_client_id}
+min_rows: 2500
+columns:
+  golden_client_sk:
+    type: BIGINT
+    comment: >-
+      Surrogate key of this version = numeric part of golden_client_id x 1000 + version_no (e.g. 1003 =
+      GC-000001 version 3). Facts reference it for the client attributes as they were on the fact date.
+  golden_client_id: {type: STRING, not_null: true}
+  version_no: {type: INT, not_null: true, comment: SCD2 version number 1..n in valid_from order (1 = from the start of the relationship).}
+  valid_from: {type: DATE, not_null: true, comment: First day the version is valid (first day of a calendar month; version 1 starts at relationship_start_date's month or 1-Apr-2023).}
+  valid_to: {type: DATE, not_null: true, comment: Last day the version is valid (month-end); 9999-12-31 for the current version.}
+  is_current: {type: BOOLEAN, not_null: true, comment: True for the version valid at the as-of date (exactly one per golden client) - use it for today's view.}
+  legal_name: {type: STRING, comment: "Survived legal name (priority: external company master > KYC > credit > core > CRM > trade > treasury)."}
+  short_name: {type: STRING, comment: "Name without location and legal form, e.g. Kinokawa Precision - use LIKE '%...%' to find a client."}
+  display_name: {type: STRING, comment: "Unique display label keeping the location, e.g. Kinokawa Precision (Singapore) Pte Ltd."}
+  aliases: {type: ARRAY<STRING>, comment: Other names the source records use for this client (array; see aliases_text).}
+  aliases_text: {type: STRING, comment: "Aliases as one ' | '-separated string (for LIKE searches and metric views)."}
+  lei_like_id: {type: STRING, comment: Survived fictional LEI-like identifier (SYNLEI...); null when no source holds one.}
+  country_of_incorporation: {type: STRING, comment: ISO-2 country of incorporation (survived across sources).}
+  client_group_id: {type: STRING}
+  group_name: {type: STRING, comment: "Client group short brand (e.g. Kinokawa Precision) from the Tokyo HO group master."}
+  immediate_parent_id: {type: STRING, comment: Immediate parent (group-master key) as recorded by the most authoritative source.}
+  segment: {type: STRING}
+  segment_source: {type: STRING, comment: "Where segment came from: crm_account, relationship_pnl, crm_opportunity, kyc_case, group_majority (other clients of the group) or ho_group_master (Tokyo HO segment mapped to APAC)."}
+  is_japanese_corporate: {type: BOOLEAN, comment: True when segment = Japanese Corporate (APAC subsidiaries of Japanese groups).}
+  relationship_tier: {type: STRING}
+  tier_source: {type: STRING, comment: "Where relationship_tier came from: relationship_pnl, crm_opportunity, account_plan (group plan priority High / Medium / Low), group_majority or ho_group_master."}
+  industry_sector: {type: STRING}
+  industry_subsector: {type: STRING}
+  industry_source: {type: STRING, comment: "Where the industry came from: relationship_pnl, credit_ratio_peer_group, group_majority or ho_group_master (HO industry label mapped to the APAC taxonomy)."}
+  peer_group_id: {type: STRING}
+  is_carbon_intensive: {type: BOOLEAN, comment: True when the client's industry subsector is carbon-intensive.}
+  is_listed: {type: BOOLEAN, comment: True when the external company master records the entity as listed.}
+  coverage_office: {type: STRING}
+  coverage_office_name: {type: STRING, comment: "Country name of the coverage office (e.g. Hong Kong, Vietnam)."}
+  primary_rm_id: {type: STRING, comment: "Primary RM (employee_id) at the version's month-ends: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage."}
+  primary_rm_code: {type: STRING, comment: CRM code (RM001-RM120) of the primary RM.}
+  primary_rm_name: {type: STRING, comment: Name of the primary RM (fictional).}
+  primary_rm_office: {type: STRING, comment: "Office (APAC booking location) of the primary RM, e.g. SG - for RM-book questions such as RMs in Singapore."}
+  primary_rm_basis: {type: STRING, comment: "crm_account_team (client's own CRM coverage), group_account_plan (owner of the group plan) or null."}
+  credit_analyst_id: {type: STRING, comment: "Credit analyst (employee_id) on the client's latest credit review to the as-of date, else the CRM team credit analyst (current; not versioned)."}
+  credit_analyst_name: {type: STRING, comment: Name of the credit analyst (fictional).}
+  internal_rating_grade: {type: INT, comment: "Internal rating grade 1-10 (1 best, 10 default) in force at the version's month-ends; null = not rated (no credit relationship)."}
+  rating_equivalent: {type: STRING, comment: "External-scale equivalent of the internal grade (AAA ... D) in force at the month-ends."}
+  ifrs9_stage: {type: INT, comment: "IFRS 9 stage 1, 2 (significant deterioration) or 3 (credit-impaired / default) in force at the month-ends; null = not rated."}
+  external_rating: {type: STRING, comment: "Agency rating of the client's group issuer at the month-ends (primary agency first; fictional agencies); null = unrated group."}
+  external_rating_agency: {type: STRING, comment: Fictional agency of external_rating.}
+  ews_band: {type: STRING, comment: "Final EWS band (after overrides) on the last scored day of the month: Green (< 40), Amber (40-69) or Red (>= 70); null = not scored (no credit relationship, or before daily scoring started in Apr-2025)."}
+  watchlist_flag: {type: BOOLEAN, comment: True when the client is on the credit watchlist at the month-ends (watchlist register; false = not on the watchlist).}
+  kyc_risk_rating: {type: STRING, comment: "KYC / AML risk rating Low, Medium or High in force at the month-ends (latest completed review); null = no KYC record."}
+  kyc_next_review_date: {type: DATE, comment: "Due date of the next KYC review (periodic or trigger) not completed at the month-ends; a past date means the review is overdue."}
+  has_account_plan: {type: BOOLEAN, comment: True when the client's group has an account plan for the fiscal year of the version's months.}
+  onboarding_date: {type: DATE, comment: Customer-since date recorded by the KYC platform (earliest across the client's KYC records).}
+  relationship_start_date: {type: DATE, comment: "Earliest evidence of the banking relationship: KYC customer-since, first account opening, first facility origination or first CRM coverage."}
+  esg_rating: {type: STRING, comment: "ESG risk derived in gold as of 30-Sep-2026: High = carbon-intensive subsector with an ESG-controversy news item in the last 12 months, Medium = one of the two, Low = neither."}
+  source_systems_present: {type: ARRAY<STRING>, comment: Identity source systems holding a record of this client (array; see source_systems_text).}
+  source_systems_text: {type: STRING, comment: "Source systems as one comma-separated string (e.g. ext_company_master, kyc_customer, core_customer)."}
+  n_source_records: {type: INT, comment: Source identity records resolved to the client (duplicates within a source included).}
+  golden_record_confidence: {type: DOUBLE, comment: "0-1 confidence of the golden record: 0.5 link strength + 0.25 source coverage + 0.25 id agreement."}
+  golden_created_date: {type: DATE, comment: Date of the entity-resolution run that issued the golden id.}
+checks:
+  - name: display_name_unique
+    sql: SELECT count(*) - count(DISTINCT display_name) FROM ${table} WHERE is_current
+  - name: every_golden_client_covered
+    sql: >-
+      SELECT count(*) FROM ${catalog}.silver.client_golden_identity g
+      LEFT ANTI JOIN ${table} d ON d.golden_client_id = g.golden_client_id AND d.is_current
+  - name: covered_from_first_month     # version 1 starts at the client's first month (relationship start, floored at history start)
+    sql: >-
+      SELECT count_if(valid_from <> least(trunc(greatest(coalesce(relationship_start_date, DATE'${history_start}'),
+      DATE'${history_start}'), 'MM'), trunc(DATE'${as_of_date}', 'MM'))) FROM ${table} WHERE version_no = 1
+  - name: versions_start_on_month_starts
+    sql: SELECT count_if(day(valid_from) <> 1 OR (NOT is_current AND valid_to <> last_day(valid_to))) FROM ${table}
+  - name: sk_formula
+    sql: SELECT count_if(golden_client_sk <> CAST(regexp_extract(golden_client_id, '([0-9]+)$', 1) AS BIGINT) * 1000 + version_no OR version_no >= 1000) FROM ${table}
+  - name: static_attributes_constant   # identity / classification never vary across a client's versions
+    sql: >-
+      SELECT count(*) FROM (SELECT golden_client_id FROM ${table} GROUP BY golden_client_id
+      HAVING count(DISTINCT legal_name) > 1 OR count(DISTINCT segment) > 1 OR count(DISTINCT relationship_tier) > 1
+      OR count(DISTINCT coverage_office) > 1 OR count(DISTINCT industry_subsector) > 1)
+  - name: segment_tier_industry_complete   # unmatched single-record clients without a group have no evidence
+    sql: >-
+      SELECT count_if(client_group_id IS NOT NULL AND (segment IS NULL OR relationship_tier IS NULL OR industry_sector IS NULL))
+      + count_if(coverage_office IS NULL) FROM ${table}
+reconcile:
+  - name: current_versions_vs_golden_clients
+    gold: SELECT count(*) FROM ${table} WHERE is_current
+    silver: SELECT count(*) FROM ${catalog}.silver.client_golden_identity

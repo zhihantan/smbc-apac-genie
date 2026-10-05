@@ -1,0 +1,277 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the balance month-end as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the balance month-end, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office of the account holder (ISO-2). For deposits it always equals Booking Country - prefer Booking Country in deposit questions.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location of the deposit account, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" in deposit questions means this.",
+   "is_measure": false,
+   "name": "Booking Country",
+   "type": "string"
+  },
+  {
+   "comment": "Deposit product: Current Account and Savings Account (together CASA) or Time Deposit and Money Market Deposit (together time deposits, TD).",
+   "is_measure": false,
+   "name": "Account Type",
+   "type": "string"
+  },
+  {
+   "comment": "ISO 4217 currency of the account (e.g. USD, SGD, HKD, JPY); all measures are converted to USD at month-end FX.",
+   "is_measure": false,
+   "name": "Currency",
+   "type": "string"
+  },
+  {
+   "comment": "Time to the next maturity of the account's live time-deposit placements at the month-end: 0-30 days, 31-90 days, 91-180 days, 181-365 days, Over 365 days, No live TD; null for CASA accounts.",
+   "is_measure": false,
+   "name": "TD Maturity Bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Rank of the account holder (legal entity) by total month-end deposits in its booking country (1 = largest); filter <= 10 for the top-10 depositors of a country at one month-end.",
+   "is_measure": false,
+   "name": "Depositor Rank in Country",
+   "type": "int"
+  },
+  {
+   "comment": "Total deposit balance at the month-end in USD (CASA + time deposits). Point-in-time: for a quarter, half or fiscal year it is the balance at the last month-end in the selection, never a sum of months.",
+   "is_measure": true,
+   "name": "End of Month Balance USD",
+   "type": "double"
+  },
+  {
+   "comment": "Current and savings account (CASA) balance at the month-end in USD - the operating, low-cost deposits. Point-in-time (last month-end of the selection).",
+   "is_measure": true,
+   "name": "CASA Balance USD",
+   "type": "double"
+  },
+  {
+   "comment": "Time and money-market deposit balance at the month-end in USD. Point-in-time (last month-end of the selection).",
+   "is_measure": true,
+   "name": "Time Deposit Balance USD",
+   "type": "double"
+  },
+  {
+   "comment": "CASA balance / total deposits at the same month-end (fraction: 0.60 = 60%). Ratio of two point-in-time measures, so it is correct at any grain (country, segment, group, month).",
+   "is_measure": true,
+   "name": "CASA Ratio %",
+   "type": "double"
+  },
+  {
+   "comment": "Average daily deposit balance in USD: for one month the month's average daily balance; for a longer period the mean of its monthly averages. Use when the user says \"average balance\".",
+   "is_measure": true,
+   "name": "Average Balance USD",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities (golden clients) with a positive deposit balance at the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Depositors",
+   "type": "bigint"
+  },
+  {
+   "comment": "Deposit accounts open at the month-end (point-in-time count).",
+   "is_measure": true,
+   "name": "Accounts",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of deposits held by the 10 largest depositors (legal entities) of each booking country at the month-end (fraction). Group by Booking Country for the per-country concentration.",
+   "is_measure": true,
+   "name": "Top-10 Depositor Concentration %",
+   "type": "double"
+  },
+  {
+   "comment": "CASA balance at the previous month-end in USD (Month = Sep 2026 gives 31-Aug-2026). Filter the order field Month (or Fiscal Year / Quarter / Half) - filters on other fields apply before the window.",
+   "is_measure": true,
+   "name": "CASA Balance Prior Month USD",
+   "type": "double"
+  },
+  {
+   "comment": "CASA balance at the month-end minus the previous month-end, USD (negative = outflow), e.g. Sep 2026 vs Aug 2026. For a single month it equals CASA Movement USD.",
+   "is_measure": true,
+   "name": "CASA Change vs Prior Month USD",
+   "type": "double"
+  },
+  {
+   "comment": "Total deposits at the same month-end one year earlier in USD (Month = Sep 2026 gives 30-Sep-2025); point-in-time.",
+   "is_measure": true,
+   "name": "End of Month Balance Prior Year USD",
+   "type": "double"
+  },
+  {
+   "comment": "Year-on-year change of total deposits at the month-end (fraction: 0.05 = +5%); \"balances held steady\" means roughly -10% to +10%.",
+   "is_measure": true,
+   "name": "Balance YoY %",
+   "type": "double"
+  },
+  {
+   "comment": "Net change of CASA balances over the selected months in USD (negative = outflow): month-end of the last selected month minus the month-end before the first, e.g. Fiscal Quarter FY2026-Q2 = 30-Sep-2026 minus 30-Jun-2026. A flow - it adds up over months.",
+   "is_measure": true,
+   "name": "CASA Movement USD",
+   "type": "double"
+  },
+  {
+   "comment": "Net change of all deposits (CASA + TD) over the selected months in USD. Compare with CASA Movement: CASA outflow with flat total deposits moved to time deposits; a negative total left the bank. A flow.",
+   "is_measure": true,
+   "name": "Deposit Movement USD",
+   "type": "double"
+  },
+  {
+   "comment": "Principal moved from clients' current accounts into time deposits during the selected months, USD (CASA outflow that stayed with the bank). A flow.",
+   "is_measure": true,
+   "name": "Transferred to TD USD",
+   "type": "double"
+  },
+  {
+   "comment": "Principal of live time-deposit placements maturing within 90 days after the month-end, USD (at Is Latest Month: maturing by 29-Dec-2026). Point-in-time (last month-end of the selection).",
+   "is_measure": true,
+   "name": "TD Maturing Next 90D USD",
+   "type": "double"
+  },
+  {
+   "comment": "Principal of time deposits placed during the selected months, USD - new money, rollovers and transfers from current accounts (a flow).",
+   "is_measure": true,
+   "name": "TD Placed USD",
+   "type": "double"
+  },
+  {
+   "comment": "Principal of time deposits that matured during the selected months, USD (a flow).",
+   "is_measure": true,
+   "name": "TD Matured USD",
+   "type": "double"
+  },
+  {
+   "comment": "Principal-weighted interest rate of the time-deposit placements live at the month-end (fraction p.a.; 0.032 = 3.2%). Point-in-time (last month-end of the selection).",
+   "is_measure": true,
+   "name": "TD Weighted Rate %",
+   "type": "double"
+  }
+ ],
+ "comment": "Deposit balances of SMBC's APAC clients at each month-end, Apr-2023 to Sep-2026 (current, savings, time and money-market accounts, USD): month-end, CASA and time-deposit balances, CASA ratio, average balance, depositors, top-10 depositor concentration, prior-month and prior-year balances, monthly movements and the time deposits maturing in the next 90 days. Balances are POINT-IN-TIME: never sum them across months - group by Month, or filter one Month (Is Latest Month = Sep 2026); any longer period (quarter, half, fiscal year) returns its last month-end. Movement and transfer measures are flows and add up over months. Grain: one row per deposit account per month-end (gold.fact_deposit_balance_monthly).",
+ "identifier": "smbc_genie.metrics.mv_tb_deposits",
+ "type": "METRIC_VIEW"
+}

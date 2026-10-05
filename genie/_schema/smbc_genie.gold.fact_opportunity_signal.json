@@ -1,0 +1,307 @@
+{
+ "columns": [
+  {
+   "comment": "Signal id (CRM signal engine).",
+   "is_measure": false,
+   "name": "signal_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the signal was detected.",
+   "is_measure": false,
+   "name": "detected_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of detection.",
+   "is_measure": false,
+   "name": "signal_month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account id (source record of the CRM platform) the row was recorded against.",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Signal type code; join to gold.dim_signal_type (e.g. FX_FLOW_VIA_OTHER_BANK, DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH, CAPEX_NEWS).",
+   "is_measure": false,
+   "name": "signal_code",
+   "type": "string"
+  },
+  {
+   "comment": "Signal type name, e.g. Deposit surplus.",
+   "is_measure": false,
+   "name": "signal_name",
+   "type": "string"
+  },
+  {
+   "comment": "Signal category: Wallet Leakage, Liquidity, Growth, Sustainability, Refinancing, Peer Gap or News.",
+   "is_measure": false,
+   "name": "signal_category",
+   "type": "string"
+  },
+  {
+   "comment": "Opportunity for every CRM signal (risk signals live in the EWS facts).",
+   "is_measure": false,
+   "name": "polarity",
+   "type": "string"
+  },
+  {
+   "comment": "Data quadrant behind the signal: Internal Quantitative or External Qualitative.",
+   "is_measure": false,
+   "name": "source_quadrant",
+   "type": "string"
+  },
+  {
+   "comment": "signal_engine (behavioural rules on internal data) or news_alerts.",
+   "is_measure": false,
+   "name": "detection_engine",
+   "type": "string"
+  },
+  {
+   "comment": "Signal strength 0-1 from the detection rule.",
+   "is_measure": false,
+   "name": "strength",
+   "type": "double"
+  },
+  {
+   "comment": "Confidence 0-1 that the opportunity is real - average it.",
+   "is_measure": false,
+   "name": "confidence",
+   "type": "double"
+  },
+  {
+   "comment": "Estimated annual revenue in USD if the opportunity is won. Additive.",
+   "is_measure": false,
+   "name": "estimated_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Observed amount behind the signal in USD: FX flow routed via other banks (12 months), surplus deposit, maturing facility amount, corridor value, supplier spend.",
+   "is_measure": false,
+   "name": "observed_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Rule metric that fired (e.g. corridor growth rate, surplus ratio, peer penetration gap).",
+   "is_measure": false,
+   "name": "metric_value",
+   "type": "double"
+  },
+  {
+   "comment": "Currency pair of the FX flow for FX_FLOW_VIA_OTHER_BANK (e.g. USD/JPY, USD/VND); null otherwise.",
+   "is_measure": false,
+   "name": "currency_pair",
+   "type": "string"
+  },
+  {
+   "comment": "Trade corridor origin country (ISO-2) for TRADE_CORRIDOR_GROWTH; null otherwise.",
+   "is_measure": false,
+   "name": "corridor_origin",
+   "type": "string"
+  },
+  {
+   "comment": "Trade corridor destination country (ISO-2) for TRADE_CORRIDOR_GROWTH, e.g. VN or IN; null otherwise.",
+   "is_measure": false,
+   "name": "corridor_destination",
+   "type": "string"
+  },
+  {
+   "comment": "Reference of the underlying object (facility, news item, competitor bank).",
+   "is_measure": false,
+   "name": "related_ref",
+   "type": "string"
+  },
+  {
+   "comment": "Product the signal recommends (CRM sales product, e.g. FX Forward Programme, Time Deposit).",
+   "is_measure": false,
+   "name": "recommended_product",
+   "type": "string"
+  },
+  {
+   "comment": "dim_product key (PRD-<NAME>) of the recommended product.",
+   "is_measure": false,
+   "name": "recommended_product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product family of the recommended product.",
+   "is_measure": false,
+   "name": "recommended_product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Short explanation of what was observed.",
+   "is_measure": false,
+   "name": "signal_detail",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the RM owning the signal.",
+   "is_measure": false,
+   "name": "owner_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Employee id of the RM owning the signal; join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "owner_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "Status in the CRM: New, Actioned, Converted or Dismissed.",
+   "is_measure": false,
+   "name": "source_status",
+   "type": "string"
+  },
+  {
+   "comment": "Lifecycle status: Open (New or Actioned), In Pipeline (converted to an opportunity) or Dismissed.",
+   "is_measure": false,
+   "name": "signal_status",
+   "type": "string"
+  },
+  {
+   "comment": "True while the signal is open (not converted, not dismissed) at the as-of date - Open Signals.",
+   "is_measure": false,
+   "name": "is_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when an RM has acted on the signal (actioned_date set); false = not actioned by an RM.",
+   "is_measure": false,
+   "name": "is_actioned",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date of the latest status change.",
+   "is_measure": false,
+   "name": "status_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the RM first acted on the signal; null if never.",
+   "is_measure": false,
+   "name": "actioned_date",
+   "type": "date"
+  },
+  {
+   "comment": "Who actioned the signal.",
+   "is_measure": false,
+   "name": "actioned_by",
+   "type": "string"
+  },
+  {
+   "comment": "Days from detection to the first RM action; null when not actioned.",
+   "is_measure": false,
+   "name": "action_lag_days",
+   "type": "int"
+  },
+  {
+   "comment": "Reason the signal was dismissed; null otherwise.",
+   "is_measure": false,
+   "name": "dismissed_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Pipeline opportunity created from the signal (fact_pipeline_opportunity.opportunity_id).",
+   "is_measure": false,
+   "name": "linked_opportunity_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when the signal produced a pipeline opportunity - Converted to Pipeline %.",
+   "is_measure": false,
+   "name": "is_converted_to_pipeline",
+   "type": "boolean"
+  },
+  {
+   "comment": "Stage of the linked opportunity at the as-of date (Prospecting ... Won / Lost).",
+   "is_measure": false,
+   "name": "linked_opportunity_stage",
+   "type": "string"
+  },
+  {
+   "comment": "True when the linked opportunity was won.",
+   "is_measure": false,
+   "name": "is_linked_opportunity_won",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days the signal has been (or was) open: to the as-of date for open signals, else to the status date - Days Open Average.",
+   "is_measure": false,
+   "name": "days_open",
+   "type": "int"
+  },
+  {
+   "comment": "Days from detection to the as-of date 30-Sep-2026.",
+   "is_measure": false,
+   "name": "days_since_detected",
+   "type": "int"
+  },
+  {
+   "comment": "True for signals detected in the 60 days to the as-of date (dim_threshold DEPOSIT_SURPLUS_LOOKBACK_DAYS).",
+   "is_measure": false,
+   "name": "is_last_60_days",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client holds a time deposit, money-market or investment (Liquidity) product at the as-of month-end.",
+   "is_measure": false,
+   "name": "client_holds_td_or_investment",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has an open lending / refinancing opportunity (Corporate Lending or Sustainable Finance) in the pipeline at the as-of date.",
+   "is_measure": false,
+   "name": "client_has_open_lending_opportunity",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Opportunity signals (Opportunity Identification, mv_opportunity_signals): one row per signal the CRM signal engine or news alerts raised on a client from May-2024 to Sep-2026 - FX_FLOW_VIA_OTHER_BANK, LOAN_SERVICE_TO_OTHER_BANK, DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH, SCF_ANCHOR_CANDIDATE, SLL_ELIGIBLE, FACILITY_MATURING_12M, PRODUCT_GAP_VS_PEERS, CAPEX_NEWS and MA_NEWS - derived from real behaviour (payments to other banks, deposit balances, trade corridors, maturities, peer gaps, news), with estimated annual revenue, confidence, lifecycle status (Open, In Pipeline, Dismissed), RM action and lag, the linked pipeline opportunity and precomputed flags. \"Open opportunities\" in Genie questions means open signals unless the user says pipeline. Converted to Pipeline % = signals with a linked opportunity / signals (D21). Grain: one row per opportunity signal.",
+ "identifier": "smbc_genie.gold.fact_opportunity_signal",
+ "type": "MANAGED"
+}

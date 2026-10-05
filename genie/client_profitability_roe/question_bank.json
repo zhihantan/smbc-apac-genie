@@ -1,0 +1,1237 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 40,
+      "columns": [
+        "list",
+        "client_group",
+        "roe",
+        "median_client_roe",
+        "revenue_usd",
+        "allocated_capital_usd",
+        "credit_cost_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Top 20",
+          "Luzon Beverages",
+          "16.371053539663595",
+          "0.9874783113471217",
+          "1108036.9299999997",
+          "37336.151666666665",
+          "379.51"
+        ],
+        [
+          "Top 20",
+          "Irrawaddy Logistics",
+          "15.912253704080152",
+          "1.0",
+          "3314875.829999999",
+          "95876.02999999998",
+          "438.54"
+        ],
+        [
+          "Top 20",
+          "Kazami Devices",
+          "14.186817803855579",
+          "1.0",
+          "2.811850305E7",
+          "1624363.0233333334",
+          "14347.979999999998"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d73149429b5bcd7b",
+      "sorted_by": null
+    },
+    "Q1b": {
+      "rows": 40,
+      "columns": [
+        "list",
+        "client_group",
+        "roe",
+        "median_client_roe",
+        "revenue_usd",
+        "allocated_capital_usd",
+        "credit_cost_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Top 20",
+          "Kazami Devices",
+          "14.186817803855579",
+          "1.0",
+          "2.811850305E7",
+          "1624363.0233333334",
+          "14347.979999999998"
+        ],
+        [
+          "Top 20",
+          "Oedo Electronics",
+          "3.6375211071957705",
+          "0.5617822531378448",
+          "3.180345093000001E7",
+          "6988459.129999999",
+          "419300.69999999995"
+        ],
+        [
+          "Top 20",
+          "Oribe Marine Logistics",
+          "1.9278678574628012",
+          "1.0",
+          "1.6120129049999999E7",
+          "6216768.024999999",
+          "41564.69"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "66fa0aba28fd4527",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 38,
+      "columns": [
+        "Client",
+        "Client Group",
+        "Coverage Office",
+        "Primary RM",
+        "rorwa_latest_quarter",
+        "rorwa_hurdle",
+        "rwa_usd",
+        "revenue_sep_2026_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Yamabe Marine Logistics Trading (Singapore) Pte Ltd",
+          "Yamabe Marine Logistics",
+          "SG",
+          "Tomo Putra",
+          "0.004435841322649469",
+          "0.012",
+          "2.274980385E7",
+          "28277.288832280105"
+        ],
+        [
+          "Risdo Auto Parts Trading Co Ltd",
+          "Waratah Consumer Holdings",
+          "TH",
+          "Nguyen Rahman",
+          "0.010961858586537454",
+          "0.012",
+          "2.230452054E7",
+          "31609.849801369583"
+        ],
+        [
+          "Akatsuki Motor Services (Hong Kong) (HK) Ltd",
+          "Akatsuki Motor",
+          "HK",
+          "Ravi Lee",
+          "0.008953113922857888",
+          "0.012",
+          "2.113025274E7",
+          "31621.715834430404"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "5171638d92e17304",
+      "sorted_by": null
+    },
+    "Q2-jargon": {
+      "rows": 38,
+      "columns": [
+        "Client",
+        "Coverage Office",
+        "Primary RM",
+        "rorwa_latest_quarter",
+        "rwa_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Konabe Machinery Pte Ltd",
+          "SG",
+          "Jun Mehta",
+          "0.011190626139485545",
+          "8974225.28"
+        ],
+        [
+          "Risdo Auto Parts Trading Co Ltd",
+          "TH",
+          "Nguyen Rahman",
+          "0.010961858586537454",
+          "2.230452054E7"
+        ],
+        [
+          "Sakaida Materials Group (Hong Kong) (HK) Ltd",
+          "HK",
+          "Aiko Zhang",
+          "0.009691286714381587",
+          "1.227488604E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "29d7b83fc0e77237",
+      "sorted_by": "rorwa_latest_quarter"
+    },
+    "Q2b": {
+      "rows": 38,
+      "columns": [
+        "client",
+        "rorwa_latest_quarter",
+        "top_cross_sell_product",
+        "propensity"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Souma Fibre (Bangkok) PCL",
+          "-0.2719410167304099",
+          "Time Deposit",
+          "0.7744"
+        ],
+        [
+          "Yamabe Machinery Pta Ltd",
+          "-0.2708563051004016",
+          null,
+          null
+        ],
+        [
+          "Shiramine Semiconductor Trading (Jakarta) PT Tbk",
+          "-0.22530187149561728",
+          "Cash Management Mandate",
+          "0.7555"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "a3b3d2c57f4cb871",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 2,
+      "columns": [
+        "Fiscal Year",
+        "revenue_usd",
+        "opex_usd",
+        "credit_cost_usd",
+        "pre_tax_profit_usd",
+        "tax_usd",
+        "net_income_usd",
+        "allocated_capital_usd",
+        "roe",
+        "gap_to_roe_hurdle"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "FY2024",
+          "4922873.910000001",
+          "514712.12",
+          "45433.7",
+          "4362728.09",
+          "904670.2131000002",
+          "3458057.8769000005",
+          "5842794.296666666",
+          "0.5918500123943837",
+          "0.49185001239438375"
+        ],
+        [
+          "FY2025",
+          "4795787.34",
+          "514859.1500000001",
+          "28207.559999999998",
+          "4252720.63",
+          "856070.4849",
+          "3396650.145100001",
+          "3582227.4258333333",
+          "0.9481950030880125",
+          "0.8481950030880125"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "583b2d80a6903f64",
+      "sorted_by": null
+    },
+    "Q3-casual": {
+      "rows": 2,
+      "columns": [
+        "Fiscal Year",
+        "revenue_usd",
+        "net_income_usd",
+        "roe"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "FY2025",
+          "4795787.34",
+          "3396650.145100001",
+          "0.9481950030880125"
+        ],
+        [
+          "FY2024",
+          "4922873.910000001",
+          "3458057.8769000005",
+          "0.5918500123943837"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "de52edb3bbbd0b7d",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 14,
+      "columns": [
+        "Relationship Tier",
+        "Product Family",
+        "revenue_usd",
+        "revenue_mix_share"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Core",
+          "Cash",
+          "5.840048095999998E7",
+          "0.4921692114911448"
+        ],
+        [
+          "Core",
+          "Corporate Lending",
+          "2.4845106279999997E7",
+          "0.20938177505107472"
+        ],
+        [
+          "Core",
+          "Liquidity",
+          "1.935149645999999E7",
+          "0.16308445747930153"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "b2cb75c7b096c641",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 4,
+      "columns": [
+        "Exception Reason",
+        "deals",
+        "amount_usd",
+        "caught_up",
+        "caught_up_rate",
+        "avg_origination_raroc",
+        "avg_realised_raroc"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Competitive Pricing",
+          "22",
+          "1.1561288423E8",
+          "1",
+          "0.045454545454545456",
+          "0.0679909090909091",
+          "-0.07270000000000001"
+        ],
+        [
+          "Cross-sell Commitment",
+          "18",
+          "4.1088531436999995E8",
+          "1",
+          "0.05555555555555555",
+          "0.07530555555555556",
+          "-0.07975555555555555"
+        ],
+        [
+          "Strategic Client",
+          "12",
+          "2.1835797468999997E8",
+          "1",
+          "0.08333333333333333",
+          "0.07406666666666666",
+          "0.015383333333333337"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2e1b8d9468da587b",
+      "sorted_by": null
+    },
+    "Q5b": {
+      "rows": 8,
+      "columns": [
+        "Exception Reason",
+        "Realised Status",
+        "deals",
+        "amount_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Competitive Pricing",
+          "Not yet seasoned",
+          "7",
+          "1.4711309092000002E8"
+        ],
+        [
+          "Competitive Pricing",
+          "Still below hurdle",
+          "9",
+          "2.782567522E7"
+        ],
+        [
+          "Cross-sell Commitment",
+          "Not yet seasoned",
+          "2",
+          "4379590.66"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e81317f2469f36ea",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 75,
+      "columns": [
+        "Coverage Office",
+        "Segment",
+        "net_contribution_h1_fy2026_usd",
+        "net_contribution_h1_fy2025_usd",
+        "change_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AU",
+          null,
+          "-25176.969999999998",
+          "-32643.060000000005",
+          "7466.090000000007"
+        ],
+        [
+          "AU",
+          "Financial Institution",
+          "388970.84",
+          "195450.90000000005",
+          "193519.93999999997"
+        ],
+        [
+          "AU",
+          "Japanese Corporate",
+          "6359171.930000006",
+          "5682761.669999997",
+          "676410.2600000091"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ec62515996765546",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 20,
+      "columns": [
+        "Client Group",
+        "revenue_per_rwa",
+        "average_rwa_usd",
+        "revenue_usd",
+        "rorwa"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Tanaka Chemical",
+          "0.01519456202458256",
+          "2.8187123742500003E7",
+          "428291.0",
+          "0.010345077158771409"
+        ],
+        [
+          "Shiramine Precision Group",
+          "0.020271419828859695",
+          "1768334.4483333332",
+          "35846.65",
+          "-0.005070370035742174"
+        ],
+        [
+          "Narumi Instruments",
+          "0.021842054540967003",
+          "1752809.9258333333",
+          "38284.969999999994",
+          "0.0019464460747949963"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "8cd11068c94fcd7c",
+      "sorted_by": null
+    },
+    "Q7-typo": {
+      "rows": 20,
+      "columns": [
+        "Client Group",
+        "revenue_per_rwa",
+        "average_rwa_usd",
+        "revenue_usd",
+        "rorwa"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Tanaka Chemical",
+          "0.01519456202458256",
+          "2.8187123742500003E7",
+          "428291.0",
+          "0.010345077158771409"
+        ],
+        [
+          "Shiramine Precision Group",
+          "0.020271419828859695",
+          "1768334.4483333332",
+          "35846.65",
+          "-0.005070370035742174"
+        ],
+        [
+          "Narumi Instruments",
+          "0.021842054540967003",
+          "1752809.9258333333",
+          "38284.969999999994",
+          "0.0019464460747949963"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "8cd11068c94fcd7c",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 41,
+      "columns": [
+        "Client",
+        "Client Group",
+        "revenue_usd",
+        "credit_cost_usd",
+        "credit_cost_to_revenue"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Mekong Ventures Partners Trading Pte Ltd",
+          "Mekong Ventures Partners",
+          "368081.99",
+          "495577.76",
+          "1.3463787239359362"
+        ],
+        [
+          "Sabah Energy (Taipei) Co Ltd",
+          "Sabah Energy",
+          "131769.65999999997",
+          "134299.58",
+          "1.0191995638449702"
+        ],
+        [
+          "Palawan Capital Partners Partners (Hong Kong) (HK) Ltd",
+          "Palawan Capital Partners Partners",
+          "339898.38999999996",
+          "307528.1",
+          "0.9047648033872712"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9d0af22e154c6887",
+      "sorted_by": null
+    },
+    "Q9a": {
+      "rows": 6,
+      "columns": [
+        "Segment",
+        "products_per_client",
+        "median_client_rorwa",
+        "clients"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Japanese Corporate",
+          "7.695304695304696",
+          "0.01405349834576027",
+          "1001"
+        ],
+        [
+          "Sponsor & Structured Finance",
+          "7.453389830508475",
+          "0.010369377166607215",
+          "236"
+        ],
+        [
+          "Financial Institution",
+          "7.425531914893617",
+          "0.022048157599895805",
+          "141"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "80ef0432df01de5c",
+      "sorted_by": null
+    },
+    "Q9b": {
+      "rows": 6,
+      "columns": [
+        "Product Count Bucket",
+        "clients",
+        "median_client_rorwa",
+        "portfolio_rorwa",
+        "clients_below_hurdle"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "0 products",
+          "6",
+          null,
+          null,
+          "4"
+        ],
+        [
+          "1 product",
+          "106",
+          "-0.013137432300158285",
+          "0.012763756093117348",
+          "62"
+        ],
+        [
+          "2 products",
+          "63",
+          "0.00474463431505665",
+          "0.012090780525292284",
+          "16"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "3e6a9ce55abf9cb4",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 9,
+      "columns": [
+        "Primary RM",
+        "revenue_fytd_usd",
+        "average_rwa_usd",
+        "rorwa",
+        "clients"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Wei Tan",
+          "4166858.800000002",
+          "1.5141772378166667E8",
+          "0.019856211577551342",
+          "23"
+        ],
+        [
+          "Tomo Putra",
+          "2012531.6600000013",
+          "3.094505569333333E7",
+          "0.024290082637076462",
+          "21"
+        ],
+        [
+          "Nguyen Tan",
+          "1821071.2900000007",
+          "2519675.11",
+          "0.11422387706167403",
+          "16"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1be90801eb4f790e",
+      "sorted_by": null
+    },
+    "Q10-abbrev": {
+      "rows": 9,
+      "columns": [
+        "Primary RM",
+        "revenue_fytd_usd",
+        "average_rwa_usd",
+        "rorwa",
+        "clients"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Wei Tan",
+          "4166858.800000002",
+          "1.5141772378166667E8",
+          "0.019856211577551342",
+          "23"
+        ],
+        [
+          "Tomo Putra",
+          "2012531.6600000013",
+          "3.094505569333333E7",
+          "0.024290082637076462",
+          "21"
+        ],
+        [
+          "Nguyen Tan",
+          "1821071.2900000007",
+          "2519675.11",
+          "0.11422387706167403",
+          "16"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1be90801eb4f790e",
+      "sorted_by": null
+    },
+    "X1": {
+      "rows": 1,
+      "columns": [
+        "relationship_exceptions",
+        "caught_up"
+      ],
+      "types": [
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "9",
+          "3"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1023350361ec18e7",
+      "sorted_by": null
+    },
+    "X2": {
+      "rows": 1,
+      "columns": [
+        "revenue_h1_fy2026_usd",
+        "revenue_h1_fy2025_usd",
+        "revenue_yoy"
+      ],
+      "types": [
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "4154671.32",
+          "5427774.939999996",
+          "-0.23455350195489078"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ffea7153c5630e5e",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_client_profitability",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-04-01",
+      "last": "2026-09-01",
+      "periods": 30
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_roe_waterfall",
+      "type": "METRIC_VIEW",
+      "field": "Fiscal Year",
+      "first": "FY2024",
+      "last": "FY2026",
+      "periods": 3
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_deal_pricing",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2023-04-01",
+      "last": "2026-05-31",
+      "periods": 541
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_next_best_product",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2026-04-01",
+      "last": "2026-09-01",
+      "periods": 6
+    },
+    {
+      "asset": "smbc_genie.gold.dim_threshold",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:36:52+00:00",
+  "questions_captured_at": "2026-10-04T15:41:31+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "Top and bottom 20 client groups by ROE in FY2025, with revenue, capital and credit cost.",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH g AS (\n  SELECT `Client Group`,\n         MEASURE(`ROE %`)                 AS roe,\n         MEASURE(`Median Client ROE %`)   AS median_client_roe,\n         MEASURE(`Revenue USD`)           AS revenue_usd,\n         MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n         MEASURE(`Credit Cost USD`)       AS credit_cost_usd\n  FROM smbc_genie.metrics.mv_roe_waterfall\n  WHERE `Fiscal Year` = :fiscal_year AND `Client Group` IS NOT NULL\n  GROUP BY ALL\n  HAVING MEASURE(`Allocated Capital USD`) > CAST(:min_capital_usd AS DOUBLE)\n), r AS (\n  SELECT g.*, rank() OVER (ORDER BY roe DESC) AS top_rank, rank() OVER (ORDER BY roe ASC) AS bottom_rank FROM g\n)\nSELECT CASE WHEN top_rank <= 20 THEN 'Top 20' ELSE 'Bottom 20' END AS list, `Client Group` AS client_group, roe,\n       median_client_roe, revenue_usd, allocated_capital_usd, credit_cost_usd\nFROM r\nWHERE top_rank <= 20 OR bottom_rank <= 20\nORDER BY roe DESC",
+      "genie_parameters": [
+        {
+          "keyword": "fiscal_year",
+          "value": "FY2025",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "min_capital_usd",
+          "value": "0",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "list",
+        "client_group",
+        "roe",
+        "median_client_roe",
+        "revenue_usd",
+        "allocated_capital_usd",
+        "credit_cost_usd"
+      ],
+      "genie_rows": 40,
+      "seconds": 22.7,
+      "asked_at": "2026-10-04T14:36:52+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which Japanese-corporate relationships are single-product lending with RoRWA below the hurdle, and what cross-sell would lift them?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2b",
+      "verdict": "match",
+      "note": "matches Q2b: same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH b AS (\n  SELECT `Client`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Month` = :month AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\n  GROUP BY ALL\n), n AS (\n  SELECT `Client`, `Product`, MEASURE(`Max Propensity`) AS propensity\n  FROM smbc_genie.metrics.mv_next_best_product\n  WHERE `Month` = :month AND `Is Cross-Sell`\n  GROUP BY ALL\n)\nSELECT b.`Client` AS client, b.rorwa_latest_quarter, max_by(n.`Product`, n.propensity) AS top_cross_sell_product,\n       max(n.propensity) AS propensity\nFROM b LEFT JOIN n ON n.`Client` = b.`Client`\nGROUP BY ALL\nORDER BY b.rorwa_latest_quarter",
+      "genie_parameters": [
+        {
+          "keyword": "month",
+          "value": "2026-09-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "client",
+        "rorwa_latest_quarter",
+        "top_cross_sell_product",
+        "propensity"
+      ],
+      "genie_rows": 38,
+      "seconds": 19.8,
+      "asked_at": "2026-10-04T14:37:15+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "ROE waterfall for the Hayashi Marine Logistics group, FY2024 vs FY2025.",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Fiscal Year`,\n       MEASURE(`Revenue USD`)           AS revenue_usd,\n       MEASURE(`Opex USD`)              AS opex_usd,\n       MEASURE(`Credit Cost USD`)       AS credit_cost_usd,\n       MEASURE(`Pre-Tax Profit USD`)    AS pre_tax_profit_usd,\n       MEASURE(`Tax USD`)               AS tax_usd,\n       MEASURE(`Net Income USD`)        AS net_income_usd,\n       MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n       MEASURE(`ROE %`)                 AS roe,\n       MEASURE(`Hurdle Gap pts`)        AS gap_to_roe_hurdle\nFROM smbc_genie.metrics.mv_roe_waterfall\nWHERE `Client Group` = :client_group AND `Fiscal Year` IN (:fiscal_year_a, :fiscal_year_b)\nGROUP BY ALL\nORDER BY `Fiscal Year`",
+      "genie_parameters": [
+        {
+          "keyword": "client_group",
+          "value": "Hayashi Marine Logistics",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "fiscal_year_a",
+          "value": "FY2024",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "fiscal_year_b",
+          "value": "FY2025",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Fiscal Year",
+        "revenue_usd",
+        "opex_usd",
+        "credit_cost_usd",
+        "pre_tax_profit_usd",
+        "tax_usd",
+        "net_income_usd",
+        "allocated_capital_usd",
+        "roe",
+        "gap_to_roe_hurdle"
+      ],
+      "genie_rows": 2,
+      "seconds": 20.6,
+      "asked_at": "2026-10-04T14:37:36+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Now show the same waterfall for the Kinokawa Precision group.",
+      "after": "S3",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (2 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Fiscal Year`,\n       MEASURE(`Revenue USD`)           AS revenue_usd,\n       MEASURE(`Opex USD`)              AS opex_usd,\n       MEASURE(`Credit Cost USD`)       AS credit_cost_usd,\n       MEASURE(`Pre-Tax Profit USD`)    AS pre_tax_profit_usd,\n       MEASURE(`Tax USD`)               AS tax_usd,\n       MEASURE(`Net Income USD`)        AS net_income_usd,\n       MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n       MEASURE(`ROE %`)                 AS roe,\n       MEASURE(`Hurdle Gap pts`)        AS gap_to_roe_hurdle\nFROM smbc_genie.metrics.mv_roe_waterfall\nWHERE `Client Group` = :client_group AND `Fiscal Year` IN (:fiscal_year_a, :fiscal_year_b)\nGROUP BY ALL\nORDER BY `Fiscal Year`",
+      "genie_parameters": [
+        {
+          "keyword": "client_group",
+          "value": "Kinokawa Precision",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "fiscal_year_a",
+          "value": "FY2024",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "fiscal_year_b",
+          "value": "FY2025",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Fiscal Year",
+        "revenue_usd",
+        "opex_usd",
+        "credit_cost_usd",
+        "pre_tax_profit_usd",
+        "tax_usd",
+        "net_income_usd",
+        "allocated_capital_usd",
+        "roe",
+        "gap_to_roe_hurdle"
+      ],
+      "genie_rows": 2,
+      "seconds": 21.5,
+      "asked_at": "2026-10-04T15:40:44+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "Revenue mix by product family for Strategic clients vs Core clients.",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": "Q4",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH r AS (\n  SELECT `Relationship Tier`, `Product Family`, MEASURE(`Total Revenue USD`) AS revenue_usd\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Fiscal Year` = :fiscal_year AND `Relationship Tier` IN (:tier_a, :tier_b)\n  GROUP BY ALL\n)\nSELECT `Relationship Tier`, `Product Family`, revenue_usd,\n       try_divide(revenue_usd,SUM(revenue_usd) OVER (PARTITION BY `Relationship Tier`)) AS revenue_mix_share\nFROM r\nORDER BY `Relationship Tier`, revenue_usd DESC",
+      "genie_parameters": [
+        {
+          "keyword": "tier_a",
+          "value": "Strategic",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "tier_b",
+          "value": "Core",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "fiscal_year",
+          "value": "FY2026",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Relationship Tier",
+        "Product Family",
+        "revenue_usd",
+        "revenue_mix_share"
+      ],
+      "genie_rows": 14,
+      "seconds": 17.8,
+      "asked_at": "2026-10-04T14:37:57+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Deals approved below hurdle in the last 4 quarters - by exception reason and whether realised RAROC caught up.",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": "Q5",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_profitability_deal_exceptions`(fiscal_year => 'FY2025', exception_reason => 'ALL')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Exception Reason",
+        "deals",
+        "amount_usd",
+        "caught_up",
+        "caught_up_rate",
+        "avg_origination_raroc",
+        "avg_realised_raroc"
+      ],
+      "genie_rows": 4,
+      "seconds": 16.0,
+      "asked_at": "2026-10-04T14:38:15+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Net contribution by coverage office and segment, H1 FY2026 vs H1 FY2025.",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH n AS (\n  SELECT `Coverage Office`, `Segment`, `Fiscal Half`, MEASURE(`Net Contribution USD`) AS net_contribution_usd\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Fiscal Half` IN (:fiscal_half, :prior_fiscal_half)\n  GROUP BY ALL\n)\nSELECT `Coverage Office`, `Segment`,\n       SUM(CASE WHEN `Fiscal Half` = :fiscal_half THEN net_contribution_usd END)       AS net_contribution_usd,\n       SUM(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN net_contribution_usd END) AS net_contribution_prior_usd,\n       SUM(CASE WHEN `Fiscal Half` = :fiscal_half THEN net_contribution_usd ELSE -net_contribution_usd END) AS change_usd\nFROM n\nGROUP BY ALL\nORDER BY `Coverage Office`, `Segment`",
+      "genie_parameters": [
+        {
+          "keyword": "fiscal_half",
+          "value": "FY2026-H1",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "prior_fiscal_half",
+          "value": "FY2025-H1",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Coverage Office",
+        "Segment",
+        "net_contribution_usd",
+        "net_contribution_prior_usd",
+        "change_usd"
+      ],
+      "genie_rows": 75,
+      "seconds": 19.5,
+      "asked_at": "2026-10-04T14:38:32+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA)?",
+      "after": null,
+      "benchmark": "Q7",
+      "matched": "Q7",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM (\n  SELECT `Client Group`,\n         MEASURE(`Revenue per RWA %`) AS revenue_per_rwa,\n         MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n         MEASURE(`Total Revenue USD`) AS revenue_usd,\n         MEASURE(`RoRWA %`)           AS rorwa\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Fiscal Year` = :fiscal_year\n  GROUP BY ALL\n) WHERE average_rwa_usd > 0\nORDER BY revenue_per_rwa ASC\nLIMIT 20",
+      "genie_parameters": [
+        {
+          "keyword": "fiscal_year",
+          "value": "FY2025",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client Group",
+        "revenue_per_rwa",
+        "average_rwa_usd",
+        "revenue_usd",
+        "rorwa"
+      ],
+      "genie_rows": 20,
+      "seconds": 18.0,
+      "asked_at": "2026-10-04T14:38:51+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong.",
+      "after": null,
+      "benchmark": "Q10",
+      "matched": "Q10",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_profitability_rm_summary`(rm_office => 'Hong Kong', fiscal_year => 'FY2026')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Primary RM",
+        "revenue_fytd_usd",
+        "average_rwa_usd",
+        "rorwa",
+        "clients"
+      ],
+      "genie_rows": 9,
+      "seconds": 17.3,
+      "asked_at": "2026-10-04T14:39:10+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "safer",
+      "id": "Q10-abbrev",
+      "question": "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong this fiscal year, with the number of clients.",
+      "after": null,
+      "benchmark": "Q10-abbrev",
+      "matched": "Q10-abbrev",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_profitability_rm_summary`(rm_office => 'Hong Kong', fiscal_year => 'FY2026')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Primary RM",
+        "revenue_fytd_usd",
+        "average_rwa_usd",
+        "rorwa",
+        "clients"
+      ],
+      "genie_rows": 9,
+      "seconds": 24.5,
+      "asked_at": "2026-10-04T15:41:06+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "client_profitability_roe",
+  "space_id": "my-agent-id"
+}

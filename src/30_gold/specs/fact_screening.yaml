@@ -1,0 +1,42 @@
+table: fact_screening
+domain: onboarding
+comment: >-
+  Name-screening alerts (brief 5.6), Apr-2024 to Sep-2026: one row per alert raised by onboarding screening of
+  an applicant or ongoing screening of a KYC client against a list (UN / EU / UK HMT / US OFAC SDN sanctions,
+  PEP database, adverse media, internal and local-regulator watchlists), with hit type, true-match flag,
+  disposition and resolution hours. True-match rate = COUNT_IF(is_true_match) / COUNT(*); average resolution
+  hours = AVG(resolution_hours).
+grain: one row per screening alert
+primary_key: [screening_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [screening_date], references: dim_date}
+  - {columns: [resolved_by], references: dim_employee}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [screening_date, golden_client_sk]
+min_rows: 10000
+columns:
+  screening_id: {type: STRING, comment: "Screening alert id (SCR-nnnnnnn)."}
+  screening_date: {type: DATE, comment: "Date the alert was raised."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the screened client on the screening date (null for applicants that never became clients)."}
+  golden_client_id: {type: STRING, comment: "Golden client screened (null for applicants that never became clients)."}
+  client_group_id: {type: STRING}
+  subject_ref: {type: STRING, comment: "Screened subject: KYC customer id (ongoing) or applicant id (onboarding)."}
+  case_id: {type: STRING, comment: "Onboarding case of an onboarding-screening alert (null for ongoing screening)."}
+  screening_context: {type: STRING, comment: "Onboarding (applicant screening) or Ongoing (periodic re-screening of clients)."}
+  list_name: {type: STRING, comment: "List hit: UN Sanctions, EU Sanctions, UK HMT Sanctions, US OFAC SDN, PEP Database, Adverse Media, Internal Watchlist or Local Regulator Watchlist."}
+  list_category: {type: STRING, comment: "List family: Sanctions, PEP, Adverse Media or Watchlist."}
+  hit_type: {type: STRING, comment: "How the name matched: Exact Name Match, Alias Match, Fuzzy Name Match or Partial Name Match."}
+  is_true_match: {type: BOOLEAN, comment: "True when the alert was confirmed as a true match (false = false positive cleared)."}
+  disposition: {type: STRING, comment: "Outcome: False Positive - Cleared, True Match - Escalated, True Match - EDD Applied or True Match - Rejected."}
+  resolution_hours: {type: DOUBLE, comment: "Hours from alert to resolution."}
+  resolved_by: {type: STRING, comment: "Officer who resolved the alert (employee_id)."}
+  booking_country: {type: STRING, comment: "Booking location of the screened client / case (ISO-2)."}
+  segment: {type: STRING}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_screening WHERE screening_date <= DATE'${as_of_date}'
+  - name: true_matches_vs_silver
+    gold: SELECT count_if(is_true_match) FROM ${table}
+    silver: SELECT count_if(is_true_match) FROM ${catalog}.silver.kyc_screening WHERE screening_date <= DATE'${as_of_date}'

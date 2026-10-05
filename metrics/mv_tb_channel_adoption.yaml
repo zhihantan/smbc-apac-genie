@@ -1,0 +1,156 @@
+# Space 7, Transactional Banking: Cash, Payments & Liquidity (WP9b / WP8e). Monthly digital-channel / payment-rail usage
+# per client and channel. Counts are monthly flows (SUM over months); Active Users is a monthly head-count, so it is a
+# point-in-time window measure (last month of the selection); shares are SUM/SUM ratios.
+view: mv_tb_channel_adoption
+space: tb_cash_payments_liquidity
+comment: >-
+  Digital channel adoption of SMBC's APAC clients by month, Apr-2024 to Sep-2026: active clients, e-banking users and
+  logins, payments initiated per channel (Portal, Payments API, Host-to-Host, SWIFT MT, ISO 20022, RTGS, FAST), API
+  calls and host-to-host files, the digital share of payments and the share still sent as manual (fax / paper)
+  instructions keyed by operations. Counts add up over months; Active Users is the head-count of the last month of
+  the selection; shares are ratios of sums, correct at any grain (segment, country, channel).
+grain: one row per golden client per channel per month (gold.fact_channel_usage_monthly)
+source: ${catalog}.gold.fact_channel_usage_monthly
+blocks:
+  calendar: {date: source.usage_month, grain: month, what: the usage month}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Channel
+    expr: source.channel
+    display_name: Channel
+    comment: >-
+      Portal (e-banking), Payments API, Host-to-Host, or a network rail (SWIFT MT, ISO 20022, RTGS, FAST) on which
+      operations may still key manual instructions.
+    synonyms: [channel, payment channel, rail, e-banking, portal, API, host-to-host, H2H, SWIFT, connectivity]
+  - name: Channel Type
+    expr: source.channel_type
+    display_name: Channel Type
+    comment: Digital (Portal, Payments API, Host-to-Host - initiated electronically by the client) or Network rail (SWIFT MT, ISO 20022, RTGS, FAST).
+    synonyms: [channel type, digital or rail, digital channel, electronic channel, network rail]
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: Client's coverage office / booking location (ISO-2) - "country" in channel questions means this.
+    synonyms: [booking country, country, booking location, market, location, office]
+  - name: Is Active
+    expr: source.is_active
+    display_name: Is Active in Month
+    comment: True when the client used the channel in the month (users, logins, payments, API calls or files > 0).
+    synonyms: [active, is active, used channel, channel active, active user]
+measures:
+  - name: Active Clients
+    expr: COUNT(DISTINCT CASE WHEN source.is_active THEN source.golden_client_id END)
+    display_name: Active Clients
+    comment: >-
+      Legal entities (golden clients) that used the channel(s) in the selected months; by Month = active in that
+      month.
+    synonyms: [active clients, adopters, digital clients, channel users, active customers, clients using channel]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Active Users
+    expr: SUM(source.active_users)
+    display_name: Active E-Banking Users (month)
+    comment: >-
+      E-banking portal users active in the month (a head-count: point-in-time, the last month of the selection -
+      never summed across months).
+    synonyms: [active users, portal users, e-banking users, users, logged-in users, digital users]
+    format: *count
+    window:
+      - {order: Month, range: current, semiadditive: last}
+  - name: Logins
+    expr: SUM(source.logins)
+    display_name: Portal Logins
+    comment: E-banking portal logins in the selected months (a flow).
+    synonyms: [logins, log-ins, sessions, portal logins, e-banking logins, visits]
+    format: *count
+  - name: API Calls
+    expr: SUM(source.api_calls)
+    display_name: Payments API Calls
+    comment: Payments-API calls in the selected months (a flow).
+    synonyms: [API calls, API usage, API traffic, API requests, open banking calls]
+    format: *count
+  - name: Host-to-Host Files
+    expr: SUM(source.files_transmitted)
+    display_name: Host-to-Host Files
+    comment: Host-to-host payment files transmitted in the selected months (a flow).
+    synonyms: [H2H files, host-to-host files, file uploads, payment files, bulk files]
+    format: *count
+  - name: Payments Initiated
+    expr: SUM(source.payments_initiated)
+    display_name: Payments Initiated
+    comment: Outbound payments initiated through the channel(s) in the selected months (= outbound payment messages).
+    synonyms: [payments initiated, payments, outbound payments, transactions, instructions, payment count]
+    format: *count
+  - name: Payments Initiated Value USD
+    expr: SUM(source.payments_value_usd)
+    display_name: Value of Payments Initiated (USD)
+    comment: USD value of the payments initiated in the selected months.
+    synonyms: [payment value, value initiated, payments USD, outbound value, volume]
+    format: {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Manual Instructions
+    expr: SUM(source.manual_instructions)
+    display_name: Manual Instructions
+    comment: Payments sent as manual instructions (fax / paper / e-mail) that operations keyed onto a rail.
+    synonyms: [manual instructions, manual payments, fax instructions, paper instructions, non-digital payments, manual]
+    format: *count
+  - name: Digital Share of Payments %
+    expr: SUM(source.digital_payments) / NULLIF(SUM(source.payments_initiated), 0)
+    display_name: Digital Share of Payments
+    comment: Share of payments initiated electronically by the client (fraction) = digital / payments initiated.
+    synonyms: [digital share, digital adoption, digitisation rate, e-channel share, digital penetration, digital ratio]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Manual Instruction Share %
+    expr: SUM(source.manual_instructions) / NULLIF(SUM(source.payments_initiated), 0)
+    display_name: Manual Instruction Share
+    comment: Share of payments still sent as manual instructions (fraction) = manual / payments initiated.
+    synonyms: [manual share, manual instruction share, fax share, paper share, non-digital share, manual rate]
+    format: *pct
+  - name: Channel STP Rate %
+    expr: SUM(source.stp_payments) / NULLIF(SUM(source.payments_initiated), 0)
+    display_name: STP Rate of Payments Initiated
+    comment: Share of the payments initiated that went straight through (fraction).
+    synonyms: [STP, STP rate, straight through, straight-through processing, auto-processed]
+    format: *pct
+  - name: Clients Sending Manual Instructions
+    expr: COUNT(DISTINCT CASE WHEN source.manual_instructions > 0 THEN source.golden_client_id END)
+    display_name: Clients Sending Manual Instructions
+    comment: Legal entities that sent at least one manual instruction in the selected months - the digital-migration list.
+    synonyms: [manual clients, clients sending manual, fax clients, paper clients, non-digital clients, migration targets]
+    format: *count
+validate:
+  dims: [Month, Channel]
+reconcile:
+  - name: logins_fy2026
+    measure: Logins
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: SELECT sum(logins) FROM ${catalog}.gold.fact_channel_usage_monthly WHERE usage_month BETWEEN DATE'2026-04-01' AND DATE'2026-09-01'
+  - name: manual_share_by_segment_fy2026
+    measure: Manual Instruction Share %
+    by: [Segment]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT c.segment, sum(u.manual_instructions) / sum(u.payments_initiated) FROM ${catalog}.gold.fact_channel_usage_monthly u
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = u.golden_client_sk
+      WHERE u.usage_month BETWEEN DATE'2026-04-01' AND DATE'2026-09-01' GROUP BY 1
+  - name: active_users_sep26
+    measure: Active Users
+    where: "`Is Latest Month`"
+    gold: SELECT sum(active_users) FROM ${catalog}.gold.fact_channel_usage_monthly WHERE usage_month = DATE'2026-09-01'
+  - name: active_users_fy2025_is_march
+    measure: Active Users
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT sum(active_users) FROM ${catalog}.gold.fact_channel_usage_monthly WHERE usage_month = DATE'2026-03-01'
+  - name: payments_initiated_by_channel
+    measure: Payments Initiated
+    by: [Channel]
+    gold: SELECT channel, sum(payments_initiated) FROM ${catalog}.gold.fact_channel_usage_monthly GROUP BY 1
+  - name: digital_share_fy2026
+    measure: Digital Share of Payments %
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT sum(digital_payments) / sum(payments_initiated) FROM ${catalog}.gold.fact_channel_usage_monthly
+      WHERE usage_month BETWEEN DATE'2026-04-01' AND DATE'2026-09-01'
+glossary:
+  caveats:
+    - >-
+      Active Users is a monthly head-count (point-in-time, last month of the selection); every other count is a
+      monthly flow. Manual instructions are keyed by operations on the network rails.

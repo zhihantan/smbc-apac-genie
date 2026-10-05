@@ -1,0 +1,163 @@
+{
+ "columns": [
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Last day of the fiscal year (31-Mar).",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version valid at the fiscal year end (as-of date for FY2026).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group (industry subsector) of the client; join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product key (PRD-<NAME>); join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Core product name, e.g. Time Deposit, Notional Pooling, Import LC, FX Forward.",
+   "is_measure": false,
+   "name": "product_name",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Business line - Lending, Transaction Banking, Markets or Sustainable Finance.",
+   "is_measure": false,
+   "name": "business_line",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client held or used the product in any month of the fiscal year.",
+   "is_measure": false,
+   "name": "holds_product",
+   "type": "boolean"
+  },
+  {
+   "comment": "1 when holds_product, else 0 - Penetration % = AVG(holds_product_flag).",
+   "is_measure": false,
+   "name": "holds_product_flag",
+   "type": "int"
+  },
+  {
+   "comment": "Months of the fiscal year in which the product was active for the client.",
+   "is_measure": false,
+   "name": "months_active",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client's activity in the product in USD: average month-end balance for balance products, annual volume for flow products; null when not held.",
+   "is_measure": false,
+   "name": "activity_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Average balance or Annual volume (basis of activity_usd).",
+   "is_measure": false,
+   "name": "activity_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Clients of the peer group active in the fiscal year (penetration denominator).",
+   "is_measure": false,
+   "name": "peer_group_clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Peer-group clients holding the product in the fiscal year.",
+   "is_measure": false,
+   "name": "peer_group_holders",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of the peer group's clients holding the product (fraction) - Peer Penetration %.",
+   "is_measure": false,
+   "name": "peer_penetration_pct",
+   "type": "double"
+  },
+  {
+   "comment": "peer_penetration_pct - holds_product_flag (fraction; positive = under-penetrated vs peers).",
+   "is_measure": false,
+   "name": "penetration_gap_pts",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client does not hold the product while at least half of its peer group does - Clients With Gap.",
+   "is_measure": false,
+   "name": "is_gap_vs_peers",
+   "type": "boolean"
+  },
+  {
+   "comment": "Share of the industry sector's active clients (all subsectors, e.g. Automotive) holding the product (fraction) - a broader benchmark when the peer group is the selection itself.",
+   "is_measure": false,
+   "name": "sector_penetration_pct",
+   "type": "double"
+  },
+  {
+   "comment": "sector_penetration_pct - holds_product_flag (fraction; positive = under-penetrated vs the sector).",
+   "is_measure": false,
+   "name": "gap_vs_sector_pts",
+   "type": "double"
+  },
+  {
+   "comment": "Share of all active SMBC APAC clients holding the product in the fiscal year (fraction) - bank-wide benchmark.",
+   "is_measure": false,
+   "name": "all_clients_penetration_pct",
+   "type": "double"
+  },
+  {
+   "comment": "all_clients_penetration_pct - holds_product_flag (fraction; positive = under-penetrated vs the whole APAC book).",
+   "is_measure": false,
+   "name": "gap_vs_all_clients_pts",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client does not hold the product while at least half of all APAC clients do.",
+   "is_measure": false,
+   "name": "is_gap_vs_all_clients",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Product penetration vs peers (Opportunity Identification, mv_product_penetration): dense golden client x core product x fiscal year (FY2024, FY2025, FY2026 to date) for every client with an active product in the year - whether the client holds or used the product in the year, how widely the client's peer group (same industry subsector) holds it, and the gap. Penetration % = AVG(holds_product_flag) over the selected clients; Peer Penetration % = AVG(peer_penetration_pct); Penetration Gap pts = Peer - Penetration; Clients With Gap = clients with is_gap_vs_peers (not held while >= 50% of peers hold it). When the selection is a whole peer group (e.g. Japanese automotive-parts subsidiaries: every Auto Parts client is Japanese Corporate) the aggregate peer gap is 0 by construction - compare with sector_penetration_pct or all_clients_penetration_pct instead. One fiscal year at a time. Grain: one row per golden client x core product x fiscal year (dense).",
+ "identifier": "smbc_genie.gold.fact_client_product_penetration_annual",
+ "type": "MANAGED"
+}

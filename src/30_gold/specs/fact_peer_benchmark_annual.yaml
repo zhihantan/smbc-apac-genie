@@ -1,0 +1,42 @@
+table: fact_peer_benchmark_annual
+domain: credit
+comment: >-
+  Peer benchmarks for financial ratios (brief 5.3): one row per peer group (industry subsector) x ratio x
+  fiscal year (FY2023-FY2025) with the peer 25th percentile, median and 75th percentile, the sample size,
+  the ratio direction and how many of our clients are in the bottom quartile of performance
+  (direction-aware). Benchmarks are point values (never sum P25 / median / P75 across rows).
+grain: one row per peer group x ratio x fiscal year
+primary_key: [peer_group_id, ratio_name, fiscal_year]
+foreign_keys:
+  - {columns: [peer_group_id], references: dim_peer_group}
+  - {columns: [industry_sector, industry_subsector], references: dim_industry}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+cluster_by: [fiscal_year, peer_group_id]
+min_rows: 2000
+columns:
+  peer_group_id: {type: STRING}
+  peer_group_name: {type: STRING, comment: "Peer group label = industry sector - subsector (e.g. Materials - Mining)."}
+  industry_sector: {type: STRING}
+  industry_subsector: {type: STRING}
+  ratio_name: {type: STRING, comment: "Benchmarked ratio (same names as fact_financial_ratio_annual.ratio_name, e.g. Net Debt/EBITDA, ICR, DSO)."}
+  ratio_category: {type: STRING, comment: "Ratio family: Leverage, Coverage, Liquidity, Profitability, Working Capital, Cash Flow or Growth."}
+  ratio_unit: {type: STRING, comment: "Unit: x (multiple), fraction (0.15 = 15%), days or usd."}
+  higher_is_better: {type: BOOLEAN, comment: "True when a higher ratio is better; false for Net Debt/EBITDA, Debt/Equity, DSO, DIO and cash conversion cycle."}
+  fiscal_year: {type: INT, comment: "Statement fiscal year of the benchmark (2023-2025)."}
+  fiscal_year_label: {type: STRING, comment: "Fiscal year label, e.g. FY2025."}
+  fiscal_year_end_date: {type: DATE, comment: "31 March closing the Japanese fiscal year of the benchmark (FY2025 -> 2026-03-31); calendar key only."}
+  peer_p25: {type: DOUBLE, comment: "25th percentile of the ratio across the peer sample (value-based, in ratio_unit)."}
+  peer_median: {type: DOUBLE, comment: "Median (P50) of the ratio across the peer sample."}
+  peer_p75: {type: DOUBLE, comment: "75th percentile of the ratio across the peer sample (value-based)."}
+  peer_iqr: {type: DOUBLE, comment: "Inter-quartile range P75 - P25 in ratio_unit."}
+  peer_n_clients: {type: INT, comment: "Clients in the peer sample (as published with the benchmark)."}
+  n_client_values: {type: INT, comment: "Our client ratio values in the peer group and fiscal year (fact_financial_ratio_annual rows with a value)."}
+  n_clients_worse_than_p25: {type: INT, comment: "Of those, values in the bottom quartile of performance (direction-aware worse_than_p25)."}
+checks:
+  - name: quartiles_ordered
+    sql: SELECT count_if(NOT (peer_p25 <= peer_median AND peer_median <= peer_p75)) FROM ${table}
+  - name: direction_known
+    sql: SELECT count_if(higher_is_better IS NULL OR fiscal_year_end_date IS NULL) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ext_peer_benchmark

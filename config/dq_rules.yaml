@@ -1,0 +1,585 @@
+# Data-quality rules (Phase 4b; PLAN §6, §11; brief §5.11) — read by smbc_genie_lib.dq.
+#
+# The catalogue loaded into ops.dq_rules = the rules GENERATED from config/table_specs.yaml (one rule per
+# silver table and check type: key_present, key_unique, golden_key / group_key, not_future,
+# parent_exists, valid_values, required, date_order, references, freshness) + the HAND-WRITTEN rules
+# below (cross-table consistency, process timeliness, identity-feed checks on bronze).
+#
+# A hand-written rule = an aggregate over its own FROM clause: total rows, failed rows
+# (NOT coalesce(pass, true)), five sample keys. Placeholders: {catalog}, {as_of}, and the build
+# thresholds ({ews_amber_min}, {ews_red_min}). `layer`: silver (default; evaluated on published silver
+# tables) or bronze (evaluated on the raw landing / identity masters). `templates` expand one rule per
+# `for_each` item ({src}, {t}, ... substituted). Dimensions: completeness | validity | uniqueness |
+# timeliness | consistency. Status: pass when failed / total <= threshold, else fail (severity error) or
+# warn; severity info is measured but never fails.
+version: 1
+thresholds:          # default max failure fraction per dimension
+  completeness: 0.0
+  validity: 0.001
+  uniqueness: 0.0
+  timeliness: 0.05
+  consistency: 0.001
+
+rules:
+  # ---- lending -----------------------------------------------------------------------------------
+  - id: core_facility_balance_monthly:x:drawn_within_1_1x_limit
+    table: core_facility_balance_monthly
+    dimension: consistency
+    description: Drawn balance is at most 1.1 x the facility limit in the credit facility terms
+    from: >-
+      {catalog}.silver.core_facility_balance_monthly b
+      JOIN {catalog}.silver.credit_facility_terms f ON f.facility_id = b.facility_id
+    pass: b.drawn_usd <= 1.1 * f.limit_usd
+    key: concat(b.facility_id, '|', b.balance_date)
+  - id: core_facility_balance_monthly:x:utilisation_ties
+    table: core_facility_balance_monthly
+    dimension: consistency
+    description: Utilisation equals drawn / limit (within 1 point)
+    from: "{catalog}.silver.core_facility_balance_monthly"
+    where: limit_usd > 0
+    pass: abs(utilisation_pct - drawn_usd / limit_usd) <= 0.01
+    key: concat(facility_id, '|', balance_date)
+  - id: core_loan_schedule:x:events_after_origination
+    table: core_loan_schedule
+    dimension: consistency
+    description: Loan schedule events fall on or after the facility origination date
+    from: >-
+      {catalog}.silver.core_loan_schedule s
+      JOIN {catalog}.silver.credit_facility_terms f ON f.facility_id = s.facility_id
+    pass: s.event_date >= f.origination_date
+    key: s.schedule_event_id
+  - id: credit_covenant_test:x:breach_flag
+    table: credit_covenant_test
+    dimension: consistency
+    description: Breach flag agrees with actual vs threshold (leverage breaches above, ICR below the threshold)
+    from: "{catalog}.silver.credit_covenant_test"
+    pass: breached = CASE WHEN covenant_type = 'ICR' THEN actual < threshold ELSE actual > threshold END
+    key: concat(facility_id, '|', covenant_type, '|', test_date)
+  - id: credit_covenant_test:x:headroom
+    table: credit_covenant_test
+    dimension: consistency
+    description: Headroom equals the distance to the threshold as a fraction of it (sign = direction of safety)
+    from: "{catalog}.silver.credit_covenant_test"
+    where: threshold <> 0
+    pass: >-
+      abs(headroom_pct - CASE WHEN covenant_type = 'ICR' THEN (actual - threshold) / threshold
+      ELSE (threshold - actual) / threshold END) <= 0.0005
+    key: concat(facility_id, '|', covenant_type, '|', test_date)
+  - id: credit_financial_statement:x:balance_sheet_balances
+    table: credit_financial_statement
+    dimension: consistency
+    description: Balance sheet balances - Total Assets = Total Debt + Payables + Equity (per obligor and FY)
+    from: >-
+      (SELECT obligor_id, fiscal_year,
+              sum(CASE WHEN line_item = 'Total Assets' THEN amount_usd END) AS assets,
+              sum(CASE WHEN line_item IN ('Total Debt', 'Payables', 'Equity') THEN amount_usd END) AS funding
+       FROM {catalog}.silver.credit_financial_statement WHERE statement_type = 'Balance Sheet'
+       GROUP BY obligor_id, fiscal_year)
+    pass: abs(assets - funding) <= greatest(1.0, 0.0005 * abs(assets))
+    key: concat(obligor_id, '|', fiscal_year)
+  - id: credit_financial_statement:x:total_debt_components
+    table: credit_financial_statement
+    dimension: consistency
+    description: Total Debt = Short-Term Debt + Long-Term Debt (per obligor and FY)
+    from: >-
+      (SELECT obligor_id, fiscal_year,
+              sum(CASE WHEN line_item = 'Total Debt' THEN amount_usd END) AS total_debt,
+              sum(CASE WHEN line_item IN ('Short-Term Debt', 'Long-Term Debt') THEN amount_usd END) AS parts
+       FROM {catalog}.silver.credit_financial_statement WHERE statement_type = 'Balance Sheet'
+       GROUP BY obligor_id, fiscal_year)
+    pass: abs(total_debt - parts) <= greatest(1.0, 0.0005 * abs(total_debt))
+    key: concat(obligor_id, '|', fiscal_year)
+  - id: fin_capital_allocation:x:ecl_by_stage
+    table: fin_capital_allocation
+    dimension: consistency
+    description: ECL is the 12-month ECL in IFRS 9 stage 1 and the lifetime ECL in stages 2-3
+    from: "{catalog}.silver.fin_capital_allocation"
+    pass: abs(ecl_usd - CASE WHEN ifrs9_stage = 1 THEN ecl_12m_usd ELSE ecl_lifetime_usd END) <= 0.05
+    key: concat(obligor_id, '|', month)
+  - id: fin_deal_pricing:x:margin_gap
+    table: fin_deal_pricing
+    dimension: consistency
+    description: Margin gap = priced margin - hurdle margin (bps)
+    from: "{catalog}.silver.fin_deal_pricing"
+    pass: abs(margin_gap_bps - (priced_margin_bps - hurdle_margin_bps)) <= 0.15
+    key: facility_id
+  # ---- profitability ------------------------------------------------------------------------------
+  - id: fin_relationship_pnl:x:revenue_components
+    table: fin_relationship_pnl
+    dimension: consistency
+    description: Total revenue = lending + deposit + payments + other revenue
+    from: "{catalog}.silver.fin_relationship_pnl"
+    pass: abs(revenue_total - (rev_lending + rev_deposits + rev_payments + rev_other)) <= 0.05
+    key: concat(obligor_id, '|', fiscal_year, '-Q', fiscal_quarter)
+  - id: fin_client_revenue:x:revenue_components
+    table: fin_client_revenue
+    dimension: consistency
+    description: Total revenue = NII + fees + trading revenue
+    from: "{catalog}.silver.fin_client_revenue"
+    pass: abs(total_revenue_usd - (nii_usd + fee_usd + trading_usd)) <= 0.05
+    key: concat(client_source_id, '|', month, '|', product_family)
+  - id: fin_cost_allocation:x:cost_components
+    table: fin_cost_allocation
+    dimension: consistency
+    description: Total cost = direct + RM + operations + head-office allocation
+    from: "{catalog}.silver.fin_cost_allocation"
+    pass: abs(total_cost_usd - (direct_cost_usd + rm_cost_usd + operations_cost_usd + ho_allocation_usd)) <= 0.05
+    key: concat(client_source_id, '|', month, '|', product_family)
+  # ---- deposits, payments, cash flow --------------------------------------------------------------
+  - id: core_deposit_balance_monthly:x:month_end_ties_daily
+    table: core_deposit_balance_monthly
+    dimension: consistency
+    description: Month-end balance equals the daily balance on the same date (daily window)
+    from: >-
+      {catalog}.silver.core_deposit_balance_monthly m
+      JOIN {catalog}.silver.core_deposit_balance_daily d
+        ON d.account_id = m.account_id AND d.balance_date = m.balance_date
+    pass: abs(m.balance_usd - d.balance_usd) <= greatest(1.0, 0.0001 * abs(d.balance_usd))
+    key: concat(m.account_id, '|', m.balance_date)
+  - id: core_deposit_balance_monthly:x:after_account_open
+    table: core_deposit_balance_monthly
+    dimension: consistency
+    description: No month-end balance before the month the account opened
+    from: >-
+      {catalog}.silver.core_deposit_balance_monthly m
+      JOIN {catalog}.silver.core_account a ON a.account_id = m.account_id
+    pass: m.balance_date >= last_day(a.open_date)
+    key: concat(m.account_id, '|', m.balance_date)
+  - id: core_time_deposit:x:maturity_matches_tenor
+    table: core_time_deposit
+    dimension: consistency
+    description: Maturity date = placement date + tenor months
+    from: "{catalog}.silver.core_time_deposit"
+    pass: maturity_date = add_months(placement_date, tenor_months)
+    key: placement_id
+  - id: pay_payment_message:x:after_account_open
+    table: pay_payment_message
+    dimension: consistency
+    description: No payment before its account's open date (DECISIONS D43)
+    from: >-
+      {catalog}.silver.pay_payment_message p
+      JOIN {catalog}.silver.core_account a ON a.account_id = p.account_id
+    pass: p.payment_date >= a.open_date
+    key: p.payment_id
+  - id: pay_payment_message:x:account_of_customer
+    table: pay_payment_message
+    dimension: consistency
+    description: The paying account belongs to the payment's core-banking customer
+    from: >-
+      {catalog}.silver.pay_payment_message p
+      JOIN {catalog}.silver.core_account a ON a.account_id = p.account_id
+    pass: a.cust_no = p.cust_no
+    key: p.payment_id
+  - id: pay_repair_queue:x:matches_payment
+    table: pay_repair_queue
+    dimension: consistency
+    description: Repaired payments are non-STP payments with the same repair reason
+    from: >-
+      {catalog}.silver.pay_repair_queue r
+      JOIN {catalog}.silver.pay_payment_message p ON p.payment_id = r.payment_id
+    pass: NOT p.stp_flag AND p.repair_reason = r.repair_reason
+    key: r.payment_id
+  - id: cf_actual_monthly:x:ties_to_payments
+    table: cf_actual_monthly
+    dimension: consistency
+    storyline: 12
+    description: Cash-flow actuals tie to the de-duplicated payments (inflows, outflows, count per customer-month)
+    from: >-
+      {catalog}.silver.cf_actual_monthly c
+      LEFT JOIN (SELECT cust_no, trunc(payment_date, 'MM') AS m,
+                        sum(CASE WHEN direction = 'Inbound' THEN amount_usd ELSE 0 END) AS i,
+                        sum(CASE WHEN direction = 'Outbound' THEN amount_usd ELSE 0 END) AS o, count(*) AS n
+                 FROM {catalog}.silver.pay_payment_message GROUP BY cust_no, trunc(payment_date, 'MM')) p
+        ON p.cust_no = c.cust_no AND p.m = c.month
+    pass: >-
+      abs(c.inflows_usd - coalesce(p.i, 0)) <= 0.05 AND abs(c.outflows_usd - coalesce(p.o, 0)) <= 0.05
+      AND c.n_payments = coalesce(p.n, 0)
+    key: concat(c.cust_no, '|', c.month)
+  - id: pay_payment_message:x:landing_ties_to_cash_flow
+    table: bronze.pay_payment_message
+    layer: bronze
+    dimension: consistency
+    storyline: 12
+    description: >-
+      The raw payments landing (before de-duplication) ties to the cash-flow actuals per customer-month;
+      the June 2026 replay batch breaks the tie until silver removes it
+    from: >-
+      {catalog}.silver.cf_actual_monthly c
+      LEFT JOIN (SELECT cust_no, trunc(payment_date, 'MM') AS m, count(*) AS n
+                 FROM {catalog}.bronze.pay_payment_message GROUP BY cust_no, trunc(payment_date, 'MM')) p
+        ON p.cust_no = c.cust_no AND p.m = c.month
+    pass: c.n_payments = coalesce(p.n, 0)
+    key: concat(c.cust_no, '|', c.month)
+  - id: cf_actual_monthly:x:net_is_in_minus_out
+    table: cf_actual_monthly
+    dimension: consistency
+    description: Net cash flow = inflows - outflows
+    from: "{catalog}.silver.cf_actual_monthly"
+    pass: abs(net_cf_usd - (inflows_usd - outflows_usd)) <= 0.05
+    key: concat(cust_no, '|', month)
+  # ---- trade & SCF ---------------------------------------------------------------------------------
+  - id: trade_event:x:replays_to_outstanding
+    table: trade_event
+    dimension: consistency
+    description: Replaying an instrument's events ends at its outstanding in trade_finance_txn
+    from: >-
+      (SELECT txn_id, max_by(outstanding_after_usd, event_seq) AS last_out
+       FROM {catalog}.silver.trade_event GROUP BY txn_id) e
+      JOIN {catalog}.silver.trade_finance_txn t ON t.txn_id = e.txn_id
+    pass: abs(e.last_out - t.outstanding_usd) <= 0.05
+    key: e.txn_id
+  - id: trade_event:x:starts_with_issue
+    table: trade_event
+    dimension: consistency
+    description: Every instrument's first event is its issue
+    from: >-
+      (SELECT txn_id, min_by(event_type, event_seq) AS first_type FROM {catalog}.silver.trade_event GROUP BY txn_id)
+    pass: first_type = 'Issue'
+    key: txn_id
+  - id: trade_finance_txn:x:closed_means_settled
+    table: trade_finance_txn
+    dimension: consistency
+    description: Settled / expired instruments carry a closed date and no outstanding; live ones have no closed date
+    from: "{catalog}.silver.trade_finance_txn"
+    pass: >-
+      CASE WHEN status IN ('Settled', 'Expired') THEN closed_date IS NOT NULL AND outstanding_usd <= 0.01
+      ELSE closed_date IS NULL END
+    key: txn_id
+  - id: scf_programme:x:drawn_within_limit
+    table: scf_programme
+    dimension: consistency
+    description: Programme drawn is within its limit and utilisation = drawn / limit
+    from: "{catalog}.silver.scf_programme"
+    pass: drawn_usd <= limit_usd AND abs(utilisation - drawn_usd / limit_usd) <= 0.001
+    key: programme_id
+  # ---- early warning ---------------------------------------------------------------------------------
+  - id: ews_score:x:band_matches_score
+    table: ews_score
+    dimension: consistency
+    description: Computed band follows the score cut-offs (Green < {ews_amber_min}, Amber {ews_amber_min}-{ews_red_min}, Red >= {ews_red_min}; D29)
+    from: "{catalog}.silver.ews_score"
+    pass: >-
+      band = CASE WHEN composite_score >= {ews_red_min} THEN 'Red'
+                  WHEN composite_score >= {ews_amber_min} THEN 'Amber' ELSE 'Green' END
+    key: concat(obligor_id, '|', score_date)
+  - id: ews_score:x:final_band_explained
+    table: ews_score
+    dimension: consistency
+    description: The final band differs from the computed band only under an analyst override
+    from: "{catalog}.silver.ews_score"
+    pass: final_band = band OR is_overridden
+    key: concat(obligor_id, '|', score_date)
+  - id: ews_watchlist:x:flagged_in_scores
+    table: ews_watchlist
+    dimension: consistency
+    description: Watchlisted obligors carry the watchlist flag in the EWS score of the same date
+    from: >-
+      {catalog}.silver.ews_watchlist w
+      LEFT JOIN {catalog}.silver.ews_score s ON s.obligor_id = w.obligor_id AND s.score_date = w.as_of_date
+    pass: s.is_watchlisted
+    key: w.obligor_id
+  - id: ext_market_daily:x:close_within_52w_range
+    table: ext_market_daily
+    dimension: consistency
+    description: Close price lies within the 52-week low / high
+    from: "{catalog}.silver.ext_market_daily"
+    pass: close_price BETWEEN low_52w AND high_52w
+    key: concat(issuer_id, '|', trade_date)
+  # ---- CRM, onboarding -----------------------------------------------------------------------------
+  - id: crm_opportunity:x:close_date_matches_status
+    table: crm_opportunity
+    dimension: consistency
+    description: Won / lost opportunities have an actual close date; open ones do not
+    from: "{catalog}.silver.crm_opportunity"
+    pass: (status = 'Open') = (actual_close_date IS NULL)
+    key: opportunity_id
+  - id: crm_signal:x:converted_has_opportunity
+    table: crm_signal
+    dimension: consistency
+    description: Converted signals link to an opportunity
+    from: "{catalog}.silver.crm_signal"
+    where: status = 'Converted'
+    pass: linked_opportunity_id IS NOT NULL
+    key: signal_id
+  - id: kyc_case_stage:x:stages_contiguous
+    table: kyc_case_stage
+    dimension: consistency
+    description: Onboarding stages run in sequence without gaps - each stage starts the day the previous one ended
+    from: >-
+      (SELECT case_id, stage_no, entered_date,
+              lag(stage_no) OVER (PARTITION BY case_id ORDER BY stage_no) AS prev_no,
+              lag(exited_date) OVER (PARTITION BY case_id ORDER BY stage_no) AS prev_exit
+       FROM {catalog}.silver.kyc_case_stage)
+    where: prev_no IS NOT NULL
+    pass: stage_no = prev_no + 1 AND entered_date = prev_exit
+    key: concat(case_id, '|', stage_no)
+  - id: kyc_case_stage:x:days_in_stage
+    table: kyc_case_stage
+    dimension: consistency
+    description: Days in stage = exit (or the as-of date while current) - entry
+    from: "{catalog}.silver.kyc_case_stage"
+    pass: days_in_stage = datediff(coalesce(exited_date, DATE'{as_of}'), entered_date)
+    key: concat(case_id, '|', stage_no)
+  - id: kyc_case:x:live_cases_have_kyc_id
+    table: kyc_case
+    dimension: consistency
+    description: Every live onboarding case is linked to a KYC customer record
+    from: "{catalog}.silver.kyc_case"
+    where: status = 'Live'
+    pass: kyc_id IS NOT NULL
+    key: case_id
+  - id: kyc_review:x:completed_status
+    table: kyc_review
+    dimension: consistency
+    description: Completed reviews have a completion date; open ones do not
+    from: "{catalog}.silver.kyc_review"
+    pass: (status = 'Completed') = (completed_date IS NOT NULL)
+    key: review_id
+  - id: dq_share_refresh_log:x:stale_flag
+    table: dq_share_refresh_log
+    dimension: consistency
+    description: The stale flag is set exactly when the refresh lag exceeds the SLA
+    from: "{catalog}.silver.dq_share_refresh_log"
+    pass: is_stale = (lag_hours > sla_hours)
+    key: concat(log_date, '|', table_name)
+
+  - id: ref_booking_entity:x:country_name_is_a_country
+    table: ref_booking_entity
+    dimension: validity
+    description: The booking entity's country name is a country, not the booking city (city-states SG and HK excepted)
+    from: "{catalog}.silver.ref_booking_entity"
+    pass: country_name IS NULL OR country_name <> city OR booking_entity_id IN ('SG', 'HK')
+    key: booking_entity_id
+
+  # ---- process timeliness ---------------------------------------------------------------------------
+  - id: kyc_review:x:periodic_reviews_on_time
+    table: kyc_review
+    dimension: timeliness
+    storyline: 7
+    description: Periodic KYC reviews due by the as-of date were completed by their due date
+    from: "{catalog}.silver.kyc_review"
+    where: review_type = 'Periodic' AND due_date <= DATE'{as_of}'
+    pass: completed_date IS NOT NULL AND completed_date <= due_date
+    key: review_id
+  - id: kyc_case_stage:x:stage_within_sla
+    table: kyc_case_stage
+    dimension: timeliness
+    storyline: 7
+    description: Onboarding stages completed (or running) within their SLA days
+    from: "{catalog}.silver.kyc_case_stage"
+    pass: days_in_stage <= sla_days
+    key: concat(case_id, '|', stage_no)
+  - id: kyc_screening:x:hits_resolved_within_48h
+    table: kyc_screening
+    dimension: timeliness
+    description: Screening hits resolved within 48 hours
+    from: "{catalog}.silver.kyc_screening"
+    pass: resolution_hours <= 48
+    key: screening_id
+  - id: credit_spreading_task:x:spread_by_due_date
+    table: credit_spreading_task
+    dimension: timeliness
+    description: Financial statements due for spreading by the as-of date were spread by their due date
+    from: "{catalog}.silver.credit_spreading_task"
+    where: due_date <= DATE'{as_of}'
+    pass: spread_date IS NOT NULL AND spread_date <= due_date
+    key: task_id
+  - id: credit_review:x:annual_review_on_time
+    table: credit_review
+    dimension: timeliness
+    storyline: 1
+    description: Annual credit reviews due by the as-of date were submitted by their due date
+    from: "{catalog}.silver.credit_review"
+    where: review_type = 'Annual' AND due_date <= DATE'{as_of}'
+    pass: submitted_date IS NOT NULL AND submitted_date <= due_date
+    key: review_id
+  - id: trade_presentation:x:checked_within_sla
+    table: trade_presentation
+    dimension: timeliness
+    description: Document presentations examined within the SLA hours
+    from: "{catalog}.silver.trade_presentation"
+    where: turnaround_hours IS NOT NULL
+    pass: turnaround_hours <= sla_hours
+    key: presentation_id
+  - id: ews_watchlist_event:x:actions_on_time
+    table: ews_watchlist_event
+    dimension: timeliness
+    description: Watchlist follow-up actions due by the as-of date were completed by their due date
+    from: "{catalog}.silver.ews_watchlist_event"
+    where: action_due_date IS NOT NULL AND action_due_date <= DATE'{as_of}'
+    pass: action_completed_date IS NOT NULL AND action_completed_date <= action_due_date
+    key: event_id
+  - id: crm_activity:x:follow_ups_on_time
+    table: crm_activity
+    dimension: timeliness
+    description: RM follow-up actions due by the as-of date are completed
+    from: "{catalog}.silver.crm_activity"
+    where: next_action_due_date IS NOT NULL AND next_action_due_date <= DATE'{as_of}'
+    pass: next_action_status = 'Completed'
+    key: activity_id
+  - id: pay_repair_queue:x:repaired_within_a_day
+    table: pay_repair_queue
+    dimension: timeliness
+    description: Payments in the repair queue were repaired within 24 hours
+    from: "{catalog}.silver.pay_repair_queue"
+    pass: processing_seconds <= 86400
+    key: payment_id
+
+templates:
+  # Delta Sharing freshness per shared table (storyline 13: share_jp_parent_rating, 11-15 Aug 2026)
+  - for_each: [share_jp_group_master, share_jp_parent_exposure_monthly, share_jp_parent_financials,
+               share_jp_parent_rating, share_jp_support_letters, share_emea_entity_master,
+               share_emea_exposure_monthly, share_emea_revenue_monthly, share_amer_entity_master,
+               share_amer_exposure_monthly, share_amer_revenue_monthly]
+    rule:
+      id: "{item}:x:refreshed_within_sla_30d"
+      table: "{item}"
+      dimension: timeliness
+      kind: share_freshness
+      storyline: 13
+      description: "Delta Share refreshed within its SLA on each of the last 30 days (refresh lag <= SLA hours)"
+      from: "{catalog}.silver.dq_share_refresh_log"
+      where: "table_name = '{item}' AND log_date > date_sub(DATE'{as_of}', 30)"
+      pass: lag_hours <= sla_hours
+      key: concat(log_date, '|', provider_region)
+  # identity feeds on bronze (dirtiness of the 7 identity masters, measured through entity resolution)
+  - for_each: [ext_company_master, kyc_customer, credit_obligor, core_customer, crm_account, trade_party, tsy_counterparty]
+    rule:
+      id: "{item}:x:no_duplicate_identity"
+      table: "bronze.{item}"
+      layer: bronze
+      dimension: uniqueness
+      kind: identity
+      description: "One record per client in the source: records resolving to the same golden client are within-source duplicates (all but the first count)"
+      from: >-
+        (SELECT source_id, row_number() OVER (PARTITION BY golden_client_id ORDER BY source_id) AS rn
+         FROM {catalog}.silver.xref_client_source WHERE source_system = '{item}')
+      pass: rn = 1
+      key: source_id
+  - for_each: [ext_company_master, kyc_customer, credit_obligor, core_customer, crm_account, trade_party, tsy_counterparty]
+    rule:
+      id: "{item}:x:country_consistent_with_name"
+      table: "bronze.{item}"
+      layer: bronze
+      dimension: validity
+      kind: identity
+      description: "Recorded country is consistent with the location / legal form in the name and inside the booking footprint"
+      from: "{catalog}.silver.client_source_record"
+      where: "source_system = '{item}'"
+      pass: country_check NOT IN ('corrected', 'suspect')
+      key: source_id
+  - for_each: [ext_company_master, kyc_customer, credit_obligor, core_customer, crm_account, trade_party, tsy_counterparty]
+    rule:
+      id: "{item}:x:identity_complete"
+      table: "bronze.{item}"
+      layer: bronze
+      dimension: completeness
+      kind: identity
+      description: "Identity record carries a name and a country"
+      from: "{catalog}.silver.client_source_record"
+      where: "source_system = '{item}'"
+      pass: source_name_as_recorded IS NOT NULL AND country_as_recorded IS NOT NULL
+      key: source_id
+  - for_each: [ext_company_master, kyc_customer, credit_obligor, core_customer, crm_account]
+    rule:
+      id: "{item}:x:parent_link_current"
+      table: "bronze.{item}"
+      layer: bronze
+      dimension: consistency
+      kind: identity
+      description: "Recorded parent / group link agrees with the golden client's group (stale links fail)"
+      from: >-
+        {catalog}.silver.client_source_record r
+        JOIN {catalog}.silver.xref_client_source x ON x.source_system = r.source_system AND x.source_id = r.source_id
+        JOIN {catalog}.silver.client_golden_identity g ON g.golden_client_id = x.golden_client_id
+      where: "r.source_system = '{item}'"
+      pass: r.parent_ref_as_recorded IS NULL OR g.client_group_id IS NULL OR r.parent_ref_as_recorded = g.client_group_id
+      key: r.source_id
+  - for_each: [ext_company_master, kyc_customer, credit_obligor, core_customer, crm_account, trade_party, tsy_counterparty]
+    rule:
+      id: "{item}:x:id_formats"
+      table: "bronze.{item}"
+      layer: bronze
+      dimension: validity
+      kind: identity
+      description: "LEI-like ids (SYNLEI + 18 hex) and tax ids (SYNTX-CC-10 hex) are well formed"
+      from: "{catalog}.silver.client_source_record"
+      where: "source_system = '{item}'"
+      pass: >-
+        (lei_as_recorded IS NULL OR lei_as_recorded RLIKE '^SYNLEI[0-9A-F]{18}$')
+        AND (tax_id_as_recorded IS NULL OR tax_id_as_recorded RLIKE '^SYNTX-[A-Z]{2}-[0-9A-F]{10}$')
+      key: source_id
+  - for_each: [core_customer]
+    rule:
+      id: "{item}:x:name_not_truncated"
+      table: "bronze.{item}"
+      layer: bronze
+      dimension: validity
+      kind: identity
+      severity: info
+      description: "Customer name fits the core-banking field (35 characters); truncated names are harder to match"
+      from: "{catalog}.silver.client_source_record"
+      where: "source_system = '{item}'"
+      pass: NOT is_name_truncated
+      key: source_id
+
+# ---- DQ history (silver.dq_score_history): 42 monthly scores per layer x table x dimension ----------
+# Months before the latest: the current actual score minus a gap that closes over the history plus a
+# small deterministic wiggle (anchor = actual + base_offset where an incident sets one), or an incident
+# value (score: absolute range | delta: range relative to the actual | anchor: actual). Latest = actual.
+history:
+  start: "2023-04"
+  baseline: {initial_gap: [0.004, 0.025], noise_sd: 0.0015, floor: 0.90, cap: 0.9995}
+  incidents:
+    - key: payments_replay_landing
+      storyline: 12
+      tables: [pay_payment_message]
+      dimension: uniqueness
+      layers: [bronze]
+      from: "2026-06"
+      to: latest
+      anchor: actual
+      base_offset: 0.02
+      note: >-
+        Reprocessed payments file PAY_20260617_R re-delivered the 1-17 Jun 2026 messages; they stay in the
+        bronze landing and silver de-duplicates them on payment_id
+    - key: payments_replay_tie
+      storyline: 12
+      tables: [pay_payment_message]
+      dimension: consistency
+      layers: [bronze]
+      from: "2026-06"
+      to: latest
+      anchor: actual
+      base_offset: 0.02
+      note: Until de-duplicated, the replayed June messages break the payments-to-cash-flow tie
+    - key: kyc_migration_backlog
+      storyline: 7
+      tables: [kyc_review, kyc_case_stage]
+      dimension: timeliness
+      from: "2026-02"
+      to: "2026-05"
+      delta: [-0.10, -0.06]
+      base_offset: 0.025
+      note: >-
+        Feb-2026 KYC workflow migration: KYC Docs stage and high-risk periodic reviews ran late (overdue peak
+        in May at ~3x normal)
+    - key: kyc_migration_recovery
+      storyline: 7
+      tables: [kyc_review, kyc_case_stage]
+      dimension: timeliness
+      from: "2026-06"
+      to: "2026-08"
+      delta: [-0.03, -0.01]
+      base_offset: 0.025
+      note: Migration backlog being cleared (about 70% cleared by Sep-2026)
+    - key: jp_share_outage
+      storyline: 13
+      tables: [share_jp_parent_rating]
+      dimension: timeliness
+      from: "2026-08"
+      to: "2026-08"
+      score: [0.835, 0.842]
+      note: >-
+        share_jp_parent_rating not refreshed 11-15 Aug 2026 (JP head-office Obon maintenance window): refresh
+        lag above 24h on 5 days

@@ -1,0 +1,169 @@
+{
+ "columns": [
+  {
+   "comment": "Credit-system obligor id (CRD-nnnnnn) whose statements produced the ratio.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client's own fiscal year of the statements behind the ratio (2023-2025).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Statement fiscal year label, e.g. FY2025.",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "End of the client's fiscal year (31 Dec or 31 Mar) the ratio is measured at.",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Ratio: Net Debt/EBITDA (leverage), Debt/Equity, ICR (interest cover), DSCR, Current Ratio, Quick Ratio, Gross Margin, EBITDA Margin, Net Margin, ROE, ROA, DSO, DIO, DPO, Cash Conversion Cycle, Free Cash Flow, Revenue YoY Growth.",
+   "is_measure": false,
+   "name": "ratio_name",
+   "type": "string"
+  },
+  {
+   "comment": "Ratio family: Leverage, Coverage, Liquidity, Profitability, Working Capital, Cash Flow or Growth.",
+   "is_measure": false,
+   "name": "ratio_category",
+   "type": "string"
+  },
+  {
+   "comment": "Unit of ratio_value: x (multiple, e.g. 4.6x), fraction (0.15 = 15%), days or usd (Free Cash Flow).",
+   "is_measure": false,
+   "name": "ratio_unit",
+   "type": "string"
+  },
+  {
+   "comment": "Direction used for ranking and flags: true = a higher value is better (coverage, liquidity, margins, returns, DPO, FCF, growth); false = lower is better (Net Debt/EBITDA, Debt/Equity, DSO, DIO, cash conversion cycle).",
+   "is_measure": false,
+   "name": "higher_is_better",
+   "type": "boolean"
+  },
+  {
+   "comment": "Display order of the ratio in a credit memo (1 = Net Debt/EBITDA).",
+   "is_measure": false,
+   "name": "ratio_order",
+   "type": "int"
+  },
+  {
+   "comment": "Ratio value in ratio_unit (null for Revenue YoY Growth in FY2023, the first year).",
+   "is_measure": false,
+   "name": "ratio_value",
+   "type": "double"
+  },
+  {
+   "comment": "Same ratio in the previous fiscal year (null for the first year).",
+   "is_measure": false,
+   "name": "prior_year_value",
+   "type": "double"
+  },
+  {
+   "comment": "ratio_value - prior_year_value, in ratio_unit (positive = the ratio rose).",
+   "is_measure": false,
+   "name": "change_vs_prior_year",
+   "type": "double"
+  },
+  {
+   "comment": "Peer group 25th percentile of the ratio for the fiscal year (value-based, from the peer benchmark).",
+   "is_measure": false,
+   "name": "peer_p25",
+   "type": "double"
+  },
+  {
+   "comment": "Peer group median (P50) of the ratio for the fiscal year.",
+   "is_measure": false,
+   "name": "peer_median",
+   "type": "double"
+  },
+  {
+   "comment": "Peer group 75th percentile of the ratio for the fiscal year (value-based).",
+   "is_measure": false,
+   "name": "peer_p75",
+   "type": "double"
+  },
+  {
+   "comment": "Clients in the peer sample behind the benchmark.",
+   "is_measure": false,
+   "name": "peer_n_clients",
+   "type": "int"
+  },
+  {
+   "comment": "ratio_value - peer_median in ratio_unit (sign is not direction-adjusted: for leverage a positive gap is worse).",
+   "is_measure": false,
+   "name": "gap_to_peer_median",
+   "type": "double"
+  },
+  {
+   "comment": "Percentile rank 0-1 of the value within the peer group, fiscal year and ratio, ascending by value (1 = highest value in the peer group).",
+   "is_measure": false,
+   "name": "value_percentile_rank",
+   "type": "double"
+  },
+  {
+   "comment": "Direction-adjusted percentile rank 0-1 within the peer group (1 = best performer, 0 = worst); for lower-is-better ratios a low value ranks high. Use for 'percentile in peer group'.",
+   "is_measure": false,
+   "name": "peer_percentile_rank",
+   "type": "double"
+  },
+  {
+   "comment": "Direction-aware bottom-quartile flag: true when the ratio is worse than the peer quartile boundary - below P25 for higher-is-better ratios, above P75 for lower-is-better ratios (e.g. leverage above the peer P75). Null when no value.",
+   "is_measure": false,
+   "name": "worse_than_p25",
+   "type": "boolean"
+  },
+  {
+   "comment": "Direction-aware top-quartile flag: above P75 for higher-is-better ratios, below P25 for lower-is-better ratios.",
+   "is_measure": false,
+   "name": "better_than_p75",
+   "type": "boolean"
+  },
+  {
+   "comment": "Direction-aware position vs the peer benchmark: Top quartile, Better than median, Worse than median or Bottom quartile (= worse_than_p25).",
+   "is_measure": false,
+   "name": "peer_quartile_position",
+   "type": "string"
+  },
+  {
+   "comment": "True when the statement year behind the ratio has been spread (false = provisional, FY2025 backlog).",
+   "is_measure": false,
+   "name": "is_spread",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Client financial ratios vs peers (credit memo pack, brief 5.3): one row per credit obligor x fiscal year x ratio for FY2023-FY2025 - leverage (Net Debt/EBITDA, Debt/Equity), coverage (ICR, DSCR), liquidity (current, quick), margins and returns (gross, EBITDA, net margin, ROE, ROA), working capital (DSO, DIO, DPO, cash conversion cycle), free cash flow (USD) and revenue YoY growth - with the peer group's P25 / median / P75 for the same fiscal year, the client's percentile rank in its peer group and a direction-aware worse_than_p25 flag (bottom quartile of performance). Lower is better for leverage, DSO, DIO and the cash conversion cycle; higher is better for all other ratios. Ratios are point values: average them, never sum. Grain: one row per credit obligor x fiscal year x ratio.",
+ "identifier": "smbc_genie.gold.fact_financial_ratio_annual",
+ "type": "MANAGED"
+}

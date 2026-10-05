@@ -1,0 +1,259 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date of the deal signing. Today is 30-Sep-2026 (never use CURRENT_DATE); \"last N days\" means Date between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date return the last date of any longer period you group by.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the deal signing as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the deal signing, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the deal signing).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Facility type priced - Term Loan, Revolving Credit Facility, Bilateral Loan, Syndicated Loan, Overdraft or Trade Loan.",
+   "is_measure": false,
+   "name": "Product",
+   "type": "string"
+  },
+  {
+   "comment": "True when the deal was approved with an origination RAROC below the 12% hurdle (a pricing exception).",
+   "is_measure": false,
+   "name": "Approved Below Hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "Reason for approving below hurdle - Relationship, Strategic Client, Cross-sell Commitment or Competitive Pricing; blank without exception.",
+   "is_measure": false,
+   "name": "Exception Reason",
+   "type": "string"
+  },
+  {
+   "comment": "Caught up / Still below hurdle (deals approved below hurdle), Held above hurdle / Slipped below hurdle (deals approved at or above), Not yet seasoned (signed after Mar-2026).",
+   "is_measure": false,
+   "name": "Realised Status",
+   "type": "string"
+  },
+  {
+   "comment": "Priced margin vs the margin the deal needs for the RoRWA hurdle - Above hurdle (>= +25 bps), At hurdle, Below hurdle (< -25 bps).",
+   "is_measure": false,
+   "name": "Pricing Status",
+   "type": "string"
+  },
+  {
+   "comment": "True for deals signed in the last four fiscal quarters to 30-Sep-2026 (FY2025-Q3 to FY2026-Q2).",
+   "is_measure": false,
+   "name": "Signed in Last 4 Quarters",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for deals signed in the last four quarters that already have a realised RAROC (FY2025 - Apr-2025 to Mar-2026).",
+   "is_measure": false,
+   "name": "Signed in Last 4 Seasoned Quarters",
+   "type": "boolean"
+  },
+  {
+   "comment": "Credit deals signed in the selected period.",
+   "is_measure": true,
+   "name": "Deals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Deal (facility limit) amount in USD.",
+   "is_measure": true,
+   "name": "Amount USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average RAROC at origination incl. the client's ancillary revenue (fraction, winsorised -25%..100%).",
+   "is_measure": true,
+   "name": "Average Origination RAROC %",
+   "type": "double"
+  },
+  {
+   "comment": "Average realised RAROC of the seasoned deals (fraction, winsorised).",
+   "is_measure": true,
+   "name": "Average Realised RAROC %",
+   "type": "double"
+  },
+  {
+   "comment": "Deals approved with an origination RAROC below the 12% hurdle.",
+   "is_measure": true,
+   "name": "Below-Hurdle Deals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Deals approved below hurdle / deals (fraction).",
+   "is_measure": true,
+   "name": "Below-Hurdle Deals %",
+   "type": "double"
+  },
+  {
+   "comment": "Deals with a realised RAROC (signed up to Mar-2026).",
+   "is_measure": true,
+   "name": "Seasoned Deals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Deals approved below hurdle whose realised RAROC is back at or above the 12% hurdle.",
+   "is_measure": true,
+   "name": "Deals Caught Up",
+   "type": "bigint"
+  },
+  {
+   "comment": "Below-hurdle deals that caught up / seasoned below-hurdle deals (fraction).",
+   "is_measure": true,
+   "name": "Caught-Up Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Average realised minus origination RAROC of the seasoned deals (fraction; negative = slipped).",
+   "is_measure": true,
+   "name": "RAROC Slippage pts",
+   "type": "double"
+  },
+  {
+   "comment": "Average priced margin minus the margin needed for the RoRWA hurdle, in basis points (negative = underpriced).",
+   "is_measure": true,
+   "name": "Average Margin Gap bps",
+   "type": "double"
+  },
+  {
+   "comment": "Average margin priced on the drawn amount, in basis points.",
+   "is_measure": true,
+   "name": "Average Priced Margin bps",
+   "type": "double"
+  },
+  {
+   "comment": "The configured RAROC hurdle from gold.dim_threshold (RAROC_HURDLE, 0.12 = 12%).",
+   "is_measure": true,
+   "name": "RAROC Hurdle %",
+   "type": "double"
+  }
+ ],
+ "comment": "Deal pricing discipline of SMBC APAC credit deals signed Apr-2023 to Sep-2026 (USD): deals, amount, origination RAROC vs the 12% hurdle (gold.dim_threshold), deals approved below hurdle and the exception reason (Relationship, Strategic Client, Cross-sell Commitment, Competitive Pricing), realised RAROC once seasoned (deals signed up to Mar-2026), whether it caught up with the hurdle, RAROC slippage and the priced margin vs the margin needed. Calendar fields are of the SIGNING date (Signing Quarter = Fiscal Quarter). \"Last 4 quarters\" = Oct-2025..Sep-2026 (FY2026 deals not yet seasoned); \"did realised RAROC catch up\" questions use the last 4 seasoned quarters = FY2025. Grain: one row per credit deal (facility) signed from FY2023 (gold.fact_deal_pricing).",
+ "identifier": "smbc_genie.metrics.mv_deal_pricing",
+ "type": "METRIC_VIEW"
+}

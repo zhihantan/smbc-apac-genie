@@ -1,0 +1,211 @@
+# Space 10, Signals & Sentiment (WP8f). External news about APAC clients: item counts and average sentiment are
+# flows / means over the selected days; the 30D / 90D sentiment measures are anchored at the as-of date (gold
+# window flags), so they answer "now" questions whatever the Date filter. Answers: metrics/_answers/signals_sentiment.sql.
+view: mv_news_sentiment
+space: signals_sentiment
+comment: >-
+  External news on SMBC's APAC clients, Apr-2023 to Sep-2026 (fictional news vendor): news items by topic
+  (Expansion, M&A, Earnings, Management Change, Rating Action, Regulatory, Litigation, ESG Controversy,
+  Supply-Chain Disruption), vendor sentiment -1..+1 (negative <= -0.2, positive >= 0.2), negative / positive
+  item counts and share, relevance-weighted sentiment, the sentiment of the last 30 / 90 days and its change
+  vs the 30 / 90 days before (anchored at 30-Sep-2026), and groups with a negative news trend. Items add up
+  over days; sentiment is an average (never summed).
+grain: one row per news item (gold.fact_news_item)
+source: ${catalog}.gold.fact_news_item
+blocks:
+  calendar: {date: source.published_date, grain: day, what: publication of the news item}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Topic
+    expr: source.topic
+    display_name: News Topic
+    comment: >-
+      News topic: Expansion, M&A, Earnings, Management Change, Rating Action, Regulatory, Litigation, ESG
+      Controversy or Supply-Chain Disruption.
+    synonyms: [topic, news topic, theme, news category, story type, headline topic, event type]
+  - name: Subtopic
+    expr: source.subtopic
+    display_name: News Subtopic
+    comment: >-
+      Finer topic of the item, e.g. Coal Regulation, Market Entry, Results In Line, Data Centre Build-out,
+      Fleet Renewal (55 values).
+    synonyms: [subtopic, sub-topic, news subtopic, detailed topic, story subtype]
+  - name: Source Type
+    expr: source.source_type
+    display_name: News Source Type
+    comment: "Type of news source: Business Press, Newswire, Trade Press or Company Filing."
+    synonyms: [source type, news source, media type, publication type, outlet type, press type]
+  - name: News Region
+    expr: source.region
+    display_name: News Region (country)
+    comment: >-
+      Country the item reports from (ISO-2, e.g. SG, ID, AU, IN). For the client's own country use Coverage
+      Office.
+    synonyms: [news region, news country, region, reporting country, market of the news, dateline]
+  - name: Sentiment Polarity
+    expr: source.sentiment_label
+    display_name: Sentiment Polarity
+    comment: "Sentiment of the item from its score: Negative (<= -0.2), Positive (>= 0.2) or Neutral."
+    synonyms: [polarity, sentiment, tone, positive or negative, sentiment label, news tone]
+  - name: Sector Theme
+    expr: source.sector_theme
+    display_name: Sector Theme
+    comment: >-
+      Sector cycle theme of the client's subsector: Coal (Oil, Gas & Coal and Mining), Shipping, Renewables
+      (Renewables and Power Generation), Data Centres & Digital, or Other - "coal and shipping sectors" means
+      Sector Theme in (Coal, Shipping).
+    synonyms: [sector theme, theme, sector cycle, coal, shipping, renewables, data centres, thematic sector]
+measures:
+  - name: News Items
+    expr: COUNT(1)
+    display_name: News Items
+    comment: Number of news items on the selected clients and days (a flow - adds up over days).
+    synonyms: [items, news items, articles, news count, number of articles, headlines, stories, press mentions]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Average Sentiment
+    expr: AVG(source.sentiment_score)
+    display_name: Average News Sentiment
+    comment: >-
+      Mean vendor sentiment of the selected items, -1 (very negative) to +1 (very positive); <= -0.2 reads
+      negative, >= 0.2 positive.
+    synonyms: [sentiment, average sentiment, news sentiment, mean sentiment, tone score, sentiment score, media sentiment]
+    format: &sent {type: number, decimal_places: {type: max, places: 3}}
+  - name: Relevance-Weighted Sentiment
+    expr: SUM(source.sentiment_score * source.relevance) / NULLIF(SUM(source.relevance), 0)
+    display_name: Relevance-Weighted Sentiment
+    comment: Average sentiment weighted by each item's relevance to the client (0-1), so passing mentions count less.
+    synonyms: [weighted sentiment, relevance weighted sentiment, adjusted sentiment, importance weighted sentiment]
+    format: *sent
+  - name: Lowest Sentiment
+    expr: MIN(source.sentiment_score)
+    display_name: Most Negative Item Sentiment
+    comment: Lowest item sentiment in the selection (-1..+1) - the most negative story.
+    synonyms: [lowest sentiment, minimum sentiment, worst sentiment, most negative, min sentiment]
+    format: *sent
+  - name: Highest Sentiment
+    expr: MAX(source.sentiment_score)
+    display_name: Most Positive Item Sentiment
+    comment: Highest item sentiment in the selection (-1..+1) - the most positive story.
+    synonyms: [highest sentiment, maximum sentiment, best sentiment, most positive, max sentiment]
+    format: *sent
+  - name: Negative Items
+    expr: COUNT(1) FILTER (WHERE source.is_negative)
+    display_name: Negative News Items
+    comment: Items with sentiment <= -0.2 (adverse news).
+    synonyms: [negative items, negative news, adverse news, bad news, negative articles, adverse media, negative headlines]
+    format: *count
+  - name: Positive Items
+    expr: COUNT(1) FILTER (WHERE source.is_positive)
+    display_name: Positive News Items
+    comment: Items with sentiment >= 0.2 (favourable news).
+    synonyms: [positive items, positive news, good news, favourable news, positive articles, positive headlines]
+    format: *count
+  - name: Negative Share %
+    expr: MEASURE(`Negative Items`) / NULLIF(MEASURE(`News Items`), 0)
+    display_name: Negative News Share
+    comment: Negative items / all items (fraction; 0.4 = 40% of the news is negative).
+    synonyms: [negative share, share of negative news, negative ratio, adverse news share, negativity rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Sentiment Last 30D
+    expr: AVG(CASE WHEN source.is_last_30d THEN source.sentiment_score END)
+    display_name: Average Sentiment, Last 30 Days
+    comment: >-
+      Average sentiment of items published in the 30 days to 30-Sep-2026 (1-30 Sep 2026), anchored at the
+      as-of date: a Date filter does not move the window, it only removes rows, so a filter that excludes
+      those days returns null (null too when there was no recent news).
+    synonyms: [sentiment last 30 days, recent sentiment, 30 day sentiment, current sentiment, latest sentiment, sentiment this month]
+    format: *sent
+  - name: Sentiment Change 30D
+    expr: >-
+      AVG(CASE WHEN source.days_before_as_of < 30 THEN source.sentiment_score END)
+      - AVG(CASE WHEN source.days_before_as_of BETWEEN 30 AND 59 THEN source.sentiment_score END)
+    display_name: Sentiment Change, Last 30 Days vs Prior 30 Days
+    comment: >-
+      Average sentiment of the 30 days to 30-Sep-2026 minus that of the 30 days before (2-31 Aug 2026); negative
+      = news turning worse. Null unless both windows have items.
+    synonyms: [sentiment change 30 days, sentiment change, sentiment trend, sentiment momentum, change in tone, 30D sentiment change]
+    format: *sent
+  - name: Sentiment Last 90D
+    expr: AVG(CASE WHEN source.is_last_90d THEN source.sentiment_score END)
+    display_name: Average Sentiment, Last 90 Days
+    comment: Average sentiment of items published 3-Jul-2026 .. 30-Sep-2026 (anchored at the as-of date).
+    synonyms: [sentiment last 90 days, 90 day sentiment, quarterly sentiment, recent sentiment 90D, last quarter sentiment]
+    format: *sent
+  - name: Sentiment Change 90D
+    expr: >-
+      AVG(CASE WHEN source.is_last_90d THEN source.sentiment_score END)
+      - AVG(CASE WHEN source.is_prior_90d THEN source.sentiment_score END)
+    display_name: Sentiment Change, Last 90 Days vs Prior 90 Days
+    comment: >-
+      Average sentiment of 3-Jul .. 30-Sep-2026 minus that of 4-Apr .. 2-Jul-2026 (negative = deteriorating);
+      null unless both windows have items.
+    synonyms: [sentiment change 90 days, 90D sentiment change, quarter on quarter sentiment, sentiment deterioration, sentiment improvement]
+    format: *sent
+  - name: Groups With News
+    expr: COUNT(DISTINCT source.client_group_id)
+    display_name: Client Groups With News
+    comment: Client groups with at least one item in the selection.
+    synonyms: [groups covered, groups with news, groups in the news, groups mentioned, number of groups]
+    format: *count
+  - name: Groups With Negative Trend
+    expr: COUNT(DISTINCT CASE WHEN source.is_group_negative_trend THEN source.client_group_id END)
+    display_name: Groups With a Negative News Trend
+    comment: >-
+      Client groups whose last-90-day average news sentiment (to 30-Sep-2026) is below zero and below their
+      prior-90-day average - a group-level status as of today, counted for groups with items in the selection.
+    synonyms: [negative trend groups, deteriorating groups, groups turning negative, worsening sentiment groups, negative momentum groups]
+    format: *count
+    caveat: Group status as of 30-Sep-2026 (gold is_group_negative_trend), not as of the selected dates.
+validate:
+  dims: [Month, Topic]
+reconcile:
+  - name: items_by_topic_fy2026
+    measure: News Items
+    by: [Topic]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT topic, count(*) FROM ${catalog}.gold.fact_news_item
+      WHERE published_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' GROUP BY 1
+  - name: avg_sentiment_by_sector_theme_fy2025
+    measure: Average Sentiment
+    by: [Sector Theme]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sector_theme, avg(sentiment_score) FROM ${catalog}.gold.fact_news_item
+      WHERE published_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31' GROUP BY 1
+  - name: negative_share_by_industry_last_365d
+    measure: Negative Share %
+    by: [Industry]
+    where: "`Date` > DATE'2025-09-30'"
+    gold: >-
+      SELECT c.industry_sector, avg(CASE WHEN n.is_negative THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_news_item n
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = n.golden_client_sk
+      WHERE n.published_date > DATE'2025-09-30' GROUP BY 1
+  - name: sunda_jan26_coal_regulation_items
+    measure: News Items
+    where: "`Client Group` = 'Sunda Energi Nusantara' AND `Subtopic` = 'Coal Regulation' AND `Month` = DATE'2026-01-01'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_news_item WHERE client_group_id = 'SYN-G-0004'
+      AND subtopic = 'Coal Regulation' AND published_date BETWEEN DATE'2026-01-01' AND DATE'2026-01-31'
+  - name: banksia_expansion_sentiment_apr_jul26
+    measure: Average Sentiment
+    where: "`Client Group` = 'Banksia Renewables Partners' AND `Topic` = 'Expansion' AND `Date` BETWEEN DATE'2026-04-01' AND DATE'2026-07-31'"
+    gold: >-
+      SELECT avg(sentiment_score) FROM ${catalog}.gold.fact_news_item WHERE client_group_id = 'SYN-G-0006'
+      AND topic = 'Expansion' AND published_date BETWEEN DATE'2026-04-01' AND DATE'2026-07-31'
+  - name: sentiment_change_90d_by_sector_theme
+    measure: Sentiment Change 90D
+    by: [Sector Theme]
+    gold: >-
+      SELECT sector_theme, avg(CASE WHEN is_last_90d THEN sentiment_score END) - avg(CASE WHEN is_prior_90d THEN sentiment_score END)
+      FROM ${catalog}.gold.fact_news_item GROUP BY 1
+  - name: groups_with_negative_trend
+    measure: Groups With Negative Trend
+    gold: SELECT count(DISTINCT client_group_id) FROM ${catalog}.gold.fact_news_item WHERE is_group_negative_trend
+glossary:
+  caveats:
+    - >-
+      Sentiment is the vendor's synthetic score (D18); the 30D / 90D measures and the negative-trend count are
+      anchored at 30-Sep-2026: a Date filter does not move their windows, it only removes rows, so a filter
+      that cuts a window returns null. RM-note sentiment is in mv_internal_sentiment; the
+      unified signal feed (news, EWS, CRM, market, rating, RM notes) is mv_signal_feed.

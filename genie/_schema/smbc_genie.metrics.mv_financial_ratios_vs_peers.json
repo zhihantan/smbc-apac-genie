@@ -1,0 +1,229 @@
+{
+ "columns": [
+  {
+   "comment": "Japanese fiscal year as a number (2026 = FY2026 = Apr 2026 - Mar 2027); the order field for prior-year comparisons (offset -1).",
+   "is_measure": false,
+   "name": "Fiscal Year Number",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label of the statement fiscal year of the ratio, April to March: FY2026 = Apr 2026 - Mar 2027 (in progress, H1 closed 30-Sep-2026), FY2025 = Apr 2025 - Mar 2026 (the latest complete year).",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "True for FY2026, the fiscal year of the as-of date. Ratios exist up to FY2025 (the latest spread year) - filter Fiscal Year = 'FY2025' for the latest ratios.",
+   "is_measure": false,
+   "name": "Is Latest Fiscal Year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Financial ratio: Net Debt/EBITDA (leverage), Debt/Equity, ICR (interest cover), DSCR, Current Ratio, Quick Ratio, Gross Margin, EBITDA Margin, Net Margin, ROE, ROA, DSO, DIO, DPO, Cash Conversion Cycle, Free Cash Flow (USD), Revenue YoY Growth. Filter one ratio (or group by it) - values are not comparable across ratios.",
+   "is_measure": false,
+   "name": "Ratio Name",
+   "type": "string"
+  },
+  {
+   "comment": "Ratio family: Leverage, Coverage, Liquidity, Profitability, Working Capital, Cash Flow or Growth.",
+   "is_measure": false,
+   "name": "Ratio Category",
+   "type": "string"
+  },
+  {
+   "comment": "Unit of the ratio value: x (multiple, 4.6 = 4.6x), fraction (0.15 = 15%), days, or usd (free cash flow).",
+   "is_measure": false,
+   "name": "Ratio Unit",
+   "type": "string"
+  },
+  {
+   "comment": "Direction of the ratio: true = higher is better (coverage, liquidity, margins, returns, DPO, FCF, growth); false = lower is better (Net Debt/EBITDA, Debt/Equity, DSO, DIO, cash conversion cycle).",
+   "is_measure": false,
+   "name": "Higher Is Better",
+   "type": "boolean"
+  },
+  {
+   "comment": "Peer group of the client = industry sector - subsector (e.g. Materials - Mining); benchmarks are per peer group and fiscal year.",
+   "is_measure": false,
+   "name": "Peer Group",
+   "type": "string"
+  },
+  {
+   "comment": "Direction-aware position of the client's ratio vs the peer benchmark: Top quartile, Better than median, Worse than median or Bottom quartile (= worse than P25).",
+   "is_measure": false,
+   "name": "Peer Quartile Position",
+   "type": "string"
+  },
+  {
+   "comment": "True when the ratio is worse than the peer quartile boundary, direction-aware: below P25 for higher-is-better ratios, above P75 for lower-is-better ratios (e.g. leverage above the peer P75). Null when no value.",
+   "is_measure": false,
+   "name": "Worse Than Peer P25",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the statement year behind the ratio has been spread (false = provisional, FY2025 backlog).",
+   "is_measure": false,
+   "name": "Is Spread",
+   "type": "boolean"
+  },
+  {
+   "comment": "Value of the selected ratio in its unit (x, fraction, days or USD); for one client and year its ratio, for several clients their average. Window over the fiscal year: without a Fiscal Year each client's latest year.",
+   "is_measure": true,
+   "name": "Ratio Value",
+   "type": "double"
+  },
+  {
+   "comment": "Median of the selected ratio across the selected clients for the fiscal year (latest year when none is selected).",
+   "is_measure": true,
+   "name": "Median Ratio Value",
+   "type": "double"
+  },
+  {
+   "comment": "Peer group 25th percentile of the ratio for the fiscal year (value-based); averaged when several peer groups are selected.",
+   "is_measure": true,
+   "name": "Peer P25",
+   "type": "double"
+  },
+  {
+   "comment": "Peer group median (P50) of the ratio for the fiscal year - \"vs peers\" / \"vs peer median\" means this.",
+   "is_measure": true,
+   "name": "Peer Median",
+   "type": "double"
+  },
+  {
+   "comment": "Peer group 75th percentile of the ratio for the fiscal year (value-based).",
+   "is_measure": true,
+   "name": "Peer P75",
+   "type": "double"
+  },
+  {
+   "comment": "Ratio value minus the peer median in the ratio's unit (not direction-adjusted - for leverage a positive gap is worse).",
+   "is_measure": true,
+   "name": "Gap to Peer Median",
+   "type": "double"
+  },
+  {
+   "comment": "Direction-adjusted percentile of the client within its peer group for the ratio and year (fraction: 1 = best in the peer group, 0 = worst; low leverage ranks high). Averaged over several clients.",
+   "is_measure": true,
+   "name": "Percentile Rank in Peer Group %",
+   "type": "double"
+  },
+  {
+   "comment": "Ratio value minus the previous fiscal year's value, in the ratio's unit (positive = the ratio rose).",
+   "is_measure": true,
+   "name": "Change vs Prior Year",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities (golden clients) with the ratio in the fiscal year.",
+   "is_measure": true,
+   "name": "Clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients whose ratio is in the bottom quartile of their peer group (direction-aware worse_than_p25) for the fiscal year - filter one Ratio Name.",
+   "is_measure": true,
+   "name": "Clients Below Peer P25",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of the selected clients in their peer group's bottom quartile for the ratio (fraction).",
+   "is_measure": true,
+   "name": "Share Below Peer P25 %",
+   "type": "double"
+  }
+ ],
+ "comment": "Client financial ratios vs peers, FY2023-FY2025: leverage (Net Debt/EBITDA, Debt/Equity), coverage (ICR, DSCR), liquidity (current, quick), margins and returns (gross, EBITDA, net margin, ROE, ROA), working capital (DSO, DIO, DPO, cash conversion cycle, in days), free cash flow and revenue growth, with the peer group's P25, median and P75 for the same year, the client's percentile rank in its peer group (1 = best, direction-aware) and clients worse than the peer bottom-quartile boundary. Always filter or group by Ratio Name (units differ). Ratios are averaged, never summed; without a Fiscal Year each client's latest year is used. Grain: one row per credit obligor x fiscal year x ratio (gold.fact_financial_ratio_annual).",
+ "identifier": "smbc_genie.metrics.mv_financial_ratios_vs_peers",
+ "type": "METRIC_VIEW"
+}

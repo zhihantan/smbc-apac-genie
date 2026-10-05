@@ -1,0 +1,266 @@
+[
+  {
+    "id": "9f803003a4ec24b612f1454000000000",
+    "key": "Q1",
+    "question": "What was the total CASA balance by booking country at the end of September 2026, with the end-August 2026 balance and the change versus August?",
+    "expected_sql": "SELECT `Booking Country`,\n       MEASURE(`CASA Balance USD`)               AS casa_balance_sep_2026_usd,\n       MEASURE(`CASA Balance Prior Month USD`)   AS casa_balance_aug_2026_usd,\n       MEASURE(`CASA Change vs Prior Month USD`) AS casa_change_vs_aug_usd\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Month` = DATE'2026-09-01'\nGROUP BY ALL\nORDER BY casa_balance_sep_2026_usd DESC",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000001",
+    "key": "Q1-casual",
+    "question": "casa by country end of sept vs end of aug, and how much did it change?",
+    "expected_sql": "SELECT `Booking Country`,\n       MEASURE(`CASA Balance USD`)               AS casa_balance_sep_2026_usd,\n       MEASURE(`CASA Balance Prior Month USD`)   AS casa_balance_aug_2026_usd,\n       MEASURE(`CASA Change vs Prior Month USD`) AS casa_change_vs_aug_usd\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Month` = DATE'2026-09-01'\nGROUP BY ALL\nORDER BY casa_balance_sep_2026_usd DESC",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q1",
+    "variant_of": "Q1",
+    "allow_extra_columns": false,
+    "variant_of_id": "9f803003a4ec24b612f1454000000000"
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000002",
+    "key": "Q2",
+    "question": "Show the 20 client groups with the largest CASA outflow in Q2 FY2026, with the CASA moved into time deposits, their total deposit movement, and whether the money mostly moved to time deposits or left the bank.",
+    "expected_sql": "WITH g AS (\n  SELECT `Client Group`,\n         MEASURE(`CASA Movement USD`)     AS casa_movement_usd,\n         MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,\n         MEASURE(`Deposit Movement USD`)  AS total_deposit_movement_usd\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Fiscal Quarter` = 'FY2026-Q2'\n  GROUP BY ALL\n)\nSELECT `Client Group`, casa_movement_usd, casa_moved_to_td_usd, total_deposit_movement_usd,\n       CASE WHEN total_deposit_movement_usd >= casa_movement_usd / 2 THEN 'Mostly moved to time deposits'\n            ELSE 'Mostly left the bank' END AS where_it_went\nFROM g\nWHERE casa_movement_usd < 0\nORDER BY casa_movement_usd ASC\nLIMIT 20",
+    "expected_checks": {
+      "rows": 20
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000003",
+    "key": "Q2b",
+    "question": "For Hong Kong, month by month from June to August 2026, what were the CASA movement, the CASA transferred into time deposits and the CASA ratio?",
+    "expected_sql": "SELECT `Month`,\n       MEASURE(`CASA Movement USD`)     AS casa_movement_usd,\n       MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,\n       MEASURE(`CASA Ratio %`)          AS casa_ratio\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Booking Country` = 'HK' AND `Month` BETWEEN DATE'2026-06-01' AND DATE'2026-08-01'\nGROUP BY ALL\nORDER BY `Month`",
+    "expected_checks": {
+      "rows": 3
+    },
+    "answer_ref": "Q2b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000004",
+    "key": "Q3",
+    "question": "Show the monthly CASA ratio since April 2025, Japanese corporates versus non-Japanese clients.",
+    "expected_sql": "SELECT `Month`,\n       CASE WHEN `Is Japanese Corporate` THEN 'Japanese corporate' ELSE 'Non-Japanese' END AS client_type,\n       MEASURE(`CASA Ratio %`) AS casa_ratio\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Month` >= DATE'2025-04-01'\nGROUP BY ALL\nORDER BY `Month`, client_type",
+    "expected_checks": {
+      "rows": 36
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000005",
+    "key": "Q4",
+    "question": "For outbound payments this fiscal year, what are the payment volume and the number of payments by payment purpose and counterparty bank type?",
+    "expected_sql": "SELECT `Payment Purpose`, `Counterparty Bank Type`,\n       MEASURE(`Payment Volume USD`) AS payment_volume_usd,\n       MEASURE(`Payments`)           AS payments\nFROM smbc_genie.metrics.mv_tb_payments\nWHERE `Fiscal Year` = 'FY2026' AND `Direction` = 'Outbound'\nGROUP BY ALL\nORDER BY `Payment Purpose`, payment_volume_usd DESC",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000006",
+    "key": "Q4b",
+    "question": "What share of our clients' outbound supplier payments this fiscal year went to accounts at other banks? Show the share, the value paid to other banks and the total supplier payment value.",
+    "expected_sql": "SELECT MEASURE(`Share Paid via Other Banks %`) AS supplier_share_paid_to_other_banks,\n       MEASURE(`Volume via Other Banks USD`)   AS supplier_payments_to_other_banks_usd,\n       MEASURE(`Payment Volume USD`)           AS supplier_payments_usd\nFROM smbc_genie.metrics.mv_tb_payments\nWHERE `Fiscal Year` = 'FY2026' AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q4b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000007",
+    "key": "Q4b-jargon",
+    "question": "Supplier-payment leakage FYTD - what % of outbound supplier flows went to competitor banks, the leaked value and total supplier payments?",
+    "expected_sql": "SELECT MEASURE(`Share Paid via Other Banks %`) AS supplier_share_paid_to_other_banks,\n       MEASURE(`Volume via Other Banks USD`)   AS supplier_payments_to_other_banks_usd,\n       MEASURE(`Payment Volume USD`)           AS supplier_payments_usd\nFROM smbc_genie.metrics.mv_tb_payments\nWHERE `Fiscal Year` = 'FY2026' AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q4b",
+    "variant_of": "Q4b",
+    "allow_extra_columns": false,
+    "variant_of_id": "9f803003a4ec24b612f1454000000006"
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000008",
+    "key": "Q5",
+    "question": "Which 12 channel and currency combinations with at least 200 payments had the lowest STP rate this fiscal year? Show the number of payments, the STP rate and the number of repairs.",
+    "expected_sql": "SELECT * FROM (\n  SELECT `Channel`, `Currency`,\n         MEASURE(`Payments`)   AS payments,\n         MEASURE(`STP Rate %`) AS stp_rate,\n         MEASURE(`Repairs`)    AS repairs\n  FROM smbc_genie.metrics.mv_tb_payments\n  WHERE `Fiscal Year` = 'FY2026'\n  GROUP BY ALL\n) WHERE payments >= 200\nORDER BY stp_rate\nLIMIT 12",
+    "expected_checks": {
+      "rows": 12
+    },
+    "answer_ref": "Q5",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000009",
+    "key": "Q5b",
+    "question": "Where were payment repairs concentrated this fiscal year? Show the top 10 repair reason and channel combinations by number of repairs, with their average processing hours.",
+    "expected_sql": "SELECT `Repair Reason`, `Channel`,\n       MEASURE(`Repairs`)                  AS repairs,\n       MEASURE(`Average Processing Hours`) AS average_processing_hours\nFROM smbc_genie.metrics.mv_tb_payments\nWHERE `Fiscal Year` = 'FY2026' AND `Repair Reason` IS NOT NULL\nGROUP BY ALL\nORDER BY repairs DESC\nLIMIT 10",
+    "expected_checks": {
+      "rows": 10
+    },
+    "answer_ref": "Q5b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f145400000000a",
+    "key": "Q6",
+    "question": "Rank the multi-country client groups (deposit accounts in 3 or more APAC countries) that have no liquidity pooling structure today by their total deposits - the top 20, with their number of APAC countries.",
+    "expected_sql": "SELECT `Client Group`, `Group APAC Countries`,\n       MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd\nFROM smbc_genie.metrics.mv_tb_liquidity_structures\nWHERE `Is Latest Month` AND `Is Pooling Candidate`\nGROUP BY ALL\nORDER BY group_deposits_usd DESC\nLIMIT 20",
+    "expected_checks": {
+      "rows": 20
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f145400000000b",
+    "key": "Q6-typo",
+    "question": "top 20 multi-country groups with no cash poolng structure today by deposits, with their number of APAC countries",
+    "expected_sql": "SELECT `Client Group`, `Group APAC Countries`,\n       MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd\nFROM smbc_genie.metrics.mv_tb_liquidity_structures\nWHERE `Is Latest Month` AND `Is Pooling Candidate`\nGROUP BY ALL\nORDER BY group_deposits_usd DESC\nLIMIT 20",
+    "expected_checks": {
+      "rows": 20
+    },
+    "answer_ref": "Q6",
+    "variant_of": "Q6",
+    "allow_extra_columns": false,
+    "variant_of_id": "9f803003a4ec24b612f145400000000a"
+  },
+  {
+    "id": "9f803003a4ec24b612f145400000000c",
+    "key": "Q6b",
+    "question": "How many multi-country groups have no pooling structure today, out of how many multi-country groups, what is the pooling penetration and how much do the unpooled groups hold in deposits?",
+    "expected_sql": "SELECT MEASURE(`Clients Without Pooling`)     AS multi_country_groups_without_pooling,\n       MEASURE(`Multi-Country Groups`)        AS multi_country_groups,\n       MEASURE(`Pooling Penetration %`)       AS pooling_penetration,\n       MEASURE(`Unpooled Group Deposits USD`) AS unpooled_group_deposits_usd\nFROM smbc_genie.metrics.mv_tb_liquidity_structures\nWHERE `Is Latest Month`",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q6b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f145400000000d",
+    "key": "Q7",
+    "question": "What is the top-10 depositor concentration in each booking country today, with each country's total deposits and number of depositors?",
+    "expected_sql": "SELECT `Booking Country`,\n       MEASURE(`Top-10 Depositor Concentration %`) AS top10_depositor_share,\n       MEASURE(`End of Month Balance USD`)         AS total_deposits_usd,\n       MEASURE(`Depositors`)                       AS depositors\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Is Latest Month`\nGROUP BY ALL\nORDER BY top10_depositor_share DESC",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f145400000000e",
+    "key": "Q7b",
+    "question": "Who are the ten largest depositors in Singapore today? Show each entity with its client group, its depositor rank and its deposits.",
+    "expected_sql": "SELECT `Client`, `Client Group`, `Depositor Rank in Country`,\n       MEASURE(`End of Month Balance USD`) AS deposits_usd\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Is Latest Month` AND `Booking Country` = 'SG' AND `Depositor Rank in Country` <= 10\nGROUP BY ALL\nORDER BY `Depositor Rank in Country`",
+    "expected_checks": {
+      "rows": 10
+    },
+    "answer_ref": "Q7b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f145400000000f",
+    "key": "Q8a",
+    "question": "List every legal entity whose total deposits held steady year on year at end-September 2026 (within plus or minus 10% of end-September 2025), with its client group, booking country, both month-end balances and the YoY change.",
+    "expected_sql": "SELECT * FROM (\n  SELECT `Client`, `Client Group`, `Booking Country`,\n         MEASURE(`End of Month Balance USD`)            AS deposits_sep_2026_usd,\n         MEASURE(`End of Month Balance Prior Year USD`) AS deposits_sep_2025_usd,\n         MEASURE(`Balance YoY %`)                       AS deposits_yoy\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Is Latest Month`\n  GROUP BY ALL\n) WHERE deposits_yoy BETWEEN -0.10 AND 0.10\nORDER BY deposits_sep_2026_usd DESC",
+    "expected_checks": {
+      "rows": 1177
+    },
+    "answer_ref": "Q8a",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000010",
+    "key": "Q8",
+    "question": "Which legal entities saw their payment volume through us drop by more than 30% in H1 FY2026 versus H1 FY2025 (with at least USD 1m of payments in H1 FY2025) while their average month-end deposits held steady within plus or minus 10%? Show both halves' payment volume, the payment change and the deposit change.",
+    "expected_sql": "WITH pay AS (\n  SELECT `Client`, `Fiscal Half`, MEASURE(`Payment Volume USD`) AS payment_volume_usd\n  FROM smbc_genie.metrics.mv_tb_payments\n  WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\n  GROUP BY ALL\n), p AS (\n  SELECT `Client`,\n         sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN payment_volume_usd END) AS payments_h1_fy2025_usd,\n         sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN payment_volume_usd END) AS payments_h1_fy2026_usd\n  FROM pay GROUP BY `Client`\n), dep AS (\n  SELECT `Client`, `Fiscal Half`, `Month`, MEASURE(`End of Month Balance USD`) AS deposits_usd\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\n  GROUP BY ALL\n), d AS (\n  SELECT `Client`,\n         sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN deposits_usd END) / 6 AS avg_deposits_h1_fy2025_usd,\n         sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN deposits_usd END) / 6 AS avg_deposits_h1_fy2026_usd\n  FROM dep GROUP BY `Client`\n)\nSELECT p.`Client`, p.payments_h1_fy2025_usd, coalesce(p.payments_h1_fy2026_usd, 0) AS payments_h1_fy2026_usd,\n       coalesce(p.payments_h1_fy2026_usd, 0) / p.payments_h1_fy2025_usd - 1 AS payment_volume_yoy,\n       d.avg_deposits_h1_fy2026_usd / d.avg_deposits_h1_fy2025_usd - 1 AS avg_deposits_change\nFROM p JOIN d ON d.`Client` = p.`Client`\nWHERE p.payments_h1_fy2025_usd >= 1000000\n  AND coalesce(p.payments_h1_fy2026_usd, 0) / p.payments_h1_fy2025_usd - 1 < -0.30\n  AND abs(d.avg_deposits_h1_fy2026_usd / d.avg_deposits_h1_fy2025_usd - 1) <= 0.10\nORDER BY p.payments_h1_fy2025_usd - coalesce(p.payments_h1_fy2026_usd, 0) DESC",
+    "expected_checks": {
+      "rows": 79
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000011",
+    "key": "Q9",
+    "question": "Digital channel adoption by segment this fiscal year - show active clients, the digital share of payments, the manual instruction share and the number of clients still sending manual instructions.",
+    "expected_sql": "SELECT `Segment`,\n       MEASURE(`Active Clients`)                      AS active_clients,\n       MEASURE(`Digital Share of Payments %`)         AS digital_share,\n       MEASURE(`Manual Instruction Share %`)          AS manual_instruction_share,\n       MEASURE(`Clients Sending Manual Instructions`) AS clients_sending_manual_instructions\nFROM smbc_genie.metrics.mv_tb_channel_adoption\nWHERE `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY manual_instruction_share DESC",
+    "expected_checks": {
+      "rows": 5
+    },
+    "answer_ref": "Q9",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000012",
+    "key": "Q9b",
+    "question": "Which entities sent 5 or more manual payment instructions this fiscal year? Show their segment, relationship tier, number of manual instructions and manual instruction share.",
+    "expected_sql": "SELECT `Client`, `Segment`, `Relationship Tier`,\n       MEASURE(`Manual Instructions`)        AS manual_instructions,\n       MEASURE(`Manual Instruction Share %`) AS manual_instruction_share\nFROM smbc_genie.metrics.mv_tb_channel_adoption\nWHERE `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nHAVING MEASURE(`Manual Instructions`) >= 5\nORDER BY manual_instructions DESC",
+    "expected_checks": {
+      "rows": 12,
+      "must_contain_columns": [
+        "Client",
+        "manual_instructions"
+      ]
+    },
+    "answer_ref": null,
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "9f803003a4ec24b612f1454000000013",
+    "key": "Q10",
+    "question": "How much time-deposit principal matures in the next 90 days, by booking country and currency? Only show country and currency pairs with maturities.",
+    "expected_sql": "SELECT * FROM (\n  SELECT `Booking Country`, `Currency`,\n         MEASURE(`TD Maturing Next 90D USD`) AS td_maturing_next_90d_usd\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Is Latest Month`\n  GROUP BY ALL\n) WHERE td_maturing_next_90d_usd > 0\nORDER BY `Booking Country`, td_maturing_next_90d_usd DESC",
+    "expected_checks": {
+      "rows": 31
+    },
+    "answer_ref": "Q10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  }
+]

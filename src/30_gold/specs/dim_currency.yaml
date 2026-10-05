@@ -1,0 +1,22 @@
+table: dim_currency
+domain: hub
+comment: >-
+  Currencies of the APAC book (USD base, the 13 APAC local currencies, JPY, EUR, GBP) with names, home
+  country and the rate to USD at the as-of date. Every monetary column in gold has a USD version (<x>_usd);
+  local-currency amounts (<x>_lcy) carry their ISO code here.
+grain: one row per ISO 4217 currency
+primary_key: [currency_code]
+cluster_by: [currency_code]
+min_rows: 17
+columns:
+  currency_code: {type: STRING}
+  currency_name: {type: STRING, comment: Currency name (e.g. Singapore Dollar).}
+  home_country_code: {type: STRING, comment: ISO-2 home country of the currency (null for EUR).}
+  is_base: {type: BOOLEAN, comment: True for USD - the reporting / base currency of all _usd columns.}
+  is_apac_local_currency: {type: BOOLEAN, comment: True when it is the local currency of an APAC booking location.}
+  reference_rate_per_usd: {type: DOUBLE, comment: Reference (planning) rate in currency units per 1 USD from the currency master.}
+  rate_per_usd_as_of: {type: DOUBLE, comment: Market rate on the as-of date 30-Sep-2026 in currency units per 1 USD.}
+  usd_per_unit_as_of: {type: DOUBLE, comment: USD value of one currency unit on the as-of date (1 / rate_per_usd_as_of).}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ref_currency

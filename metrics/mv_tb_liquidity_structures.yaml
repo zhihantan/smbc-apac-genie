@@ -1,0 +1,220 @@
+# Space 7, Transactional Banking: Cash, Payments & Liquidity (WP9b / WP8e). Source: the record_type union
+# gold.mvb_group_liquidity (D13) - 'Structure member' rows (a cash pool's header / participant account at a month-end)
+# and 'Group' rows (one per client group and month-end: deposits, APAC footprint, pooling status). Every measure reads
+# its own row type, so nothing double counts. Balances and counts are point-in-time window measures (last month-end of
+# the selection); interest saved and fees are flows. Group grain -> client_group block.
+view: mv_tb_liquidity_structures
+space: tb_cash_payments_liquidity
+comment: >-
+  Liquidity structures (cash pools) of SMBC's APAC client groups at each month-end, Apr-2023 to Sep-2026: number of
+  structures (notional / physical pooling, sweeps, interest optimisation), participant accounts, pooled balance,
+  estimated interest saved and structure fees, by structure type, header country, participant country and
+  currency - plus the pooling cross-sell list: multi-country groups (accounts in >= 3 APAC countries) without any
+  active structure, with their total deposits. Balances and counts are POINT-IN-TIME: filter one Month (Is Latest
+  Month = Sep 2026); a longer period returns its last month-end. Interest saved and fees are monthly flows.
+grain: one row per structure member account per month-end, plus one row per client group per month-end (gold.mvb_group_liquidity)
+source: ${catalog}.gold.mvb_group_liquidity
+blocks:
+  calendar: {date: source.month_end_date, grain: month, what: the month-end snapshot}
+  client_group: {key: source.client_group_id}
+joins:
+  - name: mc
+    source: ${catalog}.gold.dim_client
+    'on': source.golden_client_sk = mc.golden_client_sk
+  - name: thr
+    source: ${catalog}.gold.dim_threshold
+    'on': "thr.threshold_code = 'POOLING_MIN_COUNTRIES'"
+dimensions:
+  - name: Record Type
+    expr: source.record_type
+    display_name: Record Type
+    comment: >-
+      Row type: Structure member (a header or participant account of a cash pool at the month-end) or Group (one
+      row per client group: its deposits, APAC footprint and pooling status). Each measure reads its own type.
+    synonyms: [record type, row type, member or group, data type]
+  - name: Structure Type
+    expr: source.structure_type
+    display_name: Structure Type
+    comment: Notional Pooling, Physical Pooling, Sweep or Interest Optimisation (Structure member rows).
+    synonyms: [structure type, pooling type, cash pool type, liquidity structure, notional pooling, physical pooling, sweep, cash concentration]
+  - name: Structure
+    expr: source.structure_id
+    display_name: Structure ID
+    comment: Liquidity structure (cash pool) id, e.g. LQS-0003 (Structure member rows).
+    synonyms: [structure, structure id, cash pool, pool, pool id, liquidity structure id]
+  - name: Header Country
+    expr: source.header_country
+    display_name: Header Account Country
+    comment: Booking country of the structure's header (master) account, ISO-2 - where the pool is run from.
+    synonyms: [header country, master account country, pool country, treasury centre, header location]
+  - name: Participant Country
+    expr: source.member_country
+    display_name: Participant Country
+    comment: Booking country of the member account (header or participant), ISO-2.
+    synonyms: [participant country, member country, account country, participating country, sub-account country]
+  - name: Currency
+    expr: source.member_currency
+    display_name: Member Account Currency
+    comment: Currency of the member account (ISO 4217); balances are converted to USD at month-end FX.
+    synonyms: [currency, account currency, ccy, participant currency, member currency]
+  - name: Member Role
+    expr: source.member_role
+    display_name: Member Role
+    comment: Header (the master account; one per structure) or Participant (Structure member rows).
+    synonyms: [member role, role, header or participant, account role, master or sub-account]
+  - name: Member Entity
+    expr: "CASE WHEN source.record_type = 'Structure member' THEN mc.display_name END"
+    display_name: Member Entity
+    comment: Legal entity (golden client) holding the member account, as it was at the month-end (Structure member rows).
+    synonyms: [member entity, participant entity, account holder, subsidiary, participating entity, legal entity]
+  - name: Group APAC Countries
+    expr: source.group_apac_countries
+    display_name: Group APAC Countries (with accounts)
+    comment: >-
+      Number of APAC booking countries in which the client group holds deposit accounts at the month-end (Group
+      rows) - 3 or more = multi-country group, a pooling candidate when it has no active structure.
+    synonyms: [APAC countries, countries, country footprint, number of countries, multi-country, footprint]
+    format: {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Is Pooling Candidate
+    expr: source.is_pooling_candidate
+    display_name: Is Pooling Candidate
+    comment: >-
+      True on Group rows for multi-country groups (accounts in >= 3 APAC countries, dim_threshold
+      POOLING_MIN_COUNTRIES) with no active liquidity structure at the month-end - the pooling cross-sell list.
+    synonyms: [pooling candidate, no pooling, without pooling, cross-sell, unpooled group, pooling opportunity]
+measures:
+  - name: Structures
+    expr: COUNT(DISTINCT source.structure_id)
+    display_name: Liquidity Structures (month-end)
+    comment: Liquidity structures active at the month-end (point-in-time; last month-end of the selection).
+    synonyms: [structures, cash pools, pools, number of structures, liquidity structures, pooling structures]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Participants
+    expr: SUM(CASE WHEN source.is_participant THEN 1 ELSE 0 END)
+    display_name: Participant Accounts (month-end)
+    comment: Participant accounts in the structures at the month-end, header accounts excluded (point-in-time).
+    synonyms: [participants, participant accounts, sub-accounts, member accounts, participating accounts]
+    format: *count
+    window: *eom
+  - name: Pooled Balance USD
+    expr: SUM(source.member_balance_usd)
+    display_name: Pooled Balance (month-end, USD)
+    comment: >-
+      Month-end balance of all accounts in the structures (header + participants) in USD (point-in-time; never a
+      sum of months).
+    synonyms: [pooled balance, pool balance, balances in pools, pooled deposits, concentrated balance, notional balance]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: *eom
+  - name: Interest Saved USD
+    expr: SUM(source.interest_saved_usd)
+    display_name: Interest Saved (estimated, USD)
+    comment: >-
+      Estimated interest saved / earned thanks to the structures = member balance x the structure's interest
+      benefit (bps) / 12, summed over the selected months (a flow; an estimate).
+    synonyms: [interest saved, interest benefit, pooling benefit, interest optimisation benefit, savings, net interest gain]
+    format: *usd
+  - name: Structure Fees USD
+    expr: SUM(source.monthly_fee_usd)
+    display_name: Structure Fees (USD)
+    comment: Monthly liquidity-structure fees charged to clients, summed over the selected months (a flow; header rows).
+    synonyms: [structure fees, pooling fees, liquidity fees, cash management fees, pool fees]
+    format: *usd
+  - name: Group Deposits USD
+    expr: SUM(source.group_deposits_usd)
+    display_name: Group Deposits (month-end, USD)
+    comment: Total month-end deposits of the client groups across all their APAC accounts, USD (Group rows; point-in-time).
+    synonyms: [group deposits, total balances, group balances, deposits, total deposits, group liquidity]
+    format: *usd
+    window: *eom
+  - name: Clients Without Pooling
+    expr: COUNT(DISTINCT CASE WHEN source.is_pooling_candidate THEN source.client_group_id END)
+    display_name: Multi-Country Groups Without Pooling (month-end)
+    comment: >-
+      Client groups with accounts in >= 3 APAC countries and no active liquidity structure at the month-end - the
+      pooling cross-sell list (point-in-time). Rank them by Unpooled Group Deposits USD.
+    synonyms: [clients without pooling, groups without pooling, pooling candidates, unpooled groups, no cash pool, pooling gap]
+    format: *count
+    window: *eom
+  - name: Unpooled Group Deposits USD
+    expr: SUM(CASE WHEN source.is_pooling_candidate THEN source.group_deposits_usd ELSE 0 END)
+    display_name: Deposits of Groups Without Pooling (month-end, USD)
+    comment: Month-end deposits of the multi-country groups without an active structure, USD (point-in-time).
+    synonyms: [unpooled deposits, deposits without pooling, pooling opportunity size, candidate deposits, unpooled balances]
+    format: *usd
+    window: *eom
+  - name: Multi-Country Groups
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Group' AND source.group_apac_countries >= thr.threshold_value THEN source.client_group_id END)
+    display_name: Multi-Country Groups (month-end)
+    comment: Client groups with deposit accounts in >= 3 APAC countries at the month-end (POOLING_MIN_COUNTRIES; point-in-time).
+    synonyms: [multi-country groups, regional groups, groups in 3 countries, multinational groups, cross-border groups]
+    format: *count
+    window: *eom
+  - name: Multi-Country Groups With Pooling
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Group' AND source.group_apac_countries >= thr.threshold_value AND source.group_has_active_structure THEN source.client_group_id END)
+    display_name: Multi-Country Groups With Pooling (month-end)
+    comment: Multi-country groups (>= 3 APAC countries) running at least one active liquidity structure at the month-end.
+    synonyms: [pooled groups, groups with pooling, groups with cash pools, pooling clients, multi-country pooled]
+    format: *count
+    window: *eom
+  - name: Pooling Penetration %
+    expr: MEASURE(`Multi-Country Groups With Pooling`) / NULLIF(MEASURE(`Multi-Country Groups`), 0)
+    display_name: Pooling Penetration of Multi-Country Groups
+    comment: Share of multi-country groups that run an active liquidity structure (fraction, at the month-end).
+    synonyms: [pooling penetration, pooling coverage, penetration, pooling rate, share pooled]
+    format: {type: percentage, decimal_places: {type: max, places: 1}}
+validate:
+  dims: [Month, Structure Type]
+reconcile:
+  - name: pooled_balance_sep26
+    measure: Pooled Balance USD
+    where: "`Is Latest Month`"
+    gold: SELECT sum(member_balance_usd) FROM ${catalog}.gold.fact_liquidity_structure_monthly WHERE is_latest_month_end
+  - name: structures_by_type_sep26
+    measure: Structures
+    by: [Structure Type]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT structure_type, count(DISTINCT structure_id) FROM ${catalog}.gold.fact_liquidity_structure_monthly
+      WHERE is_latest_month_end GROUP BY 1
+  - name: pooling_candidates_sep26
+    measure: Clients Without Pooling
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.mvb_group_liquidity
+      WHERE record_type = 'Group' AND is_latest_month_end AND is_pooling_candidate
+  - name: unpooled_deposits_sep26
+    measure: Unpooled Group Deposits USD
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT sum(group_deposits_usd) FROM ${catalog}.gold.mvb_group_liquidity
+      WHERE record_type = 'Group' AND is_latest_month_end AND is_pooling_candidate
+  - name: pooling_penetration_sep26
+    measure: Pooling Penetration %
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count_if(group_has_active_structure) / count(*) FROM ${catalog}.gold.mvb_group_liquidity
+      WHERE record_type = 'Group' AND is_latest_month_end AND group_apac_countries >= 3
+  - name: interest_saved_fy2025
+    measure: Interest Saved USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sum(interest_saved_usd) FROM ${catalog}.gold.fact_liquidity_structure_monthly
+      WHERE month_end_date BETWEEN DATE'2025-04-30' AND DATE'2026-03-31'
+  - name: participants_by_header_country_sep26
+    measure: Participants
+    by: [Header Country]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT header_country, count_if(member_role = 'Participant') FROM ${catalog}.gold.fact_liquidity_structure_monthly
+      WHERE is_latest_month_end GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Structure counts, balances and the pooling-candidate list are point-in-time at month-end; filter one Month.
+      Interest saved is an estimate (balance x benefit bps / 12). Group fields come from the group-level
+      client_group block (lead entity, group segment / tier).
+notes: >-
+  Member Entity is the participant / header account holder (as-was dim_client version); on Group rows the source
+  golden_client_sk is the group lead, so Member Entity is null there.

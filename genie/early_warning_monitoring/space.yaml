@@ -1,0 +1,351 @@
+# APAC Genie - Early Warning Monitoring (brief §5.4; PLAN §9 / §10). Reference implementation of the format in
+# genie/README.md. Must-answer queries: metrics/_answers/early_warning_monitoring.sql; caveats: scratch/genie_caveats.md §4.
+slug: early_warning_monitoring
+title: APAC Genie - Early Warning Monitoring
+description: >-
+  Ask about early-warning scores and bands, the signals behind them, watchlist actions and delinquency for SMBC's
+  APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year
+  (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_ews_scores
+    columns:
+      Client Group: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Credit Analyst: {entity_matching: true}
+      Daily EWS Band: {entity_matching: true}
+      Model Band: {entity_matching: true}
+      Band Change: {entity_matching: true}
+      Override Direction: {entity_matching: true}
+      Override Reason: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_ews_signals
+    columns:
+      Client Group: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Trigger: {entity_matching: true}
+      Trigger Family: {entity_matching: true}
+      Severity: {entity_matching: true}
+      Source Quadrant: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_watchlist
+    columns:
+      Client Group: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Record Type: {entity_matching: true}
+      Event Type: {entity_matching: true}
+      Reason: {entity_matching: true}
+      Lead Category: {entity_matching: true}
+      Owner: {entity_matching: true}
+      Action Type: {entity_matching: true}
+      Action Status: {entity_matching: true}
+      Watchlist Band: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_delinquency
+    columns:
+      Client Group: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      DPD Bucket: {entity_matching: true}
+      Facility Type: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_ews_trigger
+    # trigger reference only; firing counts come from mv_ews_signals (the dim's own counts are hidden)
+    include_columns: [trigger_code, trigger_name, category, severity, threshold_description, description,
+                      source_quadrant, score_points, max_score_points, auto_watchlist_flag]
+    columns:
+      trigger_code: {entity_matching: true, synonyms: [UTILISATION_GT_90, COVENANT_HEADROOM_LT_10, COVENANT_BREACH, NEGATIVE_NEWS_SENTIMENT, trigger]}
+      trigger_name: {entity_matching: true}
+      category: {entity_matching: true}
+      severity: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    # drill-through: client profile; EWS numbers come from the metric views
+    include_columns: [golden_client_id, display_name, legal_name, short_name, aliases_text, group_name, segment,
+                      relationship_tier, is_japanese_corporate, industry_sector, industry_subsector, coverage_office,
+                      primary_rm_name, credit_analyst_name, internal_rating_grade, rating_equivalent, ifrs9_stage,
+                      external_rating, jp_parent_legal_name, jp_parent_rating_equivalent, ews_band, ews_score,
+                      ews_computed_band, ews_score_change_30d, is_ews_overridden, ews_top_triggers, watchlist_flag,
+                      covenant_min_headroom_pct, has_covenant_breach, max_days_past_due, utilisation_pct]
+    columns:
+      group_name: {entity_matching: true}
+      segment: {entity_matching: true}
+      industry_sector: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+      primary_rm_name: {entity_matching: true}
+      ews_band: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, is_japanese_group, jp_parent_legal_name,
+                      group_segment, group_relationship_tier, group_industry_sector, lead_client_name, lead_office,
+                      lead_rm_name, worst_internal_rating_grade, worst_ews_band, clients_red, clients_amber,
+                      clients_on_watchlist, jp_parent_rating_equivalent, jp_parent_outlook, n_entities_apac]
+    columns:
+      group_name: {entity_matching: true}
+      group_segment: {entity_matching: true}
+      lead_office: {entity_matching: true}
+      worst_ews_band: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- In this space 'clients' are legal entities: list Client (one row per entity), not Client Group, and add Coverage Office or Client Group only when asked."
+    - "- Scores, bands and their exposure (mv_ews_scores) are daily: today = `Date` = DATE'2026-09-30'; a band or score at a month-end needs `Is Month End`. Bands: Red >= 70, Amber 40-69, Green < 40 (`Daily EWS Band` = final band after overrides)."
+    - "- 'Moved from Green to Amber in the last 30 days' = MEASURE(`Moved Green to Amber 30D`) on `Date` = DATE'2026-09-30'; 'entered Red' = MEASURE(`Entered Red`); overrides this year = MEASURE(`Override Events`) with `Fiscal Year` = 'FY2026'."
+    - "- Signals (mv_ews_signals) are monthly, dated at the month-end; 'this fiscal year' = `Is Current FYTD`. Trigger aliases: UTIL_HIGH = utilisation >= 90% (utilisation spike), COV_HEADROOM_LOW = covenant headroom < 10%, COV_BREACH = covenant breach, NEWS_NEGATIVE = negative news."
+    - "- Signals that precede a downgrade: MEASURE(`Signals Preceding Downgrade`) per Trigger (trigger -> downgrade pairs), ranked by MEASURE(`Downgrade Hit Rate %`). Use Exposure Affected USD only for one Trigger and one Month."
+    - "- Watchlist (mv_watchlist): clients and exposure are month-end snapshots (`Is Latest Month` = today). Action plans overdue / open = MEASURE(`Actions Overdue`) / MEASURE(`Open Actions`) by Owner over all months (never filter Month for them). 'Not on the watchlist' = NOT `Watchlist`."
+    - "- Delinquency (mv_delinquency): booking country = `Coverage Office`; the 30+ DPD rate = MEASURE(`30+ DPD Rate %`), a fraction; a trend groups by `Month`."
+    - "- For counts per group (movers, overdue actions, overrides, signals) return only groups with a count above zero: HAVING MEASURE(...) > 0."
+
+example_sqls:
+  - question: Which clients are in the :band band today, with their score, exposure and top three triggers?
+    usage_guidance: Use for "which clients are Red / Amber today", "Red names and why", "exposure of Red clients and their drivers".
+    parameters:
+      - {name: band, type: STRING, description: "Final EWS band: Red, Amber or Green", default: Red}
+    sql: |
+      SELECT `Client`, `Top Triggers`,
+             MEASURE(`Latest Score`)        AS ews_score,
+             MEASURE(`Exposure Scored USD`) AS exposure_usd
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Date` = DATE'2026-09-30' AND `Daily EWS Band` = :band
+      GROUP BY ALL
+      ORDER BY exposure_usd DESC
+  - question: Walk me through the EWS score of :client_name month by month since :from_month and which signals fired when
+    usage_guidance: Use for an EWS timeline / history of one client or client group, month by month, with the signals of each month.
+    parameters:
+      - {name: client_name, type: STRING, description: "Client or client-group name (fragment), e.g. Sunda Energi Nusantara", default: Sunda Energi Nusantara}
+      - {name: from_month, type: STRING, description: "First month as yyyy-MM-dd, e.g. 2026-01-01", default: "2026-01-01"}
+    sql: |
+      SELECT * FROM smbc_genie.gold.fn_ews_timeline(:client_name, :from_month)
+  - question: What was the EWS band and score of :client_name at each month-end since :from_month?
+    usage_guidance: Use for the band or score of a named client at month-ends; match the client name with LIKE and filter Is Month End.
+    parameters:
+      - {name: client_name, type: STRING, description: "Client (legal entity) name fragment, e.g. Sunda Energi Nusantara (Jakarta)", default: "Sunda Energi Nusantara (Jakarta)"}
+      - {name: from_month, type: DATE, description: "First month (first day of the month)", default: "2026-01-01"}
+    sql: |
+      SELECT `Client`, `Month`, `Daily EWS Band`, MEASURE(`Latest Score`) AS month_end_score
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Client` LIKE CONCAT('%', :client_name, '%') AND `Month` >= :from_month AND `Is Month End`
+      GROUP BY ALL
+      ORDER BY `Client`, `Month`
+  - question: How many clients moved from Green to Amber in the 30 days to :as_of_date, by coverage office and industry?
+    usage_guidance: Use for Green-to-Amber migrations / newly Amber clients; count per group and keep groups above zero.
+    parameters:
+      - {name: as_of_date, type: DATE, description: "End date of the 30-day window; today is 2026-09-30", default: "2026-09-30"}
+    sql: |
+      SELECT `Coverage Office`, `Industry`, MEASURE(`Moved Green to Amber 30D`) AS clients_green_to_amber
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Date` = :as_of_date
+      GROUP BY ALL
+      HAVING MEASURE(`Moved Green to Amber 30D`) > 0
+      ORDER BY clients_green_to_amber DESC
+  - question: Which clients have a :trigger signal in the latest month and are not on the watchlist?
+    usage_guidance: Use for clients flagged by one trigger (e.g. covenant headroom below 10% = COV_HEADROOM_LOW, utilisation spike = UTIL_HIGH) who are not on the watchlist.
+    parameters:
+      - {name: trigger, type: STRING, description: "EWS trigger code, e.g. COV_HEADROOM_LOW, UTIL_HIGH, COV_BREACH, DPD_30", default: COV_HEADROOM_LOW}
+    sql: |
+      SELECT `Client`, MEASURE(`Signals Fired`) AS signals
+      FROM smbc_genie.metrics.mv_ews_signals
+      WHERE `Trigger` = :trigger AND `Is Latest Month` AND NOT `Watchlist`
+      GROUP BY ALL
+      ORDER BY `Client`
+  - question: Break down the EWS overrides in :fiscal_year by direction and reason
+    usage_guidance: Use only for an override breakdown by direction / reason. Not for a single count - "how many overrides cite JP parent support" is SELECT MEASURE(`Parent Support Overrides`) with the fiscal-year filter and no GROUP BY.
+    parameters:
+      - {name: fiscal_year, type: STRING, description: "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027)", default: FY2026}
+    sql: |
+      SELECT `Override Direction`, `Override Reason`,
+             MEASURE(`Override Events`)          AS override_events,
+             MEASURE(`Parent Support Overrides`) AS citing_parent_support_jp
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Fiscal Year` = :fiscal_year
+      GROUP BY ALL
+      HAVING MEASURE(`Override Events`) > 0
+      ORDER BY override_events DESC
+
+sql_functions:
+  - smbc_genie.gold.fn_ews_timeline
+  - smbc_genie.gold.fn_ews_client_snapshot
+  - smbc_genie.gold.fn_watchlist_overdue_actions
+
+sample_questions:
+  - Which clients are Red today, what exposure do they carry, and what are the top three triggers for each?
+  - Walk me through Sunda Energi Nusantara's EWS score month by month since January 2026 and which signals fired when.
+  - Which clients moved from Green to Amber in the last 30 days, by coverage office and industry?
+  - Show exposure in Amber and Red by industry at each month-end since April 2025.
+  - Which signals most often precede a downgrade within 90 days?
+  - Which watchlist actions are overdue, by owner?
+  - What is the 30+ DPD rate by booking country and segment, by month?
+  - Which clients have covenant headroom below 10% but are not on the watchlist?
+
+benchmarks:
+  # --- Q1 Red today
+  - key: Q1
+    question: Which clients are Red today, what exposure do they carry, and what are the top three triggers for each?
+    expected_sql: |
+      SELECT `Client`, `Top Triggers`, MEASURE(`Exposure in Red USD`) AS exposure_usd
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Date` = DATE'2026-09-30' AND `Daily EWS Band` = 'Red'
+      GROUP BY ALL
+      ORDER BY exposure_usd DESC
+    checks: {rows: 8, must_contain_columns: [Client, Top Triggers, exposure_usd], top_row_contains: "Sunda Energi Nusantara (Jakarta)"}
+    allow_extra_columns: true
+  - key: Q1-casual
+    question: who's in the red today and what's driving it?
+    variant_of: Q1
+    expected_sql: |
+      SELECT `Client`, `Top Triggers`
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Date` = DATE'2026-09-30' AND `Daily EWS Band` = 'Red'
+      GROUP BY ALL
+    checks: {rows: 8}
+    allow_extra_columns: true
+  # --- Q2 Sunda timeline
+  - key: Q2
+    question: Walk me through Sunda Energi Nusantara's EWS score month by month since January 2026 and which signals fired when.
+    expected_sql: |
+      SELECT * FROM smbc_genie.gold.fn_ews_timeline('Sunda Energi Nusantara', '2026-01-01')
+    checks: {rows: 18, must_contain_columns: [month_end_score, signals_fired]}
+  - key: Q2b
+    question: What was the EWS band and month-end score of Sunda Energi Nusantara (Jakarta) at each month-end since January 2026?
+    answer: Q2b
+    allow_extra_columns: true
+  # --- Q3 Green to Amber
+  - key: Q3
+    question: Clients that moved from Green to Amber in the last 30 days, by coverage office and industry.
+    answer: Q3
+    allow_extra_columns: true
+  - key: Q3-abbrev
+    question: G2A movers last 30d by coverage office
+    variant_of: Q3
+    expected_sql: |
+      SELECT `Coverage Office`, MEASURE(`Moved Green to Amber 30D`) AS clients_green_to_amber
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Date` = DATE'2026-09-30'
+      GROUP BY ALL
+      HAVING MEASURE(`Moved Green to Amber 30D`) > 0
+    checks: {rows: 7}
+  # --- Q4 Amber / Red exposure by industry
+  - key: Q4
+    question: Exposure in Amber and Red by industry sector at each month-end since April 2025.
+    answer: Q4
+  # --- Q5 precedence
+  - key: Q5
+    question: Which signals most often precede a downgrade within 90 days? (Count of trigger -> downgrade pairs.)
+    expected_sql: |
+      SELECT `Trigger`, MEASURE(`Signals Preceding Downgrade`) AS signal_downgrade_pairs
+      FROM smbc_genie.metrics.mv_ews_signals
+      GROUP BY ALL
+      HAVING MEASURE(`Signals Preceding Downgrade`) > 0
+    checks: {rows: 10}
+    allow_extra_columns: true
+  - key: Q5-jargon
+    question: Rank the EWS triggers by their 90-day downgrade hit rate.
+    variant_of: Q5
+    expected_sql: |
+      SELECT `Trigger`, MEASURE(`Downgrade Hit Rate %`) AS downgrade_hit_rate
+      FROM smbc_genie.metrics.mv_ews_signals
+      GROUP BY ALL
+      HAVING MEASURE(`Signals Preceding Downgrade`) > 0
+      ORDER BY downgrade_hit_rate DESC
+    checks: {rows: 10}
+    allow_extra_columns: true
+  # --- Q6 outflow + utilisation
+  - key: Q6
+    question: Clients with a deposit-outflow signal AND a utilisation spike in the same month this fiscal year.
+    expected_sql: |
+      SELECT `Client`
+      FROM smbc_genie.metrics.mv_ews_signals
+      WHERE `Is Current FYTD` AND `Outflow and Utilisation Same Month`
+      GROUP BY ALL
+    checks: {rows: 3}
+    allow_extra_columns: true
+  # --- Q7 overrides
+  - key: Q7
+    question: EWS overrides this year and the reasons - how many cite parent support from Japan?
+    expected_sql: |
+      SELECT `Override Reason`, MEASURE(`Override Events`) AS override_events
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Fiscal Year` = 'FY2026'
+      GROUP BY ALL
+      HAVING MEASURE(`Override Events`) > 0
+    checks: {rows: 4}
+    allow_extra_columns: true
+  - key: Q7-jargon
+    question: How many EWS overrides this FY cite JP parent support?
+    variant_of: Q7
+    expected_sql: |
+      SELECT MEASURE(`Parent Support Overrides`) AS parent_support_overrides
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Fiscal Year` = 'FY2026'
+    checks: {rows: 1, top_row_contains: "2"}
+    allow_extra_columns: true
+  # --- Q8 watchlist actions overdue
+  - key: Q8
+    question: Watchlist actions overdue by owner.
+    expected_sql: |
+      SELECT `Owner`, MEASURE(`Actions Overdue`) AS overdue_actions
+      FROM smbc_genie.metrics.mv_watchlist
+      GROUP BY ALL
+      HAVING MEASURE(`Actions Overdue`) > 0
+    checks: {rows: 22}
+    allow_extra_columns: true
+  - key: Q8-typo
+    question: watchlist actons overdue per ownr
+    variant_of: Q8
+  # --- Q9 DPD
+  - key: Q9
+    question: 30+ DPD rate by booking country and segment, trend by month.
+    expected_sql: |
+      SELECT `Month`, `Coverage Office` AS booking_country, `Segment`, MEASURE(`30+ DPD Rate %`) AS dpd30_rate
+      FROM smbc_genie.metrics.mv_delinquency
+      GROUP BY ALL
+    checks: {rows: 2495}
+    allow_extra_columns: true
+  - key: Q9b
+    question: 30+ DPD rate by booking country, Sep-26 month-end
+    variant_of: Q9
+    expected_sql: |
+      SELECT `Coverage Office` AS booking_country, MEASURE(`30+ DPD Rate %`) AS dpd30_rate
+      FROM smbc_genie.metrics.mv_delinquency
+      WHERE `Is Latest Month`
+      GROUP BY ALL
+    checks: {rows: 13}
+    allow_extra_columns: true
+  # --- Q10 headroom not on watchlist
+  - key: Q10
+    question: Clients with covenant headroom below 10% that are NOT on the watchlist.
+    expected_sql: |
+      SELECT `Client`
+      FROM smbc_genie.metrics.mv_ews_signals
+      WHERE `Trigger` = 'COV_HEADROOM_LOW' AND `Is Latest Month` AND NOT `Watchlist`
+      GROUP BY ALL
+    checks: {rows: 3}
+    allow_extra_columns: true
+  - key: Q10-jargon
+    question: which names have cov headroom under 10% and aren't on the WL?
+    variant_of: Q10
+  # --- extra single-number checks
+  - key: X1
+    question: How many clients are Red today?
+    expected_sql: |
+      SELECT MEASURE(`Clients Red`) AS clients_red
+      FROM smbc_genie.metrics.mv_ews_scores
+      WHERE `Date` = DATE'2026-09-30'
+    checks: {rows: 1, top_row_contains: "8"}
+  - key: X2
+    question: How many clients are on the watchlist right now?
+    expected_sql: |
+      SELECT MEASURE(`Watchlist Clients`) AS watchlist_clients
+      FROM smbc_genie.metrics.mv_watchlist
+      WHERE `Is Latest Month`
+    checks: {rows: 1, top_row_contains: "95"}

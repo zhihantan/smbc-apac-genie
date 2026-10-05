@@ -1,0 +1,115 @@
+{
+ "columns": [
+  {
+   "comment": "Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group label = industry sector - subsector (e.g. Materials - Mining).",
+   "is_measure": false,
+   "name": "peer_group_name",
+   "type": "string"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_sector",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Benchmarked ratio (same names as fact_financial_ratio_annual.ratio_name, e.g. Net Debt/EBITDA, ICR, DSO).",
+   "is_measure": false,
+   "name": "ratio_name",
+   "type": "string"
+  },
+  {
+   "comment": "Ratio family: Leverage, Coverage, Liquidity, Profitability, Working Capital, Cash Flow or Growth.",
+   "is_measure": false,
+   "name": "ratio_category",
+   "type": "string"
+  },
+  {
+   "comment": "Unit: x (multiple), fraction (0.15 = 15%), days or usd.",
+   "is_measure": false,
+   "name": "ratio_unit",
+   "type": "string"
+  },
+  {
+   "comment": "True when a higher ratio is better; false for Net Debt/EBITDA, Debt/Equity, DSO, DIO and cash conversion cycle.",
+   "is_measure": false,
+   "name": "higher_is_better",
+   "type": "boolean"
+  },
+  {
+   "comment": "Statement fiscal year of the benchmark (2023-2025).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Fiscal year label, e.g. FY2025.",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "31 March closing the Japanese fiscal year of the benchmark (FY2025 -> 2026-03-31); calendar key only.",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "25th percentile of the ratio across the peer sample (value-based, in ratio_unit).",
+   "is_measure": false,
+   "name": "peer_p25",
+   "type": "double"
+  },
+  {
+   "comment": "Median (P50) of the ratio across the peer sample.",
+   "is_measure": false,
+   "name": "peer_median",
+   "type": "double"
+  },
+  {
+   "comment": "75th percentile of the ratio across the peer sample (value-based).",
+   "is_measure": false,
+   "name": "peer_p75",
+   "type": "double"
+  },
+  {
+   "comment": "Inter-quartile range P75 - P25 in ratio_unit.",
+   "is_measure": false,
+   "name": "peer_iqr",
+   "type": "double"
+  },
+  {
+   "comment": "Clients in the peer sample (as published with the benchmark).",
+   "is_measure": false,
+   "name": "peer_n_clients",
+   "type": "int"
+  },
+  {
+   "comment": "Our client ratio values in the peer group and fiscal year (fact_financial_ratio_annual rows with a value).",
+   "is_measure": false,
+   "name": "n_client_values",
+   "type": "int"
+  },
+  {
+   "comment": "Of those, values in the bottom quartile of performance (direction-aware worse_than_p25).",
+   "is_measure": false,
+   "name": "n_clients_worse_than_p25",
+   "type": "int"
+  }
+ ],
+ "comment": "Peer benchmarks for financial ratios (brief 5.3): one row per peer group (industry subsector) x ratio x fiscal year (FY2023-FY2025) with the peer 25th percentile, median and 75th percentile, the sample size, the ratio direction and how many of our clients are in the bottom quartile of performance (direction-aware). Benchmarks are point values (never sum P25 / median / P75 across rows). Grain: one row per peer group x ratio x fiscal year.",
+ "identifier": "smbc_genie.gold.fact_peer_benchmark_annual",
+ "type": "MANAGED"
+}

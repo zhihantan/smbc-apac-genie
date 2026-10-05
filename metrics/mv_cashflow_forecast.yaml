@@ -1,0 +1,225 @@
+# Space 9, Cashflow Forecasting (WP9b / WP8e). Source: gold.fact_cashflow_forecast - backtest runs (Mar-2024 to Aug-2026,
+# 30D one-month-ahead, models v1 / v2) and the forward forecasts dated 30-Sep-2026 (7D / 30D / 90D, v2). Forecast
+# amounts are flows over each forecast's window, so they must NEVER be added across forecast dates or horizons: every
+# measure is a window measure over the forecast date (semiadditive last = the latest run of the selection) and every
+# question must pick ONE Horizon (filter or group by it). "Next 7 / 30 / 90 days" = Is Latest Forecast.
+view: mv_cashflow_forecast
+space: cashflow_forecasting
+comment: >-
+  Client cash-flow forecasts: the latest forward forecasts from 30-Sep-2026 for the next 7, 30 and 90 days (model v2;
+  forecast inflows, expected outflows, net cash flow with P10 / P90) and the monthly backtest runs (30-day horizon,
+  model v1 until the May-2026 targets, v2 from June-2026), with clients forecast to run a net outflow, material
+  shortfalls and the undrawn committed RCF headroom to cover them. Each measure returns the LATEST forecast run in the
+  selection - never a sum over runs - and must be read for ONE Horizon (filter Horizon = '30D', or group by Horizon);
+  for "next 30 days" filter Is Latest Forecast and Horizon = '30D'. P10 / P90 summed over clients are conservative.
+grain: one row per client x forecast date x horizon x model version (gold.fact_cashflow_forecast)
+source: ${catalog}.gold.fact_cashflow_forecast
+blocks:
+  calendar: {date: source.forecast_date, grain: day, what: the forecast run}
+  client: {key: source.golden_client_sk}
+overrides:
+  Date:
+    display_name: Forecast Date
+    comment: >-
+      Date the forecast was run: 30-Sep-2026 for the forward forecasts (Is Latest Forecast), the 1st of the month
+      before the target month for the backtests. Measures return the latest run of the selection.
+    synonyms: [forecast date, run date, as of date, forecast run, snapshot date, prediction date]
+dimensions:
+  - name: Horizon
+    expr: source.horizon_label
+    display_name: Forecast Horizon
+    comment: >-
+      7D (1-7 Oct 2026), 30D (October 2026 / the target month) or 90D (Oct-Dec 2026). Always filter or group by one
+      Horizon - forecasts of different horizons must not be added.
+    synonyms: [horizon, forecast horizon, 30 days, 7 days, 90 days, window, lookahead]
+  - name: Model Version
+    expr: source.model_version
+    display_name: Model Version
+    comment: Forecast model - v1 (MAPE about 18%, until the May-2026 targets) or v2 (upgraded model, about 11%, from June-2026; the forward runs).
+    synonyms: [model version, model, v1, v2, forecast model, algorithm version]
+  - name: Forecast Type
+    expr: source.forecast_type
+    display_name: Forecast Type
+    comment: Forward (from the as-of date 30-Sep-2026) or Backtest (historical one-month-ahead run scored against actuals).
+    synonyms: [forecast type, forward or backtest, backtest, forward forecast, live forecast]
+  - name: Is Latest Forecast
+    expr: source.is_latest_forecast
+    display_name: Is Latest Forecast
+    comment: True for the latest run (the forward forecasts dated 30-Sep-2026) - use it for "next 7 / 30 / 90 days" questions.
+    synonyms: [latest forecast, current forecast, next 30 days, forward looking, today forecast, latest run]
+  - name: Window End
+    expr: source.window_end_date
+    display_name: Forecast Window End Date
+    comment: Last day of the forecast window (e.g. 31-Oct-2026 for the 30D forward forecast).
+    synonyms: [window end, forecast end date, period end, horizon end]
+    format: {type: date, date_format: year_month_day}
+  - name: Is Forecast Net Negative
+    expr: source.is_forecast_net_negative
+    display_name: Is Forecast Net Negative
+    comment: True when the forecast net cash flow over the window is negative (outflows exceed inflows).
+    synonyms: [forecast negative, net negative, net outflow, cash burn, negative forecast, going negative]
+  - name: Is Material Shortfall
+    expr: source.is_material_shortfall
+    display_name: Is Material Shortfall
+    comment: >-
+      True when the forecast net outflow is at least 50% of the client's typical gross monthly flow (the
+      liquidity-event engine's predicted-shortfall rule) - a liquidity need worth an RCF / overdraft conversation.
+    synonyms: [material shortfall, shortfall, liquidity gap, funding need, predicted shortfall, cash shortfall]
+  - name: Has RCF
+    expr: source.has_rcf
+    display_name: Has Revolving Credit Facility
+    comment: True when the client has a committed RCF (with a balance at the month-end before the window).
+    synonyms: [has RCF, revolver, revolving credit, committed facility, credit line, RCF client]
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: Client's coverage office / booking location (ISO-2).
+    synonyms: [booking country, country, booking location, market, office]
+measures:
+  - name: Forecast Inflow USD
+    expr: SUM(source.forecast_inflow_usd)
+    display_name: Forecast Inflows (USD)
+    comment: Forecast inflows (collections) over the forecast window, USD - latest run of the selection; one Horizon.
+    synonyms: [forecast inflows, expected receipts, forecast collections, projected inflows, cash in forecast]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &latest
+      - {order: Date, range: current, semiadditive: last}
+  - name: Forecast Outflow USD
+    expr: SUM(source.forecast_outflow_usd)
+    display_name: Expected Outflows (USD)
+    comment: Expected outflows over the window (average monthly outflows of the 3 months before the run), USD.
+    synonyms: [forecast outflows, expected payments, projected outflows, cash out forecast, expected disbursements]
+    format: *usd
+    window: *latest
+  - name: Forecast Net USD
+    expr: SUM(source.forecast_net_usd)
+    display_name: Forecast Net Cash Flow (USD)
+    comment: Forecast inflows - expected outflows over the window, USD (negative = predicted net outflow).
+    synonyms: [forecast net, net cash flow forecast, projected net cash, forecast position, net forecast]
+    format: *usd
+    window: *latest
+  - name: Forecast Net P10 USD
+    expr: SUM(source.forecast_net_p10_usd)
+    display_name: Forecast Net Cash Flow P10 (USD)
+    comment: Pessimistic (10th percentile) net cash flow = P10 inflows - expected outflows, USD (summed over clients = conservative).
+    synonyms: [P10, downside, pessimistic, low case, worst case, lower bound]
+    format: *usd
+    window: *latest
+  - name: Forecast Net P90 USD
+    expr: SUM(source.forecast_net_p90_usd)
+    display_name: Forecast Net Cash Flow P90 (USD)
+    comment: Optimistic (90th percentile) net cash flow = P90 inflows - expected outflows, USD.
+    synonyms: [P90, upside, optimistic, high case, best case, upper bound]
+    format: *usd
+    window: *latest
+  - name: Forecast Inflow P10 USD
+    expr: SUM(source.forecast_inflow_p10_usd)
+    display_name: Forecast Inflows P10 (USD)
+    comment: P10 forecast inflows (empirical 10th percentile of actual / forecast in the model's backtests), USD.
+    synonyms: [inflow P10, low inflow, pessimistic inflows, downside collections]
+    format: *usd
+    window: *latest
+  - name: Forecast Inflow P90 USD
+    expr: SUM(source.forecast_inflow_p90_usd)
+    display_name: Forecast Inflows P90 (USD)
+    comment: P90 forecast inflows, USD.
+    synonyms: [inflow P90, high inflow, optimistic inflows, upside collections]
+    format: *usd
+    window: *latest
+  - name: Undrawn RCF USD
+    expr: SUM(source.undrawn_rcf_usd)
+    display_name: Undrawn RCF Headroom (USD)
+    comment: Undrawn committed RCF headroom (limit - drawn) at the month-end before the window, USD (30-Sep-2026 for the latest forecasts).
+    synonyms: [undrawn RCF, RCF headroom, available RCF, undrawn commitment, liquidity headroom, revolver availability]
+    format: *usd
+    window: *latest
+  - name: Opening Deposits USD
+    expr: SUM(source.opening_balance_usd)
+    display_name: Opening Deposits (USD)
+    comment: Clients' total deposits at the month-end before the window, USD.
+    synonyms: [opening balance, deposits, starting cash, cash balance, opening deposits]
+    format: *usd
+    window: *latest
+  - name: Projected Closing Deposits USD
+    expr: SUM(source.projected_closing_balance_usd)
+    display_name: Projected Closing Deposits (USD)
+    comment: Opening deposits + forecast net cash flow, USD - the position at the end of the window if nothing else changes.
+    synonyms: [projected balance, projected closing balance, ending cash forecast, projected deposits]
+    format: *usd
+    window: *latest
+  - name: Clients Forecast
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients Forecast
+    comment: Legal entities with a forecast in the latest run of the selection.
+    synonyms: [clients forecast, forecast clients, number of clients, clients covered]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *latest
+  - name: Clients Forecast Negative
+    expr: COUNT(DISTINCT CASE WHEN source.is_forecast_net_negative THEN source.golden_client_id END)
+    display_name: Clients Forecast Net Negative
+    comment: Legal entities whose forecast net cash flow over the window is negative (latest run; one Horizon).
+    synonyms: [clients forecast negative, negative clients, clients going negative, net outflow clients, cash burn clients]
+    format: *count
+    window: *latest
+  - name: Clients with Material Shortfall
+    expr: COUNT(DISTINCT CASE WHEN source.is_material_shortfall THEN source.golden_client_id END)
+    display_name: Clients with a Material Shortfall
+    comment: Legal entities whose forecast net outflow is at least 50% of their typical gross monthly flow (latest run; one Horizon).
+    synonyms: [material shortfall clients, shortfall clients, liquidity need, funding need clients, RCF candidates]
+    format: *count
+    window: *latest
+  - name: Share of Clients Forecast Negative %
+    expr: MEASURE(`Clients Forecast Negative`) / NULLIF(MEASURE(`Clients Forecast`), 0)
+    display_name: Share of Clients Forecast Net Negative
+    comment: Clients forecast net negative / clients forecast (fraction).
+    synonyms: [share negative, percentage negative, negative share, share of clients with outflow]
+    format: {type: percentage, decimal_places: {type: max, places: 1}}
+validate:
+  dims: [Horizon, Model Version]
+reconcile:
+  - name: forward_30d_net_total
+    measure: Forecast Net USD
+    where: "`Is Latest Forecast` AND `Horizon` = '30D'"
+    gold: SELECT sum(forecast_net_usd) FROM ${catalog}.gold.fact_cashflow_forecast WHERE is_latest_forecast AND horizon_days = 30
+  - name: forward_net_by_horizon
+    measure: Forecast Net USD
+    by: [Horizon]
+    where: "`Is Latest Forecast`"
+    gold: SELECT horizon_label, sum(forecast_net_usd) FROM ${catalog}.gold.fact_cashflow_forecast WHERE is_latest_forecast GROUP BY 1
+  - name: kinokawa_30d_net_p10
+    measure: Forecast Net P10 USD
+    where: "`Is Latest Forecast` AND `Horizon` = '30D' AND `Client Group` = 'Kinokawa Precision'"
+    gold: >-
+      SELECT sum(f.forecast_net_p10_usd) FROM ${catalog}.gold.fact_cashflow_forecast f
+      JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = f.client_group_id
+      WHERE f.is_latest_forecast AND f.horizon_days = 30 AND g.group_name = 'Kinokawa Precision'
+  - name: clients_forecast_negative_30d
+    measure: Clients Forecast Negative
+    where: "`Is Latest Forecast` AND `Horizon` = '30D'"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_cashflow_forecast
+      WHERE is_latest_forecast AND horizon_days = 30 AND is_forecast_net_negative
+  - name: undrawn_rcf_material_shortfalls_30d
+    measure: Undrawn RCF USD
+    where: "`Is Latest Forecast` AND `Horizon` = '30D' AND `Is Material Shortfall`"
+    gold: >-
+      SELECT sum(undrawn_rcf_usd) FROM ${catalog}.gold.fact_cashflow_forecast
+      WHERE is_latest_forecast AND horizon_days = 30 AND is_material_shortfall
+  - name: backtest_run_aug26_is_one_run
+    measure: Forecast Inflow USD
+    where: "`Fiscal Quarter` = 'FY2026-Q2' AND `Forecast Type` = 'Backtest'"
+    gold: >-
+      SELECT sum(forecast_inflow_usd) FROM ${catalog}.gold.fact_cashflow_forecast
+      WHERE forecast_type = 'Backtest' AND forecast_date = DATE'2026-08-01'
+  - name: share_negative_30d
+    measure: Share of Clients Forecast Negative %
+    where: "`Is Latest Forecast` AND `Horizon` = '30D'"
+    gold: >-
+      SELECT count_if(is_forecast_net_negative) / count(*) FROM ${catalog}.gold.fact_cashflow_forecast
+      WHERE is_latest_forecast AND horizon_days = 30
+glossary:
+  caveats:
+    - >-
+      Never add forecasts across forecast dates or horizons: measures return the latest run of the selection and
+      need ONE Horizon. Forward forecasts allocate the engine's seasonal segment projection to clients (ai_forecast
+      unavailable, D19); only the 30D horizon has backtests (see mv_forecast_accuracy).

@@ -1,0 +1,235 @@
+# WP9b - space 1, Account Planning. Group x fiscal year x product family: plan targets (original / revised mid-year),
+# revenue year to date, run-rate, prior-year same period, wallet and share of wallet, initiatives. Flows per fiscal
+# year (filter one Fiscal Year); ratios are SUM/SUM via MEASURE(). Must-answer queries: metrics/_answers/account_planning.sql.
+view: mv_account_plan_progress
+space: account_planning
+comment: >-
+  Account-plan progress of SMBC APAC client groups by fiscal year and product family, FY2023-FY2026 (USD): the
+  plan's original revenue target and its mid-year revised target, actual revenue year to date (FY2026 = Apr-Sep
+  2026, H1; past years = full year), the full-year run-rate, the same period one year earlier (Revenue YoY), the
+  bankable wallet and SMBC share of wallet, the top competitor bank and the plan's initiatives. Every group with
+  revenue or a wallet estimate appears, with or without a plan (Has Account Plan). Amounts add up across groups
+  and families within one fiscal year - filter one Fiscal Year; attainment and share of wallet are ratios of sums.
+grain: one row per client group x fiscal year x product family (gold.fact_account_plan_annual)
+source: ${catalog}.gold.fact_account_plan_annual
+blocks:
+  calendar: {fy: source.fiscal_year, grain: fiscal_year, what: the plan year}
+  client_group: {key: source.client_group_id}
+joins:
+  - name: own
+    source: ${catalog}.gold.dim_employee
+    'on': source.owner_rm_id = own.employee_id
+  - name: thr
+    source: ${catalog}.gold.dim_threshold
+    'on': "thr.threshold_code = 'PLAN_ATTAINMENT_LOW'"
+dimensions:
+  - name: Product Family
+    expr: source.product_family
+    display_name: Product Family
+    comment: >-
+      Plan product family: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX or
+      Sustainable Finance.
+    synonyms: [product family, product, product line, business product, plan line, product group]
+  - name: Plan Status
+    expr: source.plan_status
+    display_name: Plan Status
+    comment: Status of the group's account plan - Active (current year), Revised (reset mid-year) or Closed (past years); null without a plan.
+    synonyms: [plan status, account plan status, status, plan state]
+  - name: Has Account Plan
+    expr: source.group_has_plan
+    display_name: Has Account Plan
+    comment: True when the group has an account plan for the fiscal year (any product family).
+    synonyms: [has plan, planned group, account plan, with plan, plan exists]
+  - name: Plan Revised Mid-Year
+    expr: source.plan_revised_mid_year
+    display_name: Plan Revised Mid-Year
+    comment: True when the group's plan for the year was reset mid-year (e.g. Kinokawa Precision FY2026, revised 10-Jul-2026).
+    synonyms: [mid-year revision, plan reset, revised plan, re-forecast, target reset, revised target]
+  - name: Plan Owner RM
+    expr: own.employee_name
+    display_name: Plan Owner RM
+    comment: RM owning the group's account plan (fictional name); null for groups without a plan.
+    synonyms: [plan owner, plan RM, owner RM, account plan owner, RM, relationship manager, banker]
+  - name: Plan Owner RM Office
+    expr: own.coverage_office
+    display_name: Plan Owner RM Office
+    comment: Office (APAC booking location, ISO-2) of the plan owner RM - "RMs in Singapore" means SG.
+    synonyms: [owner office, plan owner office, RM office, RM location, RM based in, banker office]
+  - name: Top Competitor Bank
+    expr: source.top_competitor_bank
+    display_name: Top Competitor Bank
+    comment: Competitor bank (fictional) with the largest share of the group's wallet for the family.
+    synonyms: [competitor, main competitor, top competitor, rival bank, competing bank, other bank]
+measures:
+  - name: Revenue Target USD
+    expr: SUM(source.revenue_target_usd)
+    display_name: Revenue Target (original, USD)
+    comment: Original full-year revenue target of the plan lines in USD, as approved at the start of the year.
+    synonyms: [target, revenue target, plan target, original target, budget, plan, goal]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Revised Target USD
+    expr: SUM(source.revised_target_usd)
+    display_name: Revised Target (mid-year, USD)
+    comment: Mid-year revised full-year target in USD (only lines that were revised; blank otherwise).
+    synonyms: [revised target, reset target, re-forecast target, new target, revised plan, updated target]
+    format: *usd
+  - name: Effective Target USD
+    expr: SUM(source.effective_target_usd)
+    display_name: Target in Force (USD)
+    comment: Target in force in USD = the revised target where the line was revised mid-year, else the original target.
+    synonyms: [current target, effective target, target in force, live target, applicable target]
+    format: *usd
+  - name: Revenue Actual YTD USD
+    expr: SUM(source.revenue_actual_ytd_usd)
+    display_name: Revenue Actual YTD (USD)
+    comment: >-
+      Actual revenue year to date in USD (FY2026 = Apr-Sep 2026, H1; past years = full year), from the gold revenue
+      fact; Supply Chain Finance uses the CRM-recorded actual.
+    synonyms: [actual, YTD revenue, revenue YTD, actuals, H1 actual, achieved revenue, revenue to date]
+    format: *usd
+  - name: Revenue Actual YTD on Plan USD
+    expr: SUM(CASE WHEN source.has_plan_line THEN source.revenue_actual_ytd_usd END)
+    display_name: Revenue Actual YTD on Planned Lines (USD)
+    comment: Actual revenue year to date in USD on the families that have a plan target (the attainment numerator).
+    synonyms: [actual on plan, planned revenue actual, actual vs target base, plan-line actual]
+    format: *usd
+  - name: Attainment %
+    expr: MEASURE(`Revenue Actual YTD on Plan USD`) / NULLIF(MEASURE(`Effective Target USD`), 0)
+    display_name: Plan Attainment
+    comment: >-
+      Revenue year to date / target in force (fraction: 0.40 = 40%). At H1 FY2026 about 50% is on track; below 40% is
+      behind plan (dim_threshold PLAN_ATTAINMENT_LOW).
+    synonyms: [attainment, plan attainment, achievement, percent of target, target achievement, progress to target]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Run-Rate Full-Year USD
+    expr: SUM(source.revenue_actual_ytd_usd * 12 / source.months_elapsed)
+    display_name: Full-Year Run-Rate (USD)
+    comment: Revenue year to date annualised in USD (FY2026 H1 x 2) - where the year lands at the current pace.
+    synonyms: [run rate, run-rate, annualised revenue, full year forecast, projected revenue, pace]
+    format: *usd
+  - name: Gap to Target USD
+    expr: SUM(CASE WHEN source.has_plan_line THEN source.effective_target_usd - source.revenue_actual_ytd_usd * 12 / source.months_elapsed END)
+    display_name: Gap to Target at Run-Rate (USD)
+    comment: Target in force minus the full-year run-rate on planned lines, USD (positive = shortfall expected).
+    synonyms: [gap to target, shortfall, gap, revenue gap, miss, distance to target]
+    format: *usd
+  - name: Revenue Prior YTD USD
+    expr: SUM(source.revenue_prior_ytd_usd)
+    display_name: Revenue Same Period Prior Year (USD)
+    comment: Revenue in the same months one year earlier in USD (FY2026 - Apr-Sep 2025; past years - the prior full year).
+    synonyms: [prior year revenue, last year revenue, PY revenue, prior YTD, same period last year, comparative revenue]
+    format: *usd
+  - name: Revenue YTD Comparable USD
+    expr: SUM(CASE WHEN source.revenue_prior_ytd_usd IS NOT NULL THEN source.revenue_actual_ytd_usd END)
+    display_name: Revenue YTD on Comparable Lines (USD)
+    comment: >-
+      Revenue year to date in USD on the lines that have a same-period prior-year figure (excludes FY2026 Supply Chain
+      Finance, whose CRM actual has no H1 comparable) - the Revenue YoY numerator.
+    synonyms: [comparable revenue, like-for-like revenue, revenue YoY base, comparable YTD]
+    format: *usd
+  - name: Revenue YoY %
+    expr: MEASURE(`Revenue YTD Comparable USD`) / NULLIF(MEASURE(`Revenue Prior YTD USD`), 0) - 1
+    display_name: Revenue Growth YoY
+    comment: >-
+      Revenue year to date vs the same months one year earlier, like for like (fraction - 0.20 = +20%, -0.15 =
+      -15%); FY2026 compares Apr-Sep 2026 with Apr-Sep 2025.
+    synonyms: [revenue growth, YoY growth, year on year, revenue change, growth rate, YoY %]
+    format: *pct
+  - name: Estimated Wallet USD
+    expr: SUM(source.estimated_wallet_usd)
+    display_name: Estimated Wallet (USD)
+    comment: Estimated full-year bankable wallet in USD - the revenue the group pays all banks for the family.
+    synonyms: [wallet, bankable wallet, wallet size, revenue pool, total wallet, wallet estimate]
+    format: *usd
+  - name: SMBC Wallet Revenue USD
+    expr: SUM(source.wallet_smbc_revenue_annualised_usd)
+    display_name: SMBC Revenue in Wallet (annualised, USD)
+    comment: SMBC revenue used by the wallet estimate, annualised in USD (FY2026 H1 x 2) - the share-of-wallet numerator.
+    synonyms: [SMBC revenue, our revenue, captured wallet, SMBC share, wallet captured]
+    format: *usd
+  - name: Share of Wallet %
+    expr: MEASURE(`SMBC Wallet Revenue USD`) / NULLIF(MEASURE(`Estimated Wallet USD`), 0)
+    display_name: Share of Wallet
+    comment: SMBC share of the group's bankable wallet (fraction); low values = wallet held by other banks.
+    synonyms: [share of wallet, SoW, wallet share, penetration of wallet, our share]
+    format: *pct
+  - name: Initiatives Planned
+    expr: SUM(source.initiatives_planned)
+    display_name: Initiatives Planned
+    comment: Account-plan initiatives for the groups, years and families selected (detail in gold.dim_account_plan_initiative).
+    synonyms: [initiatives, planned initiatives, plan actions, action plan items, initiatives count]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Initiatives Completed
+    expr: SUM(source.initiatives_completed)
+    display_name: Initiatives Completed
+    comment: Initiatives with status Completed.
+    synonyms: [completed initiatives, done initiatives, delivered initiatives, achieved initiatives]
+    format: *count
+  - name: Initiatives Open
+    expr: SUM(source.initiatives_open)
+    display_name: Initiatives Open
+    comment: Initiatives still open at 30-Sep-2026 (Not Started, In Progress, At Risk, Delayed).
+    synonyms: [open initiatives, pending initiatives, outstanding initiatives, live initiatives, in-flight initiatives]
+    format: *count
+  - name: Initiatives Overdue
+    expr: SUM(source.initiatives_overdue)
+    display_name: Initiatives Overdue
+    comment: Open initiatives past their due date at 30-Sep-2026.
+    synonyms: [overdue initiatives, late initiatives, delayed initiatives, missed initiatives]
+    format: *count
+  - name: Groups
+    expr: COUNT(DISTINCT source.client_group_id)
+    display_name: Client Groups
+    comment: Client groups in the selection.
+    synonyms: [groups, number of groups, group count, relationships, client groups]
+    format: *count
+  - name: Groups With Plan
+    expr: COUNT(DISTINCT CASE WHEN source.group_has_plan THEN source.client_group_id END)
+    display_name: Groups With an Account Plan
+    comment: Client groups that have an account plan for the fiscal year.
+    synonyms: [planned groups, groups with plan, plan coverage, groups planned]
+    format: *count
+  - name: Low Attainment Threshold %
+    expr: MAX(thr.threshold_value)
+    display_name: Low Attainment Threshold
+    comment: Attainment below which a group is behind plan at H1 (dim_threshold PLAN_ATTAINMENT_LOW, 0.40 = 40%).
+    synonyms: [attainment threshold, behind plan threshold, 40% threshold, low attainment cut-off]
+    format: *pct
+validate:
+  dims: [Fiscal Year, Segment, Product Family]
+reconcile:
+  - name: revenue_ytd_fy2026
+    measure: Revenue Actual YTD USD
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: SELECT sum(revenue_actual_ytd_usd) FROM ${catalog}.gold.fact_account_plan_annual WHERE fiscal_year = 2026
+  - name: target_by_product_family_fy2026
+    measure: Effective Target USD
+    by: [Product Family]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT product_family, sum(effective_target_usd) FROM ${catalog}.gold.fact_account_plan_annual
+      WHERE fiscal_year = 2026 GROUP BY 1 HAVING sum(effective_target_usd) IS NOT NULL
+  - name: attainment_kinokawa_fy2026
+    measure: Attainment %
+    where: "`Fiscal Year` = 'FY2026' AND `Client Group` = 'Kinokawa Precision'"
+    gold: >-
+      SELECT sum(CASE WHEN p.has_plan_line THEN p.revenue_actual_ytd_usd END) / sum(p.effective_target_usd)
+      FROM ${catalog}.gold.fact_account_plan_annual p JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = p.client_group_id
+      WHERE p.fiscal_year = 2026 AND g.group_name = 'Kinokawa Precision'
+  - name: share_of_wallet_fy2025
+    measure: Share of Wallet %
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sum(wallet_smbc_revenue_annualised_usd) / sum(estimated_wallet_usd)
+      FROM ${catalog}.gold.fact_account_plan_annual WHERE fiscal_year = 2025
+  - name: revenue_yoy_fy2026
+    measure: Revenue YoY %
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT sum(CASE WHEN revenue_prior_ytd_usd IS NOT NULL THEN revenue_actual_ytd_usd END) / sum(revenue_prior_ytd_usd) - 1
+      FROM ${catalog}.gold.fact_account_plan_annual WHERE fiscal_year = 2026
+glossary:
+  caveats:
+    - >-
+      Amounts are per fiscal year: filter one Fiscal Year. FY2026 actuals are H1 (Apr-Sep 2026), so H1 attainment of
+      about 50% is on track; Run-Rate annualises them. Attainment counts only families with a plan target.

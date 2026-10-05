@@ -1,0 +1,55 @@
+{
+ "columns": [
+  {
+   "comment": "Bank key BNK-<NAME> (upper-case name, non-alphanumerics as '-'), e.g. BNK-SOLARIS-BANK.",
+   "is_measure": false,
+   "name": "bank_id",
+   "type": "string"
+  },
+  {
+   "comment": "Bank name as recorded in payments / wallet estimates (fictional competitors, SMBC, Intercompany).",
+   "is_measure": false,
+   "name": "bank_name",
+   "type": "string"
+  },
+  {
+   "comment": "SMBC, Other Bank (competitor) or Intercompany (transfers within the client group).",
+   "is_measure": false,
+   "name": "bank_type",
+   "type": "string"
+  },
+  {
+   "comment": "True for other (competitor) banks.",
+   "is_measure": false,
+   "name": "is_competitor",
+   "type": "boolean"
+  },
+  {
+   "comment": "Latest fiscal year of the wallet estimates used for the competitor statistics.",
+   "is_measure": false,
+   "name": "wallet_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Client groups for which this bank is the top competitor in at least one product family (latest wallet fiscal year).",
+   "is_measure": false,
+   "name": "groups_as_top_competitor",
+   "type": "bigint"
+  },
+  {
+   "comment": "Group x product-family wallet lines where this bank is the top competitor (latest wallet fiscal year).",
+   "is_measure": false,
+   "name": "wallet_lines_as_top_competitor",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average estimated share of wallet (0-1) this bank holds where it is the top competitor (latest wallet fiscal year).",
+   "is_measure": false,
+   "name": "avg_top_competitor_share",
+   "type": "double"
+  }
+ ],
+ "comment": "Counterparty banks seen in client payments and wallet estimates: SMBC itself, the fictional competitor banks (e.g. Meridian Pacific Bank, Garuda Commercial Bank) and intercompany transfers, with how often each competitor is the top competitor in a group's product wallet in the latest fiscal year. Grain: one row per bank.",
+ "identifier": "smbc_genie.gold.dim_competitor_bank",
+ "type": "MANAGED"
+}

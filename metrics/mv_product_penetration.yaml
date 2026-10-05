@@ -1,0 +1,168 @@
+# WP9b - space 2, Opportunity Identification. Dense client x core product x fiscal year: penetration of the selected
+# clients vs their peer group (industry subsector), their industry sector and all APAC clients. Rates are per fiscal
+# year - window measures on Fiscal Year Number return the latest year of the selection.
+# Must-answer queries: metrics/_answers/opportunity_identification.sql.
+view: mv_product_penetration
+space: opportunity_identification
+comment: >-
+  Product penetration of SMBC APAC clients vs peers, FY2024-FY2026 (FY2026 to date): for each client and core
+  product, whether the client holds or used it in the year, and how widely its peer group (same industry subsector),
+  its industry sector and all APAC clients hold it. Penetration % = share of the selected clients holding the
+  product; Peer Penetration % = the peers' rate; Gap pts = peer - own (positive = under-penetrated); Clients With
+  Gap = clients without the product while >= 50% of their peers hold it. Rates are per fiscal year (a multi-year
+  selection returns the latest year). When the selection is a whole peer group (e.g. Japanese automotive-parts
+  subsidiaries - every Auto Parts client is a Japanese corporate) the peer gap nets to 0: read Clients With Gap and the
+  sector / all-client gaps. "Which products are under-penetrated" = products with Clients With Gap > 0 OR Gap vs All
+  Clients pts > 0.05 (more than 5 points below the APAC book).
+grain: one row per golden client x core product x fiscal year (gold.fact_client_product_penetration_annual)
+source: ${catalog}.gold.fact_client_product_penetration_annual
+blocks:
+  calendar: {fy: source.fiscal_year, grain: fiscal_year, what: the penetration year}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: pg
+    source: ${catalog}.gold.dim_peer_group
+    'on': source.peer_group_id = pg.peer_group_id
+dimensions:
+  - name: Peer Group
+    expr: pg.peer_group_name
+    display_name: Peer Group
+    comment: Peer group of the client = its industry subsector (e.g. Auto Parts, Semiconductors).
+    synonyms: [peer group, peers, comparable group, benchmark group, industry peers]
+  - name: Product Family
+    expr: source.product_family
+    display_name: Product Family
+    comment: Product family - Corporate Lending, Structured Lending, Trade Finance, Supply Chain Finance, Cash, Liquidity, Payments, FX, Rates or Sustainable Finance.
+    synonyms: [product family, product line, family, business product]
+  - name: Product
+    expr: source.product_name
+    display_name: Product
+    comment: Core product, e.g. Time Deposit, Notional Pooling, Term Loan, Import LC, FX Forward, Payables Finance.
+    synonyms: [product, product name, offering, service, instrument]
+  - name: Business Line
+    expr: source.business_line
+    display_name: Business Line
+    comment: Lending, Transaction Banking, Markets or Sustainable Finance.
+    synonyms: [business line, division, line of business, LOB]
+  - name: Holds Product
+    expr: source.holds_product
+    display_name: Holds Product
+    comment: True when the client held or used the product in the fiscal year.
+    synonyms: [holds product, has product, product held, uses product, penetrated]
+  - name: Has Gap vs Peers
+    expr: source.is_gap_vs_peers
+    display_name: Has Gap vs Peers
+    comment: True when the client does not hold the product while at least half of its peer group does.
+    synonyms: [gap vs peers, product gap, white space, under-penetrated, missing product, cross-sell gap]
+measures:
+  - name: Clients
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients
+    comment: Clients with an active relationship in the fiscal year (the penetration base).
+    synonyms: [clients, client base, number of clients, entities, relationships]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &fy
+      - {order: Fiscal Year Number, range: current, semiadditive: last}
+  - name: Holdings
+    expr: COUNT(1) FILTER (WHERE source.holds_product)
+    display_name: Client-Product Holdings
+    comment: Client-product pairs held in the fiscal year.
+    synonyms: [holdings, products held, client products, penetrated pairs]
+    format: *count
+    window: *fy
+  - name: Penetration %
+    expr: AVG(source.holds_product_flag)
+    display_name: Penetration (clients holding)
+    comment: Share of the selected clients holding the product in the fiscal year (fraction).
+    synonyms: [penetration, product penetration, take-up, adoption, usage rate, share holding]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+    window: *fy
+  - name: Peer Penetration %
+    expr: AVG(source.peer_penetration_pct)
+    display_name: Peer Penetration
+    comment: Share of the clients' peer groups holding the product (fraction) - the benchmark.
+    synonyms: [peer penetration, peer rate, peer benchmark, peer take-up, industry penetration]
+    format: *pct
+    window: *fy
+  - name: Penetration Gap pts
+    expr: MEASURE(`Peer Penetration %`) - MEASURE(`Penetration %`)
+    display_name: Penetration Gap vs Peers (pts)
+    comment: Peer penetration minus own penetration (fraction; 0.10 = 10 percentage points under-penetrated).
+    synonyms: [penetration gap, gap vs peers, under-penetration, white space, peer gap]
+    format: *pct
+  - name: Clients With Gap
+    expr: COUNT(DISTINCT CASE WHEN source.is_gap_vs_peers THEN source.golden_client_id END)
+    display_name: Clients With Gap vs Peers
+    comment: >-
+      Clients without the product while at least half of their peer group holds it. A product is under-penetrated
+      when Clients With Gap > 0 OR Gap vs All Clients pts > 0.05.
+    synonyms: [clients with gap, gap clients, cross-sell targets, under-penetrated clients, white space clients]
+    format: *count
+    window: *fy
+  - name: Sector Penetration %
+    expr: AVG(source.sector_penetration_pct)
+    display_name: Sector Penetration
+    comment: Share of the clients' industry sector (all subsectors) holding the product (fraction).
+    synonyms: [sector penetration, sector rate, industry sector benchmark, sector take-up]
+    format: *pct
+    window: *fy
+  - name: Gap vs Sector pts
+    expr: MEASURE(`Sector Penetration %`) - MEASURE(`Penetration %`)
+    display_name: Penetration Gap vs Sector (pts)
+    comment: Sector penetration minus own penetration (fraction; positive = under-penetrated vs the sector).
+    synonyms: [gap vs sector, sector gap, sector under-penetration]
+    format: *pct
+  - name: All-Client Penetration %
+    expr: AVG(source.all_clients_penetration_pct)
+    display_name: All-APAC-Client Penetration
+    comment: Share of all active SMBC APAC clients holding the product (fraction) - the bank-wide benchmark.
+    synonyms: [bank-wide penetration, all clients penetration, book penetration, overall penetration, APAC average]
+    format: *pct
+    window: *fy
+  - name: Gap vs All Clients pts
+    expr: MEASURE(`All-Client Penetration %`) - MEASURE(`Penetration %`)
+    display_name: Penetration Gap vs All APAC Clients (pts)
+    comment: >-
+      Bank-wide penetration minus own penetration (fraction; positive = under-penetrated vs the APAC book). A product
+      is under-penetrated when this is above 0.05 (5 points) OR Clients With Gap > 0.
+    synonyms: [gap vs book, gap vs all clients, bank-wide gap, under-penetration vs APAC]
+    format: *pct
+  - name: Clients With Gap vs All Clients
+    expr: COUNT(DISTINCT CASE WHEN source.is_gap_vs_all_clients THEN source.golden_client_id END)
+    display_name: Clients With Gap vs All APAC Clients
+    comment: Clients without the product while at least half of all APAC clients hold it.
+    synonyms: [book gap clients, bank-wide gap clients, white space vs book]
+    format: *count
+    window: *fy
+validate:
+  dims: [Fiscal Year, Segment, Product Family]
+reconcile:
+  - name: term_loan_penetration_jc_auto_parts_fy2026
+    measure: Penetration %
+    where: "`Fiscal Year` = 'FY2026' AND `Segment` = 'Japanese Corporate' AND `Subsector` = 'Auto Parts' AND `Product` = 'Term Loan'"
+    gold: >-
+      SELECT avg(p.holds_product_flag) FROM ${catalog}.gold.fact_client_product_penetration_annual p
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = p.golden_client_sk
+      WHERE p.fiscal_year = 2026 AND c.segment = 'Japanese Corporate' AND c.industry_subsector = 'Auto Parts' AND p.product_name = 'Term Loan'
+  - name: clients_with_gap_fy2026
+    measure: Clients With Gap
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_client_product_penetration_annual
+      WHERE fiscal_year = 2026 AND is_gap_vs_peers
+  - name: all_client_penetration_by_family_fy2025
+    measure: All-Client Penetration %
+    by: [Product Family]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT product_family, avg(all_clients_penetration_pct) FROM ${catalog}.gold.fact_client_product_penetration_annual
+      WHERE fiscal_year = 2025 GROUP BY 1
+  - name: clients_fy2024
+    measure: Clients
+    where: "`Fiscal Year` = 'FY2024'"
+    gold: SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_client_product_penetration_annual WHERE fiscal_year = 2024
+glossary:
+  caveats:
+    - >-
+      One fiscal year at a time (latest year of the selection). When the selection equals its peer group the peer gap
+      is 0 by construction - use Clients With Gap or the sector / all-client gaps.

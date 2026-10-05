@@ -1,0 +1,1017 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 13,
+      "columns": [
+        "Booking Country",
+        "casa_balance_sep_2026_usd",
+        "casa_balance_aug_2026_usd",
+        "casa_change_vs_aug_usd"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "HK",
+          "3.7353600436400003E9",
+          "3.470309350069999E9",
+          "2.6505069357000113E8"
+        ],
+        [
+          "SG",
+          "3.3840400206800003E9",
+          "3.12842229973E9",
+          "2.556177209500003E8"
+        ],
+        [
+          "CN",
+          "1.3622451509900005E9",
+          "1.2602936618400002E9",
+          "1.0195148915000033E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0bff435d13768cd9",
+      "sorted_by": null
+    },
+    "Q1-casual": {
+      "rows": 13,
+      "columns": [
+        "Booking Country",
+        "casa_balance_sep_2026_usd",
+        "casa_balance_aug_2026_usd",
+        "casa_change_vs_aug_usd"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "HK",
+          "3.7353600436400003E9",
+          "3.470309350069999E9",
+          "2.6505069357000113E8"
+        ],
+        [
+          "SG",
+          "3.3840400206800003E9",
+          "3.12842229973E9",
+          "2.556177209500003E8"
+        ],
+        [
+          "CN",
+          "1.3622451509900005E9",
+          "1.2602936618400002E9",
+          "1.0195148915000033E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0bff435d13768cd9",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 20,
+      "columns": [
+        "Client Group",
+        "casa_movement_usd",
+        "casa_moved_to_td_usd",
+        "total_deposit_movement_usd",
+        "where_it_went"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "STRING"
+      ],
+      "head": [
+        [
+          "Hoshioka Electronics Group",
+          "-2.3229463626000002E8",
+          "1.5066E8",
+          "7433490.979999886",
+          "Mostly moved to time deposits"
+        ],
+        [
+          "Kazami Devices",
+          "-2.1886581924999997E8",
+          "2.232E8",
+          "-440131.43000003695",
+          "Mostly moved to time deposits"
+        ],
+        [
+          "Oedo Electronics",
+          "-2.0694430623E8",
+          "1.8414E8",
+          "4.368111715000018E7",
+          "Mostly moved to time deposits"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "51f9d21be200efe6",
+      "sorted_by": null
+    },
+    "Q2b": {
+      "rows": 3,
+      "columns": [
+        "Month",
+        "casa_movement_usd",
+        "casa_moved_to_td_usd",
+        "casa_ratio"
+      ],
+      "types": [
+        "DATE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "2026-06-01",
+          "1.0601370033000004E8",
+          "3.42E8",
+          "0.5774108288006752"
+        ],
+        [
+          "2026-07-01",
+          "-6.206753871999998E8",
+          "3.06E8",
+          "0.5293047806437308"
+        ],
+        [
+          "2026-08-01",
+          "-3.015606232299999E8",
+          "2.52E8",
+          "0.4829746807902758"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2de187c8353344b6",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 36,
+      "columns": [
+        "Month",
+        "client_type",
+        "casa_ratio"
+      ],
+      "types": [
+        "DATE",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "2025-04-01",
+          "Japanese corporate",
+          "0.602511568821017"
+        ],
+        [
+          "2025-04-01",
+          "Non-Japanese",
+          "0.5857045743512884"
+        ],
+        [
+          "2025-05-01",
+          "Japanese corporate",
+          "0.6033984766220302"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "171f52525c32dc24",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 13,
+      "columns": [
+        "Payment Purpose",
+        "Counterparty Bank Type",
+        "payment_volume_usd",
+        "payments"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Dividend",
+          "SMBC",
+          "2.1454107554999986E8",
+          "600"
+        ],
+        [
+          "Dividend",
+          "Other Bank",
+          "4.490727933999998E7",
+          "107"
+        ],
+        [
+          "Intercompany",
+          "Intercompany",
+          "1.2586750751699977E9",
+          "3463"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "fd84436e1e78ea4d",
+      "sorted_by": null
+    },
+    "Q4b": {
+      "rows": 1,
+      "columns": [
+        "supplier_share_paid_to_other_banks",
+        "supplier_payments_to_other_banks_usd",
+        "supplier_payments_usd"
+      ],
+      "types": [
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "0.3507585743364352",
+          "1.22121382287E9",
+          "3.4816364081200047E9"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e831cf4b6b8d774b",
+      "sorted_by": null
+    },
+    "Q4b-jargon": {
+      "rows": 1,
+      "columns": [
+        "supplier_share_paid_to_other_banks",
+        "supplier_payments_to_other_banks_usd",
+        "supplier_payments_usd"
+      ],
+      "types": [
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "0.3507585743364352",
+          "1.22121382287E9",
+          "3.4816364081200047E9"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e831cf4b6b8d774b",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 12,
+      "columns": [
+        "Channel",
+        "Currency",
+        "payments",
+        "stp_rate",
+        "repairs"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "ISO 20022",
+          "MYR",
+          "392",
+          "0.8877551020408163",
+          "44"
+        ],
+        [
+          "RTGS",
+          "HKD",
+          "271",
+          "0.8892988929889298",
+          "30"
+        ],
+        [
+          "Portal",
+          "AUD",
+          "264",
+          "0.8901515151515151",
+          "29"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "6bc9250ceafe37d1",
+      "sorted_by": null
+    },
+    "Q5b": {
+      "rows": 10,
+      "columns": [
+        "Repair Reason",
+        "Channel",
+        "repairs",
+        "average_processing_hours"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Missing beneficiary",
+          "ISO 20022",
+          "188",
+          "11.938717494089834"
+        ],
+        [
+          "Format error",
+          "ISO 20022",
+          "184",
+          "12.782584541062802"
+        ],
+        [
+          "Sanctions hold",
+          "ISO 20022",
+          "182",
+          "12.592425213675213"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "b8b685b133f48c41",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 20,
+      "columns": [
+        "Client Group",
+        "Group APAC Countries",
+        "group_deposits_usd"
+      ],
+      "types": [
+        "STRING",
+        "INT",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Oedo Electronics",
+          "6",
+          "1.8239927189699998E9"
+        ],
+        [
+          "Ebisawa Chemical",
+          "9",
+          "8.2414456983E8"
+        ],
+        [
+          "Oribe Marine Logistics",
+          "6",
+          "7.631446228099997E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4f3f11c0f5663d39",
+      "sorted_by": null
+    },
+    "Q6-typo": {
+      "rows": 20,
+      "columns": [
+        "Client Group",
+        "Group APAC Countries",
+        "group_deposits_usd"
+      ],
+      "types": [
+        "STRING",
+        "INT",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Oedo Electronics",
+          "6",
+          "1.8239927189699998E9"
+        ],
+        [
+          "Ebisawa Chemical",
+          "9",
+          "8.2414456983E8"
+        ],
+        [
+          "Oribe Marine Logistics",
+          "6",
+          "7.631446228099997E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4f3f11c0f5663d39",
+      "sorted_by": null
+    },
+    "Q6b": {
+      "rows": 1,
+      "columns": [
+        "multi_country_groups_without_pooling",
+        "multi_country_groups",
+        "pooling_penetration",
+        "unpooled_group_deposits_usd"
+      ],
+      "types": [
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "139",
+          "218",
+          "0.3623853211009174",
+          "1.1266271236609999E10"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "627aa5d72af8cbb2",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 13,
+      "columns": [
+        "Booking Country",
+        "top10_depositor_share",
+        "total_deposits_usd",
+        "depositors"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "NZ",
+          "0.9178671292021454",
+          "2.2547573706000003E8",
+          "21"
+        ],
+        [
+          "PH",
+          "0.8063140685753998",
+          "6.843890224499998E8",
+          "47"
+        ],
+        [
+          "HK",
+          "0.7738769837382301",
+          "7.689913979420001E9",
+          "258"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "03b825d47cf332ac",
+      "sorted_by": null
+    },
+    "Q7b": {
+      "rows": 10,
+      "columns": [
+        "Client",
+        "Client Group",
+        "Depositor Rank in Country",
+        "deposits_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "INT",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Shiramiae Devices Pte Ltd",
+          "Shiramine Devices",
+          "1",
+          "2.7135341532E8"
+        ],
+        [
+          "Kinokawa Precision (Singapore) Pte Ltd",
+          "Kinokawa Precision",
+          "2",
+          "2.1543092478999996E8"
+        ],
+        [
+          "Oribe Marine Logistics (Singapore) Pte Ltd",
+          "Oribe Marine Logistics",
+          "3",
+          "2.1339257103E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1ab228007eada774",
+      "sorted_by": null
+    },
+    "Q8a": {
+      "rows": 1177,
+      "columns": [
+        "Client",
+        "Client Group",
+        "Booking Country",
+        "deposits_sep_2026_usd",
+        "deposits_sep_2025_usd",
+        "deposits_yoy"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Hoshioka Electronics Group (Hong Kong) Ltd",
+          "Hoshioka Electronics Group",
+          "HK",
+          "1.7632973033000002E9",
+          "1.7751880198999999E9",
+          "-0.006698285740273019"
+        ],
+        [
+          "Kazami Devices (Hong Kong) Ltd",
+          "Kazami Devices",
+          "HK",
+          "1.76075082596E9",
+          "1.64350346816E9",
+          "0.0713398907099754"
+        ],
+        [
+          "Oedo Electronics (Hong Kong) (HK) Ltd",
+          "Oedo Electronics",
+          "HK",
+          "1.72548080795E9",
+          "1.74795326453E9",
+          "-0.01285644017836052"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "5dc2525853bf98a9",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 79,
+      "columns": [
+        "Client",
+        "payments_h1_fy2025_usd",
+        "payments_h1_fy2026_usd",
+        "payment_volume_yoy",
+        "avg_deposits_change"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kazami Foods Group (Seoul) Co Ltd",
+          "7.094375950999999E7",
+          "4.722958310999998E7",
+          "-0.3342672641510821",
+          "0.0556117295253975"
+        ],
+        [
+          "Fuwa Materials (Kuala Lumpur)",
+          "4.874956246E7",
+          "2.817383931E7",
+          "-0.422069904050581",
+          "-0.02834593252312101"
+        ],
+        [
+          "Konabe Precision Group Trading (Hong Kong) Ltd",
+          "4.118830565999999E7",
+          "2.6553279839999996E7",
+          "-0.3553199284478651",
+          "-0.026473242638494265"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f1b87af1f60f72c2",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 5,
+      "columns": [
+        "Segment",
+        "active_clients",
+        "digital_share",
+        "manual_instruction_share",
+        "clients_sending_manual_instructions"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Public Sector",
+          "102",
+          "0.968503937007874",
+          "0.031496062992125984",
+          "25"
+        ],
+        [
+          "Financial Institution",
+          "123",
+          "0.9733434881949733",
+          "0.026656511805026657",
+          "20"
+        ],
+        [
+          "Sponsor & Structured Finance",
+          "211",
+          "0.973404255319149",
+          "0.026595744680851064",
+          "34"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "234d50170ed7ab59",
+      "sorted_by": null
+    },
+    "Q9b": {
+      "rows": 12,
+      "columns": [
+        "Client",
+        "Segment",
+        "Relationship Tier",
+        "manual_instructions",
+        "manual_instruction_share"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Hoshioka Auto Parts Holdings (Seoul) Co Ltd",
+          "Japanese Corporate",
+          "Core",
+          "10",
+          "0.18518518518518517"
+        ],
+        [
+          "Kazami Foods Group (Seoul) Co Ltd",
+          "Japanese Corporate",
+          "Core",
+          "8",
+          "0.125"
+        ],
+        [
+          "Tachibana-do Auto Parts Trading (Soanghai) Co Ltd",
+          "Japanese Corporate",
+          "Core",
+          "7",
+          "0.16666666666666666"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9f4433fa4bae8a75",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 31,
+      "columns": [
+        "Booking Country",
+        "Currency",
+        "td_maturing_next_90d_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AU",
+          "AUD",
+          "2.839915489600001E8"
+        ],
+        [
+          "AU",
+          "USD",
+          "6.104208575999999E7"
+        ],
+        [
+          "CN",
+          "CNY",
+          "5.558955586999998E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "bdbefd4be7b19163",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_tb_deposits",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_tb_payments",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-04-01",
+      "last": "2026-09-01",
+      "periods": 30
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_tb_liquidity_structures",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_tb_channel_adoption",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-04-01",
+      "last": "2026-09-01",
+      "periods": 30
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:43:22+00:00",
+  "questions_captured_at": "2026-10-04T15:44:00+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "What was the total CASA balance by booking country at the end of September 2026, and how did it move versus August?",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_casa_movement_by_country`(report_month => '2026-09')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Booking Country",
+        "casa_balance_usd",
+        "casa_balance_prior_month_usd",
+        "casa_change_vs_prior_month_usd"
+      ],
+      "genie_rows": 13,
+      "seconds": 15.3,
+      "asked_at": "2026-10-04T14:43:22+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Show the same for time deposits.",
+      "after": "S1",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (13 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Booking Country`, MEASURE(`Time Deposit Balance USD`) AS `time_deposit_balance_usd`, (MEASURE(`End of Month Balance USD`) - MEASURE(`Deposit Movement USD`) - MEASURE(`CASA Balance Prior Month USD`)) AS `time_deposit_balance_prior_month_usd`, MEASURE(`Time Deposit Balance USD`) - (MEASURE(`End of Month Balance USD`) - MEASURE(`Deposit Movement USD`) - MEASURE(`CASA Balance Prior Month USD`)) AS `time_deposit_change_vs_august_usd` FROM `smbc_genie`.`metrics`.`mv_tb_deposits` WHERE `Month` = DATE'2026-09-01' AND `Booking Country` IS NOT NULL GROUP BY ALL ORDER BY `time_deposit_balance_usd` DESC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Booking Country",
+        "time_deposit_balance_usd",
+        "time_deposit_balance_prior_month_usd",
+        "time_deposit_change_vs_august_usd"
+      ],
+      "genie_rows": 13,
+      "seconds": 38.0,
+      "asked_at": "2026-10-04T15:42:59+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which client groups drove the largest CASA outflow in Q2 FY2026, and did it move to time deposits or leave the bank?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH g AS (\n  SELECT `Client Group`,\n         MEASURE(`CASA Movement USD`)     AS casa_movement_usd,\n         MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,\n         MEASURE(`Deposit Movement USD`)  AS total_deposit_movement_usd\n  FROM smbc_genie.metrics.mv_tb_deposits\n  WHERE `Fiscal Quarter` = :fiscal_quarter\n  GROUP BY ALL\n)\nSELECT `Client Group`, casa_movement_usd, casa_moved_to_td_usd, total_deposit_movement_usd,\n       CASE WHEN total_deposit_movement_usd >= try_divide(casa_movement_usd,2) THEN 'Mostly moved to time deposits'\n            ELSE 'Mostly left the bank' END AS where_it_went\nFROM g\nWHERE casa_movement_usd < 0\nORDER BY casa_movement_usd ASC\nLIMIT 20",
+      "genie_parameters": [
+        {
+          "keyword": "fiscal_quarter",
+          "value": "FY2026-Q2",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client Group",
+        "casa_movement_usd",
+        "casa_moved_to_td_usd",
+        "total_deposit_movement_usd",
+        "where_it_went"
+      ],
+      "genie_rows": 20,
+      "seconds": 18.2,
+      "asked_at": "2026-10-04T14:43:39+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "How has the CASA ratio of Japanese vs non-Japanese corporates trended month by month since FY2025?",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Month`,\n       CASE WHEN `Is Japanese Corporate` THEN 'Japanese corporate' ELSE 'Non-Japanese' END AS client_type,\n       MEASURE(`CASA Ratio %`) AS casa_ratio\nFROM smbc_genie.metrics.mv_tb_deposits\nWHERE `Month` >= :from_month\nGROUP BY ALL\nORDER BY `Month`, client_type",
+      "genie_parameters": [
+        {
+          "keyword": "from_month",
+          "value": "2025-04-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Month",
+        "client_type",
+        "casa_ratio"
+      ],
+      "genie_rows": 36,
+      "seconds": 19.3,
+      "asked_at": "2026-10-04T14:43:57+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "How much of our clients' outbound supplier payments this fiscal year went to accounts at other banks?",
+      "after": null,
+      "benchmark": "Q4b",
+      "matched": "Q4b",
+      "verdict": "match",
+      "note": "same rows as the benchmark; Genie shows supplier share paid to other banks on a 0-100 scale",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  MEASURE(`Volume via Other Banks USD`) AS `volume_to_other_banks_usd`,\n  MEASURE(`Payment Volume USD`) AS `total_outbound_supplier_payment_volume_usd`,\n  try_divide(100 * MEASURE(`Volume via Other Banks USD`),MEASURE(`Payment Volume USD`)) AS `pct_to_other_banks`\nFROM `smbc_genie`.`metrics`.`mv_tb_payments`\nWHERE `Fiscal Year` = 'FY2026'\n  AND `Direction` = 'Outbound'\n  AND `Payment Purpose` = 'Supplier'\nGROUP BY ALL",
+      "genie_parameters": [],
+      "genie_columns": [
+        "volume_to_other_banks_usd",
+        "total_outbound_supplier_payment_volume_usd",
+        "pct_to_other_banks"
+      ],
+      "genie_rows": 1,
+      "seconds": 22.2,
+      "asked_at": "2026-10-04T15:43:37+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Where is the STP rate lowest by channel and currency this fiscal year, and where are repairs concentrated?",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie returns 24 rows, the benchmark 12",
+      "status": "COMPLETED",
+      "genie_sql": "WITH stp_by_channel_currency AS (\n  SELECT\n    `Channel`,\n    `Currency`,\n    MEASURE(`STP Rate %`) AS `stp_rate`,\n    MEASURE(`Repairs`) AS `repairs`\n  FROM `smbc_genie`.`metrics`.`mv_tb_payments`\n  WHERE `Fiscal Year` = 'FY2026'\n    AND `Channel` IS NOT NULL\n    AND `Currency` IS NOT NULL\n  GROUP BY ALL\n), lowest_stp AS (\n  SELECT\n    `Channel`,\n    `Currency`,\n    `stp_rate`,\n    `repairs`,\n    RANK() OVER (ORDER BY `stp_rate` ASC, `repairs` DESC) AS `lowest_stp_rank`\n  FROM stp_by_channel_currency\n), repairs_by_reason AS (\n  SELECT\n    `Channel`,\n    `Repair Reason`,\n    MEASURE(`Repairs`) AS `repairs`\n  FROM `smbc_genie`.`metrics`.`mv_tb_payments`\n  WHERE `Fiscal Year` = 'FY2026'\n    AND `Channel` IS NOT NULL\n    AND `Repair Reason` IS NOT NULL\n  GROUP BY ALL\n), repair_concentration AS (\n  SELECT\n    `Channel`,\n    `Repair Reason`,\n    `repairs`,\n    RANK() OVER (PARTITION BY `Channel` ORDER BY `repairs` DESC) AS `repair_rank_in_channel`\n  FROM repairs_by_reason\n)\nSELECT\n  'lowest_stp' AS `section`,\n  `Channel`,\n  `Currency`,\n  CAST(NULL AS STRING) AS `Repair Reason`,\n  `stp_rate`,\n  `repairs`,\n  `lowest_stp_rank` AS `rank`\nFROM lowest_stp\nWHERE `lowest_stp_rank` = 1\nUNION ALL\nSELECT\n  'repair_concentration' AS `section`,\n  `Channel`,\n  CAST(NULL AS STRING) AS `Currency`,\n  `Repair Reason`,\n  CAST(NULL AS DOUBLE) AS `stp_rate`,\n  `repairs`,\n  `repair_rank_in_channel` AS `rank`\nFROM repair_concentration\nWHERE `repair_rank_in_channel` <= 3\nORDER BY `section` ASC, `rank` ASC, `repairs` DESC, `Channel` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "section",
+        "Channel",
+        "Currency",
+        "Repair Reason",
+        "stp_rate",
+        "repairs",
+        "rank"
+      ],
+      "genie_rows": 24,
+      "seconds": 26.8,
+      "asked_at": "2026-10-04T14:44:38+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Which multi-country groups have no liquidity pooling structure, ranked by their deposits?",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client Group`, `Group APAC Countries`,\n       MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd\nFROM smbc_genie.metrics.mv_tb_liquidity_structures\nWHERE `Month` = :month AND `Is Pooling Candidate`\nGROUP BY ALL\nORDER BY group_deposits_usd DESC\nLIMIT 20",
+      "genie_parameters": [
+        {
+          "keyword": "month",
+          "value": "2026-09-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Client Group",
+        "Group APAC Countries",
+        "group_deposits_usd"
+      ],
+      "genie_rows": 20,
+      "seconds": 22.3,
+      "asked_at": "2026-10-04T14:45:06+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Which clients' payment volume through us dropped more than 30% year on year while their balances held steady?",
+      "after": null,
+      "benchmark": "Q8",
+      "matched": "Q8",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_tb_payment_drop_steady_deposits`(fiscal_half => 'FY2026-H1')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "payments_prior_half_usd",
+        "payments_half_usd",
+        "payment_volume_yoy",
+        "avg_deposits_change"
+      ],
+      "genie_rows": 79,
+      "seconds": 32.9,
+      "asked_at": "2026-10-04T14:45:29+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "Who still sends manual payment instructions - digital adoption by segment this fiscal year?",
+      "after": null,
+      "benchmark": "Q9",
+      "matched": "Q9",
+      "verdict": "match",
+      "note": "same rows as the benchmark; Genie adds 2 columns",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Segment`,\n  MEASURE(`Active Clients`) AS `active_clients`,\n  MEASURE(`Clients Sending Manual Instructions`) AS `clients_sending_manual_instructions`,\n  MEASURE(`Manual Instructions`) AS `manual_instructions`,\n  MEASURE(`Payments Initiated`) AS `payments_initiated`,\n  MEASURE(`Digital Share of Payments %`) AS `digital_share_of_payments_pct`,\n  MEASURE(`Manual Instruction Share %`) AS `manual_instruction_share_pct`\nFROM `smbc_genie`.`metrics`.`mv_tb_channel_adoption`\nWHERE `Fiscal Year` = 'FY2026'\n  AND `Segment` IS NOT NULL\nGROUP BY ALL\nORDER BY `clients_sending_manual_instructions` DESC, `Segment` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Segment",
+        "active_clients",
+        "clients_sending_manual_instructions",
+        "manual_instructions",
+        "payments_initiated",
+        "digital_share_of_payments_pct",
+        "manual_instruction_share_pct"
+      ],
+      "genie_rows": 5,
+      "seconds": 34.3,
+      "asked_at": "2026-10-04T14:46:02+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "tb_cash_payments_liquidity",
+  "space_id": "my-agent-id"
+}

@@ -1,0 +1,245 @@
+# Space 3, Credit Memo & Financial Spreading (WP9b / WP8d). Spread financial statements in long format: one row
+# per credit obligor record x fiscal year x statement line. Amounts are window measures over the fiscal year
+# (semiadditive last): by Fiscal Year = that year's statements; without a year = each client's latest spread year,
+# so balance-sheet lines are never summed across years. Must-answer queries: metrics/_answers/credit_memo_financial_spreading.sql.
+view: mv_financial_spreads
+space: credit_memo_financial_spreading
+comment: >-
+  Spread financial statements of SMBC's APAC credit clients, FY2023-FY2025 (USD): P&L, balance-sheet and
+  cash-flow lines per client and fiscal year (each client's own year-end, December or March), with the prior
+  year, YoY growth, headline lines (revenue, EBITDA, net income, total and net debt, equity, free cash flow),
+  EBITDA margin and Net Debt/EBITDA. Amounts are per fiscal year: group or filter by Fiscal Year (latest
+  spread year = FY2025); without a year each client's latest year is used - never add years or different
+  statement lines together. Costs (COGS, opex, interest, tax, capex, dividends) are positive amounts.
+grain: one row per credit obligor x fiscal year x statement line (gold.fact_financial_statement_annual)
+source: ${catalog}.gold.fact_financial_statement_annual
+blocks:
+  calendar: {grain: fiscal_year, fy: source.fiscal_year, what: the statement fiscal year}
+  client: {key: source.golden_client_sk}
+overrides:
+  Is Latest Fiscal Year:
+    comment: >-
+      True for FY2026, the fiscal year of the as-of date. No statements are spread for FY2026 yet: the latest
+      spread year is FY2025 (years ending Dec-2025 or Mar-2026) - filter Fiscal Year = 'FY2025' for the latest
+      financials.
+    synonyms: [current fiscal year, this fiscal year, current FY, latest FY]
+dimensions:
+  - name: Statement Type
+    expr: source.statement_type
+    display_name: Statement Type
+    comment: "Financial statement: P&L, Balance Sheet or Cash Flow."
+    synonyms: [statement, financial statement, statement type, P&L or balance sheet, schedule]
+  - name: Statement Line
+    expr: source.line_item
+    display_name: Statement Line
+    comment: >-
+      Standard spread line: Revenue, COGS, Gross Profit, Operating Expenses, EBITDA, Depreciation &
+      Amortisation, EBIT, Interest Expense, Pre-Tax Profit, Tax, Net Income, Cash, Receivables, Inventory, Total
+      Current Assets, Fixed Assets, Total Assets, Payables, Short-Term Debt, Long-Term Debt, Total Debt, Net Debt
+      (derived = Total Debt - Cash), Equity, Cash Flow from Operations, Capex, Free Cash Flow, Dividends Paid.
+    synonyms: [line item, spread line, account, financial line, P&L line, balance sheet item, caption]
+  - name: Line Order
+    expr: source.line_order
+    display_name: Line Order
+    comment: Display order of the line in a spread (P&L 10-110, Balance Sheet 210-310, Cash Flow 410-440) - ORDER BY it.
+    synonyms: [line order, display order, sort order, line number]
+    format: {type: number, decimal_places: {type: exact, places: 0}, hide_group_separator: true}
+  - name: Is Audited
+    expr: source.is_audited
+    display_name: Is Audited
+    comment: True when the statement year is audited (false = management / unaudited accounts).
+    synonyms: [audited, audited accounts, audit status, audited financials, unaudited]
+  - name: Statement Basis
+    expr: source.statement_basis
+    display_name: Statement Basis
+    comment: "Basis recorded on the spreading task: Audited or Unaudited / Management."
+    synonyms: [basis, statement basis, accounts basis, management accounts, audited or management]
+  - name: Is Spread
+    expr: source.is_spread
+    display_name: Is Spread
+    comment: True when the statement year has been spread into the credit system; false = received but not yet spread (FY2025 backlog).
+    synonyms: [spread, spread status, spreading done, financials spread, not yet spread]
+  - name: Fiscal Year End
+    expr: source.fiscal_year_end_date
+    display_name: Fiscal Year End Date
+    comment: Balance-sheet date of the statements (the client's year-end, 31 Dec or 31 Mar), e.g. 2026-03-31 for a March FY2025.
+    synonyms: [fiscal year end, year end, FYE, balance sheet date, reporting date, financial year end]
+    format: {type: date, date_format: year_month_day}
+  - name: Reporting Currency
+    expr: source.currency
+    display_name: Reporting Currency
+    comment: Local reporting currency of the statements (ISO 4217); all measures are in USD.
+    synonyms: [currency, reporting currency, statement currency, local currency, LCY]
+  - name: Peer Group
+    expr: dc.peer_group_id
+    display_name: Peer Group
+    comment: Peer group of the client (PG-nnn, one per industry subsector) used for ratio benchmarking; see mv_financial_ratios_vs_peers.
+    synonyms: [peer group, peers, benchmark group, comparable group, peer set]
+measures:
+  - name: Amount USD
+    expr: SUM(source.amount_usd)
+    display_name: Amount (USD)
+    comment: >-
+      Statement amount in USD for the selected line(s) and fiscal year: annual flow for P&L / cash-flow lines,
+      year-end balance for balance-sheet lines. Filter one Statement Line. Without a Fiscal Year it returns each
+      client's latest spread year (never a sum of years).
+    synonyms: [amount, value, line amount, spread amount, statement amount, figure, number]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &fy
+      - {order: Fiscal Year Number, range: current, semiadditive: last}
+  - name: Amount Prior Year USD
+    expr: SUM(source.prior_year_amount_usd)
+    display_name: Amount Prior Year (USD)
+    comment: Same line one fiscal year earlier, USD (null for FY2023, the first spread year).
+    synonyms: [prior year, previous year, last year amount, PY, comparative, prior year amount]
+    format: *usd
+    window: *fy
+  - name: Amount YoY %
+    expr: MEASURE(`Amount USD`) / NULLIF(MEASURE(`Amount Prior Year USD`), 0) - 1
+    display_name: YoY Growth
+    comment: Year-on-year change of the selected line(s) in USD (fraction, 0.05 = +5%) - e.g. revenue growth when Statement Line = Revenue.
+    synonyms: [YoY growth, growth, year on year, change vs prior year, YoY %, growth rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Revenue USD
+    expr: SUM(CASE WHEN source.line_item = 'Revenue' THEN source.amount_usd END)
+    display_name: Revenue (USD)
+    comment: Annual revenue (turnover / sales) in USD for the fiscal year; latest year per client when no year is selected.
+    synonyms: [revenue, sales, turnover, top line, net sales, income]
+    format: *usd
+    window: *fy
+  - name: Revenue Prior Year USD
+    expr: SUM(CASE WHEN source.line_item = 'Revenue' THEN source.prior_year_amount_usd END)
+    display_name: Revenue Prior Year (USD)
+    comment: Revenue of the previous fiscal year, USD.
+    synonyms: [prior year revenue, last year revenue, PY revenue, previous revenue]
+    format: *usd
+    window: *fy
+  - name: Revenue YoY %
+    expr: MEASURE(`Revenue USD`) / NULLIF(MEASURE(`Revenue Prior Year USD`), 0) - 1
+    display_name: Revenue Growth YoY
+    comment: Revenue growth vs the prior fiscal year (fraction).
+    synonyms: [revenue growth, sales growth, top-line growth, YoY revenue, turnover growth]
+    format: *pct
+  - name: EBITDA USD
+    expr: SUM(CASE WHEN source.line_item = 'EBITDA' THEN source.amount_usd END)
+    display_name: EBITDA (USD)
+    comment: Earnings before interest, tax, depreciation and amortisation for the fiscal year, USD.
+    synonyms: [EBITDA, operating cash earnings, cash EBITDA, earnings before interest tax depreciation amortisation]
+    format: *usd
+    window: *fy
+  - name: EBITDA Margin %
+    expr: MEASURE(`EBITDA USD`) / NULLIF(MEASURE(`Revenue USD`), 0)
+    display_name: EBITDA Margin
+    comment: EBITDA / revenue for the same fiscal year(s) and clients (fraction) - correct at any grain.
+    synonyms: [EBITDA margin, operating margin, cash margin, margin]
+    format: *pct
+  - name: Net Income USD
+    expr: SUM(CASE WHEN source.line_item = 'Net Income' THEN source.amount_usd END)
+    display_name: Net Income (USD)
+    comment: Net income (profit after tax) for the fiscal year, USD.
+    synonyms: [net income, net profit, profit after tax, PAT, bottom line, earnings]
+    format: *usd
+    window: *fy
+  - name: Total Debt USD
+    expr: SUM(CASE WHEN source.line_item = 'Total Debt' THEN source.amount_usd END)
+    display_name: Total Debt (USD)
+    comment: Short- plus long-term debt at the fiscal year-end, USD (balance).
+    synonyms: [total debt, gross debt, borrowings, financial debt, debt]
+    format: *usd
+    window: *fy
+  - name: Net Debt USD
+    expr: SUM(CASE WHEN source.line_item = 'Net Debt' THEN source.amount_usd END)
+    display_name: Net Debt (USD)
+    comment: Net debt = total debt - cash at the fiscal year-end, USD (derived line; negative = net cash).
+    synonyms: [net debt, net borrowings, debt net of cash, net leverage debt, ND]
+    format: *usd
+    window: *fy
+  - name: Net Debt/EBITDA (x)
+    expr: MEASURE(`Net Debt USD`) / NULLIF(MEASURE(`EBITDA USD`), 0)
+    display_name: Net Debt / EBITDA (x)
+    comment: >-
+      Leverage multiple from the spreads = net debt / EBITDA of the same fiscal year(s) (e.g. 4.6 = 4.6x); for
+      several clients it is the aggregate (sum / sum). Client-level ratios vs peers are in mv_financial_ratios_vs_peers.
+    synonyms: [leverage, net debt to EBITDA, ND/EBITDA, net leverage, debt multiple, gearing multiple]
+    format: &x2 {type: number, decimal_places: {type: max, places: 2}}
+  - name: Equity USD
+    expr: SUM(CASE WHEN source.line_item = 'Equity' THEN source.amount_usd END)
+    display_name: Equity (USD)
+    comment: Shareholders' equity at the fiscal year-end, USD (balance).
+    synonyms: [equity, net worth, shareholders equity, book equity, capital and reserves, NAV]
+    format: *usd
+    window: *fy
+  - name: Free Cash Flow USD
+    expr: SUM(CASE WHEN source.line_item = 'Free Cash Flow' THEN source.amount_usd END)
+    display_name: Free Cash Flow (USD)
+    comment: Free cash flow = cash flow from operations - capex for the fiscal year, USD (can be negative).
+    synonyms: [free cash flow, FCF, cash generation, free cash, unlevered cash flow]
+    format: *usd
+    window: *fy
+  - name: Clients
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients with Statements
+    comment: Legal entities (golden clients) with spread statements for the fiscal year (latest year when none is selected).
+    synonyms: [clients, number of clients, borrowers, obligors, entities, companies]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *fy
+  - name: Statement Years Not Spread
+    expr: COUNT(DISTINCT CASE WHEN NOT source.is_spread THEN source.obligor_id END)
+    display_name: Statements Not Yet Spread
+    comment: Credit obligor records whose statements for the fiscal year are received but not yet spread (FY2025 backlog).
+    synonyms: [not spread, unspread statements, spreading backlog, pending spreads, outstanding spreads]
+    format: *count
+    window: *fy
+validate:
+  dims: [Fiscal Year, Statement Type]
+reconcile:
+  - name: revenue_fy2025
+    measure: Revenue USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sum(amount_usd) FROM ${catalog}.gold.fact_financial_statement_annual WHERE line_item = 'Revenue' AND fiscal_year = 2025
+  - name: revenue_without_year_is_latest_year
+    measure: Revenue USD
+    gold: >-
+      SELECT sum(amount_usd) FROM ${catalog}.gold.fact_financial_statement_annual WHERE line_item = 'Revenue' AND fiscal_year = 2025
+  - name: net_debt_by_fiscal_year
+    measure: Net Debt USD
+    by: [Fiscal Year]
+    gold: >-
+      SELECT concat('FY', fiscal_year), sum(amount_usd) FROM ${catalog}.gold.fact_financial_statement_annual
+      WHERE line_item = 'Net Debt' GROUP BY 1
+  - name: ebitda_margin_by_segment_fy2025
+    measure: EBITDA Margin %
+    by: [Segment]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT c.segment, sum(CASE WHEN f.line_item = 'EBITDA' THEN f.amount_usd END) / sum(CASE WHEN f.line_item = 'Revenue' THEN f.amount_usd END)
+      FROM ${catalog}.gold.fact_financial_statement_annual f JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.fiscal_year = 2025 GROUP BY 1
+  - name: revenue_yoy_fy2025
+    measure: Revenue YoY %
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sum(amount_usd) / sum(prior_year_amount_usd) - 1 FROM ${catalog}.gold.fact_financial_statement_annual
+      WHERE line_item = 'Revenue' AND fiscal_year = 2025
+  - name: sunda_net_debt_to_ebitda_fy2025
+    measure: Net Debt/EBITDA (x)
+    where: "`Fiscal Year` = 'FY2025' AND `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'"
+    gold: >-
+      SELECT sum(CASE WHEN f.line_item = 'Net Debt' THEN f.amount_usd END) / sum(CASE WHEN f.line_item = 'EBITDA' THEN f.amount_usd END)
+      FROM ${catalog}.gold.fact_financial_statement_annual f JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.fiscal_year = 2025 AND c.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%'
+  - name: not_spread_fy2025
+    measure: Statement Years Not Spread
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT count(DISTINCT obligor_id) FROM ${catalog}.gold.fact_financial_statement_annual WHERE fiscal_year = 2025 AND NOT is_spread
+glossary:
+  caveats:
+    - >-
+      Each client keeps its own fiscal year-end (Dec or Mar); FY labels are the statement years (FY2025 = year
+      ending Dec-2025 or Mar-2026). A golden client can have two credit obligor records (duplicate credit files)
+      with separate statements; client totals add them.
+notes: >-
+  Window order = Fiscal Year Number (statement year). Is Latest Fiscal Year (FY2026) has no statements - its
+  comment points users to FY2025.

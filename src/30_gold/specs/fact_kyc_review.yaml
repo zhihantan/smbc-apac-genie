@@ -1,0 +1,50 @@
+table: fact_kyc_review
+domain: onboarding
+comment: >-
+  KYC / CDD reviews (brief 5.6): one row per review - Onboarding (risk assessment at onboarding), Periodic
+  (cadence by KYC risk: High every year, Medium every 2 years, Low every 3 years) or Trigger (event-driven) - due from Apr-2023
+  to Mar-2027, with due and completed dates, status at 30-Sep-2026 (Completed, Overdue, Due Soon, Scheduled),
+  overdue days, lateness on completion, risk rating before / after the review and the client's current KYC
+  risk rating (High / Medium / Low, from the KYC master). Review status is as of today; for overdue trends by
+  month-end use fact_kyc_review_snapshot_monthly. Periodic reviews scheduled beyond Mar-2027 are not included.
+grain: one row per KYC review
+primary_key: [review_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [due_date], references: dim_date}
+  - {columns: [reviewer_id], references: dim_employee}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [due_date, golden_client_sk]
+min_rows: 2500
+columns:
+  review_id: {type: STRING, comment: "KYC review id (KYR-nnnnnn-nn)."}
+  kyc_id: {type: STRING, comment: "KYC customer record (KYC-...) reviewed."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  review_type: {type: STRING, comment: "Onboarding, Periodic or Trigger."}
+  trigger_reason: {type: STRING, comment: "Event behind a trigger review: Ownership Change, Adverse Media, Credit Deterioration, Screening Alert or Regulatory Request; null otherwise."}
+  due_date: {type: DATE, comment: "Date the review is due (grain date)."}
+  due_fiscal_year: {type: INT, comment: "Japanese fiscal year of the due date."}
+  completed_date: {type: DATE, comment: "Date the review was completed; null while open."}
+  status: {type: STRING, comment: "Status at the as-of date: Completed, Overdue (past due, open), Due Soon (due within 90 days) or Scheduled."}
+  is_completed: {type: BOOLEAN, comment: "True when completed by the as-of date."}
+  is_overdue: {type: BOOLEAN, comment: "True when past due and not completed at 30-Sep-2026."}
+  days_overdue: {type: INT, comment: "Days past due at the as-of date for open overdue reviews (0 otherwise)."}
+  days_late_on_completion: {type: INT, comment: "Days a completed review finished after its due date (0 = on time or early)."}
+  completed_late: {type: BOOLEAN, comment: "True when completed after the due date."}
+  risk_before: {type: STRING, comment: "KYC risk rating going into the review (High, Medium, Low; null for onboarding reviews)."}
+  risk_after: {type: STRING, comment: "KYC risk rating set by the review (null while open)."}
+  risk_rating_changed: {type: BOOLEAN, comment: "True when the review changed the client's risk rating."}
+  kyc_risk_rating: {type: STRING, comment: "Client's current KYC / AML risk rating from the KYC master (High, Medium, Low) - drives the review cadence; use for 'high-risk reviews'."}
+  is_high_risk: {type: BOOLEAN, comment: "True when the client's KYC risk rating is High."}
+  reviewer_id: {type: STRING, comment: "KYC officer assigned to the review (employee_id)."}
+  booking_country: {type: STRING, comment: "Client's coverage office / booking location at the due date (ISO-2, e.g. SG)."}
+  segment: {type: STRING}
+checks:
+  - name: overdue_matches_status
+    sql: SELECT count_if(is_overdue <> (status = 'Overdue')) FROM ${table}
+reconcile:
+  - name: rows_vs_silver_in_window
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_review WHERE due_date <= DATE'${calendar_end}'

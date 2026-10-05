@@ -1,0 +1,283 @@
+{
+ "columns": [
+  {
+   "comment": "First day of the month of the month-end snapshot (Apr-2023 to Sep-2026).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Month-end date the holding is observed at.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location of the client relationship (the client's coverage office at the month-end, ISO-2, e.g. SG); join to gold.dim_booking_entity.",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Product key (PRD-<NAME>); join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product name (gold.dim_product.product_name), e.g. Current Account, Term Loan, Import LC, FX Forward, Notional Pooling.",
+   "is_measure": false,
+   "name": "product_name",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Business line - Lending, Transaction Banking, Markets or Sustainable Finance.",
+   "is_measure": false,
+   "name": "business_line",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client holds the product at the month-end or used it in the trailing 12 months - the products-held definition.",
+   "is_measure": false,
+   "name": "is_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the product is held at the month-end (open account with a balance record, live facility, live trade instrument, structure membership or SCF programme); false for flow-only usage.",
+   "is_measure": false,
+   "name": "is_held_at_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client used the product before but neither holds it nor used it in the trailing 12 months (= NOT is_active).",
+   "is_measure": false,
+   "name": "is_lapsed",
+   "type": "boolean"
+  },
+  {
+   "comment": "How the holding is evidenced: Account balance, Facility limit, Live instrument, Structure membership, Programme or 12M usage (flow products only).",
+   "is_measure": false,
+   "name": "holding_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end balance in USD: deposit balance for accounts, drawn amount for facilities, face value of live trade instruments; null for structures, programmes and flow-only usage. Point-in-time - do not sum across months.",
+   "is_measure": false,
+   "name": "balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Committed limit in USD at the month-end (credit facilities, SCF programme limit); null otherwise. Point-in-time.",
+   "is_measure": false,
+   "name": "limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Month-end deposit balance in USD (deposit products only, else 0) - Deposits USD in the footprint. Point-in-time.",
+   "is_measure": false,
+   "name": "deposit_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Month-end drawn amount of credit facilities in USD (facility products only, else 0) - Lending Drawn USD. Point-in-time.",
+   "is_measure": false,
+   "name": "lending_drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Transaction value in the month in USD (trade issuance, FX notional, payment value); 0 for balance products. Additive across months.",
+   "is_measure": false,
+   "name": "volume_month_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Transactions in the month (trade instruments issued, FX deals, payments); additive across months.",
+   "is_measure": false,
+   "name": "txn_count_month",
+   "type": "bigint"
+  },
+  {
+   "comment": "Transaction value over the trailing 12 months to the month-end in USD (flow products; history starts Apr-2023 for trade and Apr-2024 for FX and payments). Trailing window - do not sum across months.",
+   "is_measure": false,
+   "name": "volume_12m_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Transactions over the trailing 12 months to the month-end. Trailing window - do not sum across months.",
+   "is_measure": false,
+   "name": "txn_count_12m",
+   "type": "bigint"
+  },
+  {
+   "comment": "Trailing 12-month transaction-banking volume in USD (payments and trade finance products, else 0) - TB Volume 12M USD.",
+   "is_measure": false,
+   "name": "tb_volume_12m_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Trailing 12-month FX notional in USD (FX products, else 0) - FX Notional 12M USD.",
+   "is_measure": false,
+   "name": "fx_notional_12m_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Accounts, facilities, live trade instruments, structures or programmes behind the holding at the month-end (0 for flow-only usage).",
+   "is_measure": false,
+   "name": "n_instruments",
+   "type": "bigint"
+  },
+  {
+   "comment": "First time the client used the product with SMBC (account opening, facility origination, first transaction or structure start; may predate Apr-2023).",
+   "is_measure": false,
+   "name": "first_use_date",
+   "type": "date"
+  },
+  {
+   "comment": "Latest use up to the month-end: the month-end itself when held, else the last transaction or holding date.",
+   "is_measure": false,
+   "name": "last_use_date",
+   "type": "date"
+  },
+  {
+   "comment": "Whole months from last_use_date to the month-end (0 when held at the month-end).",
+   "is_measure": false,
+   "name": "months_since_last_use",
+   "type": "int"
+  },
+  {
+   "comment": "True on one row per client x product family x month (the family's largest holding) - the row that carries revenue_12m_usd.",
+   "is_measure": false,
+   "name": "is_family_primary_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "Trailing 12-month revenue of the whole product family in USD (product feeds, history from Apr-2024), carried only on is_family_primary_row (null elsewhere) - family-level, not per product.",
+   "is_measure": false,
+   "name": "revenue_12m_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True on exactly one row per client x month - filter on it to count clients or average client-month attributes (products held, flags) without double counting.",
+   "is_measure": false,
+   "name": "is_client_month_primary_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "Products the client holds or used in the trailing 12 months at this month-end (client-month value, repeated on every row of the client-month).",
+   "is_measure": false,
+   "name": "products_held_count",
+   "type": "bigint"
+  },
+  {
+   "comment": "Product families among the active products (client-month value).",
+   "is_measure": false,
+   "name": "product_families_held_count",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client-month flag: holds at least one deposit product (current, savings, time deposit, money market).",
+   "is_measure": false,
+   "name": "holds_deposits",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client-month flag: holds a live credit facility at the month-end.",
+   "is_measure": false,
+   "name": "holds_lending",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client-month flag: uses transaction-banking services beyond deposits (payments, trade finance, cash-management structures, SCF).",
+   "is_measure": false,
+   "name": "holds_tb_services",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client-month flag: used FX products in the trailing 12 months.",
+   "is_measure": false,
+   "name": "holds_fx",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client-month flag: holds or used trade-finance products.",
+   "is_measure": false,
+   "name": "holds_trade_finance",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client-month flag: every active product is a deposit product (the entity holds nothing but deposits).",
+   "is_measure": false,
+   "name": "is_deposit_only",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client-month flag: every active product is a credit facility (loans only - no deposits, payments, trade, FX or cash management).",
+   "is_measure": false,
+   "name": "is_single_product_lending",
+   "type": "boolean"
+  },
+  {
+   "comment": "Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Median products held in the month by clients of the same peer group (industry subsector) holding at least one product.",
+   "is_measure": false,
+   "name": "peer_median_products_held",
+   "type": "double"
+  },
+  {
+   "comment": "products_held_count - peer_median_products_held (negative = fewer products than the typical peer).",
+   "is_measure": false,
+   "name": "products_held_vs_peer_median",
+   "type": "double"
+  }
+ ],
+ "comment": "Relationship footprint (Account Planning, brief 5.1): which products each golden client holds or uses with SMBC APAC at every month-end from Apr-2023 to Sep-2026. Held products are deposit accounts (month-end balance), credit facilities (drawn and limit), live trade-finance instruments, cash-management structures (header or participant) and SCF programmes (anchor); flow products (trade, FX, payments) count as used when the client transacted in the trailing 12 months. Rows are dense per client x product from the month of first use, so lapsed products stay visible (is_active = false). Balances and limits are point-in-time and 12-month volumes are trailing windows: never sum them across months - take the latest month (or one month). Client- month attributes (products held, deposit-only, single-product lending, peer median) repeat on every product row of the client-month: count them on is_client_month_primary_row only. Grain: one row per golden client x product x month (dense from the first month of use to Sep-2026).",
+ "identifier": "smbc_genie.gold.fact_product_holding_monthly",
+ "type": "MANAGED"
+}

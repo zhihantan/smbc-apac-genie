@@ -1,0 +1,247 @@
+{
+ "columns": [
+  {
+   "comment": "SCF programme id; join gold.dim_scf_programme.",
+   "is_measure": false,
+   "name": "programme_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end of the snapshot.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "PROGRAMME on the programme row, else the supplier id (part of the key).",
+   "is_measure": false,
+   "name": "record_key",
+   "type": "string"
+  },
+  {
+   "comment": "Programme (programme-level limit, outstanding, utilisation, supplier counts) or Supplier (one programme supplier: state, outstanding, monthly flows).",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the month of month_end_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version of the anchor valid at the month-end (as-was, D11).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client id of the programme anchor (buyer for payables finance).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Programme label = anchor short name + programme type.",
+   "is_measure": false,
+   "name": "programme_name",
+   "type": "string"
+  },
+  {
+   "comment": "Payables Finance or Receivables Finance.",
+   "is_measure": false,
+   "name": "programme_type",
+   "type": "string"
+  },
+  {
+   "comment": "PRD-PAYABLES-FINANCE or PRD-RECEIVABLES-FINANCE.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office of the anchor (ISO-2).",
+   "is_measure": false,
+   "name": "anchor_country",
+   "type": "string"
+  },
+  {
+   "comment": "Programme currency.",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Programme limit in USD (current limit; point-in-time; Programme rows only, null on Supplier rows).",
+   "is_measure": false,
+   "name": "limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Financed invoices outstanding at the month-end (drawn on / before it, due after it), USD - the programme's drawn amount (point-in-time; Programme rows only).",
+   "is_measure": false,
+   "name": "financed_outstanding_usd",
+   "type": "double"
+  },
+  {
+   "comment": "financed_outstanding_usd / limit_usd at the month-end (0-1; Programme rows only; across programmes use SUM(outstanding) / SUM(limit)).",
+   "is_measure": false,
+   "name": "utilisation",
+   "type": "double"
+  },
+  {
+   "comment": "Programme utilisation band at the month-end: Above 85%, 40-85% or Below 40% (dim_threshold SCF_UTILISATION_HIGH / LOW); repeated on the programme's Supplier rows.",
+   "is_measure": false,
+   "name": "utilisation_band",
+   "type": "string"
+  },
+  {
+   "comment": "True when the programme's utilisation is above 85% at the month-end (limit review); repeated on Supplier rows.",
+   "is_measure": false,
+   "name": "is_above_85pct",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the programme's utilisation is below 40% at the month-end (under-used programme); repeated on Supplier rows.",
+   "is_measure": false,
+   "name": "is_below_40pct",
+   "type": "boolean"
+  },
+  {
+   "comment": "Suppliers in the programme's supplier register (Programme rows; the platform header count n_suppliers_total in dim_scf_programme is not reconciled to it).",
+   "is_measure": false,
+   "name": "suppliers_in_register",
+   "type": "int"
+  },
+  {
+   "comment": "Suppliers with invoices approved by the anchor in the 12 months to the month-end (Programme rows).",
+   "is_measure": false,
+   "name": "suppliers_invoicing_12m",
+   "type": "int"
+  },
+  {
+   "comment": "Suppliers onboarded (able to finance) by the month-end (Programme rows).",
+   "is_measure": false,
+   "name": "suppliers_onboarded",
+   "type": "int"
+  },
+  {
+   "comment": "Suppliers that drew at least one invoice in the 3 months to the month-end (Programme rows).",
+   "is_measure": false,
+   "name": "suppliers_active_3m",
+   "type": "int"
+  },
+  {
+   "comment": "suppliers_active_3m / suppliers_in_register (0-1, Programme rows): share of the programme's suppliers actively financing.",
+   "is_measure": false,
+   "name": "supplier_activation_rate",
+   "type": "double"
+  },
+  {
+   "comment": "SCF supplier id (Supplier rows; suppliers are not bank clients).",
+   "is_measure": false,
+   "name": "supplier_id",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier name (fictional; Supplier rows).",
+   "is_measure": false,
+   "name": "supplier_name",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier country (ISO-2; Supplier rows).",
+   "is_measure": false,
+   "name": "supplier_country",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier spend segment within its programme (invoice value Oct-2025 to Sep-2026): Strategic (top 20%), Core (next 30%) or Long tail (bottom 50%) - Supplier rows.",
+   "is_measure": false,
+   "name": "supplier_segment",
+   "type": "string"
+  },
+  {
+   "comment": "True when the supplier was onboarded by the month-end (Supplier rows).",
+   "is_measure": false,
+   "name": "is_supplier_onboarded",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the supplier drew at least one invoice in the 3 months to the month-end (Supplier rows).",
+   "is_measure": false,
+   "name": "is_supplier_active_3m",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the supplier's own payments route to another bank - an account-opening opportunity (Supplier rows).",
+   "is_measure": false,
+   "name": "supplier_routes_to_other_bank",
+   "type": "boolean"
+  },
+  {
+   "comment": "The supplier's financed invoices outstanding at the month-end, USD (Supplier rows; sums to the programme's financed_outstanding_usd).",
+   "is_measure": false,
+   "name": "supplier_financed_outstanding_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Invoices approved by the anchor during the month (flow; Supplier rows, 0 on Programme rows).",
+   "is_measure": false,
+   "name": "invoices_approved_in_month",
+   "type": "int"
+  },
+  {
+   "comment": "USD value of invoices approved during the month (flow; Supplier rows).",
+   "is_measure": false,
+   "name": "invoice_value_approved_in_month_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Invoices financed (drawn) during the month (flow; Supplier rows).",
+   "is_measure": false,
+   "name": "drawdowns_in_month",
+   "type": "int"
+  },
+  {
+   "comment": "USD advanced to suppliers during the month (flow; Supplier rows).",
+   "is_measure": false,
+   "name": "financed_in_month_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Discount income on invoices financed during the month, USD (flow; Supplier rows).",
+   "is_measure": false,
+   "name": "discount_income_in_month_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Sum of days financed over the month's drawdowns (Average Days Financed = SUM / SUM(drawdowns_in_month); Supplier rows).",
+   "is_measure": false,
+   "name": "days_financed_in_month",
+   "type": "bigint"
+  },
+  {
+   "comment": "Sum of financed amount x days over the month's drawdowns (yield bps = 10000 x SUM(discount_income_in_month_usd) / SUM(financed_usd_days_in_month / 365); Supplier rows).",
+   "is_measure": false,
+   "name": "financed_usd_days_in_month",
+   "type": "double"
+  },
+  {
+   "comment": "True for the as-of month-end 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_latest_month_end",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Supply-chain-finance programme health at each month-end from Apr-2024 (SCF invoice history start, or the launch month if later) to Sep-2026, as a record_type union (D13). Programme rows (record_key PROGRAMME): programme limit, financed outstanding (invoices drawn and not yet due), utilisation with the 85% / 40% bands and the supplier counts (register, invoicing in 12 months, onboarded, active in 3 months). Supplier rows (record_key = supplier id): one per supplier of the programme's register with its country, spend segment, onboarded / active state, its financed outstanding and the month's flows (invoices approved, drawdowns, financed amount, discount income, USD-days for the yield). Programme amounts sit on Programme rows only and supplier amounts / flows on Supplier rows only, so no measure double counts; the utilisation band repeats on Supplier rows as an attribute. POINT-IN-TIME columns (limit, outstanding, utilisation, supplier counts / states) - take one month-end, never sum across months; the *_in_month columns are monthly flows. The limit is the current programme limit (no limit history), so historical utilisation is measured against today's limit. Grain: one row per SCF programme per month-end per record (the programme itself, or one of its suppliers).",
+ "identifier": "smbc_genie.gold.fact_scf_programme_monthly",
+ "type": "MANAGED"
+}

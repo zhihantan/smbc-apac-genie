@@ -1,0 +1,262 @@
+[
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000000",
+    "key": "Q1",
+    "question": "Top and bottom 20 client groups by ROE in FY2025 (groups with allocated capital) - label each Top 20 or Bottom 20 and show ROE, median client ROE, revenue, allocated capital and credit cost.",
+    "expected_sql": "WITH g AS (\n  SELECT `Client Group`,\n         MEASURE(`ROE %`)                 AS roe,\n         MEASURE(`Median Client ROE %`)   AS median_client_roe,\n         MEASURE(`Revenue USD`)           AS revenue_usd,\n         MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n         MEASURE(`Credit Cost USD`)       AS credit_cost_usd\n  FROM smbc_genie.metrics.mv_roe_waterfall\n  WHERE `Fiscal Year` = 'FY2025' AND `Client Group` IS NOT NULL\n  GROUP BY ALL\n  HAVING MEASURE(`Allocated Capital USD`) > 0\n), r AS (\n  SELECT g.*, rank() OVER (ORDER BY roe DESC) AS top_rank, rank() OVER (ORDER BY roe ASC) AS bottom_rank FROM g\n)\nSELECT CASE WHEN top_rank <= 20 THEN 'Top 20' ELSE 'Bottom 20' END AS list, `Client Group` AS client_group, roe, median_client_roe,\n       revenue_usd, allocated_capital_usd, credit_cost_usd\nFROM r\nWHERE top_rank <= 20 OR bottom_rank <= 20\nORDER BY roe DESC",
+    "expected_checks": {
+      "rows": 40
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000001",
+    "key": "Q1b",
+    "question": "Top and bottom 20 client groups by ROE in FY2025 among groups with at least USD 1m of allocated capital - label each Top 20 or Bottom 20 with ROE, median client ROE, revenue, allocated capital and credit cost.",
+    "expected_sql": "WITH g AS (\n  SELECT `Client Group`, MEASURE(`ROE %`) AS roe, MEASURE(`Median Client ROE %`) AS median_client_roe,\n         MEASURE(`Revenue USD`) AS revenue_usd, MEASURE(`Allocated Capital USD`) AS allocated_capital_usd, MEASURE(`Credit Cost USD`) AS credit_cost_usd\n  FROM smbc_genie.metrics.mv_roe_waterfall\n  WHERE `Fiscal Year` = 'FY2025' AND `Client Group` IS NOT NULL\n  GROUP BY ALL\n  HAVING MEASURE(`Allocated Capital USD`) >= 1000000\n), r AS (\n  SELECT g.*, rank() OVER (ORDER BY roe DESC) AS top_rank, rank() OVER (ORDER BY roe ASC) AS bottom_rank FROM g\n)\nSELECT CASE WHEN top_rank <= 20 THEN 'Top 20' ELSE 'Bottom 20' END AS list, `Client Group` AS client_group, roe, median_client_roe,\n       revenue_usd, allocated_capital_usd, credit_cost_usd\nFROM r\nWHERE top_rank <= 20 OR bottom_rank <= 20\nORDER BY roe DESC",
+    "expected_checks": {
+      "rows": 40
+    },
+    "answer_ref": "Q1b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000002",
+    "key": "Q2",
+    "question": "Which Japanese-corporate relationships are single-product lending with RoRWA below the 8% hurdle? Show client, group, coverage office, RM, latest-quarter RoRWA, the hurdle, RWA and September revenue.",
+    "expected_sql": "SELECT `Client`, `Client Group`, `Coverage Office`, `Primary RM`,\n       MEASURE(`RoRWA %`)             AS rorwa_latest_quarter,\n       MEASURE(`RoRWA Hurdle %`)      AS rorwa_hurdle,\n       MEASURE(`Average RWA USD`)     AS rwa_usd,\n       MEASURE(`Total Revenue USD`)   AS revenue_sep_2026_usd\nFROM smbc_genie.metrics.mv_client_profitability\nWHERE `Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\nGROUP BY ALL\nORDER BY rwa_usd DESC",
+    "expected_checks": {
+      "rows": 38
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000003",
+    "key": "Q2-jargon",
+    "question": "JC mono-line lending names under the 8% hurdle - RoRWA vs hurdle, RWA, Sep revenue, RM and office",
+    "expected_sql": "SELECT `Client`, `Coverage Office`, `Primary RM`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter, MEASURE(`Average RWA USD`) AS rwa_usd\nFROM smbc_genie.metrics.mv_client_profitability\nWHERE `Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\nGROUP BY `Client`, `Client Group`, `Coverage Office`, `Primary RM`",
+    "expected_checks": {
+      "min_rows": 1
+    },
+    "answer_ref": null,
+    "variant_of": "Q2",
+    "allow_extra_columns": true,
+    "variant_of_id": "4cb7c04797b329b4d9b55f3000000002"
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000004",
+    "key": "Q2b",
+    "question": "What cross-sell would lift the Japanese-corporate single-product lending relationships below the RoRWA hurdle? For each client show its latest-quarter RoRWA, the top cross-sell product from the latest next-best-product scores and its propensity.",
+    "expected_sql": "WITH b AS (\n  SELECT `Client`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\n  GROUP BY ALL\n), n AS (\n  SELECT `Client`, `Product`, MEASURE(`Max Propensity`) AS propensity\n  FROM smbc_genie.metrics.mv_next_best_product\n  WHERE `Is Latest Month` AND `Is Cross-Sell`\n  GROUP BY ALL\n)\nSELECT b.`Client` AS client, b.rorwa_latest_quarter, max_by(n.`Product`, n.propensity) AS top_cross_sell_product,\n       max(n.propensity) AS propensity\nFROM b LEFT JOIN n ON n.`Client` = b.`Client`\nGROUP BY ALL\nORDER BY b.rorwa_latest_quarter",
+    "expected_checks": {
+      "rows": 38
+    },
+    "answer_ref": "Q2b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000005",
+    "key": "Q3",
+    "question": "ROE waterfall for the Hayashi Marine Logistics group, FY2024 vs FY2025: revenue, opex, credit cost, pre-tax profit, tax, net income, allocated capital, ROE and the gap to the ROE hurdle.",
+    "expected_sql": "SELECT `Fiscal Year`,\n       MEASURE(`Revenue USD`)           AS revenue_usd,\n       MEASURE(`Opex USD`)              AS opex_usd,\n       MEASURE(`Credit Cost USD`)       AS credit_cost_usd,\n       MEASURE(`Pre-Tax Profit USD`)    AS pre_tax_profit_usd,\n       MEASURE(`Tax USD`)               AS tax_usd,\n       MEASURE(`Net Income USD`)        AS net_income_usd,\n       MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n       MEASURE(`ROE %`)                 AS roe,\n       MEASURE(`Hurdle Gap pts`)        AS gap_to_roe_hurdle\nFROM smbc_genie.metrics.mv_roe_waterfall\nWHERE `Client Group` = 'Hayashi Marine Logistics' AND `Fiscal Year` IN ('FY2024', 'FY2025')\nGROUP BY ALL\nORDER BY `Fiscal Year`",
+    "expected_checks": {
+      "rows": 2
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000006",
+    "key": "Q3-casual",
+    "question": "walk me through hayashi marine logistics' ROE waterfall, FY24 vs FY25",
+    "expected_sql": "SELECT `Fiscal Year`, MEASURE(`Revenue USD`) AS revenue_usd, MEASURE(`Net Income USD`) AS net_income_usd, MEASURE(`ROE %`) AS roe\nFROM smbc_genie.metrics.mv_roe_waterfall\nWHERE `Client Group` = 'Hayashi Marine Logistics' AND `Fiscal Year` IN ('FY2024', 'FY2025')\nGROUP BY ALL",
+    "expected_checks": {
+      "min_rows": 1
+    },
+    "answer_ref": null,
+    "variant_of": "Q3",
+    "allow_extra_columns": true,
+    "variant_of_id": "4cb7c04797b329b4d9b55f3000000005"
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000007",
+    "key": "Q4",
+    "question": "Revenue mix by product family for Strategic clients vs Core clients this fiscal year - revenue and each family's share of the tier's revenue.",
+    "expected_sql": "WITH r AS (\n  SELECT `Relationship Tier`, `Product Family`, MEASURE(`Total Revenue USD`) AS revenue_usd\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Fiscal Year` = 'FY2026' AND `Relationship Tier` IN ('Strategic', 'Core')\n  GROUP BY ALL\n)\nSELECT `Relationship Tier`, `Product Family`, revenue_usd,\n       revenue_usd / SUM(revenue_usd) OVER (PARTITION BY `Relationship Tier`) AS revenue_mix_share\nFROM r\nORDER BY `Relationship Tier`, revenue_usd DESC",
+    "expected_checks": {
+      "rows": 14
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000008",
+    "key": "Q5",
+    "question": "Deals approved below hurdle in the last 4 quarters - by exception reason and whether realised RAROC caught up: deals, amount, deals caught up, caught-up rate, average origination and realised RAROC.",
+    "expected_sql": "SELECT `Exception Reason`,\n       MEASURE(`Deals`)                       AS deals,\n       MEASURE(`Amount USD`)                  AS amount_usd,\n       MEASURE(`Deals Caught Up`)             AS caught_up,\n       MEASURE(`Caught-Up Rate %`)            AS caught_up_rate,\n       MEASURE(`Average Origination RAROC %`) AS avg_origination_raroc,\n       MEASURE(`Average Realised RAROC %`)    AS avg_realised_raroc\nFROM smbc_genie.metrics.mv_deal_pricing\nWHERE `Approved Below Hurdle` AND `Signed in Last 4 Seasoned Quarters`\nGROUP BY ALL\nORDER BY deals DESC",
+    "expected_checks": {
+      "rows": 4
+    },
+    "answer_ref": "Q5",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000009",
+    "key": "Q5b",
+    "question": "Deals approved below hurdle in the rolling last 4 quarters to 30-Sep-2026, by exception reason and realised status - number of deals and amount.",
+    "expected_sql": "SELECT `Exception Reason`, `Realised Status`, MEASURE(`Deals`) AS deals, MEASURE(`Amount USD`) AS amount_usd\nFROM smbc_genie.metrics.mv_deal_pricing\nWHERE `Approved Below Hurdle` AND `Signed in Last 4 Quarters`\nGROUP BY ALL\nORDER BY `Exception Reason`, `Realised Status`",
+    "expected_checks": {
+      "rows": 8
+    },
+    "answer_ref": "Q5b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f300000000a",
+    "key": "Q6",
+    "question": "Net contribution by coverage office and segment, H1 FY2026 vs H1 FY2025, with the change.",
+    "expected_sql": "WITH n AS (\n  SELECT `Coverage Office`, `Segment`, `Fiscal Half`, MEASURE(`Net Contribution USD`) AS net_contribution_usd\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Fiscal Half` IN ('FY2026-H1', 'FY2025-H1')\n  GROUP BY ALL\n)\nSELECT `Coverage Office`, `Segment`,\n       SUM(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN net_contribution_usd END) AS net_contribution_h1_fy2026_usd,\n       SUM(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN net_contribution_usd END) AS net_contribution_h1_fy2025_usd,\n       SUM(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN net_contribution_usd ELSE -net_contribution_usd END) AS change_usd\nFROM n\nGROUP BY ALL\nORDER BY `Coverage Office`, `Segment`",
+    "expected_checks": {
+      "rows": 75
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f300000000b",
+    "key": "Q7",
+    "question": "Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA) in FY2025? Show the 20 lowest with revenue per RWA, average RWA, revenue and RoRWA.",
+    "expected_sql": "SELECT * FROM (\n  SELECT `Client Group`,\n         MEASURE(`Revenue per RWA %`) AS revenue_per_rwa,\n         MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n         MEASURE(`Total Revenue USD`) AS revenue_usd,\n         MEASURE(`RoRWA %`)           AS rorwa\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Fiscal Year` = 'FY2025'\n  GROUP BY ALL\n) WHERE average_rwa_usd > 0\nORDER BY revenue_per_rwa ASC\nLIMIT 20",
+    "expected_checks": {
+      "rows": 20
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f300000000c",
+    "key": "Q7-typo",
+    "question": "which groups use the most captial vs revenue in FY2025 - bottom 20 on revenue per RWA with avg RWA, revenue and RoRWA",
+    "expected_sql": "SELECT * FROM (\n  SELECT `Client Group`,\n         MEASURE(`Revenue per RWA %`) AS revenue_per_rwa,\n         MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n         MEASURE(`Total Revenue USD`) AS revenue_usd,\n         MEASURE(`RoRWA %`)           AS rorwa\n  FROM smbc_genie.metrics.mv_client_profitability\n  WHERE `Fiscal Year` = 'FY2025'\n  GROUP BY ALL\n) WHERE average_rwa_usd > 0\nORDER BY revenue_per_rwa ASC\nLIMIT 20",
+    "expected_checks": {
+      "rows": 20
+    },
+    "answer_ref": "Q7",
+    "variant_of": "Q7",
+    "allow_extra_columns": false,
+    "variant_of_id": "4cb7c04797b329b4d9b55f300000000b"
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f300000000d",
+    "key": "Q8",
+    "question": "Clients where credit cost exceeded 30% of revenue in FY2025 - client, group, revenue, credit cost and credit cost / revenue.",
+    "expected_sql": "SELECT `Client`, `Client Group`,\n       MEASURE(`Revenue USD`)              AS revenue_usd,\n       MEASURE(`Credit Cost USD`)          AS credit_cost_usd,\n       MEASURE(`Credit Cost to Revenue %`) AS credit_cost_to_revenue\nFROM smbc_genie.metrics.mv_roe_waterfall\nWHERE `Fiscal Year` = 'FY2025' AND `Credit Cost Above 30%`\nGROUP BY ALL\nORDER BY credit_cost_to_revenue DESC",
+    "expected_checks": {
+      "rows": 41
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f300000000e",
+    "key": "Q9a",
+    "question": "Products per client by segment at the latest month-end (one row per segment, including clients with no segment), with the median client RoRWA and the number of clients.",
+    "expected_sql": "SELECT `Segment`,\n       MEASURE(`Products per Client`)   AS products_per_client,\n       MEASURE(`Median Client RoRWA %`) AS median_client_rorwa,\n       MEASURE(`Clients`)               AS clients\nFROM smbc_genie.metrics.mv_client_profitability\nWHERE `Is Latest Month`\nGROUP BY ALL\nORDER BY products_per_client DESC",
+    "expected_checks": {
+      "rows": 6
+    },
+    "answer_ref": "Q9a",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f300000000f",
+    "key": "Q9b",
+    "question": "How does RoRWA relate to the number of products held? By product-count bucket at the latest month-end, show clients, median client RoRWA, portfolio RoRWA and clients below the RoRWA hurdle.",
+    "expected_sql": "SELECT `Product Count Bucket`,\n       MEASURE(`Clients`)                    AS clients,\n       MEASURE(`Median Client RoRWA %`)      AS median_client_rorwa,\n       MEASURE(`RoRWA %`)                    AS portfolio_rorwa,\n       MEASURE(`Clients Below RoRWA Hurdle`) AS clients_below_hurdle\nFROM smbc_genie.metrics.mv_client_profitability\nWHERE `Is Latest Month`\nGROUP BY ALL\nORDER BY `Product Count Bucket`",
+    "expected_checks": {
+      "rows": 6
+    },
+    "answer_ref": "Q9b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000010",
+    "key": "Q10",
+    "question": "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong this fiscal year, with the number of clients.",
+    "expected_sql": "SELECT `Primary RM`,\n       MEASURE(`Total Revenue USD`) AS revenue_fytd_usd,\n       MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n       MEASURE(`RoRWA %`)           AS rorwa,\n       MEASURE(`Clients`)           AS clients\nFROM smbc_genie.metrics.mv_client_profitability\nWHERE `Primary RM Office` = 'HK' AND `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY revenue_fytd_usd DESC",
+    "expected_checks": {
+      "rows": 9
+    },
+    "answer_ref": "Q10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000011",
+    "key": "Q10-abbrev",
+    "question": "HK RM P&L by RM - FYTD rev, avg RWA, RoRWA, clients",
+    "expected_sql": "SELECT `Primary RM`,\n       MEASURE(`Total Revenue USD`) AS revenue_fytd_usd,\n       MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n       MEASURE(`RoRWA %`)           AS rorwa,\n       MEASURE(`Clients`)           AS clients\nFROM smbc_genie.metrics.mv_client_profitability\nWHERE `Primary RM Office` = 'HK' AND `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY revenue_fytd_usd DESC",
+    "expected_checks": {
+      "rows": 9
+    },
+    "answer_ref": "Q10",
+    "variant_of": "Q10",
+    "allow_extra_columns": false,
+    "variant_of_id": "4cb7c04797b329b4d9b55f3000000010"
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000012",
+    "key": "X1",
+    "question": "How many FY2025 deals were approved below hurdle on Relationship exceptions, and how many of them caught up?",
+    "expected_sql": "SELECT MEASURE(`Deals`) AS relationship_exceptions, MEASURE(`Deals Caught Up`) AS caught_up\nFROM smbc_genie.metrics.mv_deal_pricing\nWHERE `Fiscal Year` = 'FY2025' AND `Exception Reason` = 'Relationship'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "QS8a",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "4cb7c04797b329b4d9b55f3000000013",
+    "key": "X2",
+    "question": "In one row: the Kinokawa Precision group's revenue in H1 FY2026, its revenue in the same months of FY2025 (H1 FY2025) and the YoY growth.",
+    "expected_sql": "SELECT MEASURE(`Total Revenue USD`) AS revenue_h1_fy2026_usd, MEASURE(`Revenue Prior Year USD`) AS revenue_h1_fy2025_usd,\n       MEASURE(`Revenue YoY %`) AS revenue_yoy\nFROM smbc_genie.metrics.mv_client_profitability\nWHERE `Client Group` = 'Kinokawa Precision' AND `Fiscal Half` = 'FY2026-H1'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "QS2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  }
+]

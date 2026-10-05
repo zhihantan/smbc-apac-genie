@@ -1,0 +1,41 @@
+table: fact_peer_penetration_annual
+domain: opportunity
+comment: >-
+  Peer penetration benchmark (Opportunity Identification): for each peer group (industry subsector), core product
+  and fiscal year (FY2024, FY2025, FY2026 to date) the number of the peer group's active SMBC APAC clients, how many
+  hold the product, the penetration rate and the median activity of the holders (average balance for balance
+  products, annual volume for flow products). Dense over all peer groups and core products; aggregated from
+  gold.fact_client_product_penetration_annual so the rates match the client-level fact. Combine groups with
+  SUM(peer_group_holders) / SUM(peer_group_clients), not an average of rates.
+grain: one row per peer group x core product x fiscal year (dense)
+primary_key: [peer_group_id, product_id, fiscal_year]
+foreign_keys:
+  - {columns: [peer_group_id], references: dim_peer_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+cluster_by: [fiscal_year_end_date, peer_group_id]
+min_rows: 1000
+columns:
+  peer_group_id: {type: STRING}
+  peer_group_name: {type: STRING, comment: "Peer group name (industry subsector), e.g. Automotive Parts."}
+  industry_sector: {type: STRING}
+  industry_subsector: {type: STRING}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_year_end_date: {type: DATE, comment: "Last day of the fiscal year (31-Mar)."}
+  product_id: {type: STRING}
+  product_name: {type: STRING, comment: "Core product name."}
+  product_family: {type: STRING}
+  business_line: {type: STRING}
+  peer_group_clients: {type: BIGINT, comment: "SMBC APAC clients of the peer group with an active product in the fiscal year."}
+  peer_group_holders: {type: BIGINT, comment: "Of those, clients holding or using the product in the year."}
+  penetration_pct: {type: DOUBLE, comment: "peer_group_holders / peer_group_clients (fraction, % of peers holding); null for an empty peer group."}
+  median_activity_usd: {type: DOUBLE, comment: "Median activity of the holders in USD (average balance or annual volume, see activity_basis)."}
+  activity_basis: {type: STRING, comment: "Average balance or Annual volume."}
+  total_activity_usd: {type: DOUBLE, comment: "Total activity of the holders in USD (same basis)."}
+checks:
+  - name: rates_match_client_fact
+    sql: >-
+      SELECT count(*) FROM ${table} p JOIN (SELECT DISTINCT peer_group_id, product_id, fiscal_year, peer_penetration_pct
+      FROM ${catalog}.gold.fact_client_product_penetration_annual WHERE peer_group_id IS NOT NULL) c
+      USING (peer_group_id, product_id, fiscal_year) WHERE abs(p.penetration_pct - c.peer_penetration_pct) > 1e-9

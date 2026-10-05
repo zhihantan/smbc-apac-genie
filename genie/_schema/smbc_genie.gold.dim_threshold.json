@@ -1,0 +1,61 @@
+{
+ "columns": [
+  {
+   "comment": "Threshold key, e.g. RORWA_HURDLE, EWS_RED_MIN, SLA_STAGE_2_KYC_DOCS.",
+   "is_measure": false,
+   "name": "threshold_code",
+   "type": "string"
+  },
+  {
+   "comment": "Human-readable threshold name.",
+   "is_measure": false,
+   "name": "threshold_name",
+   "type": "string"
+  },
+  {
+   "comment": "Area: Profitability, Credit, Early Warning, Onboarding, Relationship, Opportunity, Cash & Liquidity, Trade & SCF, Cashflow, Signals or Data Foundation.",
+   "is_measure": false,
+   "name": "category",
+   "type": "string"
+  },
+  {
+   "comment": "Threshold value in `unit` (ratios as fractions: 0.012 = 1.2%).",
+   "is_measure": false,
+   "name": "threshold_value",
+   "type": "double"
+  },
+  {
+   "comment": "Unit of threshold_value: ratio, usd, score, days, hours, months or count.",
+   "is_measure": false,
+   "name": "unit",
+   "type": "string"
+  },
+  {
+   "comment": "How it is applied: below, at_or_above, above, at_most or within.",
+   "is_measure": false,
+   "name": "comparison",
+   "type": "string"
+  },
+  {
+   "comment": "Measure or field the threshold is applied to.",
+   "is_measure": false,
+   "name": "applies_to",
+   "type": "string"
+  },
+  {
+   "comment": "What crossing the threshold means.",
+   "is_measure": false,
+   "name": "description",
+   "type": "string"
+  },
+  {
+   "comment": "Where the value comes from: config/smbc_genie.yaml (configurable), silver.kyc_case_stage (stage SLA) or a business rule fixed in gold.",
+   "is_measure": false,
+   "name": "source",
+   "type": "string"
+  }
+ ],
+ "comment": "Single source of business thresholds (D20, D29): profitability hurdles (RoRWA 1.2%, RAROC 12%, ROE 10%; \"below hurdle\" always means below these configured values), the USD 500m single-borrower attention threshold, EWS bands (Green < 40, Amber 40-69, Red >= 70), covenant headroom warning, onboarding stage SLA days and the cut-offs used by the standard questions (e.g. LTV 70%, 90 days without RM contact). Ratios are fractions (0.012 = 1.2%). Grain: one row per threshold.",
+ "identifier": "smbc_genie.gold.dim_threshold",
+ "type": "MANAGED"
+}

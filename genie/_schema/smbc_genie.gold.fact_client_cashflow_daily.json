@@ -1,0 +1,151 @@
+{
+ "columns": [
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Value date of the payments (Flow rows) or balance date (Balance rows).",
+   "is_measure": false,
+   "name": "cashflow_date",
+   "type": "date"
+  },
+  {
+   "comment": "Supplier, Payroll, Tax, Intercompany, Loan Service, Dividend, Trade Settlement (Flow rows), Closing Balance (Balance rows) or Month Total (Month Total rows).",
+   "is_measure": false,
+   "name": "cashflow_category",
+   "type": "string"
+  },
+  {
+   "comment": "Flow (payments by purpose), Balance (closing deposit balance) or Month Total (the client's monthly totals and seasonality baseline).",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "Operating (supplier, payroll, tax, trade settlement), Financing (loan service, dividend), Intercompany, Balance or Month Total.",
+   "is_measure": false,
+   "name": "cashflow_category_group",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the month of cashflow_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month number 1-12 of cashflow_date (seasonality: e.g. March fiscal year-end and September half-year peaks).",
+   "is_measure": false,
+   "name": "calendar_month",
+   "type": "int"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client's coverage office / booking location (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Inbound payments received in USD (Flow rows; 0 on Balance rows).",
+   "is_measure": false,
+   "name": "inflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Outbound payments made in USD (Flow rows; 0 on Balance rows).",
+   "is_measure": false,
+   "name": "outflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "inflow_usd - outflow_usd (USD; negative = net outflow).",
+   "is_measure": false,
+   "name": "net_cashflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Inbound payments (Flow rows).",
+   "is_measure": false,
+   "name": "inflow_count",
+   "type": "int"
+  },
+  {
+   "comment": "Outbound payments (Flow rows).",
+   "is_measure": false,
+   "name": "outflow_count",
+   "type": "int"
+  },
+  {
+   "comment": "Client's total end-of-day deposit balance in USD (Balance rows; null on Flow rows; point-in-time - never sum across dates).",
+   "is_measure": false,
+   "name": "closing_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "CASA part of closing_balance_usd (Balance rows).",
+   "is_measure": false,
+   "name": "closing_casa_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Time / money-market deposit part of closing_balance_usd (Balance rows).",
+   "is_measure": false,
+   "name": "closing_td_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True on Balance rows inside the daily deposit window (from 1-Dec-2025); false on month-end-only history and on Flow rows.",
+   "is_measure": false,
+   "name": "is_daily_balance",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the last calendar day of a month.",
+   "is_measure": false,
+   "name": "is_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client's total inflows of the calendar month, USD (Month Total rows; 0 for a month without inflows; null on other rows). Inflow volatility = stddev of this column across months.",
+   "is_measure": false,
+   "name": "month_inflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's total outflows of the calendar month, USD (Month Total rows).",
+   "is_measure": false,
+   "name": "month_outflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "month_inflow_usd - month_outflow_usd (Month Total rows).",
+   "is_measure": false,
+   "name": "month_net_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's average monthly inflow over its months from the first cash-flow month to Sep-2026, USD (Month Total rows) - the flat expectation. Seasonality Index = SUM(month_inflow_usd) / SUM(inflow_baseline_usd) (> 1 = seasonal peak).",
+   "is_measure": false,
+   "name": "inflow_baseline_usd",
+   "type": "double"
+  }
+ ],
+ "comment": "Client operating cash flows derived from the payments hub, daily from 1-Apr-2024 to 30-Sep-2026, with the client's closing deposit balance (D13 record_type rows). record_type 'Flow': one row per golden client x date x cash-flow category (payment purpose: Supplier, Payroll, Tax, Intercompany, Loan Service, Dividend, Trade Settlement) with inflows (inbound payments), outflows (outbound) and net (inflow - outflow) in USD - flows, additive across days and categories. record_type 'Balance' (cashflow_category = Closing Balance): the client's total end-of-day deposits (CASA + TD) - daily from 1-Dec-2025 (the daily deposit window), month-ends only before - POINT-IN-TIME, never sum across dates (take the last date). record_type 'Month Total' (cashflow_category = Month Total, dated the month-end): one row per client and month, dense from its first cash-flow month to Sep-2026, with the month's inflows / outflows (0 when none) and the client's average monthly inflow (inflow_baseline_usd) - Seasonality Index = SUM(month_inflow_usd) / SUM(inflow_baseline_usd) and inflow volatility = stddev of month_inflow_usd over these rows. Each amount lives on its own record type only, so the measures never double count. Grain: one row per golden client x date x cash-flow category (payment purpose, Closing Balance or Month Total).",
+ "identifier": "smbc_genie.gold.fact_client_cashflow_daily",
+ "type": "MANAGED"
+}

@@ -1,0 +1,78 @@
+table: fact_client_cashflow_daily
+domain: cashflow
+comment: >-
+  Client operating cash flows derived from the payments hub, daily from 1-Apr-2024 to 30-Sep-2026, with the client's
+  closing deposit balance (D13 record_type rows). record_type 'Flow': one row per golden client x date x cash-flow
+  category (payment purpose: Supplier, Payroll, Tax, Intercompany, Loan Service, Dividend, Trade Settlement) with
+  inflows (inbound payments), outflows (outbound) and net (inflow - outflow) in USD - flows, additive across days and
+  categories. record_type 'Balance' (cashflow_category = Closing Balance): the client's total end-of-day deposits
+  (CASA + TD) - daily from 1-Dec-2025 (the daily deposit window), month-ends only before - POINT-IN-TIME, never sum
+  across dates (take the last date). record_type 'Month Total' (cashflow_category = Month Total, dated the month-end):
+  one row per client and month, dense from its first cash-flow month to Sep-2026, with the month's inflows / outflows
+  (0 when none) and the client's average monthly inflow (inflow_baseline_usd) - Seasonality Index =
+  SUM(month_inflow_usd) / SUM(inflow_baseline_usd) and inflow volatility = stddev of month_inflow_usd over these
+  rows. Each amount lives on its own record type only, so the measures never double count.
+grain: one row per golden client x date x cash-flow category (payment purpose, Closing Balance or Month Total)
+primary_key: [golden_client_id, cashflow_date, cashflow_category]
+foreign_keys:
+  - {columns: [cashflow_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [cashflow_date, golden_client_sk]
+min_rows: 100000
+columns:
+  golden_client_id: {type: STRING, not_null: true}
+  cashflow_date: {type: DATE, comment: "Value date of the payments (Flow rows) or balance date (Balance rows)."}
+  cashflow_category: {type: STRING, comment: "Supplier, Payroll, Tax, Intercompany, Loan Service, Dividend, Trade Settlement (Flow rows), Closing Balance (Balance rows) or Month Total (Month Total rows)."}
+  record_type: {type: STRING, comment: "Flow (payments by purpose), Balance (closing deposit balance) or Month Total (the client's monthly totals and seasonality baseline)."}
+  cashflow_category_group: {type: STRING, comment: "Operating (supplier, payroll, tax, trade settlement), Financing (loan service, dividend), Intercompany, Balance or Month Total."}
+  month: {type: DATE, comment: "First day of the month of cashflow_date."}
+  calendar_month: {type: INT, comment: "Calendar month number 1-12 of cashflow_date (seasonality: e.g. March fiscal year-end and September half-year peaks)."}
+  golden_client_sk: {type: BIGINT}
+  client_group_id: {type: STRING}
+  booking_country: {type: STRING, comment: "Client's coverage office / booking location (ISO-2)."}
+  inflow_usd: {type: DOUBLE, comment: "Inbound payments received in USD (Flow rows; 0 on Balance rows)."}
+  outflow_usd: {type: DOUBLE, comment: "Outbound payments made in USD (Flow rows; 0 on Balance rows)."}
+  net_cashflow_usd: {type: DOUBLE, comment: "inflow_usd - outflow_usd (USD; negative = net outflow)."}
+  inflow_count: {type: INT, comment: "Inbound payments (Flow rows)."}
+  outflow_count: {type: INT, comment: "Outbound payments (Flow rows)."}
+  closing_balance_usd: {type: DOUBLE, comment: "Client's total end-of-day deposit balance in USD (Balance rows; null on Flow rows; point-in-time - never sum across dates)."}
+  closing_casa_balance_usd: {type: DOUBLE, comment: "CASA part of closing_balance_usd (Balance rows)."}
+  closing_td_balance_usd: {type: DOUBLE, comment: "Time / money-market deposit part of closing_balance_usd (Balance rows)."}
+  is_daily_balance: {type: BOOLEAN, comment: "True on Balance rows inside the daily deposit window (from 1-Dec-2025); false on month-end-only history and on Flow rows."}
+  is_month_end: {type: BOOLEAN, comment: "True on the last calendar day of a month."}
+  month_inflow_usd: {type: DOUBLE, comment: "Client's total inflows of the calendar month, USD (Month Total rows; 0 for a month without inflows; null on other rows). Inflow volatility = stddev of this column across months."}
+  month_outflow_usd: {type: DOUBLE, comment: "Client's total outflows of the calendar month, USD (Month Total rows)."}
+  month_net_usd: {type: DOUBLE, comment: "month_inflow_usd - month_outflow_usd (Month Total rows)."}
+  inflow_baseline_usd: {type: DOUBLE, comment: "Client's average monthly inflow over its months from the first cash-flow month to Sep-2026, USD (Month Total rows) - the flat expectation. Seasonality Index = SUM(month_inflow_usd) / SUM(inflow_baseline_usd) (> 1 = seasonal peak)."}
+checks:
+  - name: net_is_inflow_minus_outflow
+    sql: SELECT count_if(abs(net_cashflow_usd - (inflow_usd - outflow_usd)) > 0.005) FROM ${table}
+  - name: monthly_flows_tie_to_silver_actuals   # cash-flow actuals tie to payments (silver.cf_actual_monthly)
+    sql: >-
+      SELECT abs((SELECT sum(inflow_usd) - sum(outflow_usd) FROM ${table} WHERE record_type = 'Flow')
+      - (SELECT sum(net_cf_usd) FROM ${catalog}.silver.cf_actual_monthly))
+    max: 500
+  - name: month_totals_tie_to_flows
+    sql: >-
+      SELECT abs((SELECT sum(month_inflow_usd) - sum(month_outflow_usd) FROM ${table} WHERE record_type = 'Month Total')
+      - (SELECT sum(inflow_usd) - sum(outflow_usd) FROM ${table} WHERE record_type = 'Flow'))
+    max: 1
+  - name: baseline_is_average_of_months   # SUM(baseline) = SUM(month inflows) per client over its dense months
+    sql: >-
+      SELECT count(*) FROM (SELECT golden_client_id FROM ${table} WHERE record_type = 'Month Total'
+      GROUP BY golden_client_id HAVING abs(sum(inflow_baseline_usd) - sum(month_inflow_usd)) > 0.01)
+reconcile:
+  - name: inflows_vs_payments
+    gold: SELECT round(sum(inflow_usd)) FROM ${table}
+    silver: SELECT round(sum(amount_usd)) FROM ${catalog}.silver.pay_payment_message WHERE direction = 'Inbound'
+    tolerance: 1
+  - name: outflows_vs_payments
+    gold: SELECT round(sum(outflow_usd)) FROM ${table}
+    silver: SELECT round(sum(amount_usd)) FROM ${catalog}.silver.pay_payment_message WHERE direction = 'Outbound'
+    tolerance: 1
+  - name: as_of_closing_balance_vs_deposits
+    gold: SELECT round(sum(closing_balance_usd)) FROM ${table} WHERE cashflow_date = DATE'${as_of_date}'
+    silver: SELECT round(sum(balance_usd)) FROM ${catalog}.silver.core_deposit_balance_daily WHERE balance_date = DATE'${as_of_date}'
+    tolerance: 1

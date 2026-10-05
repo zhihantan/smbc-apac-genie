@@ -1,0 +1,179 @@
+# WP9b - space 2, Opportunity Identification. One row per opportunity signal (CRM signal engine + news alerts):
+# counts, estimated revenue, confidence, conversion to pipeline, days open and RM action lag. Signals are events:
+# every measure is a flow over the signals selected. Must-answer queries: metrics/_answers/opportunity_identification.sql.
+view: mv_opportunity_signals
+space: opportunity_identification
+comment: >-
+  Opportunity signals raised on SMBC APAC clients, May-2024 to Sep-2026 - FX flow and loan servicing via other banks,
+  deposit surpluses, trade-corridor growth, SCF anchor candidates, SLL eligibility, facilities maturing in 12 months,
+  product gaps vs peers, capex / expansion and M&A news - with estimated annual revenue, confidence, status (Open,
+  In Pipeline, Dismissed), RM action and lag, conversion to pipeline and days open. "Open opportunities" means open
+  signals unless the user says pipeline. Signals are events dated by detection: measures add up over any period;
+  "last 60 days" = Date between DATE'2026-08-02' and DATE'2026-09-30'.
+grain: one row per opportunity signal (gold.fact_opportunity_signal)
+source: ${catalog}.gold.fact_opportunity_signal
+blocks:
+  calendar: {date: source.detected_date, grain: day, what: the signal detection}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Signal Type
+    expr: source.signal_code
+    display_name: Signal Type
+    comment: >-
+      Signal code: FX_FLOW_VIA_OTHER_BANK, LOAN_SERVICE_TO_OTHER_BANK, DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH,
+      SCF_ANCHOR_CANDIDATE, SLL_ELIGIBLE, FACILITY_MATURING_12M, PRODUCT_GAP_VS_PEERS, CAPEX_NEWS or MA_NEWS.
+    synonyms: [signal type, signal, trigger, opportunity type, signal code, lead type, alert type]
+  - name: Signal Category
+    expr: source.signal_category
+    display_name: Signal Category
+    comment: Wallet Leakage, Liquidity, Growth, Sustainability, Refinancing, Peer Gap or News.
+    synonyms: [signal category, category, opportunity category, signal family, theme]
+  - name: Status
+    expr: source.signal_status
+    display_name: Signal Status
+    comment: Open (new or actioned, not yet in the pipeline), In Pipeline (converted to an opportunity) or Dismissed.
+    synonyms: [status, signal status, lifecycle, stage, open or closed, disposition]
+  - name: Currency Pair
+    expr: source.currency_pair
+    display_name: Currency Pair
+    comment: Currency pair of the FX flow routed via other banks (FX_FLOW_VIA_OTHER_BANK), e.g. USD/JPY, USD/VND; blank otherwise.
+    synonyms: [currency pair, ccy pair, FX pair, pair, USD/JPY, USD/VND]
+  - name: Corridor Destination
+    expr: source.corridor_destination
+    display_name: Corridor Destination
+    comment: Destination country (ISO-2) of a growing trade corridor (TRADE_CORRIDOR_GROWTH), e.g. VN Vietnam, IN India.
+    synonyms: [corridor destination, destination country, import country, trade corridor, corridor to]
+  - name: Recommended Product
+    expr: source.recommended_product
+    display_name: Recommended Product
+    comment: Product the signal recommends (CRM sales product), e.g. FX Forward Programme, Time Deposit, Supply Chain Finance.
+    synonyms: [recommended product, next product, product to pitch, suggested product, cross-sell product]
+  - name: Is Actioned
+    expr: source.is_actioned
+    display_name: Is Actioned by RM
+    comment: True when an RM has acted on the signal; false = not actioned by an RM.
+    synonyms: [actioned, followed up, worked, RM action, handled, acted on]
+  - name: Holds TD or Investment
+    expr: source.client_holds_td_or_investment
+    display_name: Client Holds Time Deposit or Investment
+    comment: True when the client holds a time deposit, money-market or investment product at 30-Sep-2026.
+    synonyms: [has time deposit, holds TD, has investment product, holds liquidity product, TD holder]
+  - name: Has Open Lending Opportunity
+    expr: source.client_has_open_lending_opportunity
+    display_name: Client Has Open Lending Opportunity
+    comment: True when the client has an open lending / refinancing opportunity in the pipeline at 30-Sep-2026.
+    synonyms: [refinancing in pipeline, open lending opportunity, refi opportunity, lending deal in pipeline]
+measures:
+  - name: Signals
+    expr: COUNT(1)
+    display_name: Signals
+    comment: Opportunity signals detected in the selected period.
+    synonyms: [signals, alerts, leads, triggers, number of signals, opportunities flagged]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Open Signals
+    expr: COUNT(1) FILTER (WHERE source.is_open)
+    display_name: Open Signals
+    comment: Signals still open at 30-Sep-2026 (not converted to the pipeline, not dismissed) - "open opportunities".
+    synonyms: [open signals, open opportunities, live signals, pending signals, active leads, unworked signals]
+    format: *count
+  - name: Estimated Revenue USD
+    expr: SUM(source.estimated_revenue_usd)
+    display_name: Estimated Revenue (USD)
+    comment: Estimated annual revenue in USD if the signalled opportunities are won.
+    synonyms: [estimated revenue, revenue potential, opportunity value, upside, potential revenue, sizing]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Open Estimated Revenue USD
+    expr: SUM(CASE WHEN source.is_open THEN source.estimated_revenue_usd END)
+    display_name: Estimated Revenue of Open Signals (USD)
+    comment: Estimated annual revenue in USD of the signals still open.
+    synonyms: [open revenue potential, open opportunity value, untapped revenue, open upside]
+    format: *usd
+  - name: Observed Amount USD
+    expr: SUM(source.observed_amount_usd)
+    display_name: Observed Amount (USD, summed over signals)
+    comment: >-
+      Amount observed behind the signals in USD (12-month FX flow via other banks, surplus deposits, maturing amount,
+      corridor value), summed over the signals - a client signalled every month counts every time; use Latest Observed
+      Amount for a client's current flow.
+    synonyms: [observed amount, flow amount, observed flow, amount at stake, exposure observed]
+    format: *usd
+  - name: Latest Observed Amount USD
+    expr: MAX_BY(source.observed_amount_usd, source.detected_date)
+    display_name: Latest Observed Amount (USD)
+    comment: Observed amount of the most recent signal in the selection, USD - e.g. the current 12-month FX flow a client pays via other banks.
+    synonyms: [latest flow, current flow, flow via other banks, FX flow we do not capture, latest observed amount, leakage]
+    format: *usd
+  - name: Average Confidence %
+    expr: AVG(source.confidence)
+    display_name: Average Confidence
+    comment: Average confidence (0-100%) that the signalled opportunities are real.
+    synonyms: [confidence, average confidence, signal confidence, probability real, quality score]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Signals Converted
+    expr: COUNT(1) FILTER (WHERE source.is_converted_to_pipeline)
+    display_name: Signals Converted to Pipeline
+    comment: Signals that produced a pipeline opportunity.
+    synonyms: [converted signals, signals to pipeline, conversions, signals converted]
+    format: *count
+  - name: Converted to Pipeline %
+    expr: COUNT(1) FILTER (WHERE source.is_converted_to_pipeline) / NULLIF(COUNT(1), 0)
+    display_name: Converted to Pipeline
+    comment: Signals with a linked pipeline opportunity / signals (fraction; D21).
+    synonyms: [conversion rate, signal conversion, converted to pipeline, pipeline conversion, hit rate]
+    format: *pct
+  - name: Days Open Average
+    expr: AVG(source.days_open)
+    display_name: Average Days Open
+    comment: Average days the signals have been (or were) open - to 30-Sep-2026 for open signals, to the status date otherwise.
+    synonyms: [days open, age, average age, days outstanding, signal age, aging]
+    format: &dec1 {type: number, decimal_places: {type: max, places: 1}}
+  - name: Signals Actioned
+    expr: COUNT(1) FILTER (WHERE source.is_actioned)
+    display_name: Signals Actioned by RMs
+    comment: Signals an RM acted on.
+    synonyms: [actioned signals, followed-up signals, worked signals, signals handled]
+    format: *count
+  - name: Average Action Lag Days
+    expr: AVG(source.action_lag_days)
+    display_name: Average Action Lag (days)
+    comment: Average days from detection to the first RM action, for actioned signals.
+    synonyms: [action lag, response time, time to action, days to action, follow-up lag, reaction time]
+    format: *dec1
+  - name: Shortest Action Lag Days
+    expr: MIN(source.action_lag_days)
+    display_name: Shortest Action Lag (days)
+    comment: Shortest days from detection to the first RM action among the selected actioned signals.
+    synonyms: [fastest action, minimum lag, shortest lag, quickest response]
+    format: *count
+  - name: Clients With Signals
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients With Signals
+    comment: Distinct clients with at least one signal in the selection.
+    synonyms: [clients with signals, signalled clients, clients flagged, target clients]
+    format: *count
+validate:
+  dims: [Fiscal Year, Signal Type, Status]
+reconcile:
+  - name: open_signals_all
+    measure: Open Signals
+    gold: SELECT count_if(is_open) FROM ${catalog}.gold.fact_opportunity_signal
+  - name: estimated_revenue_by_signal_type
+    measure: Estimated Revenue USD
+    by: [Signal Type]
+    gold: SELECT signal_code, sum(estimated_revenue_usd) FROM ${catalog}.gold.fact_opportunity_signal GROUP BY 1
+  - name: converted_pct_fy2025
+    measure: Converted to Pipeline %
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT count_if(is_converted_to_pipeline) / count(*) FROM ${catalog}.gold.fact_opportunity_signal WHERE fiscal_year = 2025
+  - name: deposit_surplus_last_60_days_without_td
+    measure: Signals
+    where: "`Signal Type` = 'DEPOSIT_SURPLUS' AND `Date` >= DATE'2026-08-02' AND NOT `Holds TD or Investment`"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_opportunity_signal
+      WHERE signal_code = 'DEPOSIT_SURPLUS' AND is_last_60_days AND NOT client_holds_td_or_investment
+glossary:
+  caveats:
+    - >-
+      Signals are dated by detection; "open opportunities" = Open Signals. A client can be signalled repeatedly (FX flow
+      monthly): use Latest Observed Amount for the current flow rather than the sum.

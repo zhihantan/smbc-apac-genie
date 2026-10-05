@@ -1,0 +1,343 @@
+[
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000000",
+    "key": "Q1",
+    "question": "For the latest entity-resolution run, show records in, matched records, match rate, fuzzy share, pairwise precision and pairwise recall by source system.",
+    "expected_sql": "SELECT `Source System`,\n       MEASURE(`Records In`)      AS records_in,\n       MEASURE(`Matched Records`) AS matched_records,\n       MEASURE(`Match Rate %`)    AS match_rate,\n       MEASURE(`Fuzzy Share %`)   AS fuzzy_share,\n       MEASURE(`Precision %`)     AS pairwise_precision,\n       MEASURE(`Recall %`)        AS pairwise_recall\nFROM smbc_genie.metrics.mv_entity_resolution\nWHERE `Is Latest Month` AND `Source System` <> 'ALL'\nGROUP BY ALL\nORDER BY `Source System`",
+    "expected_checks": {
+      "rows": 7,
+      "must_contain_columns": [
+        "Source System",
+        "match_rate",
+        "pairwise_precision"
+      ]
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000001",
+    "key": "Q1-abbrev",
+    "question": "latest ER run by source system - records in, matched, match rate, fuzzy share, precision, recall",
+    "expected_sql": "SELECT `Source System`,\n       MEASURE(`Records In`)      AS records_in,\n       MEASURE(`Matched Records`) AS matched_records,\n       MEASURE(`Match Rate %`)    AS match_rate,\n       MEASURE(`Fuzzy Share %`)   AS fuzzy_share,\n       MEASURE(`Precision %`)     AS pairwise_precision,\n       MEASURE(`Recall %`)        AS pairwise_recall\nFROM smbc_genie.metrics.mv_entity_resolution\nWHERE `Is Latest Month` AND `Source System` <> 'ALL'\nGROUP BY ALL\nORDER BY `Source System`",
+    "expected_checks": {
+      "rows": 7,
+      "must_contain_columns": [
+        "Source System",
+        "match_rate",
+        "pairwise_precision"
+      ]
+    },
+    "answer_ref": "Q1",
+    "variant_of": "Q1",
+    "allow_extra_columns": false,
+    "variant_of_id": "b7e3d4e096ec87b478acca6a00000000"
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000002",
+    "key": "Q1b",
+    "question": "For the latest entity-resolution run as a whole (all source systems together), what were the records in, match rate, pairwise precision and pairwise recall?",
+    "expected_sql": "SELECT MEASURE(`Records In`) AS records_in, MEASURE(`Match Rate %`) AS match_rate,\n       MEASURE(`Precision %`) AS pairwise_precision, MEASURE(`Recall %`) AS pairwise_recall\nFROM smbc_genie.metrics.mv_entity_resolution\nWHERE `Is Latest Month`",
+    "expected_checks": {
+      "rows": 1,
+      "must_contain_columns": [
+        "records_in",
+        "pairwise_precision"
+      ]
+    },
+    "answer_ref": "Q1b",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000003",
+    "key": "Q2",
+    "question": "How many client source records collapsed into how many golden records in each ER run? Show the run, rule version, records in, golden records, records per golden record and duplicates merged.",
+    "expected_sql": "SELECT `Run`, `Rule Version`,\n       MEASURE(`Records In`)                AS records_in,\n       MEASURE(`Golden Records`)            AS golden_records,\n       MEASURE(`Records per Golden Record`) AS records_per_golden_record,\n       MEASURE(`Duplicates Merged`)         AS duplicates_merged\nFROM smbc_genie.metrics.mv_entity_resolution\nGROUP BY ALL\nORDER BY `Run`",
+    "expected_checks": {
+      "rows": 6,
+      "must_contain_columns": [
+        "Run",
+        "golden_records"
+      ]
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000004",
+    "key": "Q2-casual",
+    "question": "how many records turned into how many golden records each ER run? include the rule version, records per golden record and duplicates merged",
+    "expected_sql": "SELECT `Run`, `Rule Version`,\n       MEASURE(`Records In`)                AS records_in,\n       MEASURE(`Golden Records`)            AS golden_records,\n       MEASURE(`Records per Golden Record`) AS records_per_golden_record,\n       MEASURE(`Duplicates Merged`)         AS duplicates_merged\nFROM smbc_genie.metrics.mv_entity_resolution\nGROUP BY ALL\nORDER BY `Run`",
+    "expected_checks": {
+      "rows": 6,
+      "must_contain_columns": [
+        "Run",
+        "golden_records"
+      ]
+    },
+    "answer_ref": "Q2",
+    "variant_of": "Q2",
+    "allow_extra_columns": false,
+    "variant_of_id": "b7e3d4e096ec87b478acca6a00000003"
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000005",
+    "key": "Q3",
+    "question": "Steward queue aging: how many steward items are open at 30 Sep 2026 in each aging bucket, and what is their average number of days open?",
+    "expected_sql": "SELECT `Aging Bucket`,\n       MEASURE(`Steward Queue Open`) AS open_items,\n       MEASURE(`Average Days Open`)  AS average_days_open\nFROM smbc_genie.metrics.mv_entity_resolution\nGROUP BY ALL\nHAVING MEASURE(`Steward Queue Open`) > 0\nORDER BY average_days_open",
+    "expected_checks": {
+      "rows": 3,
+      "must_contain_columns": [
+        "Aging Bucket",
+        "open_items"
+      ]
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000006",
+    "key": "Q3b",
+    "question": "By the ER run that raised them, how many steward decisions were made and how many steward items are still open?",
+    "expected_sql": "SELECT `Run`, MEASURE(`Steward Decisions`) AS steward_decisions, MEASURE(`Steward Queue Open`) AS still_open\nFROM smbc_genie.metrics.mv_entity_resolution\nGROUP BY ALL\nORDER BY `Run`",
+    "expected_checks": {
+      "rows": 6,
+      "must_contain_columns": [
+        "Run",
+        "steward_decisions"
+      ]
+    },
+    "answer_ref": "Q3b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000007",
+    "key": "Q4",
+    "question": "Today, how many golden clients are missing from the KYC source and from the credit source, by relationship tier? Include the number of golden clients in each tier.",
+    "expected_sql": "SELECT `Relationship Tier`,\n       MEASURE(`Golden Clients`)              AS golden_clients,\n       MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,\n       MEASURE(`Clients Missing Credit Data`) AS missing_credit\nFROM smbc_genie.metrics.mv_golden_record_coverage\nWHERE `Is Latest Month`\nGROUP BY ALL\nORDER BY `Relationship Tier`",
+    "expected_checks": {
+      "rows": 4,
+      "must_contain_columns": [
+        "Relationship Tier",
+        "missing_kyc",
+        "missing_credit"
+      ]
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000008",
+    "key": "Q4-typo",
+    "question": "golden clients mising KYC or credit data by relationship tier as of today, with total golden clients per tier",
+    "expected_sql": "SELECT `Relationship Tier`,\n       MEASURE(`Golden Clients`)              AS golden_clients,\n       MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,\n       MEASURE(`Clients Missing Credit Data`) AS missing_credit\nFROM smbc_genie.metrics.mv_golden_record_coverage\nWHERE `Is Latest Month`\nGROUP BY ALL\nORDER BY `Relationship Tier`",
+    "expected_checks": {
+      "rows": 4,
+      "must_contain_columns": [
+        "Relationship Tier",
+        "missing_kyc",
+        "missing_credit"
+      ]
+    },
+    "answer_ref": "Q4",
+    "variant_of": "Q4",
+    "allow_extra_columns": false,
+    "variant_of_id": "b7e3d4e096ec87b478acca6a00000007"
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000009",
+    "key": "Q5",
+    "question": "Which 10 table and DQ-dimension pairs had the largest month-on-month change in DQ score, this month vs last (September vs August 2026)? Show the table, DQ dimension, the September score, the August score and the change.",
+    "expected_sql": "SELECT `Table`, `DQ Dimension`,\n       MEASURE(`DQ Score %`)                         AS dq_score_sep_2026,\n       MEASURE(`DQ Score Prior Month %`)             AS dq_score_aug_2026,\n       MEASURE(`DQ Score Change vs Prior Month pts`) AS change\nFROM smbc_genie.metrics.mv_data_quality\nWHERE `Month` = DATE'2026-09-01'\nGROUP BY ALL\nORDER BY abs(change) DESC NULLS LAST\nLIMIT 10",
+    "expected_checks": {
+      "rows": 10,
+      "top_row_contains": [
+        "silver.share_jp_parent_rating"
+      ]
+    },
+    "answer_ref": "Q5",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a0000000a",
+    "key": "Q5b",
+    "question": "DQ score by layer and DQ dimension this month vs last month (September vs August 2026), with this month's row pass rate and number of tables below 95%.",
+    "expected_sql": "SELECT `Layer`, `DQ Dimension`,\n       MEASURE(`DQ Score %`)             AS dq_score_sep_2026,\n       MEASURE(`DQ Score Prior Month %`) AS dq_score_aug_2026,\n       MEASURE(`Row Pass Rate %`)        AS row_pass_rate_sep_2026,\n       MEASURE(`Tables Below Target`)    AS tables_below_95\nFROM smbc_genie.metrics.mv_data_quality\nWHERE `Month` = DATE'2026-09-01'\nGROUP BY ALL\nORDER BY `Layer`, `DQ Dimension`",
+    "expected_checks": {
+      "rows": 14,
+      "must_contain_columns": [
+        "Layer",
+        "DQ Dimension"
+      ]
+    },
+    "answer_ref": "Q5b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a0000000b",
+    "key": "Q6",
+    "question": "Delta Share freshness from Japan over the last 30 days (1-30 Sep 2026): average lag hours, max lag hours, stale days and freshness SLA met for each shared table.",
+    "expected_sql": "SELECT `Shared Table`,\n       MEASURE(`Average Lag Hours`)   AS avg_lag_hours,\n       MEASURE(`Max Lag Hours`)       AS max_lag_hours,\n       MEASURE(`Stale Table-Days`)    AS stale_days,\n       MEASURE(`Freshness SLA Met %`) AS sla_met\nFROM smbc_genie.metrics.mv_delta_sharing_freshness\nWHERE `Provider Region` = 'JP' AND `Date` >= DATE'2026-09-01'\nGROUP BY ALL\nORDER BY `Shared Table`",
+    "expected_checks": {
+      "rows": 5,
+      "must_contain_columns": [
+        "Shared Table",
+        "max_lag_hours"
+      ]
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a0000000c",
+    "key": "Q6b",
+    "question": "In August 2026, how many stale days, what maximum lag in hours and what longest run of consecutive stale days did each Japan shared table have?",
+    "expected_sql": "SELECT `Shared Table`, MEASURE(`Stale Table-Days`) AS stale_days, MEASURE(`Max Lag Hours`) AS max_lag_hours,\n       MEASURE(`Longest Stale Run Days`) AS longest_stale_run_days\nFROM smbc_genie.metrics.mv_delta_sharing_freshness\nWHERE `Provider Region` = 'JP' AND `Month` = DATE'2026-08-01'\nGROUP BY ALL\nORDER BY stale_days DESC, `Shared Table`",
+    "expected_checks": {
+      "rows": 5,
+      "top_row_contains": [
+        "share_jp_parent_rating"
+      ]
+    },
+    "answer_ref": "Q6b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a0000000d",
+    "key": "Q7",
+    "question": "Which exposures changed by more than 20% after the March 2026 entity resolution? Show the client group (or unattributed), attribution status, exposure before and after resolution, the change in USD and in %, and whether the group crossed the USD 500m attention threshold.",
+    "expected_sql": "SELECT coalesce(`Client Group`, '(unattributed)') AS client_group, `Attribution Status`,\n       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n       MEASURE(`Resolution Change USD`)          AS resolution_change_usd,\n       MEASURE(`Resolution Change %`)            AS resolution_change,\n       MEASURE(`Groups Crossing Threshold`)      AS crossed_500m_threshold\nFROM smbc_genie.metrics.mv_er_exposure_impact\nWHERE `Month` = DATE'2026-03-01' AND `Material Resolution Change`\nGROUP BY ALL\nORDER BY abs(resolution_change_usd) DESC",
+    "expected_checks": {
+      "rows": 5,
+      "must_contain_columns": [
+        "client_group",
+        "resolution_change"
+      ]
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a0000000e",
+    "key": "Q7-jargon",
+    "question": "Post-ER exposure deltas above 20% on the Mar-26 run: group (or unattributed), attribution, exposure before / after, delta USD, delta % and whether it crossed the USD 500m single-borrower threshold",
+    "expected_sql": "SELECT coalesce(`Client Group`, '(unattributed)') AS client_group, `Attribution Status`,\n       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n       MEASURE(`Resolution Change USD`)          AS resolution_change_usd,\n       MEASURE(`Resolution Change %`)            AS resolution_change,\n       MEASURE(`Groups Crossing Threshold`)      AS crossed_500m_threshold\nFROM smbc_genie.metrics.mv_er_exposure_impact\nWHERE `Month` = DATE'2026-03-01' AND `Material Resolution Change`\nGROUP BY ALL\nORDER BY abs(resolution_change_usd) DESC",
+    "expected_checks": {
+      "rows": 5,
+      "must_contain_columns": [
+        "client_group",
+        "resolution_change"
+      ]
+    },
+    "answer_ref": "Q7",
+    "variant_of": "Q7",
+    "allow_extra_columns": false,
+    "variant_of_id": "b7e3d4e096ec87b478acca6a0000000d"
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a0000000f",
+    "key": "Q8",
+    "question": "What is the average attribute completeness of the golden records by relationship tier today, with the golden clients and fully complete golden records in each tier?",
+    "expected_sql": "SELECT `Relationship Tier`,\n       MEASURE(`Golden Clients`)                   AS golden_clients,\n       MEASURE(`Average Attribute Completeness %`) AS avg_attribute_completeness,\n       MEASURE(`Fully Complete Golden Records`)    AS fully_complete\nFROM smbc_genie.metrics.mv_golden_record_coverage\nWHERE `Is Latest Month`\nGROUP BY ALL\nORDER BY `Relationship Tier`",
+    "expected_checks": {
+      "rows": 4,
+      "must_contain_columns": [
+        "Relationship Tier",
+        "avg_attribute_completeness"
+      ]
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000010",
+    "key": "Q9",
+    "question": "In the December 2025 and March 2026 ER runs, how many source records and how many golden records did today's Meridian Agri Holdings (Singapore) golden client have?",
+    "expected_sql": "SELECT `Run`, MEASURE(`Records In`) AS records, MEASURE(`Golden Records`) AS golden_records\nFROM smbc_genie.metrics.mv_entity_resolution\nWHERE `Client` LIKE 'Meridian Agri Holdings (Singapore)%' AND `Run` IN ('ER-20251231', 'ER-20260331')\nGROUP BY ALL\nORDER BY `Run`",
+    "expected_checks": {
+      "rows": 2,
+      "must_contain_columns": [
+        "Run",
+        "golden_records"
+      ]
+    },
+    "answer_ref": "Q9",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000011",
+    "key": "Q10",
+    "question": "What did the March 2026 resolution do to Meridian Agri Holdings' exposure? Show the client group, exposure before and after, the change %, the attention threshold and whether it crossed the threshold.",
+    "expected_sql": "SELECT `Client Group`,\n       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n       MEASURE(`Resolution Change %`)            AS resolution_change,\n       MEASURE(`Attention Threshold USD`)        AS attention_threshold_usd,\n       MEASURE(`Groups Crossing Threshold`)      AS crossed_threshold\nFROM smbc_genie.metrics.mv_er_exposure_impact\nWHERE `Client Group` = 'Meridian Agri Holdings' AND `Month` = DATE'2026-03-01'\nGROUP BY ALL",
+    "expected_checks": {
+      "rows": 1,
+      "top_row_contains": [
+        "Meridian Agri Holdings"
+      ]
+    },
+    "answer_ref": "Q10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000012",
+    "key": "Q11",
+    "question": "List every day on which share_jp_parent_rating was stale, with its lag hours and its consecutive stale days.",
+    "expected_sql": "SELECT `Date`, MEASURE(`Max Lag Hours`) AS lag_hours, MEASURE(`Longest Stale Run Days`) AS consecutive_stale_days\nFROM smbc_genie.metrics.mv_delta_sharing_freshness\nWHERE `Shared Table` = 'share_jp_parent_rating' AND `Is Stale`\nGROUP BY ALL\nORDER BY `Date`",
+    "expected_checks": {
+      "rows": 5,
+      "must_contain_columns": [
+        "Date",
+        "lag_hours"
+      ]
+    },
+    "answer_ref": "Q11",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "b7e3d4e096ec87b478acca6a00000013",
+    "key": "Q12",
+    "question": "For the pay_payment_message:key_unique DQ rule, how many rows failed and how many were de-duplicated in each layer in the latest DQ run? Show the layer, rule, failed rows and de-duplicated rows.",
+    "expected_sql": "SELECT `Layer`, `Rule`, MEASURE(`Rule Failed Rows`) AS failed_rows, MEASURE(`Rows De-duplicated`) AS rows_deduplicated\nFROM smbc_genie.metrics.mv_data_quality\nWHERE `Rule` = 'pay_payment_message:key_unique'\nGROUP BY ALL\nORDER BY `Layer`",
+    "expected_checks": {
+      "rows": 2,
+      "must_contain_columns": [
+        "Layer",
+        "failed_rows"
+      ]
+    },
+    "answer_ref": "Q12",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  }
+]

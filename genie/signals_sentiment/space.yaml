@@ -1,0 +1,383 @@
+# APAC Genie - Signals & Sentiment (brief §5.10, PLAN §8 / §10). Authoring source - format: genie/README.md.
+# Owner: Genie content agent G4 (p07g4). Functions: genie/signals_sentiment/functions.sql.
+# Caveats (scratch/genie_caveats.md §10): market measures are point-in-time (Date = DATE'2026-09-30'); the 30D / 90D
+# sentiment, negative-trend and blind-spot measures are fixed to 30-Sep-2026; JP-shared rating actions = Source
+# Region 'JP'; acknowledgement of non-CRM signals is a proxy.
+slug: signals_sentiment
+title: APAC Genie - Signals & Sentiment
+description: >-
+  Ask about news sentiment, RM-note sentiment, market signals on listed parents and the unified signal feed for
+  SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year
+  (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_news_sentiment
+    columns:
+      Client Group: {entity_matching: true}
+      Topic: {entity_matching: true}
+      Subtopic: {entity_matching: true, synonyms: [coal regulation, market entry, story subtopic]}
+      Source Type: {entity_matching: true}
+      News Region: {entity_matching: true}
+      Sentiment Polarity: {entity_matching: true}
+      Sector Theme: {entity_matching: true, synonyms: [coal sector, shipping sector, sector trend theme]}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Primary RM Office: {entity_matching: true}
+      KYC Risk Rating: {entity_matching: true}
+      EWS Band: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_internal_sentiment
+    columns:
+      Client Group: {entity_matching: true}
+      Note RM: {entity_matching: true}
+      Note Topic: {entity_matching: true}
+      Sentiment Polarity: {entity_matching: true}
+      AI Sentiment Label: {entity_matching: true}
+      Action Status: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Primary RM Office: {entity_matching: true}
+      KYC Risk Rating: {entity_matching: true}
+      EWS Band: {entity_matching: true}
+      Blind Spot Groups: {synonyms: [blind spot, sentiment blind spot, adverse media missed by RMs]}
+  - identifier: smbc_genie.metrics.mv_market_signals
+    columns:
+      Client Group: {entity_matching: true}
+      Listed Parent: {entity_matching: true}
+      External Rating: {entity_matching: true}
+      Outlook: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Primary RM Office: {entity_matching: true}
+      KYC Risk Rating: {entity_matching: true}
+      EWS Band: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_signal_feed
+    columns:
+      Client Group: {entity_matching: true}
+      Signal Type: {entity_matching: true}
+      Polarity: {entity_matching: true}
+      Source Quadrant: {entity_matching: true}
+      Consumed By: {entity_matching: true}
+      Source Feed: {entity_matching: true}
+      Source Region: {entity_matching: true, synonyms: [JP-shared, JP-shared parent data, Japan Delta Share]}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Primary RM Office: {entity_matching: true}
+      KYC Risk Rating: {entity_matching: true}
+      EWS Band: {entity_matching: true}
+      Unacknowledged Risk Signals: {synonyms: [unactioned red flags, risk alerts not followed up]}
+  - identifier: smbc_genie.gold.dim_signal_type
+    columns:
+      signal_code: {entity_matching: true}
+      signal_category: {entity_matching: true}
+      polarity: {entity_matching: true}
+      source_system: {entity_matching: true}
+      consumed_by: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, is_japanese_group, group_segment,
+                      group_relationship_tier, group_industry_sector, group_industry_subsector, lead_client_name,
+                      lead_office, lead_rm_name, is_listed_group, group_external_rating, group_external_rating_agency,
+                      group_external_outlook, group_external_rating_date, jp_parent_legal_name,
+                      jp_parent_rating_equivalent, jp_parent_outlook, jp_parent_rating_date, n_entities_apac]
+    columns:
+      group_name: {entity_matching: true}
+      group_segment: {entity_matching: true}
+      lead_office: {entity_matching: true}
+      lead_rm_name: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    include_columns: [golden_client_id, display_name, short_name, aliases_text, group_name, is_group_lead, segment,
+                      relationship_tier, industry_sector, industry_subsector, coverage_office, primary_rm_name,
+                      primary_rm_office, ews_band, is_listed, last_signal_date]
+    columns:
+      group_name: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+      primary_rm_name: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- Views: mv_signal_feed = every signal (CRM opportunity, EWS, news, market, agency and JP-parent ratings, RM notes) by Source Feed / Signal Type / Polarity / Acknowledged / Has Pipeline; mv_news_sentiment = news items and sentiment by Topic / Subtopic / Sector Theme; mv_internal_sentiment = RM call notes, divergence and blind spots; mv_market_signals = listed parents (share price, CDS, 52-week lows, ratings, APAC exposure)."
+    - "- \"Everything about <group> in the last N days\" = mv_signal_feed by Source Feed and Signal Type (or fn_group_signal_digest); its news, RM-note and market picture = the CTE example or fn_group_sentiment_snapshot. Match the group with `Client Group` LIKE '%<full group name>%'."
+    - "- Sentiment runs -1..+1 (negative <= -0.2, positive >= 0.2) and is always averaged, never summed. Sentiment Last 30D / 90D, Sentiment Change 30D / 90D, Groups With Negative Trend, Blind Spot Groups and Group News / Note Sentiment Last 90D are fixed to 30-Sep-2026: use them without a Date filter (a Date filter that cuts their window returns null)."
+    - "- Market measures (share price and CDS changes, Groups at 52-Week Low, APAC Exposure USD, rating and outlook in force) are point-in-time: filter `Date` = DATE'2026-09-30' for today. \"At a 52-week low with APAC exposure above USD 100m\" = `At 52-Week Low` AND `APAC Exposure Above 100m`."
+    - "- Blind spots = groups with MEASURE(`Blind Spot Groups`) > 0 in mv_internal_sentiment (news turned negative while RM notes stayed positive), see fn_sentiment_blind_spots. \"Coal and shipping sectors\" = `Sector Theme` IN ('Coal', 'Shipping')."
+    - "- \"Rating actions from JP-shared parent data\" = mv_signal_feed `Source Region` = 'JP' (PARENT_RATING_UPGRADE / _DOWNGRADE). Acknowledgement of non-CRM signals is a proxy: an RM activity with the group within 30 days."
+    - "- Unacknowledged risk signals by RM: filter `Polarity` = 'Risk' AND NOT `Acknowledged`, group by COALESCE(`Primary RM`, '(no RM coverage)') AS rm and `Primary RM Office` (RM names repeat across offices)."
+    - "- Expansion signals = `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') with `Polarity` = 'Opportunity'; \"no pipeline\" = NOT `Has Pipeline`; Australia = `Coverage Office` 'AU', India = 'IN'; list them per legal entity (`Client`)."
+
+example_sqls:
+  - question: Signals by source feed and signal type for :client_group since :from_date
+    usage_guidance: >-
+      Use for "everything about / what is happening around <group> in the last N days", "signal digest", "all
+      signals on <group>"; from_date = DATE'2026-09-30' minus (N-1) days (last 90 days = 2026-07-03).
+    parameters:
+      - {name: client_group, type: STRING, description: "Full client group name (LIKE match)", default: Kinokawa Precision}
+      - {name: from_date, type: DATE, description: "First day of the window (last 90 days = 2026-07-03)", default: "2026-07-03"}
+    sql: |
+      SELECT `Source Feed`, `Signal Type`,
+             MEASURE(`Signals`)                AS signals,
+             MEASURE(`Risk Signals`)           AS risk_signals,
+             MEASURE(`Opportunity Signals`)    AS opportunity_signals,
+             MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals
+      FROM smbc_genie.metrics.mv_signal_feed
+      WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date
+      GROUP BY ALL
+      ORDER BY `Source Feed`, signals DESC
+  - question: News, RM-note and market snapshot of :client_group since :from_date
+    usage_guidance: >-
+      Use for a group's news sentiment plus RM-note sentiment plus its listed parent today (rating, outlook, share
+      price, CDS, 52-week low, APAC exposure) in one row - the cross-view CTE pattern (one CTE per metric view).
+    parameters:
+      - {name: client_group, type: STRING, description: "Full client group name (LIKE match)", default: Kinokawa Precision}
+      - {name: from_date, type: DATE, description: "First day of the news / RM-note window (last 90 days = 2026-07-03)", default: "2026-07-03"}
+    sql: |
+      WITH news AS (
+        SELECT `Client Group`, MEASURE(`News Items`) AS news_items, MEASURE(`Average Sentiment`) AS news_sentiment
+        FROM smbc_genie.metrics.mv_news_sentiment
+        WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date
+        GROUP BY ALL
+      ), notes AS (
+        SELECT `Client Group`, MEASURE(`Notes`) AS rm_notes, MEASURE(`Average Note Sentiment`) AS rm_note_sentiment
+        FROM smbc_genie.metrics.mv_internal_sentiment
+        WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date
+        GROUP BY ALL
+      ), mkt AS (
+        SELECT `Client Group`, `External Rating`, `Outlook`,
+               MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d,
+               MEASURE(`Average CDS Change 30D bps`)       AS cds_change_30d_bps,
+               MEASURE(`Groups at 52-Week Low`)            AS at_52_week_low,
+               MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd
+        FROM smbc_genie.metrics.mv_market_signals
+        WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` = DATE'2026-09-30'
+        GROUP BY ALL
+      )
+      SELECT n.`Client Group`, n.news_items, n.news_sentiment, r.rm_notes, r.rm_note_sentiment,
+             m.`External Rating` AS external_rating, m.`Outlook` AS outlook, m.share_price_change_30d,
+             m.cds_change_30d_bps, m.at_52_week_low, m.apac_exposure_usd
+      FROM news n
+      LEFT JOIN notes r ON r.`Client Group` = n.`Client Group`
+      LEFT JOIN mkt m ON m.`Client Group` = n.`Client Group`
+  - question: Most common negative-news topic in each industry since :from_date
+    usage_guidance: >-
+      Use for "topics behind negative sentiment by industry", "what drives adverse news per sector"; one row per
+      industry with its top negative topic (last 12 months = from 2025-10-01).
+    parameters:
+      - {name: from_date, type: DATE, description: "First day of the window (last 12 months = 2025-10-01)", default: "2025-10-01"}
+    sql: |
+      WITH t AS (
+        SELECT `Industry`, `Topic`,
+               MEASURE(`Negative Items`)    AS negative_items,
+               MEASURE(`Average Sentiment`) AS avg_sentiment
+        FROM smbc_genie.metrics.mv_news_sentiment
+        WHERE `Date` >= :from_date AND `Sentiment Polarity` = 'Negative'
+        GROUP BY ALL
+      )
+      SELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,
+             SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items
+      FROM t
+      QUALIFY ROW_NUMBER() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1
+      ORDER BY industry_negative_items DESC
+  - question: Listed parents at a 52-week low on :as_of_date with APAC exposure above USD 100m
+    usage_guidance: >-
+      Use for "listed parents / groups at 52-week lows", "stressed listed parents with big exposure"; market
+      measures are point-in-time, so filter one Date (today = 2026-09-30).
+    parameters:
+      - {name: as_of_date, type: DATE, description: "Trading day (today = 2026-09-30)", default: "2026-09-30"}
+    sql: |
+      SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,
+             MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,
+             MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d
+      FROM smbc_genie.metrics.mv_market_signals
+      WHERE `Date` = :as_of_date AND `At 52-Week Low` AND `APAC Exposure Above 100m`
+      GROUP BY ALL
+      ORDER BY apac_exposure_usd DESC
+  - question: Unacknowledged risk signals by RM since :from_date, RMs with at least :min_signals
+    usage_guidance: >-
+      Use for "unacknowledged / unactioned risk signals (red flags) by RM", "which RMs are not following up",
+      "RMs with 5 or more unacknowledged risk signals" (min_signals = 5; 1 = every RM); keeps the RM office (names
+      repeat) and labels clients without RM coverage.
+    parameters:
+      - {name: from_date, type: DATE, description: "First day of the window (last 90 days = 2026-07-03)", default: "2026-07-03"}
+      - {name: min_signals, type: STRING, description: "Minimum unacknowledged risk signals per RM (1 = every RM; 'at least 5' = 5)", default: "1"}
+    sql: |
+      SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,
+             MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,
+             MEASURE(`Clients Signalled`)           AS clients_with_signals
+      FROM smbc_genie.metrics.mv_signal_feed
+      WHERE `Date` >= :from_date AND `Polarity` = 'Risk' AND NOT `Acknowledged`
+      GROUP BY ALL
+      HAVING MEASURE(`Unacknowledged Risk Signals`) >= CAST(:min_signals AS INT)
+      ORDER BY unacknowledged_risk_signals DESC
+  - question: Positive expansion signals with no pipeline in Australia and India for :fiscal_year
+    usage_guidance: >-
+      Use for "expansion / capex signals without pipeline", "growth signals we have not converted" in given
+      coverage offices; one row per entity, signal and date.
+    parameters:
+      - {name: fiscal_year, type: STRING, description: "Fiscal year label, e.g. FY2026 (this year)", default: FY2026}
+    sql: |
+      SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,
+             MEASURE(`Signals`)          AS signals,
+             MEASURE(`Average Strength`) AS strength
+      FROM smbc_genie.metrics.mv_signal_feed
+      WHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'
+        AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = :fiscal_year
+      GROUP BY ALL
+      ORDER BY `Coverage Office`, `Date`
+
+sql_functions:
+  - smbc_genie.gold.fn_group_signal_digest
+  - smbc_genie.gold.fn_group_sentiment_snapshot
+  - smbc_genie.gold.fn_sentiment_blind_spots
+  - smbc_genie.gold.fn_as_of_date
+
+sample_questions:
+  - What has been happening around Kinokawa Precision in the last 90 days?
+  - Which groups are sentiment blind spots today - negative news while RM notes stay positive?
+  - What are the most common topics behind negative news, by industry, over the last 12 months?
+  - Which listed parents are at a 52-week low with APAC exposure above USD 100m?
+  - Show unacknowledged risk signals by RM for the last 90 days
+  - Which entities in Australia and India had positive expansion signals this fiscal year with no pipeline?
+  - How has news sentiment trended for the coal and shipping sectors by fiscal quarter?
+  - List the rating actions from the JP-shared parent data this fiscal year
+
+benchmarks:
+  - key: Q1
+    question: >-
+      Everything about Kinokawa Precision in the last 90 days (3 Jul - 30 Sep 2026): signals, risk signals,
+      opportunity signals and unacknowledged signals by source feed and signal type.
+    answer: Q1
+    checks: {rows: 9, must_contain_columns: [Source Feed, Signal Type, signals]}
+  - key: Q1-casual
+    question: >-
+      what's been going on with kinokawa precision over the last 90 days? break the signals down by feed and
+      signal type with risk, opportunity and unacknowledged counts
+    variant_of: Q1
+  - key: Q1b
+    question: >-
+      For Kinokawa Precision, show the news items and average news sentiment and the RM notes and average RM-note
+      sentiment over the last 90 days (3 Jul - 30 Sep 2026), plus its listed parent today: external rating,
+      outlook, 30-day share-price change, 30-day CDS change, whether it is at a 52-week low (count of groups) and
+      APAC exposure.
+    answer: Q1b
+    checks: {rows: 1, must_contain_columns: [Client Group, apac_exposure_usd]}
+  - key: Q2
+    question: >-
+      Which client groups are sentiment blind spots today - external news sentiment turned negative over the last
+      90 days while RM notes stayed positive? Show each group's last-90-day news sentiment, its 90-day change in
+      news sentiment and its last-90-day RM-note sentiment.
+    answer: Q2
+    checks: {rows: 8, must_contain_columns: [Client Group, news_sentiment_last_90d]}
+  - key: Q2-jargon
+    question: >-
+      Blind-spot check: where has adverse media turned negative over the last 90 days while our RM call reports
+      stayed upbeat? Give each group's 90-day news sentiment, the 90-day change in news sentiment and the 90-day
+      RM-note sentiment.
+    variant_of: Q2
+  - key: Q3
+    question: >-
+      Over the last 12 months (Oct 2025 - Sep 2026), what is the single most common topic behind negative news in
+      each industry? Show the industry, that topic, its negative items, the average sentiment of those negative
+      items and the industry's total negative items.
+    answer: Q3
+    checks: {rows: 16, must_contain_columns: [Industry, top_negative_topic, negative_items]}
+  - key: Q3-abbrev
+    question: >-
+      top negative news topic per industry, last 12m: topic, neg items, avg sentiment of those items, total neg
+      items for the industry
+    variant_of: Q3
+  - key: Q4
+    question: >-
+      Which listed parents are at a 52-week low today with APAC exposure above USD 100m? Show the client group,
+      listed parent, external rating, outlook, APAC exposure and 30-day share-price change.
+    answer: Q4
+    checks: {rows: 1, top_row_contains: Hagiwara Steel}
+  - key: Q4-typo
+    question: >-
+      listed parnets at 52-week lows today with APAC exposure over USD 100m - group, parent, rating, outlook,
+      exposure and 30d share price change
+    variant_of: Q4
+  - key: Q5
+    # The answers file's Q5 is a "top 10" whose 10th place is a tie (Minh Putra CN and Tomo Putra HK, 5 each), so
+    # the benchmark asks for every RM with at least 5 - deterministic, and it contains the whole answers-file top 10.
+    question: >-
+      Which RMs have at least 5 unacknowledged risk signals over the last 90 days (3 Jul - 30 Sep 2026)? Show the
+      RM, the RM's office, the unacknowledged risk signals and the number of clients with unacknowledged risk
+      signals.
+    expected_sql: |
+      SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,
+             MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,
+             MEASURE(`Clients Signalled`)           AS clients_with_signals
+      FROM smbc_genie.metrics.mv_signal_feed
+      WHERE `Date` >= DATE'2026-07-03' AND `Polarity` = 'Risk' AND NOT `Acknowledged`
+      GROUP BY ALL
+      HAVING MEASURE(`Unacknowledged Risk Signals`) >= 5
+      ORDER BY unacknowledged_risk_signals DESC
+    checks: {rows: 11, must_contain_columns: [rm, rm_office, unacknowledged_risk_signals], top_row_contains: "(no RM coverage)"}
+  - key: Q5-jargon
+    question: >-
+      Which RMs are sitting on 5 or more unactioned red flags from the last 90 days? RM, RM office, number of
+      unacknowledged risk signals and clients affected.
+    variant_of: Q5
+  - key: Q6
+    question: >-
+      List the legal entities in Australia and India that had positive expansion signals (expansion or capex news)
+      in FY2026 with no pipeline: coverage office, client, signal type, date, signals and signal strength.
+    answer: Q6
+    checks: {rows: 9, must_contain_columns: [Coverage Office, Client, Signal Type]}
+  - key: Q6-casual
+    question: >-
+      any positive expansion or capex news on our AU or IN entities this fiscal year where we have no pipeline?
+      show office, client, signal type, date, signals and strength
+    variant_of: Q6
+  - key: Q7
+    question: >-
+      What is the news sentiment trend for the coal and shipping sectors by fiscal quarter from FY2024 onward?
+      Show news items, average sentiment and negative items per sector theme and quarter.
+    answer: Q7
+    checks: {rows: 20, must_contain_columns: [Sector Theme, Fiscal Quarter, avg_sentiment]}
+  - key: Q7-typo
+    question: >-
+      sentimnet trend for coal and shipping by fiscal quarter since FY2024 - items, average sentiment and negative
+      items per sector and quarter
+    variant_of: Q7
+  - key: Q8
+    question: >-
+      List all rating-action signals from the JP-shared parent data in FY2026: date, client group, signal type,
+      signals and average signal strength.
+    answer: Q8
+    checks: {rows: 42, must_contain_columns: [Client Group, Signal Type]}
+  - key: Q8-abbrev
+    question: JP-share parent rating actions FY26 - date, group, signal type, signals, avg strength
+    variant_of: Q8
+  - key: Q9
+    question: >-
+      How many coal-regulation news items did Sunda Energi Nusantara have in January 2026, and what were their
+      lowest, highest and average sentiment?
+    answer: Q9
+    checks: {rows: 1, must_contain_columns: [items, avg_sentiment]}
+  - key: Q10
+    question: >-
+      For Banksia Renewables Partners, show the client group, the number of expansion news items and their average
+      sentiment from April to July 2026.
+    answer: Q10
+    checks: {rows: 1, top_row_contains: Banksia Renewables Partners}
+  - key: Q11
+    question: >-
+      When did Tanaka Chemical's JP parent rating action reach the signal feed? Show the date, client group, client,
+      signal type, source region and signals.
+    answer: Q11
+    checks: {rows: 1, top_row_contains: PARENT_RATING_UPGRADE}

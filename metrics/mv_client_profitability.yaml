@@ -1,0 +1,337 @@
+# Pilot / reference implementation (WP9a) - space 5, Client Profitability & ROE.
+# Flow measures are plain SUMs; returns are annualised SUM/SUM ratios (12 x monthly profit / monthly RWA), correct
+# at any grain; client-level return distributions use MEDIAN over primary rows (one row per client-month) as a
+# window measure (latest month = latest fiscal quarter of the selection); the hurdle comes from gold.dim_threshold
+# through a constant-key join. Must-answer queries: metrics/_answers/client_profitability_roe.sql.
+view: mv_client_profitability
+space: client_profitability_roe
+comment: >-
+  Relationship profitability of SMBC's APAC clients by month and product family, Apr-2024 to Sep-2026 (USD):
+  revenue (NII, fees, trading), allocated cost, credit cost (expected loss), net contribution, average RWA and the
+  annualised returns RoRWA, RAROC and revenue per RWA, client medians, clients below the RoRWA hurdle (1.2% from
+  gold.dim_threshold; "below the 8% hurdle" means this flag), products per client and revenue growth YoY. Revenue,
+  cost and contribution add up over months; returns are 12 x SUM(monthly profit) / SUM(monthly RWA) for any
+  selection; RWA, capital and profit sit on the Corporate Lending row.
+grain: one row per golden client x month x product family (gold.fact_client_revenue_monthly)
+source: ${catalog}.gold.fact_client_revenue_monthly
+blocks:
+  calendar: {date: source.month, grain: month, what: the revenue month}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: thr
+    source: ${catalog}.gold.dim_threshold
+    'on': "thr.threshold_code = 'RORWA_HURDLE'"
+overrides:                          # G1 (p07g1): metadata only - "RM" in client lists is the RM name, not the office
+  Primary RM:
+    comment: >-
+      Name of the primary relationship manager (fictional) at the row's month-end: the CRM primary-RM assignment,
+      else the group account-plan owner; null = no RM coverage. "RM" in a list of clients means this column.
+    synonyms: [RM, RM name, relationship manager, banker, coverage banker, account manager, coverage officer, owner RM]
+  Primary RM Office:
+    display_name: Primary RM Office (location)
+    comment: >-
+      Location code (APAC booking location, ISO-2, e.g. HK) where the primary RM sits - a place, not a person. Use it
+      to filter "RMs in Singapore / Hong Kong"; never show it as the RM (the RM is Primary RM).
+    synonyms: [RM office, RM location, RM based in, office of the RM, RM country]
+dimensions:
+  - name: Product Family
+    expr: source.product_family
+    display_name: Product Family
+    comment: >-
+      Product family of the revenue line: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, FX or Other
+      TB & Advisory. RWA, capital, credit cost and the RoRWA / RAROC profit sit on Corporate Lending only.
+    synonyms: [product family, product, product line, business product, revenue line, product group]
+  - name: Business Line
+    expr: source.business_line
+    display_name: Business Line
+    comment: Business line of the product family - Lending, Transaction Banking or Markets.
+    synonyms: [business line, division, business, LOB, line of business]
+  - name: Product Count Bucket
+    expr: source.product_count_bucket
+    display_name: Products Held Bucket
+    comment: >-
+      Number of products the client held at the month-end, bucketed: 0 products, 1 product, 2 products, 3-4
+      products, 5-7 products, 8+ products (client-month attribute). Group by it only for "by number of products
+      held" questions; "products per client by <segment / office>" is the measure Products per Client instead.
+    synonyms: [product count bucket, products held, number of products, product depth, cross-sell bucket, wallet depth]
+  - name: Is Single-Product Lending
+    expr: source.is_single_product_lending
+    display_name: Is Single-Product Lending
+    comment: >-
+      True in months when the client's only products are credit facilities (no deposits, payments, trade, FX or
+      cash management) - lending-only relationships to cross-sell.
+    synonyms: [single product lending, lending only, loan only, credit only, mono-product, single-product]
+  - name: Is Lending-Only Relationship
+    expr: source.is_lending_only_relationship
+    display_name: Is Lending-Only Relationship
+    comment: >-
+      True when the client is known only to the credit system (a borrower with no core-banking, treasury or trade
+      record) - lending-only relationships (storyline 8: about 40 Japanese corporates below the RoRWA hurdle).
+    synonyms: [lending only relationship, credit only client, loan-only relationship, borrower only, no ancillary business]
+  - name: Below RoRWA Hurdle
+    expr: source.below_rorwa_hurdle
+    display_name: Below RoRWA Hurdle
+    comment: >-
+      True when the client's RoRWA for the fiscal quarter of the month is below the RoRWA hurdle (1.2%, also
+      meant by "below the 8% hurdle"); null without RWA. Quarter-level: filter it with one Fiscal Quarter (latest
+      FY2026-Q2).
+    synonyms: [below hurdle, under hurdle, sub-hurdle, below target return, RoRWA below hurdle, dilutive, underperforming]
+measures:
+  - name: Total Revenue USD
+    expr: SUM(source.total_revenue_usd)
+    display_name: Total Revenue (USD)
+    comment: Total revenue in USD = NII + fees + trading revenue, summed over the selected months (a flow).
+    synonyms: [revenue, income, total income, top line, operating income, client revenue, relationship revenue]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: NII USD
+    expr: SUM(source.nii_usd)
+    display_name: Net Interest Income (USD)
+    comment: Net interest income in USD (lending margin and deposit spread), summed over the selected months.
+    synonyms: [NII, net interest income, interest income, margin income, spread income]
+    format: *usd
+  - name: Fee Revenue USD
+    expr: SUM(source.fee_usd)
+    display_name: Fee Revenue (USD)
+    comment: Fee and commission income in USD (commitment / arrangement, payments, trade, TB and advisory fees).
+    synonyms: [fees, fee income, commission income, non-interest income, fee revenue]
+    format: *usd
+  - name: Trading Revenue USD
+    expr: SUM(source.trading_usd)
+    display_name: Trading Revenue (USD)
+    comment: Trading revenue in USD (FX sales and trading with the client).
+    synonyms: [trading revenue, FX revenue, markets revenue, treasury revenue, trading income]
+    format: *usd
+  - name: Allocated Cost USD
+    expr: SUM(source.allocated_cost_usd)
+    display_name: Allocated Cost (USD)
+    comment: Operating cost allocated to the relationship in USD = direct + RM + operations + head-office costs.
+    synonyms: [cost, opex, cost to serve, allocated cost, operating expense, expenses]
+    format: *usd
+  - name: Credit Cost USD
+    expr: SUM(source.credit_cost_usd)
+    display_name: Credit Cost (USD)
+    comment: Credit cost = expected loss (PD x LGD x EAD per month) in USD, on the Corporate Lending row.
+    synonyms: [credit cost, expected loss, EL, cost of risk, risk cost, provisions]
+    format: *usd
+  - name: Net Contribution USD
+    expr: SUM(source.net_contribution_usd)
+    display_name: Net Contribution (USD)
+    comment: >-
+      Net contribution in USD = total revenue - allocated cost - credit cost (pre-tax product view incl. FX and
+      trade), summed over the selected months.
+    synonyms: [net contribution, contribution, profit, client profit, NC, pre-tax contribution, bottom line]
+    format: *usd
+  - name: Relationship Net Profit USD
+    expr: SUM(source.relationship_net_profit_usd)
+    display_name: Relationship Net Profit (hurdle basis, USD)
+    comment: >-
+      Pre-tax relationship net profit on the finance hurdle basis in USD (relationship P&L excluding FX and trade
+      fees) - the numerator of RoRWA and RAROC; credit relationships only.
+    synonyms: [relationship profit, net profit, hurdle profit, RoRWA profit, finance P&L profit, relationship P&L]
+    format: *usd
+  - name: Average RWA USD
+    expr: SUM(source.rwa_usd) / NULLIF(COUNT(DISTINCT source.month), 0)
+    display_name: Average RWA (USD)
+    comment: >-
+      Average risk-weighted assets in USD over the selected months (sum of month-end RWA / number of months) -
+      the capital consumed by the relationship.
+    synonyms: [RWA, average RWA, risk weighted assets, capital usage, capital consumption, risk assets]
+    format: *usd
+    caveat: The divisor is the number of months with rows in the selection.
+  - name: RoRWA %
+    expr: 12 * SUM(source.relationship_net_profit_usd) / NULLIF(SUM(source.rwa_usd), 0)
+    display_name: RoRWA (annualised)
+    comment: >-
+      Return on RWA, annualised = 12 x relationship net profit / sum of monthly RWA over the selection (fraction:
+      0.012 = 1.2%, the hurdle). Correct at any grain; null where there is no RWA.
+    synonyms: [RoRWA, return on RWA, return on risk weighted assets, return on RWA annualised, risk-adjusted return, return on capital usage]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 2}}
+  - name: RAROC %
+    expr: 12 * SUM(source.relationship_net_profit_usd) / NULLIF(SUM(source.economic_capital_usd), 0)
+    display_name: RAROC (annualised)
+    comment: >-
+      Risk-adjusted return on economic capital, annualised = 12 x relationship net profit / sum of monthly economic
+      capital (fraction; hurdle 12%).
+    synonyms: [RAROC, risk adjusted return on capital, return on economic capital, RoEC, risk-adjusted return]
+    format: *pct
+  - name: Revenue per RWA %
+    expr: 12 * SUM(source.total_revenue_usd) / NULLIF(SUM(source.rwa_usd), 0)
+    display_name: Revenue per RWA (annualised)
+    comment: >-
+      Annualised total revenue / average RWA (fraction) - lowest values = relationships consuming the most capital
+      relative to revenue.
+    synonyms: [revenue per RWA, revenue to RWA, revenue yield on RWA, capital efficiency, revenue over RWA, RWA productivity]
+    format: *pct
+  - name: Median Client RoRWA %
+    expr: MEDIAN(source.rorwa_fq)
+    display_name: Median Client RoRWA (latest quarter)
+    comment: >-
+      Median across credit clients of their fiscal-quarter RoRWA (winsorised -25%..100%; gold sets it on the
+      client-month primary row and leaves it NULL without RWA), for the latest quarter in the selection - the typical
+      relationship return (use instead of an average).
+    synonyms: [median RoRWA, typical RoRWA, RoRWA median, middle RoRWA, client median return]
+    format: *pct
+    window: &latest
+      - {order: Month, range: current, semiadditive: last}
+  - name: Median Client RAROC %
+    expr: MEDIAN(source.raroc_fq)
+    display_name: Median Client RAROC (latest quarter)
+    comment: >-
+      Median across credit clients of their fiscal-quarter RAROC (winsorised -25%..100%), for the latest quarter in
+      the selection.
+    synonyms: [median RAROC, typical RAROC, RAROC median, client median RAROC]
+    format: *pct
+    window: *latest
+  - name: Clients
+    expr: COUNT(DISTINCT CASE WHEN source.is_primary_row THEN source.golden_client_id END)
+    display_name: Clients
+    comment: Legal entities (golden clients) with revenue activity in the selected months.
+    synonyms: [clients, number of clients, client count, relationships, customers, entities]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Clients Below RoRWA Hurdle
+    expr: COUNT(DISTINCT CASE WHEN source.below_rorwa_hurdle THEN source.golden_client_id END)
+    display_name: Clients Below RoRWA Hurdle (latest quarter)
+    comment: >-
+      Credit clients whose RoRWA for the latest fiscal quarter in the selection is below the RoRWA hurdle (1.2%;
+      also what "below the 8% hurdle" means).
+    synonyms: [clients below hurdle, below-hurdle clients, sub-hurdle relationships, dilutive clients, clients under hurdle]
+    format: *count
+    window: *latest
+  - name: RoRWA Hurdle %
+    expr: MAX(thr.threshold_value)
+    display_name: RoRWA Hurdle
+    comment: The configured RoRWA hurdle from gold.dim_threshold (RORWA_HURDLE, 0.012 = 1.2%).
+    synonyms: [hurdle, RoRWA hurdle, hurdle rate, target return, minimum return, 8% hurdle]
+    format: *pct
+  - name: RoRWA Gap to Hurdle pts
+    expr: MEASURE(`RoRWA %`) - MEASURE(`RoRWA Hurdle %`)
+    display_name: RoRWA Gap to Hurdle (percentage points)
+    comment: RoRWA minus the hurdle (fraction; -0.005 = 0.5 percentage points below the hurdle).
+    synonyms: [hurdle gap, gap to hurdle, RoRWA vs hurdle, shortfall to hurdle, excess over hurdle]
+    format: *pct
+  - name: Products per Client
+    expr: >-
+      SUM(CASE WHEN source.is_primary_row THEN source.products_held_count END)
+      / NULLIF(COUNT(DISTINCT CASE WHEN source.is_primary_row THEN source.golden_client_id END), 0)
+    display_name: Products per Client (month-end)
+    comment: >-
+      Average number of products held per client at the latest month-end of the selection. "Products per client by
+      segment" = this measure grouped by Segment alone (one row per segment, not split by Product Count Bucket).
+    synonyms: [products per client, product penetration, cross-sell ratio, products held, product depth, share of wallet depth]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+    window: *latest
+  - name: Revenue Prior Year USD
+    expr: SUM(source.total_revenue_py_usd)
+    display_name: Revenue Same Period Prior Year (USD)
+    comment: >-
+      Total revenue of the same clients, families and months one year earlier, USD (available from Apr-2025). With
+      Fiscal Half = 'FY2026-H1' this is the H1 FY2025 revenue, in the same row as the H1 FY2026 Total Revenue USD.
+    synonyms: [prior year revenue, last year revenue, PY revenue, revenue a year ago, comparative revenue]
+    format: *usd
+  - name: Revenue YoY %
+    expr: MEASURE(`Total Revenue USD`) / NULLIF(MEASURE(`Revenue Prior Year USD`), 0) - 1
+    display_name: Revenue Growth YoY
+    comment: >-
+      Revenue growth vs the same months one year earlier (fraction: 0.20 = +20%); select months from Apr-2025 on
+      (e.g. Fiscal Half FY2026-H1 vs FY2025-H1). Use this measure for revenue growth - never compute growth by hand
+      or multiply it by 100.
+    synonyms: [revenue growth, YoY growth, year on year, revenue change, growth rate, YoY %]
+    format: *pct
+validate:
+  dims: [Fiscal Year, Segment, Product Family]
+reconcile:
+  - name: revenue_fy2025
+    measure: Total Revenue USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT sum(total_revenue_usd) FROM ${catalog}.gold.fact_client_revenue_monthly WHERE fiscal_year = 2025
+  - name: revenue_by_product_family_fy2025
+    measure: Total Revenue USD
+    by: [Product Family]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT product_family, sum(total_revenue_usd) FROM ${catalog}.gold.fact_client_revenue_monthly
+      WHERE fiscal_year = 2025 GROUP BY 1
+  - name: rorwa_by_segment_fy2025_annualised
+    measure: RoRWA %
+    by: [Segment]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT c.segment, 12 * sum(f.relationship_net_profit_usd) / nullif(sum(f.rwa_usd), 0)
+      FROM ${catalog}.gold.fact_client_revenue_monthly f JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.fiscal_year = 2025 GROUP BY 1
+  - name: raroc_h1_fy2026
+    measure: RAROC %
+    where: "`Fiscal Half` = 'FY2026-H1'"
+    gold: >-
+      SELECT 12 * sum(relationship_net_profit_usd) / sum(economic_capital_usd) FROM ${catalog}.gold.fact_client_revenue_monthly
+      WHERE month BETWEEN DATE'2026-04-01' AND DATE'2026-09-01'
+  - name: average_rwa_fy2025
+    measure: Average RWA USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT sum(rwa_usd) / 12 FROM ${catalog}.gold.fact_client_revenue_monthly WHERE fiscal_year = 2025
+  - name: median_client_rorwa_latest_quarter
+    measure: Median Client RoRWA %
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT percentile(rorwa_fq, 0.5) FROM ${catalog}.gold.fact_client_revenue_monthly
+      WHERE month = DATE'2026-09-01' AND is_primary_row AND has_rwa_in_quarter
+  - name: below_hurdle_clients_latest_quarter
+    measure: Clients Below RoRWA Hurdle
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_client_revenue_monthly
+      WHERE month = DATE'2026-09-01' AND below_rorwa_hurdle
+  - name: below_hurdle_flag_vs_dim_threshold_value
+    measure: Clients Below RoRWA Hurdle
+    where: "`Fiscal Quarter` = 'FY2026-Q2'"
+    gold: >-
+      WITH q AS (SELECT golden_client_id, 12 * sum(relationship_net_profit_usd) / sum(rwa_usd) AS rorwa
+                 FROM ${catalog}.gold.fact_client_revenue_monthly WHERE fiscal_year = 2026 AND fiscal_quarter = 2
+                 GROUP BY 1 HAVING sum(rwa_usd) > 0)
+      SELECT count(*) FROM q WHERE rorwa < (SELECT threshold_value FROM ${catalog}.gold.dim_threshold WHERE threshold_code = 'RORWA_HURDLE')
+  - name: jc_single_product_lending_below_hurdle
+    measure: Clients Below RoRWA Hurdle
+    where: "`Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending`"
+    gold: >-
+      SELECT count(DISTINCT f.golden_client_id) FROM ${catalog}.gold.fact_client_revenue_monthly f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.month = DATE'2026-09-01' AND c.is_japanese_corporate AND f.is_single_product_lending AND f.below_rorwa_hurdle
+  - name: jc_lending_only_below_hurdle_fy2026_q2
+    measure: Clients Below RoRWA Hurdle
+    where: "`Fiscal Quarter` = 'FY2026-Q2' AND `Is Japanese Corporate` AND `Is Lending-Only Relationship`"
+    gold: >-
+      SELECT count(DISTINCT f.golden_client_id) FROM ${catalog}.gold.fact_client_revenue_monthly f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.month = DATE'2026-09-01' AND c.is_japanese_corporate AND f.is_lending_only_relationship AND f.below_rorwa_hurdle
+  - name: hurdle_from_dim_threshold
+    measure: RoRWA Hurdle %
+    gold: SELECT threshold_value FROM ${catalog}.gold.dim_threshold WHERE threshold_code = 'RORWA_HURDLE'
+  - name: net_contribution_by_office_h1_fy2026
+    measure: Net Contribution USD
+    by: [Coverage Office]
+    where: "`Fiscal Half` = 'FY2026-H1'"
+    gold: >-
+      SELECT c.coverage_office, sum(f.net_contribution_usd) FROM ${catalog}.gold.fact_client_revenue_monthly f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.month BETWEEN DATE'2026-04-01' AND DATE'2026-09-01' GROUP BY 1
+  - name: revenue_yoy_h1_fy2026_vs_two_period_sums
+    measure: Revenue YoY %
+    where: "`Fiscal Half` = 'FY2026-H1'"
+    gold: >-
+      SELECT sum(CASE WHEN month BETWEEN DATE'2026-04-01' AND DATE'2026-09-01' THEN total_revenue_usd END)
+      / sum(CASE WHEN month BETWEEN DATE'2025-04-01' AND DATE'2025-09-01' THEN total_revenue_usd END) - 1
+      FROM ${catalog}.gold.fact_client_revenue_monthly
+  - name: products_per_client_by_segment_sep26
+    measure: Products per Client
+    by: [Segment]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT c.segment, sum(f.products_held_count) / count(DISTINCT f.golden_client_id)
+      FROM ${catalog}.gold.fact_client_revenue_monthly f JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.month = DATE'2026-09-01' AND f.is_primary_row GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      RoRWA / RAROC use the finance relationship-P&L profit (excl. FX and trade fees); Net Contribution is the
+      product view incl. FX and trade. ROE and the P&L waterfall are in mv_roe_waterfall; deal-level pricing in
+      mv_deal_pricing.

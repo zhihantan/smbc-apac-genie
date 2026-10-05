@@ -1,0 +1,67 @@
+# Decision log — SMBC APAC Genie
+
+Canonical list of build decisions. Full rationale and the platform facts behind them are in
+[PLAN.md](PLAN.md) (§2 verified facts, §4 decision table). Status: **A** = adopted in Phase 0/1,
+**P** = provisional, confirmed by the Phase-2 smoke test or a live check.
+
+| ID | Decision | Status |
+|---|---|---|
+| D01 | This folder is the repo root; the brief stays at the root; one commit per phase. | A |
+| D02 | CLI ≥ 1.19 (direct engine) for deploy; uv + Python 3.12 for local tooling. Bundle also validates on 0.299.x. | A |
+| D03 | Serverless only: jobs for PySpark, a serverless SQL warehouse for DDL/metric views/Genie. No classic clusters. | A |
+| D04 | Reusable code in the importable `src/smbc_genie_lib/` package (shipped as a wheel); numbered dirs hold entry scripts and SQL. | A |
+| D05 | One templated SQL runner executes `.sql` files on the warehouse; PySpark only where logic needs it. | A |
+| D06 | Genie spaces created/updated by `src/50_genie/run_genie.py` via REST (idempotent, grants CAN_RUN, runs eval-runs); `<slug>.geniespace.json` emitted for later bundle migration. | A |
+| D07 | Catalog, schemas, grants and tags via idempotent SQL, not bundle catalog resources; teardown is explicit and confirmed. | A |
+| D08 | Determinism via hash-based RNG (`xxhash64`/blake2b of seed+keys) on Spark and driver; AI-function outputs kept separate. | A |
+| D09 | SCALE: dims fixed; event facts sampled; daily facts keep a bounded window + full month-end history; storyline entities always full; count assertions scale. | A |
+| D10 | Payments history from 2024-04-01; the 17-Jun-2026 duplicate is a month-to-date replay (~41k), not a single day. | A |
+| D11 | SCD2 as-was joins: facts carry the version-valid `golden_client_sk` + durable `golden_client_id`; volatile attributes version at month-ends. | A |
+| D12 | Group-grain facts carry `client_group_id` + `lead_golden_client_sk`; `dim_client_group` carries group segment/tier/lead office/worst rating/worst band. | A |
+| D13 | Multi-grain handled by primary-row allocation, `record_type` union bases (`gold.mvb_*`), and precomputed peer/rank/trend/precedence flags. | A |
+| D14 | 43 metric views (42 from the brief + `mv_er_exposure_impact`). | A |
+| D15 | Narrow detail dims (e.g. `dim_account_plan_initiative`) may be space assets, within ≤ 12 assets. | A |
+| D16 | "Today" = AS_OF_DATE 2026-09-30; Genie never uses CURRENT_DATE(); `dim_date` + `fn_as_of_date()` encode it. | A |
+| D17 | Japanese FY labels; financial statements keep each client's own fiscal year-end (`fye_month`). | A |
+| D18 | Sentiment score (−1..1) from template tone + noise (deterministic); `ai_analyze_sentiment` label stored alongside; agreement reported in Data Foundation. | A |
+| D19 | Forecasts: synthetic v1 (MAPE≈18%) and v2 from Jun-2026 (≈11%); optional `ai_forecast` v3_ai challenger for top-N. **`ai_forecast` is now disabled in this workspace (it worked at the Phase-2 smoke test), so the forward projection uses the deterministic seasonal fallback.** | A |
+| D20 | Profitability definitions in `gold.dim_threshold`: RoRWA = annualised net contribution ÷ average RWA, **hurdle 1.2%** (realistic wholesale level; the brief's illustrative 8% is unreachable on a net-of-cost basis and would sit far above the brief's own 10% ROE hurdle on 12.5%-of-RWA capital), RAROC 12%, ROE 10%. Storyline 8 is stated against the configured hurdle (≈ 40 single-product JC lending relationships below it; SSF RAROC ≈ 14%). **SSF does not lead on RAROC** (FY2026-Q2: Japanese Corporate 33.8%, Public Sector 18.7%, FI 18.6%, SSF 14.5%, Non-Japanese Large Corporate 13.4%), so no document claims it does; the storyline check tests only SSF's 13–15% band. Genie treats "below (the) hurdle" — including the brief's "8% hurdle" wording — as the configured Below-Hurdle flag. | A |
+| D21 | Conversion: pipeline = won/(won+lost); "converted to pipeline %" = signals with a linked opp / signals; storyline 6 = 14 created, 6 won. | A |
+| D22 | ER: 7 identity sources; rule-set v1 (2025 runs) and v2 from Mar-2026 (abbrev dict, cross-country blocking, name+country exact); steward decisions simulated from truth with 2% error; 6 quarterly runs replayed. | A |
+| D23 | Invented Japanese/APAC name stems checked against a real-company/bank blocklist; fictional competitor banks; synthetic `SYN…` IDs (no real LEI/BIC). | A |
+| D24 | Extra bronze tables for ER identity masters and un-landed facts (trade_party, tsy_counterparty, credit_obligor, crm_* , kyc_feedback, core_facility_balance_monthly, core_liquidity_structure(+participant), pay_channel_usage). | A |
+| D25 | One column dictionary (YAML) + overrides generates all COMMENT DDL; 100% gate on gold+metrics; bronze/silver coverage reported. | A |
+| D26 | `group_name` = short brand; entity legal names include location + legal form; JP parent names live in `shared`. | A |
+| D27 | `shared` tables named `share_<region>_*` with `source_region`, `ingest_method='delta_sharing'`, `_share_name`, `_provider_version`, `_shared_at`; refresh log simulated. | A |
+| D28 | Tests are pytest, runnable locally (Statement Execution API) and as a job; storyline assertions also written to `ops.storyline_assertions`. | A |
+| D29 | Thresholds in one table (`gold.dim_threshold`): hurdles, USD 500m attention threshold, EWS bands (Green<40/Amber40-69/Red≥70), SLA days. | A |
+| D30 | Benchmark expected SQL is minimal, names output columns explicitly; questions phrased to pin output; variants test generalisation. | A |
+| D31 | `dim_client` keeps `aliases`/`source_systems_present` as ARRAYs. **Phase-2 smoke test: a join source containing an ARRAY column works on DBSQL 2026.38, so no projection is needed** — metric views just avoid exposing array columns as dimensions. | A |
+| D32 | Point-in-time measures are window measures (`range: current`, `semiadditive: last`); flow measures stay plain SUMs. **Confirmed in smoke test: balance aggregates to the latest month, not the sum.** | A |
+| D33 | In-view calendar fields derived from the window order field via inline JP fiscal expressions (no `dim_date` join in metric views). **Confirmed in smoke test.** | A |
+| D34 | SELECT granted at schema level on gold+metrics; views rebuilt with CREATE OR REPLACE / ALTER VIEW so grants inherit. | A |
+| D35 | Cross-view questions taught via example SQL that wraps each metric-view query in a CTE and joins the CTEs. | A |
+| D36 | `ai_analyze_sentiment` in silver (serverless, one batch/table); optional `ai_forecast` v3_ai on the warehouse, pinned `version=>'1'`, over a date spine (currently unavailable — see D19). | A |
+| D37 | Tag keys prefixed `smbc_` (smbc_domain/layer/pii/synthetic/source_region). **Confirmed in Phase 2: this account governs the `domain` tag key (UC_TAG_POLICY_VALUE_NOT_ALLOWED), so the `smbc_` fallback is in effect.** | A |
+| D38 | Gold uses explicit CREATE TABLE DDL (typed cols + COMMENT + PK/FK + CLUSTER BY) then INSERT OVERWRITE; silver may use CTAS + COMMENT ON COLUMN. | A |
+| D39 | Consumer group needs the "Consumer access" (or "Databricks SQL access") entitlement in addition to UC grants + CAN_RUN; Phase 2 checks and asks if admin action is needed. | P |
+| D40 | Serverless jobs use `environment_version: "5"` (fallback "4"); dev uses PERFORMANCE_OPTIMIZED, demo may use STANDARD. | A |
+| D41 | A real Delta Share (Phase 10b) needs a second workspace in another AWS region/account (ideally Tokyo as the "JP lakehouse"); until then `shared` is simulated. | A |
+| D42 | **Genie payload (smoke-confirmed):** metric views go in `data_sources.tables` (the server normalises them there on read, keeping create→get diff-free); every id-list is pre-sorted via `smbc_genie_lib.genie.sort_serialized_space`; example-SQL param `type_hint` STRING and DATE both work. | A |
+| D43 | **New clients line up across feeds (Phase 3c-11).** ~250 clients holding only deposits and payments (core + KYC identities, no lending/trade/FX identity, not storyline, not the lead of a multi-entity group) were onboarded Apr-2024..Jul-2026 (`smbc_genie_lib.onboarding`). Their case ends the day their first account opens (go-live); balances and payments start at their first transaction (`ops.synthetic_account.active_from`). Every other account is active from its open date, so no payment predates its account (previously ~12% did). `kyc_customer` gains `customer_since` and a risk rating that matches the review history. KYC volumes are entity-driven (~360 cases, ~4.2k reviews, ~3k documents at any SCALE); only ongoing screening scales (150k at 1.0). | A |
+| D44 | **Storyline-safe steward simulation (integration, 2026-10-04).** Simulated steward decisions keep the deterministic 2% error for everyone except the scripted storyline clients (`er.runs.replay(exact_entities=...)`, fed from `storylines.scripted_entity_ids`). Three simulated errors had hit storyline clients: Meridian's lead absorbed its "Trading" sibling's records (wrong golden name), an HK CASA trio member was merged with another client, and Hayashi's credit and trade records were split. Latest ER run after the fix: precision 0.9757, recall 0.9841. | A |
+| D45 | **Gold reads silver and gold only, plus two ops run logs:** `ops.entity_resolution_runs` (ER run quality, which only exists there) and `ops.dq_rules` (the rule catalogue). They are operational metadata, not synthetic truth; `ops.synthetic_*` stays off limits (enforced in `tests/unit/test_gold.py`). | A |
+| D46 | **Unique client labels:** `dim_client.display_name` is unique among current clients. Sibling entities whose survived name lost its location get the country of incorporation appended, e.g. "Batavia Asset Management Ltd (HK)"; any remaining clash gets the golden id. Checked in the spec. | A |
+| D47 | **Process-SLA timeliness rules are not data defects.** On-time rules for business processes (credit reviews, KYC reviews, watchlist actions, document checks, RM follow-ups) stay in the DQ catalogue, because the demo measures those backlogs, but the data-asset report lists them as process SLAs. The simulated DQ history never lifts a low actual to the 0.90 floor, so the latest month shows no false drop. | A |
+| D48 | **Genie, verified in Phase 7 (2026-10-04).**<br>- The eval-runs API works and grades result sets; our runner adds an order-insensitive comparison (4 significant digits).<br>- Parameter type hints STRING, DATE, INTEGER, DECIMAL, DOUBLE and BOOLEAN work.<br>- **SQL-function arguments must be STRING.** A DATE argument is accepted at create time but fails every question ("certified answer argument type is not supported"); the builder rejects it.<br>- Function arguments can't be used inside CTEs over metric views; use them only in the outer query.<br>- Genie reuses trusted example SQL verbatim, substituting parameters only, so any filter a question needs must be a parameter.<br>- The server adds join specs from UC FKs on create; round-trips ignore them.<br>- Spaces aren't shared; CAN_RUN is the user's call. | A |
+| D49 | **Handover (Phase 9, 2026-10-04).**<br>- **Product names in prose:** Genie Agents (formerly Genie spaces, renamed Jul 2026), Genie One (formerly Databricks One) and OpenSharing (formerly Delta Sharing, renamed Jun 2026). Object names, API paths and verified question wording keep "space" and "Delta Share".<br>- **Genie One routing** (checked through the Genie One MCP server): "Which APAC clients are in the Red early-warning (EWS) band today, as at 30 Sep 2026, and what exposure do they carry?" routed to the Early Warning agent 3 times out of 3, including in Japanese. The plain sample wording routed to another demo's agent. Genie One takes 79–178 s; the agent alone takes 14–29 s.<br>- **Starter questions** are graded live against the benchmark each one paraphrases (`src/50_genie/build_question_bank.py`). Five were reworded (sample questions only; benchmarks unchanged), giving 75 ✅ / 13 ⚠️ / 0 ❌.<br>- **Teardown** is `scripts/teardown.py`: a dry run by default. `--execute` needs the catalog name typed, trashes only the tracked "APAC Genie - " agents, then runs `DROP CATALOG … CASCADE`.<br>- **Column comments** no longer hard-code record counts (a stale "2,550 golden records" was removed). | A |
+| D50 | **No bundle job creates or updates the Genie Agents (owner's decision, 2026-10-05).** The p07 Genie job is removed from `resources/jobs.yml`, so `build_all` runs p02–p06 and then p08, which only evaluates the existing agents. The 11 agents stay as they are. To change or re-create one, run `src/50_genie/run_genie.py --create` from a laptop: it updates the agent tracked in `genie/<slug>/space_id` in place (same id and URL). The repo stays the source of truth, so such a run overwrites any edits made in the Genie UI. | A |
+
+## Open items pending a valid login / Phase-2 smoke test
+- ~~`CREATE CATALOG` / storage root.~~ Catalog pre-existed (owned, empty) with managed S3 storage.
+- ~~Warehouse + `current_version()`.~~ Reusing `my-warehouse-id`; DBSQL 2026.38.
+- Account-level groups for owner/consumer; the consumer entitlement (D39).
+- ~~Governed-tag clashes (D37).~~ Resolved: `domain` is governed; using `smbc_` prefix.
+- ~~`ai_analyze_sentiment` / `ai_forecast` availability (D18, D36).~~ Both work on the warehouse.
+- ~~Metric-view features (D31–D33), `%` in names, `MEASURE()` inside a SQL UDF.~~ All confirmed in the Phase-2 smoke test.
+- ~~Genie example-SQL parameter type hints beyond STRING.~~ STRING and DATE confirmed; INTEGER/DECIMAL still untested (use STRING+cast if unsure).

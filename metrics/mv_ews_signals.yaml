@@ -1,0 +1,181 @@
+# Space 4, Early Warning Monitoring (WP9b / WP8d). EWS trigger firings per client x evaluation date x trigger
+# (gold.fact_ews_signal_daily; the engine evaluates month-end data, so Date = the month-end of the signal month).
+# Signals are events: counts and points add up over months. Precedence: preceded_downgrade_90d (gold) - rank triggers
+# by Downgrade Hit Rate %, not the raw pair count (GRADE_DOWNGRADE tops raw counts through repeat downgrades).
+view: mv_ews_signals
+space: early_warning_monitoring
+comment: >-
+  Early-warning signals (EWS triggers) fired per client and month-end evaluation, Apr-2024 to Sep-2026: signals
+  fired, distinct clients, score points, exposure of the affected clients, triggers that preceded an internal
+  rating downgrade within 90 days and their hit rate, and clients with a deposit outflow and a utilisation
+  trigger in the same month. Trigger codes: UTIL_HIGH (utilisation >= 90%), UTIL_ELEVATED (80-90%),
+  COV_HEADROOM_LOW (covenant headroom < 10%), COV_BREACH, DEPOSIT_OUTFLOW (>= 10% MoM), DEPOSIT_OUTFLOW_SEVERE
+  (>= 25%), WALLET_LEAKAGE, HEALTH_DECLINE, GRADE_DOWNGRADE, NEWS_NEGATIVE, DPD_15, DPD_30. Signals are flows
+  (they add up over months); Date is the month-end of the evaluation.
+grain: one row per client x evaluation month-end x trigger fired (gold.fact_ews_signal_daily)
+source: ${catalog}.gold.fact_ews_signal_daily
+blocks:
+  calendar: {date: source.signal_date, grain: day, what: the signal evaluation (month-end of the signal month)}
+  client: {key: source.golden_client_sk}
+overrides:
+  Date:
+    comment: >-
+      Evaluation date of the signal = month-end of the month it fired (30-Sep-2026 for the current month); signals
+      are monthly, so filter or group by Month / Fiscal Year. Today is 30-Sep-2026 (never CURRENT_DATE).
+    synonyms: [signal date, evaluation date, fired date, month-end, as of date, trigger date]
+dimensions:
+  - name: Trigger
+    expr: source.trigger_code
+    display_name: EWS Trigger
+    comment: >-
+      Trigger code fired. Aliases: UTIL_HIGH = utilisation >= 90% (UTILISATION_GT_90, "utilisation spike"),
+      UTIL_ELEVATED = 80-90%, COV_HEADROOM_LOW = covenant headroom below 10% (COVENANT_HEADROOM_LT_10), COV_BREACH =
+      covenant breach (COVENANT_BREACH), DEPOSIT_OUTFLOW / DEPOSIT_OUTFLOW_SEVERE = deposit outflow >= 10% / >= 25%
+      MoM, NEWS_NEGATIVE = negative news sentiment (NEGATIVE_NEWS_SENTIMENT), WALLET_LEAKAGE, HEALTH_DECLINE,
+      GRADE_DOWNGRADE, DPD_15, DPD_30 (days past due).
+    synonyms: [trigger, trigger code, EWS trigger, signal, UTILISATION_GT_90, COVENANT_HEADROOM_LT_10, COVENANT_BREACH, NEGATIVE_NEWS_SENTIMENT, DEPOSIT_OUTFLOW_30PCT_30D, warning signal]
+  - name: Trigger Family
+    expr: source.trigger_family
+    display_name: Trigger Family
+    comment: >-
+      Business family: Utilisation (UTIL_HIGH / UTIL_ELEVATED), Covenant (COV_BREACH / COV_HEADROOM_LOW), Deposit
+      Outflow, Wallet Leakage, Credit Health, Internal Rating, Adverse News (NEWS_NEGATIVE) or Payment Arrears (DPD_15 / DPD_30).
+    synonyms: [trigger family, signal family, trigger group, signal type, utilisation spike, deposit outflow]
+  - name: Severity
+    expr: source.severity
+    display_name: Severity
+    comment: "Severity of the firing: High, Medium or Low."
+    synonyms: [severity, signal severity, priority, criticality, risk level]
+  - name: Source Quadrant
+    expr: source.source_quadrant
+    display_name: Source Quadrant
+    comment: "Data quadrant of the trigger: Internal Quantitative (credit, liquidity, behaviour data) or External Qualitative (news)."
+    synonyms: [source quadrant, data source, quadrant, internal or external, signal source]
+  - name: Is Informational
+    expr: source.is_informational
+    display_name: Is Informational (not in score)
+    comment: True for DPD_15, DPD_30 and NEWS_NEGATIVE - reported as signals but not part of the composite score.
+    synonyms: [informational, not scored, zero points, information only]
+  - name: Preceded Downgrade 90D
+    expr: source.preceded_downgrade_90d
+    display_name: Preceded a Downgrade Within 90 Days
+    comment: True when an internal-rating downgrade of the client followed within 90 days after the signal (signal -> downgrade pair).
+    synonyms: [preceded downgrade, followed by downgrade, leading indicator, downgrade within 90 days, predictive signal]
+  - name: Is Current FYTD
+    expr: source.is_current_fytd
+    display_name: This Fiscal Year to Date
+    comment: True for signals in the current fiscal year to date (Apr-Sep 2026) - "this fiscal year" / "this year".
+    synonyms: [this fiscal year, FYTD, year to date, this year, current FY, YTD]
+  - name: Outflow and Utilisation Same Month
+    expr: source.outflow_and_util_same_month
+    display_name: Deposit Outflow and Utilisation in Same Month
+    comment: True when the client had a deposit-outflow trigger and a utilisation trigger (UTIL_HIGH or UTIL_ELEVATED) in the same month.
+    synonyms: [outflow and utilisation, deposit outflow and utilisation spike, liquidity squeeze, double trigger, combined signal]
+measures:
+  - name: Signals Fired
+    expr: COUNT(1)
+    display_name: Signals Fired
+    comment: Trigger firings in the selection (client x month x trigger) - a flow, adds up over months.
+    synonyms: [signals, signals fired, alerts, triggers fired, warnings, number of signals, hits]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Distinct Clients
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Distinct Clients
+    comment: Clients with at least one signal in the selection.
+    synonyms: [clients, distinct clients, clients affected, names, number of clients, flagged clients]
+    format: *count
+  - name: Signals per Client
+    expr: MEASURE(`Signals Fired`) / NULLIF(MEASURE(`Distinct Clients`), 0)
+    display_name: Signals per Client
+    comment: Average signals fired per affected client in the selection.
+    synonyms: [signals per client, alerts per client, signal intensity, average signals]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+  - name: Score Points Total
+    expr: SUM(source.score_points)
+    display_name: Score Points Total
+    comment: Composite-score points contributed by the signals (0 for informational triggers).
+    synonyms: [score points, points, score contribution, EWS points, contribution to score]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Exposure Affected USD
+    expr: SUM(source.exposure_drawn_usd)
+    display_name: Exposure Affected (USD)
+    comment: >-
+      Drawn exposure of the affected clients at the signal month-end, USD. Exact per trigger and month; across
+      several triggers or months a client counts once per trigger-month - filter one Trigger and one Month.
+    synonyms: [exposure affected, exposure at risk, flagged exposure, exposure of signalled clients, drawn exposure]
+    format: {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Signals Preceding Downgrade
+    expr: COUNT(1) FILTER (WHERE source.preceded_downgrade_90d)
+    display_name: Signals Preceding a Downgrade (90 days)
+    comment: Signals followed by an internal-rating downgrade of the client within 90 days (signal -> downgrade pairs).
+    synonyms: [signals preceding downgrade, trigger downgrade pairs, leading signals, signals before downgrade]
+    format: *count
+  - name: Downgrade Hit Rate %
+    expr: MEASURE(`Signals Preceding Downgrade`) / NULLIF(MEASURE(`Signals Fired`), 0)
+    display_name: Downgrade Hit Rate (90 days)
+    comment: >-
+      Share of the signals followed by a downgrade within 90 days (fraction) - rank triggers by this, not by the raw
+      pair count (GRADE_DOWNGRADE tops raw counts through repeat downgrades; DPD_30 has the best hit rate).
+    synonyms: [hit rate, predictive power, precision, downgrade rate, signal accuracy, precede rate]
+    format: {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Clients Downgraded Within 90D
+    expr: COUNT(DISTINCT CASE WHEN source.preceded_downgrade_90d THEN source.golden_client_id END)
+    display_name: Clients Downgraded Within 90 Days
+    comment: Clients with a signal in the selection that was followed by a downgrade within 90 days.
+    synonyms: [clients downgraded, downgraded after signal, subsequently downgraded, clients with downgrade]
+    format: *count
+  - name: Average Days to Downgrade
+    expr: AVG(CASE WHEN source.preceded_downgrade_90d THEN source.days_to_next_downgrade END)
+    display_name: Average Days to Downgrade
+    comment: Average lead time in days from signal to downgrade, over signals that preceded a downgrade within 90 days.
+    synonyms: [lead time, days to downgrade, warning lead time, time to downgrade]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Clients with Outflow and Utilisation
+    expr: COUNT(DISTINCT CASE WHEN source.outflow_and_util_same_month THEN source.golden_client_id END)
+    display_name: Clients with Deposit Outflow and Utilisation (same month)
+    comment: Clients with a deposit-outflow trigger and a utilisation trigger in the same month (this fiscal year = Is Current FYTD).
+    synonyms: [outflow and utilisation clients, liquidity squeeze clients, double trigger clients, combined signal clients]
+    format: *count
+  - name: High Severity Signals
+    expr: COUNT(1) FILTER (WHERE source.severity = 'High')
+    display_name: High-Severity Signals
+    comment: Signals with severity High.
+    synonyms: [high severity, critical signals, severe signals, high priority alerts]
+    format: *count
+validate:
+  dims: [Month, Trigger]
+reconcile:
+  - name: signals_by_trigger_fytd
+    measure: Signals Fired
+    by: [Trigger]
+    where: "`Is Current FYTD`"
+    gold: >-
+      SELECT trigger_code, count(*) FROM ${catalog}.gold.fact_ews_signal_daily WHERE is_current_fytd GROUP BY 1
+  - name: downgrade_hit_rate_by_trigger
+    measure: Downgrade Hit Rate %
+    by: [Trigger]
+    gold: >-
+      SELECT trigger_code, count_if(preceded_downgrade_90d) / count(*) FROM ${catalog}.gold.fact_ews_signal_daily GROUP BY 1
+  - name: outflow_util_clients_fy2026
+    measure: Clients with Outflow and Utilisation
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_ews_signal_daily
+      WHERE outflow_and_util_same_month AND signal_date >= DATE'2026-04-01'
+  - name: util_high_exposure_sep26
+    measure: Exposure Affected USD
+    where: "`Trigger` = 'UTIL_HIGH' AND `Is Latest Month`"
+    gold: >-
+      SELECT sum(exposure_drawn_usd) FROM ${catalog}.gold.fact_ews_signal_daily WHERE trigger_code = 'UTIL_HIGH' AND signal_date = DATE'2026-09-30'
+  - name: distinct_clients_by_family_fy2025
+    measure: Distinct Clients
+    by: [Trigger Family]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT trigger_family, count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_ews_signal_daily
+      WHERE signal_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31' GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Signals are monthly evaluations dated at the month-end; exposure repeats on each trigger row of a client-month
+      (filter one trigger for exposure). Precedence uses internal-rating downgrades (gold.fact_rating_migration).

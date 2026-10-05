@@ -1,0 +1,109 @@
+{
+ "columns": [
+  {
+   "comment": "Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group name (industry subsector), e.g. Automotive Parts.",
+   "is_measure": false,
+   "name": "peer_group_name",
+   "type": "string"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_sector",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Last day of the fiscal year (31-Mar).",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Product key (PRD-<NAME>); join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Core product name.",
+   "is_measure": false,
+   "name": "product_name",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Business line - Lending, Transaction Banking, Markets or Sustainable Finance.",
+   "is_measure": false,
+   "name": "business_line",
+   "type": "string"
+  },
+  {
+   "comment": "SMBC APAC clients of the peer group with an active product in the fiscal year.",
+   "is_measure": false,
+   "name": "peer_group_clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Of those, clients holding or using the product in the year.",
+   "is_measure": false,
+   "name": "peer_group_holders",
+   "type": "bigint"
+  },
+  {
+   "comment": "peer_group_holders / peer_group_clients (fraction, % of peers holding); null for an empty peer group.",
+   "is_measure": false,
+   "name": "penetration_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Median activity of the holders in USD (average balance or annual volume, see activity_basis).",
+   "is_measure": false,
+   "name": "median_activity_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Average balance or Annual volume.",
+   "is_measure": false,
+   "name": "activity_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Total activity of the holders in USD (same basis).",
+   "is_measure": false,
+   "name": "total_activity_usd",
+   "type": "double"
+  }
+ ],
+ "comment": "Peer penetration benchmark (Opportunity Identification): for each peer group (industry subsector), core product and fiscal year (FY2024, FY2025, FY2026 to date) the number of the peer group's active SMBC APAC clients, how many hold the product, the penetration rate and the median activity of the holders (average balance for balance products, annual volume for flow products). Dense over all peer groups and core products; aggregated from gold.fact_client_product_penetration_annual so the rates match the client-level fact. Combine groups with SUM(peer_group_holders) / SUM(peer_group_clients), not an average of rates. Grain: one row per peer group x core product x fiscal year (dense).",
+ "identifier": "smbc_genie.gold.fact_peer_penetration_annual",
+ "type": "MANAGED"
+}

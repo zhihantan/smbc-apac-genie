@@ -1,0 +1,82 @@
+table: fact_credit_review_workflow
+domain: credit
+comment: >-
+  Credit workflow (brief 5.3): one row per credit review (Annual, New Money, Amendment, Watchlist) or
+  financial-spreading task (review_type = Financial Spreading; one per obligor and statement year), with due /
+  start / submitted / completed dates, status and outcome, SLA flags as of 30-Sep-2026 (overdue, days overdue,
+  awaiting approval, not yet spread), days late, days in preparation and to approval, submissions, analyst and
+  approver (checker for spreading), memo excerpt and tone, grades and the new-money amount and margin.
+  workflow_date (grain date) = due date for annual reviews and spreading tasks, submission date for new-money,
+  amendment and watchlist reviews. For spreading tasks: start = statements received, submitted = spread,
+  completed = checked. Reviews due in a future quarter (e.g. Q3 FY2026) are included with their current status.
+grain: one row per credit review or spreading task (workflow item)
+primary_key: [workflow_item_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [workflow_date], references: dim_date}
+  - {columns: [analyst_id], references: dim_employee}
+  - {columns: [approver_id], references: dim_employee}
+cluster_by: [workflow_date, golden_client_sk]
+min_rows: 5000
+columns:
+  workflow_item_id: {type: STRING, comment: "Workflow item id: credit review id (CRV-nnnnnn) or spreading task id (SPR-nnnnnn-FYyyyy)."}
+  workflow_type: {type: STRING, comment: "Credit Review or Financial Spreading."}
+  review_type: {type: STRING, comment: "Annual (annual credit review), New Money (new facility / increase request), Amendment, Watchlist (watchlist review) or Financial Spreading (spreading of a statement year)."}
+  obligor_id: {type: STRING, comment: "Credit-system obligor id (CRD-nnnnnn) under review."}
+  facility_id: {type: STRING, comment: "Facility the review relates to (new money / amendment); null for annual, watchlist and spreading items."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  workflow_date: {type: DATE, comment: "Grain date: due date (annual reviews, spreading tasks) or submission date (new money, amendment, watchlist); use for Month / quarter filters such as reviews due in Q3 FY2026."}
+  review_fiscal_year: {type: INT, comment: "Statement fiscal year reviewed or spread (e.g. 2025 = the FY2025 financials); null for request-driven reviews."}
+  review_fiscal_year_label: {type: STRING, comment: "Label of review_fiscal_year, e.g. FY2025."}
+  due_date: {type: DATE, comment: "Due date (annual reviews and spreading tasks; null for request-driven reviews)."}
+  start_date: {type: DATE, comment: "Preparation start (reviews) or statements received (spreading); null when not started."}
+  submitted_date: {type: DATE, comment: "Memo submitted for approval (reviews) or statements spread (spreading); null when not yet."}
+  completed_date: {type: DATE, comment: "Approval / decision date (reviews) or spread checked (spreading); null while open."}
+  status: {type: STRING, comment: "Status at the as-of date. Reviews: Not Started, In Preparation, Overdue, Submitted - Awaiting Approval, Approved, Declined. Spreading: Received - Not Started, In Progress, Checked."}
+  outcome: {type: STRING, comment: "Credit decision: Approved, Approved with Conditions or Declined (null while undecided and for spreading)."}
+  is_completed: {type: BOOLEAN, comment: "True when decided (reviews) or checked (spreading)."}
+  is_open: {type: BOOLEAN, comment: "True while the item is still open (not decided / not checked) at the as-of date."}
+  is_awaiting_approval: {type: BOOLEAN, comment: "True for credit memos submitted but not yet decided at the as-of date (memos awaiting approval)."}
+  is_overdue: {type: BOOLEAN, comment: "True when the due date has passed (before 30-Sep-2026) and the memo / spread has not been submitted."}
+  days_overdue: {type: INT, comment: "Days past due at the as-of date for overdue items (0 otherwise)."}
+  days_late: {type: INT, comment: "Days the memo / spread was submitted after its due date (0 = on time; null when not submitted or no due date). Sunda's FY2025 annual review = 23."}
+  was_submitted_late: {type: BOOLEAN, comment: "True when submitted after the due date."}
+  days_in_preparation: {type: INT, comment: "Days from preparation start to submission (reviews; to the as-of date when still in preparation) or from receipt to spread (spreading)."}
+  days_to_approval: {type: INT, comment: "Days from preparation start (or statements received) to approval / check - end-to-end time to approval; null while open."}
+  days_submission_to_approval: {type: INT, comment: "Days from submission to decision (credit approver turnaround); null while open."}
+  submission_count: {type: INT, comment: "Number of times the memo was submitted (1 = approved on the first submission when approved)."}
+  approved_on_first_submission: {type: BOOLEAN, comment: "True when approved (with or without conditions) on the first submission."}
+  is_not_yet_spread: {type: BOOLEAN, comment: "True for spreading tasks whose statements are not yet spread (e.g. FY2025 financials not yet spread)."}
+  analyst_id: {type: STRING, comment: "Credit analyst preparing the memo / spreading (employee_id); join to gold.dim_employee."}
+  approver_id: {type: STRING, comment: "Credit approver deciding the memo, or the checker of a spread (employee_id); null until assigned."}
+  memo_excerpt: {type: STRING, comment: "Short excerpt of the credit memo (synthetic text, <= 40 words)."}
+  memo_tone: {type: STRING, comment: "Tone of the memo: Positive, Neutral or Negative."}
+  memo_sentiment_score: {type: DOUBLE, comment: "Sentiment of the memo text -1 (negative) .. 1 (positive)."}
+  blocker_reason: {type: STRING, comment: "Why an overdue / delayed review is stuck (e.g. awaiting audited accounts); null otherwise."}
+  current_grade: {type: INT, comment: "Internal grade (1-10) at the start of the review."}
+  recommended_grade: {type: INT, comment: "Grade recommended by the analyst in the memo."}
+  approved_grade: {type: INT, comment: "Grade approved by the credit approver."}
+  requested_amount_usd: {type: DOUBLE, comment: "Amount requested (new-money reviews), USD."}
+  proposed_margin_bps: {type: INT, comment: "Margin proposed in the memo (new money), basis points; weight by requested_amount_usd for averages."}
+  is_pricing_exception: {type: BOOLEAN, comment: "True when the new-money pricing was approved as an exception to the pricing grid."}
+  exception_reason: {type: STRING, comment: "Reason for the pricing exception (e.g. Relationship)."}
+  statement_basis: {type: STRING, comment: "Spreading tasks: Audited or Unaudited / Management statements."}
+checks:
+  - name: storyline1_sunda_fy2025_review_23_days_late
+    sql: >-
+      SELECT abs(max(w.days_late) - 23) FROM ${table} w JOIN ${catalog}.gold.dim_client d ON d.golden_client_sk = w.golden_client_sk
+      WHERE d.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%' AND w.review_type = 'Annual' AND w.review_fiscal_year = 2025
+  - name: fy2025_not_spread_matches_statements
+    sql: >-
+      SELECT abs(count_if(review_type = 'Financial Spreading' AND review_fiscal_year = 2025 AND is_not_yet_spread)
+      - (SELECT count(DISTINCT obligor_id) FROM ${catalog}.silver.credit_financial_statement WHERE fiscal_year = 2025 AND NOT is_spread)) FROM ${table}
+reconcile:
+  - name: reviews_vs_silver_in_window
+    gold: SELECT count(*) FROM ${table} WHERE workflow_type = 'Credit Review'
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_review WHERE coalesce(due_date, submitted_date) >= DATE'${history_start}'
+  - name: spreading_tasks_vs_silver
+    gold: SELECT count(*) FROM ${table} WHERE workflow_type = 'Financial Spreading'
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_spreading_task

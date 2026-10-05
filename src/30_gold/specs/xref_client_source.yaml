@@ -1,0 +1,41 @@
+table: xref_client_source
+domain: hub
+comment: >-
+  Golden client <-> source identity crosswalk from the latest entity-resolution run (30-Sep-2026, rule set
+  v2): every source record of core banking, CRM, KYC, credit, trade, treasury and the external company
+  master with the golden client it resolved to, how (deterministic id match, fuzzy name match, steward
+  decision, unmatched = its own golden record), the match score and the name / country as the source
+  recorded them. Use it to explain why records collapsed into one golden client.
+grain: one row per source identity record
+primary_key: [source_system, source_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+cluster_by: [golden_client_id]
+min_rows: 5000
+columns:
+  source_system: {type: STRING}
+  source_id: {type: STRING}
+  golden_client_id: {type: STRING, not_null: true}
+  golden_client_sk: {type: BIGINT, comment: dim_client surrogate key of the golden client (current version).}
+  client_group_id: {type: STRING}
+  source_name_as_recorded: {type: STRING, comment: Client name exactly as the source system records it (typos and truncations included).}
+  country_as_recorded: {type: STRING, comment: Country as the source system records it (may be wrong - see the golden country).}
+  lei_as_recorded: {type: STRING, comment: "LEI-like id as recorded by the source, if any."}
+  match_method: {type: STRING, comment: "deterministic (LEI-like / tax id / v2 name+country key), fuzzy (score >= 0.90), steward (0.75-0.90, steward decision) or unmatched (no link; its own golden record)."}
+  match_rule: {type: STRING, comment: Rule of the record's strongest link (e.g. lei_exact).}
+  match_score: {type: DOUBLE, comment: "Score 0-1 of that link (1.0 deterministic); null when unmatched."}
+  steward_decision: {type: STRING, comment: "Latest steward decision on the record: match, no_match or pending; null when none was needed."}
+  is_within_source_duplicate: {type: BOOLEAN, comment: True when another record of the same source system resolved to the same golden client (a duplicate collapsed by ER).}
+  record_available_from: {type: DATE, comment: Date the record existed in its source (used to replay the quarterly ER runs).}
+  resolved_in_run_id: {type: STRING, comment: ER run in which the record joined its golden client.}
+  resolved_at: {type: DATE, comment: Run date of resolved_in_run_id.}
+  er_run_id: {type: STRING, comment: Latest ER run id the crosswalk comes from.}
+  er_run_date: {type: DATE, comment: Run date of the latest ER run.}
+checks:
+  - name: golden_ids_resolve
+    sql: >-
+      SELECT count(*) FROM ${table} x LEFT ANTI JOIN ${catalog}.silver.client_golden_identity g ON g.golden_client_id = x.golden_client_id
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.xref_client_source

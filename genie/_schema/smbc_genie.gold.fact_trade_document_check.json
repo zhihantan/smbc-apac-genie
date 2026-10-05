@@ -1,0 +1,205 @@
+{
+ "columns": [
+  {
+   "comment": "Document presentation id (instrument id + presentation number).",
+   "is_measure": false,
+   "name": "presentation_id",
+   "type": "string"
+  },
+  {
+   "comment": "LC the documents were presented under (join gold.fact_trade_finance_transaction).",
+   "is_measure": false,
+   "name": "txn_id",
+   "type": "string"
+  },
+  {
+   "comment": "Sequence of the presentation under the LC (1 = first).",
+   "is_measure": false,
+   "name": "presentation_no",
+   "type": "int"
+  },
+  {
+   "comment": "True for the LC's first presentation (one row per LC - use for per-transaction measures).",
+   "is_measure": false,
+   "name": "is_first_presentation",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the documents were re-presented after a refusal.",
+   "is_measure": false,
+   "name": "is_re_presentation",
+   "type": "boolean"
+  },
+  {
+   "comment": "Timestamp the documents were received by trade operations.",
+   "is_measure": false,
+   "name": "received_ts",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "Date the documents were received (the grain date).",
+   "is_measure": false,
+   "name": "received_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of received_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Timestamp the examination was completed (null while pending).",
+   "is_measure": false,
+   "name": "checked_ts",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Import LC or Export LC.",
+   "is_measure": false,
+   "name": "product_type",
+   "type": "string"
+  },
+  {
+   "comment": "PRD-IMPORT-LC or PRD-EXPORT-LC; join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Booking location of the LC (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Trade operations team that examined the documents (e.g. SG Trade Ops Hub, VN Trade Ops).",
+   "is_measure": false,
+   "name": "ops_team",
+   "type": "string"
+  },
+  {
+   "comment": "Amount claimed under the presentation in USD.",
+   "is_measure": false,
+   "name": "amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Hours from receipt to completed examination (null while pending). Use the median over examined rows.",
+   "is_measure": false,
+   "name": "turnaround_hours",
+   "type": "double"
+  },
+  {
+   "comment": "Examination SLA in hours (24).",
+   "is_measure": false,
+   "name": "sla_hours",
+   "type": "double"
+  },
+  {
+   "comment": "True when the examination took longer than the SLA.",
+   "is_measure": false,
+   "name": "is_over_sla",
+   "type": "boolean"
+  },
+  {
+   "comment": "True once the examination is complete (decision is not Pending Examination) - the denominator of the discrepancy rate.",
+   "is_measure": false,
+   "name": "is_examined",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the documents were found discrepant (false for complying and pending).",
+   "is_measure": false,
+   "name": "is_discrepant",
+   "type": "boolean"
+  },
+  {
+   "comment": "Number of discrepancies found (0 when complying).",
+   "is_measure": false,
+   "name": "discrepancy_count",
+   "type": "int"
+  },
+  {
+   "comment": "All discrepancy types found, semicolon-separated.",
+   "is_measure": false,
+   "name": "discrepancy_types",
+   "type": "string"
+  },
+  {
+   "comment": "Main discrepancy (e.g. Late Shipment, Inconsistent Data Between Documents); None for complying presentations; null while pending.",
+   "is_measure": false,
+   "name": "primary_discrepancy_type",
+   "type": "string"
+  },
+  {
+   "comment": "Complying, Discrepant - Waived, Discrepant - Refused or Pending Examination.",
+   "is_measure": false,
+   "name": "decision",
+   "type": "string"
+  },
+  {
+   "comment": "True when discrepancies were waived by the applicant.",
+   "is_measure": false,
+   "name": "is_waived",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the presentation was refused.",
+   "is_measure": false,
+   "name": "is_refused",
+   "type": "boolean"
+  },
+  {
+   "comment": "LC amendments made on or before the date the documents were received.",
+   "is_measure": false,
+   "name": "amendments_before_presentation",
+   "type": "int"
+  },
+  {
+   "comment": "All amendments of the LC (instrument attribute repeated on each of its presentations - sum it only over is_first_presentation rows).",
+   "is_measure": false,
+   "name": "txn_amendment_count",
+   "type": "int"
+  },
+  {
+   "comment": "Client's discrepancy rate over its examined presentations received Apr-Sep 2026 (client attribute as of 30-Sep-2026; null below 3 presentations).",
+   "is_measure": false,
+   "name": "client_discrepancy_rate_h1_fy2026",
+   "type": "double"
+  },
+  {
+   "comment": "Client's discrepancy rate over its examined presentations received Oct-2025 to Mar-2026 (client attribute; null below 3 presentations).",
+   "is_measure": false,
+   "name": "client_discrepancy_rate_h2_fy2025",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client's discrepancy rate rose by 10 points or more from H2 FY2025 to H1 FY2026 (>= 3 examined presentations in each half) - an early-warning input.",
+   "is_measure": false,
+   "name": "is_client_discrepancy_rising",
+   "type": "boolean"
+  }
+ ],
+ "comment": "One row per LC document presentation examined by trade operations (import and export LCs) from May-2023: received and checked timestamps, turnaround hours vs the 24-hour SLA, discrepant flag with discrepancy count / types / primary type, decision (complying, discrepant - waived or refused, pending examination), re-presentation flag, amount, operations team and booking location, LC amendments made before the presentation, and each client's discrepancy-rate trend (H1 FY2026 vs H2 FY2025) as an early-warning input. Discrepancy rate = count_if(is_discrepant) / count_if(is_examined); median turnaround over examined rows; Amendments per Transaction = SUM(txn_amendment_count WHERE is_first_presentation) / count distinct txn_id. Grain: one row per document presentation (presentation_id).",
+ "identifier": "smbc_genie.gold.fact_trade_document_check",
+ "type": "MANAGED"
+}

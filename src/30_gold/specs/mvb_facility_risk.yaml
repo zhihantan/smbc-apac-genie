@@ -1,0 +1,91 @@
+table: mvb_facility_risk
+domain: credit
+comment: >-
+  Metric-view base for facilities, covenants and collateral (mv_facilities_covenants_collateral, D13): a
+  record_type union of Facility rows (one per facility: limit, drawn, undrawn, margin - is_primary_row),
+  Covenant Test rows (one per covenant test from FY2023: threshold, actual, headroom %, bucket, breach, waiver,
+  is_latest_test) and Collateral rows (one per collateral item: appraised value, LTV, valuation age, review
+  flags). Facility descriptors (type, status, security, guarantor, parent rating from the JP share) repeat on
+  every row for slicing; each amount or flag is populated only on the row type that owns it and null
+  elsewhere, so SUM / MIN / COUNT_IF over the base never double counts. Facility amounts are as of
+  30-Sep-2026. Examples: Limit USD = SUM(limit_usd); latest leverage headroom = MIN(headroom_pct) WHERE
+  is_latest_test AND covenant_type = 'Net Debt/EBITDA'; Collateral Value USD = SUM(collateral_value_usd);
+  weighted margin bps = SUM(margin_x_limit_usd) / SUM(limit_usd).
+grain: one row per record_type x record (facility, covenant test or collateral item)
+primary_key: [record_type, record_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [record_date], references: dim_date}
+  - {columns: [product_id], references: dim_product}
+cluster_by: [record_type, record_date, golden_client_sk]
+min_rows: 10000
+columns:
+  record_type: {type: STRING, comment: "Row type: Facility, Covenant Test or Collateral - filter or measure on it."}
+  record_id: {type: STRING, comment: "Key of the row within its type: facility_id, facility|covenant|test date, or collateral_id."}
+  is_primary_row: {type: BOOLEAN, comment: "True on the one Facility row per facility - count facilities with COUNT_IF(is_primary_row)."}
+  record_date: {type: DATE, comment: "Date of the row: snapshot date 30-Sep-2026 (Facility), test date (Covenant Test), last valuation date (Collateral)."}
+  facility_id: {type: STRING, comment: "Credit facility (FAC-nnnnnn) the row belongs to."}
+  obligor_id: {type: STRING, comment: "Credit obligor record of the borrower."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version: current for Facility / Collateral rows, as-was at the test date for Covenant Test rows."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  facility_type: {type: STRING, comment: "Facility type: Term Loan, Revolving Credit Facility, Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan (all rows)."}
+  facility_status: {type: STRING, comment: "Facility status at the as-of date: Active, Matured or Prepaid (all rows)."}
+  is_active: {type: BOOLEAN, comment: "True when the facility is active at the as-of date (all rows)."}
+  security_type: {type: STRING, comment: "Facility security: Unsecured, Cash, Receivables, Inventory, Fixed Assets or Real Estate (all rows)."}
+  guarantor_type: {type: STRING, comment: "Credit support: Parent Guarantee, Keepwell, Corporate Guarantee, Sponsor Support or None (all rows)."}
+  has_parent_support: {type: BOOLEAN, comment: "True for Parent Guarantee or Keepwell facilities (all rows)."}
+  product_id: {type: STRING, comment: "Product key of the facility type (all rows)."}
+  currency: {type: STRING, comment: "Facility currency (all rows)."}
+  jp_parent_id: {type: STRING, comment: "Japanese parent giving the guarantee / keepwell (parent-supported facilities)."}
+  parent_rating_grade: {type: INT, comment: "Japanese parent's grade (1 best .. 10) at the as-of date from the JP share (parent-supported facilities)."}
+  parent_rating_equivalent: {type: STRING, comment: "Parent's rating on the external scale (e.g. AA, A+) from the JP share - the parent external rating."}
+  parent_rating_outlook: {type: STRING, comment: "Outlook of the parent rating (Positive, Stable, Negative)."}
+  limit_usd: {type: DOUBLE, comment: "Facility rows only: committed limit, USD."}
+  drawn_usd: {type: DOUBLE, comment: "Facility rows only: drawn balance at the as-of month-end, USD (current exposure)."}
+  undrawn_usd: {type: DOUBLE, comment: "Facility rows only: undrawn commitment of active facilities, USD."}
+  utilisation_pct: {type: DOUBLE, comment: "Facility rows only: drawn / limit (fraction)."}
+  margin_bps: {type: DOUBLE, comment: "Facility rows only: lending margin in basis points."}
+  margin_x_limit_usd: {type: DOUBLE, comment: "Facility rows only: margin_bps x limit_usd, for the limit-weighted margin SUM(margin_x_limit_usd) / SUM(limit_usd)."}
+  maturity_date: {type: DATE, comment: "Facility rows only: final maturity date."}
+  matures_within_12m: {type: BOOLEAN, comment: "Facility rows only: active and maturing within 12 months."}
+  has_waiver_current_fy: {type: BOOLEAN, comment: "Facility rows only: a covenant waiver was granted on a test in FY2026."}
+  covenant_type: {type: STRING, comment: "Covenant Test rows: Net Debt/EBITDA (leverage) or ICR (interest cover)."}
+  covenant_category: {type: STRING, comment: "Covenant Test rows: Leverage or Interest Cover."}
+  test_date: {type: DATE, comment: "Covenant Test rows: test date."}
+  test_basis: {type: STRING, comment: "Covenant Test rows: Quarterly or FY<year> Annual."}
+  covenant_threshold: {type: DOUBLE, comment: "Covenant Test rows: covenant level (x)."}
+  covenant_actual: {type: DOUBLE, comment: "Covenant Test rows: tested value (x)."}
+  headroom_pct: {type: DOUBLE, comment: "Covenant Test rows: headroom as a fraction of the threshold (negative = breached); use MIN for the tightest."}
+  headroom_bucket: {type: STRING, comment: "Covenant Test rows: Breached, 0-10%, 10-20%, 20-30% or 30%+."}
+  is_breached: {type: BOOLEAN, comment: "Covenant Test rows: covenant breached at the test."}
+  is_tight_headroom: {type: BOOLEAN, comment: "Covenant Test rows: not breached and headroom below 10%."}
+  is_waived: {type: BOOLEAN, comment: "Covenant Test rows: waiver granted."}
+  is_latest_test: {type: BOOLEAN, comment: "Covenant Test rows: latest test of the facility covenant on or before 30-Sep-2026."}
+  is_current_fy_test: {type: BOOLEAN, comment: "Covenant Test rows: test in the current fiscal year (FY2026)."}
+  exposure_at_test_usd: {type: DOUBLE, comment: "Covenant Test rows: facility drawn balance at the test month-end, USD (exposure linked to the test, e.g. for waivers)."}
+  client_on_watchlist_as_of: {type: BOOLEAN, comment: "Covenant Test rows: client on the credit watchlist at 30-Sep-2026."}
+  collateral_id: {type: STRING, comment: "Collateral rows: collateral item id."}
+  collateral_type: {type: STRING, comment: "Collateral rows: Cash, Receivables, Inventory, Fixed Assets or Real Estate."}
+  collateral_value_usd: {type: DOUBLE, comment: "Collateral rows: appraised value at the last valuation, USD."}
+  ltv_pct: {type: DOUBLE, comment: "Collateral rows: loan-to-value (fraction)."}
+  last_valuation_date: {type: DATE, comment: "Collateral rows: last valuation date."}
+  valuation_age_months: {type: INT, comment: "Collateral rows: months since the last valuation at the as-of date."}
+  is_high_ltv: {type: BOOLEAN, comment: "Collateral rows: LTV above 70%."}
+  is_valuation_stale: {type: BOOLEAN, comment: "Collateral rows: valuation older than 24 months."}
+checks:
+  - name: amounts_only_on_owner_rows
+    sql: >-
+      SELECT count_if(record_type <> 'Facility' AND limit_usd IS NOT NULL) + count_if(record_type <> 'Covenant Test' AND headroom_pct IS NOT NULL)
+      + count_if(record_type <> 'Collateral' AND collateral_value_usd IS NOT NULL) FROM ${table}
+reconcile:
+  - name: facility_rows_vs_terms
+    gold: SELECT count_if(record_type = 'Facility') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_facility_terms
+  - name: limit_total_vs_silver
+    gold: SELECT round(sum(limit_usd) / 1e6) FROM ${table}
+    silver: SELECT round(sum(limit_usd) / 1e6) FROM ${catalog}.silver.credit_facility_terms
+  - name: collateral_rows_vs_silver
+    gold: SELECT count_if(record_type = 'Collateral') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_collateral

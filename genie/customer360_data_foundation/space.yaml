@@ -1,0 +1,340 @@
+# APAC Genie - Customer 360 Data Foundation (brief §5.11, PLAN §8 / §10). Authoring source - format: genie/README.md.
+# Owner: Genie content agent G4 (p07g4). Functions: genie/customer360_data_foundation/functions.sql.
+# Caveats (scratch/genie_caveats.md §11): coverage and DQ are month-end snapshots (Month = DATE'2026-09-01'); the
+# latest ER run is Is Latest Month (ER-20260930); "this month vs last" = Sep-2026 with the prior-month measures;
+# unattributed ER exposure has no Client Group; precision / recall are never summed across sources.
+slug: customer360_data_foundation
+title: APAC Genie - Customer 360 Data Foundation
+description: >-
+  Ask about entity-resolution quality, golden-record coverage, data quality, Delta Sharing freshness and the
+  exposure impact of entity resolution for SMBC's APAC clients. Figures are USD unless you ask for local currency;
+  periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and
+  as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_entity_resolution
+    columns:
+      Run: {entity_matching: true, synonyms: [March 2026 resolution, latest ER run, quarterly run]}
+      Rule Version: {entity_matching: true}
+      Source System: {format_assistance: false}   # no value dictionary: its technical ALL value attracted whole-run filters
+      Match Method: {entity_matching: true}
+      Steward Decision: {entity_matching: true}
+      Aging Bucket: {entity_matching: true}
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Steward Queue Open: {synonyms: [steward backlog, open steward items, steward queue aging]}
+  - identifier: smbc_genie.metrics.mv_golden_record_coverage
+    columns:
+      Source System: {entity_matching: true}
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      KYC Risk Rating: {entity_matching: true}
+      EWS Band: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_data_quality
+    columns:
+      Layer: {entity_matching: true}
+      Table: {entity_matching: true}
+      DQ Dimension: {entity_matching: true}
+      Rule: {entity_matching: true}
+      Rule Severity: {entity_matching: true}
+      Rule Status: {entity_matching: true}
+      Score Basis: {entity_matching: true}
+      Incident: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_delta_sharing_freshness
+    columns:
+      Provider Region: {entity_matching: true}
+      Share: {entity_matching: true}
+      Shared Table: {entity_matching: true}
+      Refresh Status: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_er_exposure_impact
+    columns:
+      Run: {entity_matching: true}
+      Rule Version: {entity_matching: true}
+      Attribution Status: {entity_matching: true}
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Material Resolution Change: {synonyms: [changed by more than 20%, exposure changed more than 20 percent]}
+  - identifier: smbc_genie.gold.xref_client_source
+    columns:
+      source_system: {entity_matching: true}
+      match_method: {entity_matching: true}
+      match_rule: {entity_matching: true}
+      steward_decision: {entity_matching: true}
+      resolved_in_run_id: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    include_columns: [golden_client_id, display_name, legal_name, short_name, aliases_text, lei_like_id,
+                      country_of_incorporation, group_name, is_group_lead, segment, relationship_tier, coverage_office,
+                      primary_rm_name, source_systems_text, n_source_records, golden_record_confidence,
+                      sources_present, in_all_core_sources, is_missing_kyc_record, is_missing_credit_record,
+                      attribute_completeness_pct, missing_attributes_text]
+    columns:
+      group_name: {entity_matching: true}
+      segment: {entity_matching: true}
+      relationship_tier: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, group_segment, group_relationship_tier,
+                      lead_client_name, lead_basis, lead_office, lead_rm_name, n_entities_apac, n_entities_emea,
+                      n_entities_amer, n_entities_global, jp_parent_legal_name, master_status]
+    columns:
+      group_name: {entity_matching: true}
+      hq_region: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- Views: mv_entity_resolution = quarterly ER runs (records in, matches, golden records, precision / recall, steward queue); mv_golden_record_coverage = golden clients by source system, missing KYC / credit, attribute completeness; mv_data_quality = DQ scores by layer / table / DQ dimension plus the latest rule results; mv_delta_sharing_freshness = JP / EMEA / AMER share lag and staleness; mv_er_exposure_impact = group exposure before vs after each run's re-resolution."
+    - "- ER runs ER-20250630 .. ER-20260930 are quarter-end snapshots (rule set v1 to Dec-2025, v2 from Mar-2026): latest run = `Is Latest Month`; compare runs by grouping by `Run`, never add runs; \"the March 2026 resolution\" = `Month` = DATE'2026-03-01' (ER-20260331)."
+    - "- ER per source system: group by `Source System` and exclude the technical ALL value (or use fn_er_run_summary). Whole-run ER figures (records in, match rate, golden records, precision, recall of a run): put no Source System condition in the query at all. Precision % and Recall % are never summed across sources."
+    - "- Steward queue aging = items open at 30-Sep-2026: MEASURE(`Steward Queue Open`) and MEASURE(`Average Days Open`) by `Aging Bucket` with HAVING MEASURE(`Steward Queue Open`) > 0."
+    - "- Coverage and DQ measures are month-end snapshots: today = `Is Latest Month` (`Month` = DATE'2026-09-01'); \"this month vs last\" = `Month` = DATE'2026-09-01' with DQ Score % and DQ Score Prior Month %. Attribute completeness exists for Sep-2026 only."
+    - "- Delta Share freshness: \"from Japan\" = `Provider Region` = 'JP'; last 30 days = `Date` >= DATE'2026-09-01'; stale = lag > 24h (Stale Table-Days = stale days, Tables Stale = tables); lag and stale counts add up over the selected days."
+    - "- Exposures changed by more than 20% after a resolution (all groups) = `Material Resolution Change` in mv_er_exposure_impact or fn_er_exposure_changes; one named group = the example query (before / after, attention threshold, crossed). Unattributed exposure has no Client Group: show COALESCE(`Client Group`, '(unattributed)') AS client_group with `Attribution Status`."
+    - "- Golden clients missing KYC / credit = Clients Missing KYC Data / Clients Missing Credit Data; \"by tier\" = Relationship Tier, keeping the null tier (clients without a CRM tier). Client = legal entity, matched with LIKE, e.g. `Client` LIKE 'Meridian Agri Holdings (Singapore)%'."
+
+example_sqls:
+  - question: Steward queue aging - open steward items and their average age by aging bucket
+    usage_guidance: >-
+      Use for "steward queue aging", "how old is the steward backlog", "open data-steward reviews"; only buckets
+      with open items (HAVING), as of 30-Sep-2026.
+    sql: |
+      SELECT `Aging Bucket`,
+             MEASURE(`Steward Queue Open`) AS open_items,
+             MEASURE(`Average Days Open`)  AS average_days_open
+      FROM smbc_genie.metrics.mv_entity_resolution
+      GROUP BY ALL
+      HAVING MEASURE(`Steward Queue Open`) > 0
+      ORDER BY average_days_open
+  - question: Golden clients missing KYC or credit data by relationship tier at :month
+    usage_guidance: >-
+      Use for "golden clients missing from KYC / credit", "coverage gaps by tier"; month-end snapshot (today =
+      2026-09-01), keeps the null-tier row.
+    parameters:
+      - {name: month, type: DATE, description: "Coverage month as its first day (today = 2026-09-01)", default: "2026-09-01"}
+    sql: |
+      SELECT `Relationship Tier`,
+             MEASURE(`Golden Clients`)              AS golden_clients,
+             MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,
+             MEASURE(`Clients Missing Credit Data`) AS missing_credit
+      FROM smbc_genie.metrics.mv_golden_record_coverage
+      WHERE `Month` = :month
+      GROUP BY ALL
+      ORDER BY `Relationship Tier`
+  - question: DQ score by layer and DQ dimension for :month vs the month before
+    usage_guidance: >-
+      Use for "DQ score this month vs last" by layer and dimension, "data quality scorecard", "tables below 95%";
+      Month = 2026-09-01 is this month (the prior-month measure gives August).
+    parameters:
+      - {name: month, type: DATE, description: "Scored month as its first day (this month = 2026-09-01)", default: "2026-09-01"}
+    sql: |
+      SELECT `Layer`, `DQ Dimension`,
+             MEASURE(`DQ Score %`)             AS dq_score,
+             MEASURE(`DQ Score Prior Month %`) AS dq_score_prior_month,
+             MEASURE(`Row Pass Rate %`)        AS row_pass_rate,
+             MEASURE(`Tables Below Target`)    AS tables_below_95
+      FROM smbc_genie.metrics.mv_data_quality
+      WHERE `Month` = :month
+      GROUP BY ALL
+      ORDER BY `Layer`, `DQ Dimension`
+  - question: What did the :month entity resolution do to the exposure of :client_group, and did it cross the USD 500m threshold
+    usage_guidance: >-
+      Use for one named group: "what did the March 2026 resolution do to <group> exposure", "did <group> cross the
+      500m attention threshold after ER" (month = the run month, March 2026 = 2026-03-01). For every group changed
+      by more than 20% in a run use fn_er_exposure_changes instead.
+    parameters:
+      - {name: client_group, type: STRING, description: "Full client group name (LIKE match), e.g. Meridian Agri Holdings", default: Meridian Agri Holdings}
+      - {name: month, type: DATE, description: "Run month as its first day (March 2026 resolution = 2026-03-01)", default: "2026-03-01"}
+    sql: |
+      SELECT `Client Group`,
+             MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,
+             MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,
+             MEASURE(`Resolution Change %`)            AS resolution_change,
+             MEASURE(`Attention Threshold USD`)        AS attention_threshold_usd,
+             MEASURE(`Groups Crossing Threshold`)      AS crossed_threshold
+      FROM smbc_genie.metrics.mv_er_exposure_impact
+      WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Month` = :month
+      GROUP BY ALL
+  - question: Source records and golden records per ER run for the client :client from :from_month to :to_month
+    usage_guidance: >-
+      Use for "how many golden records did <entity>'s records sit in, run by run", "when did <entity> merge";
+      Client is the legal entity (LIKE match). Runs are quarter-end months: December 2025 and March 2026 runs =
+      from_month 2025-12-01 to to_month 2026-03-01; all runs = 2025-06-01 to 2026-09-01.
+    parameters:
+      - {name: client, type: STRING, description: "Legal entity name prefix, e.g. Meridian Agri Holdings (Singapore)", default: Meridian Agri Holdings (Singapore)}
+      - {name: from_month, type: DATE, description: "First run month as its first day (all runs = 2025-06-01)", default: "2025-06-01"}
+      - {name: to_month, type: DATE, description: "Last run month as its first day (latest run = 2026-09-01)", default: "2026-09-01"}
+    sql: |
+      SELECT `Run`,
+             MEASURE(`Records In`)     AS records,
+             MEASURE(`Golden Records`) AS golden_records
+      FROM smbc_genie.metrics.mv_entity_resolution
+      WHERE lower(`Client`) LIKE lower(CONCAT(:client, '%')) AND `Month` BETWEEN :from_month AND :to_month
+      GROUP BY ALL
+      ORDER BY `Run`
+  - question: ER records and match rate by source system at :month vs golden clients present in each source
+    usage_guidance: >-
+      Use to compare entity resolution with source coverage per source system - the cross-view CTE pattern (one
+      CTE per metric view, joined on Source System); :month = a quarter-end run month, 2026-09-01 = latest run.
+    parameters:
+      - {name: month, type: DATE, description: "Run / coverage month as its first day (latest = 2026-09-01)", default: "2026-09-01"}
+    sql: |
+      WITH er AS (
+        SELECT `Source System`, MEASURE(`Records In`) AS records_in, MEASURE(`Match Rate %`) AS match_rate
+        FROM smbc_genie.metrics.mv_entity_resolution
+        WHERE `Month` = :month AND `Source System` <> 'ALL'
+        GROUP BY ALL
+      ), cov AS (
+        SELECT `Source System`,
+               MEASURE(`Clients Present in Source`)   AS golden_clients_present,
+               MEASURE(`Clients Present in Source %`) AS share_of_golden_clients
+        FROM smbc_genie.metrics.mv_golden_record_coverage
+        WHERE `Month` = :month
+        GROUP BY ALL
+      )
+      SELECT e.`Source System`, e.records_in, e.match_rate, c.golden_clients_present, c.share_of_golden_clients
+      FROM er e
+      LEFT JOIN cov c ON c.`Source System` = e.`Source System`
+      ORDER BY e.`Source System`
+
+sql_functions:
+  - smbc_genie.gold.fn_er_run_summary
+  - smbc_genie.gold.fn_er_exposure_changes
+  - smbc_genie.gold.fn_dq_score_changes
+  - smbc_genie.gold.fn_as_of_date
+
+sample_questions:
+  - What are the entity-resolution match rate and precision by source system for the latest run?
+  - How many client records collapsed into how many golden records in each ER run?
+  - How old is the data-steward queue?
+  - How many golden clients are missing KYC or credit data, by relationship tier?
+  - How did DQ scores by table and dimension change this month vs last?
+  - How fresh is the Delta Share from Japan over the last 30 days, and are any tables stale?
+  - Which exposures changed by more than 20% after the March 2026 resolution of Meridian Agri Holdings?
+  - What is the attribute completeness of Strategic clients' golden records?
+
+benchmarks:
+  - key: Q1
+    question: >-
+      For the latest entity-resolution run, show records in, matched records, match rate, fuzzy share, pairwise
+      precision and pairwise recall by source system.
+    answer: Q1
+    checks: {rows: 7, must_contain_columns: [Source System, match_rate, pairwise_precision]}
+  - key: Q1-abbrev
+    question: latest ER run by source system - records in, matched, match rate, fuzzy share, precision, recall
+    variant_of: Q1
+  - key: Q1b
+    question: >-
+      For the latest entity-resolution run as a whole (all source systems together), what were the records in,
+      match rate, pairwise precision and pairwise recall?
+    answer: Q1b
+    checks: {rows: 1, must_contain_columns: [records_in, pairwise_precision]}
+    allow_extra_columns: true
+    notes: Genie labels "the latest run" with its Run id (ER-20260930), an extra context column, not a different answer.
+  - key: Q2
+    question: >-
+      How many client source records collapsed into how many golden records in each ER run? Show the run, rule
+      version, records in, golden records, records per golden record and duplicates merged.
+    answer: Q2
+    checks: {rows: 6, must_contain_columns: [Run, golden_records]}
+  - key: Q2-casual
+    question: >-
+      how many records turned into how many golden records each ER run? include the rule version, records per
+      golden record and duplicates merged
+    variant_of: Q2
+  - key: Q3
+    question: >-
+      Steward queue aging: how many steward items are open at 30 Sep 2026 in each aging bucket, and what is their
+      average number of days open?
+    answer: Q3
+    checks: {rows: 3, must_contain_columns: [Aging Bucket, open_items]}
+  - key: Q3b
+    question: >-
+      By the ER run that raised them, how many steward decisions were made and how many steward items are still
+      open?
+    answer: Q3b
+    checks: {rows: 6, must_contain_columns: [Run, steward_decisions]}
+  - key: Q4
+    question: >-
+      Today, how many golden clients are missing from the KYC source and from the credit source, by relationship
+      tier? Include the number of golden clients in each tier.
+    answer: Q4
+    checks: {rows: 4, must_contain_columns: [Relationship Tier, missing_kyc, missing_credit]}
+  - key: Q4-typo
+    question: golden clients mising KYC or credit data by relationship tier as of today, with total golden clients per tier
+    variant_of: Q4
+  - key: Q5
+    question: >-
+      Which 10 table and DQ-dimension pairs had the largest month-on-month change in DQ score, this month vs last
+      (September vs August 2026)? Show the table, DQ dimension, the September score, the August score and the
+      change.
+    answer: Q5
+    checks: {rows: 10, top_row_contains: silver.share_jp_parent_rating}
+  - key: Q5b
+    question: >-
+      DQ score by layer and DQ dimension this month vs last month (September vs August 2026), with this month's
+      row pass rate and number of tables below 95%.
+    answer: Q5b
+    checks: {rows: 14, must_contain_columns: [Layer, DQ Dimension]}
+  - key: Q6
+    question: >-
+      Delta Share freshness from Japan over the last 30 days (1-30 Sep 2026): average lag hours, max lag hours,
+      stale days and freshness SLA met for each shared table.
+    answer: Q6
+    checks: {rows: 5, must_contain_columns: [Shared Table, max_lag_hours]}
+  - key: Q6b
+    question: >-
+      In August 2026, how many stale days, what maximum lag in hours and what longest run of consecutive stale
+      days did each Japan shared table have?
+    answer: Q6b
+    checks: {rows: 5, top_row_contains: share_jp_parent_rating}
+  - key: Q7
+    question: >-
+      Which exposures changed by more than 20% after the March 2026 entity resolution? Show the client group (or
+      unattributed), attribution status, exposure before and after resolution, the change in USD and in %, and
+      whether the group crossed the USD 500m attention threshold.
+    answer: Q7
+    checks: {rows: 5, must_contain_columns: [client_group, resolution_change]}
+  - key: Q7-jargon
+    question: >-
+      Post-ER exposure deltas above 20% on the Mar-26 run: group (or unattributed), attribution, exposure
+      before / after, delta USD, delta % and whether it crossed the USD 500m single-borrower threshold
+    variant_of: Q7
+  - key: Q8
+    question: >-
+      What is the average attribute completeness of the golden records by relationship tier today, with the
+      golden clients and fully complete golden records in each tier?
+    answer: Q8
+    checks: {rows: 4, must_contain_columns: [Relationship Tier, avg_attribute_completeness]}
+  - key: Q9
+    question: >-
+      In the December 2025 and March 2026 ER runs, how many source records and how many golden records did today's
+      Meridian Agri Holdings (Singapore) golden client have?
+    answer: Q9
+    checks: {rows: 2, must_contain_columns: [Run, golden_records]}
+  - key: Q10
+    question: >-
+      What did the March 2026 resolution do to Meridian Agri Holdings' exposure? Show the client group, exposure
+      before and after, the change %, the attention threshold and whether it crossed the threshold.
+    answer: Q10
+    checks: {rows: 1, top_row_contains: Meridian Agri Holdings}
+  - key: Q11
+    question: >-
+      List every day on which share_jp_parent_rating was stale, with its lag hours and its consecutive stale days.
+    answer: Q11
+    checks: {rows: 5, must_contain_columns: [Date, lag_hours]}
+  - key: Q12
+    question: >-
+      For the pay_payment_message:key_unique DQ rule, how many rows failed and how many were de-duplicated in each
+      layer in the latest DQ run? Show the layer, rule, failed rows and de-duplicated rows.
+    answer: Q12
+    checks: {rows: 2, must_contain_columns: [Layer, failed_rows]}

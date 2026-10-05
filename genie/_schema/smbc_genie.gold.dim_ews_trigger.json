@@ -1,0 +1,97 @@
+{
+ "columns": [
+  {
+   "comment": "EWS trigger code, e.g. UTIL_HIGH, COV_BREACH, DEPOSIT_OUTFLOW_SEVERE, DPD_30, NEWS_NEGATIVE.",
+   "is_measure": false,
+   "name": "trigger_code",
+   "type": "string"
+  },
+  {
+   "comment": "Trigger name.",
+   "is_measure": false,
+   "name": "trigger_name",
+   "type": "string"
+  },
+  {
+   "comment": "Trigger category: Credit, Liquidity, Behavioural or External.",
+   "is_measure": false,
+   "name": "category",
+   "type": "string"
+  },
+  {
+   "comment": "Default severity: High, Medium or Low.",
+   "is_measure": false,
+   "name": "severity",
+   "type": "string"
+  },
+  {
+   "comment": "The firing rule in words (e.g. max utilisation across facilities >= 0.90).",
+   "is_measure": false,
+   "name": "threshold_description",
+   "type": "string"
+  },
+  {
+   "comment": "What the trigger indicates.",
+   "is_measure": false,
+   "name": "description",
+   "type": "string"
+  },
+  {
+   "comment": "True when the trigger is live in the EWS engine.",
+   "is_measure": false,
+   "name": "is_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "Data quadrant: Internal Quantitative (credit, liquidity, behavioural data) or External Qualitative (news).",
+   "is_measure": false,
+   "name": "source_quadrant",
+   "type": "string"
+  },
+  {
+   "comment": "Average composite-score points the trigger contributed when it fired (0 = informational trigger that does not move the score).",
+   "is_measure": false,
+   "name": "score_points",
+   "type": "double"
+  },
+  {
+   "comment": "Largest composite-score contribution observed for the trigger.",
+   "is_measure": false,
+   "name": "max_score_points",
+   "type": "double"
+  },
+  {
+   "comment": "True for High-severity triggers that put the client up for an immediate watchlist review.",
+   "is_measure": false,
+   "name": "auto_watchlist_flag",
+   "type": "boolean"
+  },
+  {
+   "comment": "Monthly trigger firings recorded to the as-of date (client x month).",
+   "is_measure": false,
+   "name": "signals_fired",
+   "type": "bigint"
+  },
+  {
+   "comment": "Distinct golden clients the trigger has fired for.",
+   "is_measure": false,
+   "name": "clients_fired",
+   "type": "bigint"
+  },
+  {
+   "comment": "First month the trigger fired.",
+   "is_measure": false,
+   "name": "first_fired_month",
+   "type": "date"
+  },
+  {
+   "comment": "Latest month the trigger fired.",
+   "is_measure": false,
+   "name": "last_fired_month",
+   "type": "date"
+  }
+ ],
+ "comment": "Early-warning rule book: every EWS trigger with its category (Credit, Liquidity, Behavioural, External), severity, firing threshold, the score points it typically adds to the 0-100 composite, whether it forces a watchlist review, and how often it has fired. Grain: one row per EWS trigger code.",
+ "identifier": "smbc_genie.gold.dim_ews_trigger",
+ "type": "MANAGED"
+}

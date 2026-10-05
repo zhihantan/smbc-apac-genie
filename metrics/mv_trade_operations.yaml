@@ -1,0 +1,189 @@
+# Space 8, Transactional Banking: Trade & Supply Chain Finance (WP9b / WP8e). One row per LC document presentation.
+# Counts are flows by receipt month; rates are ratios over EXAMINED presentations; turnaround uses MEDIAN / PERCENTILE
+# over examined rows; Amendments per Transaction reads the LC's amendment count on its first presentation only
+# (is_first_presentation, the primary row of the LC). Must-answer queries: metrics/_answers/tb_trade_scf.sql.
+view: mv_trade_operations
+space: tb_trade_scf
+comment: >-
+  Trade operations on LC document presentations (import and export LCs), May-2023 to Sep-2026: presentations,
+  discrepancy rate and types, waivers / refusals, examination turnaround (median / P90 hours vs the 24-hour SLA),
+  presentations over SLA, and LC amendments per transaction, by booking country, product, discrepancy type and
+  operations team - plus the clients whose discrepancy rate is rising (H2 FY2025 -> H1 FY2026, an early-warning
+  input). Counts add up over months; rates are ratios over examined presentations; medians are exact.
+grain: one row per LC document presentation (gold.fact_trade_document_check)
+source: ${catalog}.gold.fact_trade_document_check
+blocks:
+  calendar: {date: source.received_date, grain: month, what: the presentation receipt}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: Booking location of the LC (ISO-2) - "country" in trade-operations questions means this.
+    synonyms: [booking country, country, booking location, market, location]
+  - name: Product
+    expr: source.product_type
+    display_name: LC Product
+    comment: Import LC or Export LC.
+    synonyms: [product, LC type, import LC, export LC, letter of credit, instrument]
+  - name: Discrepancy Type
+    expr: source.primary_discrepancy_type
+    display_name: Primary Discrepancy Type
+    comment: >-
+      Main discrepancy found: Inconsistent Data Between Documents, Late Shipment, Late Presentation, Insurance
+      Document Deficiency, Description of Goods Mismatch, Bill of Lading Not Clean, Invoice Amount Exceeds LC, Missing
+      Document, Certificate of Origin Issue; None for complying presentations; null while pending.
+    synonyms: [discrepancy type, discrepancy, discrepancy reason, defect, document error, exception type]
+  - name: Operations Team
+    expr: source.ops_team
+    display_name: Operations Team
+    comment: Trade operations team that examined the documents (e.g. SG Trade Ops Hub, VN Trade Ops).
+    synonyms: [operations team, ops team, trade ops, processing centre, back office, examining team]
+  - name: Decision
+    expr: source.decision
+    display_name: Examination Decision
+    comment: Complying, Discrepant - Waived, Discrepant - Refused or Pending Examination.
+    synonyms: [decision, outcome, examination result, waived, refused, complying]
+  - name: Is Discrepant
+    expr: source.is_discrepant
+    display_name: Is Discrepant
+    comment: True when the documents were found discrepant.
+    synonyms: [discrepant, has discrepancy, defective documents, non-complying]
+  - name: Is Over SLA
+    expr: source.is_over_sla
+    display_name: Is Over SLA
+    comment: True when the examination took longer than the 24-hour SLA.
+    synonyms: [over SLA, SLA breach, late examination, breached SLA, slow]
+  - name: Is Re-presentation
+    expr: source.is_re_presentation
+    display_name: Is Re-presentation
+    comment: True when the documents were re-presented after a refusal.
+    synonyms: [re-presentation, represented, second presentation, resubmission]
+  - name: Is Client Discrepancy Rising
+    expr: source.is_client_discrepancy_rising
+    display_name: Client Discrepancy Rate Rising
+    comment: >-
+      True for clients whose discrepancy rate rose by 10 points or more from H2 FY2025 (Oct-2025 to Mar-2026) to H1
+      FY2026 (Apr-Sep 2026), with >= 3 examined presentations in each half - an early-warning input (as of 30-Sep-2026).
+    synonyms: [rising discrepancy, deteriorating documents, discrepancy trend, worsening discrepancies, early warning]
+measures:
+  - name: Presentations
+    expr: COUNT(1)
+    display_name: Presentations
+    comment: Document presentations received in the selected months (a flow).
+    synonyms: [presentations, document presentations, presentations received, documents, drawings]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Examined Presentations
+    expr: COUNT(1) FILTER (WHERE source.is_examined)
+    display_name: Examined Presentations
+    comment: Presentations whose examination is complete (the denominator of the rates).
+    synonyms: [examined, checked presentations, completed examinations, examined documents]
+    format: *count
+  - name: Discrepant Presentations
+    expr: COUNT(1) FILTER (WHERE source.is_discrepant)
+    display_name: Discrepant Presentations
+    comment: Presentations found discrepant.
+    synonyms: [discrepant presentations, discrepancies, discrepant documents, defective presentations]
+    format: *count
+  - name: Discrepancy Rate %
+    expr: COUNT(1) FILTER (WHERE source.is_discrepant) / NULLIF(COUNT(1) FILTER (WHERE source.is_examined), 0)
+    display_name: Discrepancy Rate
+    comment: Discrepant / examined presentations (fraction; 0.22 = 22%).
+    synonyms: [discrepancy rate, discrepancy ratio, defect rate, error rate, first-presentation discrepancy rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Waiver Rate %
+    expr: COUNT(1) FILTER (WHERE source.is_waived) / NULLIF(COUNT(1) FILTER (WHERE source.is_discrepant), 0)
+    display_name: Waiver Rate
+    comment: Share of discrepant presentations whose discrepancies the applicant waived (fraction); the rest were refused.
+    synonyms: [waiver rate, waived share, discrepancies waived, acceptance of discrepancies]
+    format: *pct
+  - name: Median Turnaround Hours
+    expr: MEDIAN(CASE WHEN source.is_examined THEN source.turnaround_hours END)
+    display_name: Median Turnaround (hours)
+    comment: Median hours from receipt to completed examination over examined presentations (SLA 24 hours).
+    synonyms: [median turnaround, turnaround, TAT, processing time, examination time, cycle time]
+    format: &hours {type: number, decimal_places: {type: max, places: 1}}
+  - name: P90 Turnaround Hours
+    expr: PERCENTILE(CASE WHEN source.is_examined THEN source.turnaround_hours END, 0.9)
+    display_name: P90 Turnaround (hours)
+    comment: 90th-percentile examination turnaround in hours (exact percentile).
+    synonyms: [P90 turnaround, 90th percentile turnaround, tail turnaround, worst-case TAT]
+    format: *hours
+  - name: SLA Hours
+    expr: MAX(source.sla_hours)
+    display_name: Examination SLA (hours)
+    comment: Examination SLA in hours (24).
+    synonyms: [SLA, SLA hours, service level, target turnaround]
+    format: *hours
+  - name: Presentations Over SLA
+    expr: COUNT(1) FILTER (WHERE source.is_over_sla)
+    display_name: Presentations Over SLA
+    comment: Examined presentations that took longer than the 24-hour SLA.
+    synonyms: [over SLA, SLA breaches, late examinations, breached presentations]
+    format: *count
+  - name: Over SLA %
+    expr: COUNT(1) FILTER (WHERE source.is_over_sla) / NULLIF(COUNT(1) FILTER (WHERE source.is_examined), 0)
+    display_name: Share Over SLA
+    comment: Share of examined presentations over the 24-hour SLA (fraction).
+    synonyms: [over SLA share, SLA breach rate, late share, SLA miss rate]
+    format: *pct
+  - name: LCs Presented
+    expr: COUNT(DISTINCT source.txn_id)
+    display_name: LCs with Presentations
+    comment: Distinct LCs with a presentation in the selection.
+    synonyms: [LCs, LCs presented, transactions, letters of credit, instruments presented]
+    format: *count
+  - name: Amendments per Transaction
+    expr: SUM(CASE WHEN source.is_first_presentation THEN source.txn_amendment_count END) / NULLIF(COUNT(DISTINCT source.txn_id), 0)
+    display_name: Amendments per Transaction
+    comment: >-
+      LC amendments per LC = amendments of the LCs (counted once, on their first presentation) / LCs presented in
+      the selection.
+    synonyms: [amendments per transaction, amendments, amendment rate, LC amendments, changes per LC]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+    caveat: An LC whose first presentation falls outside the selected months adds to the denominator only.
+  - name: Clients with Rising Discrepancy Rate
+    expr: COUNT(DISTINCT CASE WHEN source.is_client_discrepancy_rising THEN source.golden_client_id END)
+    display_name: Clients with Rising Discrepancy Rate
+    comment: Clients whose discrepancy rate rose >= 10 points from H2 FY2025 to H1 FY2026 (early-warning input).
+    synonyms: [rising discrepancy clients, deteriorating clients, early warning clients, discrepancy watch list]
+    format: *count
+validate:
+  dims: [Month, Booking Country]
+reconcile:
+  - name: discrepancy_rate_by_country_fy2026
+    measure: Discrepancy Rate %
+    by: [Booking Country]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT booking_country, count_if(is_discrepant) / count_if(is_examined) FROM ${catalog}.gold.fact_trade_document_check
+      WHERE received_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' GROUP BY 1
+  - name: median_turnaround_fy2026
+    measure: Median Turnaround Hours
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT percentile(turnaround_hours, 0.5) FROM ${catalog}.gold.fact_trade_document_check
+      WHERE is_examined AND received_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30'
+  - name: presentations_by_product
+    measure: Presentations
+    by: [Product]
+    gold: SELECT product_type, count(*) FROM ${catalog}.gold.fact_trade_document_check GROUP BY 1
+  - name: over_sla_fy2025
+    measure: Presentations Over SLA
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT count_if(is_over_sla) FROM ${catalog}.gold.fact_trade_document_check
+      WHERE received_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31'
+  - name: rising_clients
+    measure: Clients with Rising Discrepancy Rate
+    gold: SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_trade_document_check WHERE is_client_discrepancy_rising
+  - name: amendments_per_lc_all_history
+    measure: Amendments per Transaction
+    gold: >-
+      SELECT sum(CASE WHEN is_first_presentation THEN txn_amendment_count END) / count(DISTINCT txn_id)
+      FROM ${catalog}.gold.fact_trade_document_check
+glossary:
+  caveats:
+    - >-
+      Rates are over examined presentations (pending ones excluded). The rising-discrepancy flag is a client
+      attribute as of 30-Sep-2026, repeated on all its presentations.

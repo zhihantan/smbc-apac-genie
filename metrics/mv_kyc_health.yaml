@@ -1,0 +1,185 @@
+# Space 6, Client Onboarding & KYC (WP9b / WP8d). KYC health over the record_type union gold.mvb_kyc_health (D13):
+# Review Snapshot rows (KYC review x month-end with activity) and Screening rows (alerts). Overdue reviews are
+# point-in-time at month-end (window over Month, semiadditive last); due / completed reviews and screening alerts are
+# flows. "High-risk" uses the client's KYC master risk rating (Client Risk Rating), the storyline 7 definition.
+view: mv_kyc_health
+space: client_onboarding_kyc
+comment: >-
+  KYC / CDD health of SMBC APAC clients by month-end, Apr-2023 to Sep-2026: periodic, trigger and onboarding
+  reviews due, completed (on time), overdue at month-end, overdue rate, average overdue days and high-risk overdue
+  reviews (point-in-time: filter a Month; a longer period returns its last month-end), plus sanctions / PEP /
+  adverse-media screening alerts, true matches, true-match rate and resolution hours (flows, Apr-2024 on).
+  Storyline: high-risk periodic reviews overdue peaked at end-May 2026 (~3x normal) after the Feb-2026 migration.
+grain: one row per KYC review x month-end with activity, or per screening alert (gold.mvb_kyc_health)
+source: ${catalog}.gold.mvb_kyc_health
+blocks:
+  calendar: {date: source.month_end_date, grain: month, what: the review month-end or screening month}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Record Type
+    expr: source.record_type
+    display_name: Record Type
+    comment: "Row type: Review Snapshot (KYC review at a month-end) or Screening (screening alert)."
+    synonyms: [record type, row type, review or screening, data type]
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: Booking location / coverage office of the client (ISO-2), also for screening of applicants.
+    synonyms: [booking country, country, booking location, office, market, branch]
+  - name: Review Type
+    expr: source.review_type
+    display_name: Review Type
+    comment: "Review Snapshot rows: Periodic (cadence by risk), Trigger (event-driven) or Onboarding."
+    synonyms: [review type, KYC review type, periodic review, trigger review, CDD review]
+  - name: Client Risk Rating
+    expr: source.kyc_risk_rating
+    display_name: Client KYC Risk Rating (KYC master)
+    comment: >-
+      Client's KYC / AML risk rating from the KYC master (High, Medium, Low) - drives the review cadence (High
+      yearly, Medium every 2 years, Low every 3 years); "high-risk reviews" means High here.
+    synonyms: [risk rating, KYC risk, AML risk, high risk, client risk rating, CDD risk]
+  - name: Status
+    expr: source.status
+    display_name: Status
+    comment: >-
+      Review Snapshot rows: Completed (in the month), Overdue (open past due at the month-end) or Due. Screening rows:
+      disposition - False Positive - Cleared, True Match - Escalated, True Match - EDD Applied, True Match - Rejected.
+    synonyms: [status, review status, disposition, outcome, overdue status]
+  - name: List
+    expr: source.list_name
+    display_name: Screening List
+    comment: "Screening rows: list hit - UN / EU / UK HMT / US OFAC SDN sanctions, PEP Database, Adverse Media, Internal Watchlist, Local Regulator Watchlist."
+    synonyms: [list, screening list, sanctions list, watchlist, PEP list, OFAC]
+  - name: List Category
+    expr: source.list_category
+    display_name: List Category
+    comment: "Screening rows: Sanctions, PEP, Adverse Media or Watchlist."
+    synonyms: [list category, list type, sanctions or PEP, screening type]
+  - name: Screening Context
+    expr: source.screening_context
+    display_name: Screening Context
+    comment: "Screening rows: Onboarding (applicant screening) or Ongoing (periodic re-screening of clients)."
+    synonyms: [screening context, onboarding screening, ongoing screening, screening type]
+  - name: Hit Type
+    expr: source.hit_type
+    display_name: Hit Type
+    comment: "Screening rows: Exact, Alias, Fuzzy or Partial Name Match."
+    synonyms: [hit type, match type, name match, fuzzy match, alias match]
+measures:
+  - name: Reviews Due
+    expr: COUNT(1) FILTER (WHERE source.is_due_in_month)
+    display_name: Reviews Due
+    comment: KYC reviews falling due in the selected months (a flow).
+    synonyms: [reviews due, due reviews, scheduled reviews, KYC reviews due, renewals due]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Reviews Completed
+    expr: COUNT(1) FILTER (WHERE source.is_completed_in_month)
+    display_name: Reviews Completed
+    comment: KYC reviews completed in the selected months (a flow).
+    synonyms: [completed, reviews completed, closed reviews, finished reviews, refreshes done]
+    format: *count
+  - name: Completed On Time
+    expr: COUNT(1) FILTER (WHERE source.is_completed_on_time)
+    display_name: Completed On Time
+    comment: Reviews completed in the selected months on or before their due date (a flow).
+    synonyms: [on time, completed on time, timely reviews, within deadline]
+    format: *count
+  - name: Overdue
+    expr: COUNT(1) FILTER (WHERE source.is_overdue_at_month_end)
+    display_name: Overdue Reviews (month-end)
+    comment: KYC reviews due before the month-end and not completed by it (point-in-time; Is Latest Month = today).
+    synonyms: [overdue, overdue reviews, late reviews, past due reviews, KYC backlog, expired KYC]
+    format: *count
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Reviews in Scope
+    expr: COUNT(1) FILTER (WHERE source.record_type = 'Review Snapshot')
+    display_name: Reviews in Scope (month-end)
+    comment: Reviews due, completed or overdue in the month - the denominator of the overdue rate (point-in-time).
+    synonyms: [reviews in scope, active reviews, review population, open and due reviews]
+    format: *count
+    window: *eom
+  - name: Overdue Rate %
+    expr: MEASURE(`Overdue`) / NULLIF(MEASURE(`Reviews in Scope`), 0)
+    display_name: Overdue Rate
+    comment: Overdue reviews / reviews in scope at the month-end (fraction).
+    synonyms: [overdue rate, backlog rate, percent overdue, late rate]
+    format: {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Average Overdue Days
+    expr: AVG(CASE WHEN source.is_overdue_at_month_end THEN source.overdue_days_at_month_end END)
+    display_name: Average Days Overdue
+    comment: Average days past due of the reviews overdue at the month-end.
+    synonyms: [days overdue, average overdue days, ageing, how late, overdue age]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+    window: *eom
+  - name: High-Risk Overdue
+    expr: COUNT(1) FILTER (WHERE source.is_overdue_at_month_end AND source.is_high_risk)
+    display_name: High-Risk Reviews Overdue
+    comment: Reviews of High-risk clients (KYC master rating) overdue at the month-end (point-in-time).
+    synonyms: [high risk overdue, high-risk backlog, overdue high risk reviews, EDD overdue, high risk KYC overdue]
+    format: *count
+    window: *eom
+  - name: Screening Alerts
+    expr: COUNT(1) FILTER (WHERE source.is_screening_alert)
+    display_name: Screening Alerts
+    comment: Name-screening alerts raised in the selected months (a flow).
+    synonyms: [alerts, screening alerts, hits, name screening hits, sanctions alerts]
+    format: *count
+  - name: True Matches
+    expr: COUNT(1) FILTER (WHERE source.is_true_match)
+    display_name: True Matches
+    comment: Screening alerts confirmed as true matches (a flow).
+    synonyms: [true matches, confirmed hits, true positives, real matches]
+    format: *count
+  - name: Screening True Match Rate %
+    expr: MEASURE(`True Matches`) / NULLIF(MEASURE(`Screening Alerts`), 0)
+    display_name: Screening True Match Rate
+    comment: True matches / screening alerts (fraction).
+    synonyms: [true match rate, hit rate, precision, false positive rate complement, match rate]
+    format: {type: percentage, decimal_places: {type: max, places: 2}}
+  - name: Average Resolution Hours
+    expr: AVG(source.resolution_hours)
+    display_name: Average Resolution Hours
+    comment: Average hours from alert to resolution.
+    synonyms: [resolution hours, time to resolve, alert handling time, turnaround hours, TAT]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+validate:
+  dims: [Month, Record Type]
+reconcile:
+  - name: high_risk_periodic_overdue_may26
+    measure: High-Risk Overdue
+    where: "`Month` = DATE'2026-05-01' AND `Review Type` = 'Periodic'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_kyc_review_snapshot_monthly
+      WHERE month_end_date = DATE'2026-05-31' AND review_type = 'Periodic' AND is_overdue_at_month_end AND is_high_risk
+  - name: periodic_overdue_by_month_2026
+    measure: Overdue
+    by: [Month]
+    where: "`Review Type` = 'Periodic' AND `Month` >= DATE'2026-01-01'"
+    gold: >-
+      SELECT month, count(*) FROM ${catalog}.gold.fact_kyc_review_snapshot_monthly
+      WHERE review_type = 'Periodic' AND is_overdue_at_month_end AND month >= DATE'2026-01-01' GROUP BY 1
+  - name: overdue_fy2025_is_last_month_end
+    measure: Overdue
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_kyc_review_snapshot_monthly WHERE month_end_date = DATE'2026-03-31' AND is_overdue_at_month_end
+  - name: true_match_rate_by_list
+    measure: Screening True Match Rate %
+    by: [List]
+    gold: SELECT list_name, count_if(is_true_match) / count(*) FROM ${catalog}.gold.fact_screening GROUP BY 1
+  - name: resolution_hours_by_list
+    measure: Average Resolution Hours
+    by: [List]
+    gold: SELECT list_name, avg(resolution_hours) FROM ${catalog}.gold.fact_screening GROUP BY 1
+  - name: reviews_completed_fy2025
+    measure: Reviews Completed
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT count_if(is_completed_in_month) FROM ${catalog}.gold.fact_kyc_review_snapshot_monthly
+      WHERE month BETWEEN DATE'2025-04-01' AND DATE'2026-03-01'
+glossary:
+  caveats:
+    - >-
+      Overdue measures are point-in-time per month-end; grouped by country or risk without a month each group shows
+      its own last month-end. Reviews scheduled beyond Mar-2027 are not in gold.

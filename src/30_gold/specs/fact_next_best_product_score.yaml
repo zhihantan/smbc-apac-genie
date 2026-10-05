@@ -1,0 +1,56 @@
+table: fact_next_best_product_score
+domain: opportunity
+comment: >-
+  Next-best-product scores (Opportunity Identification, mv_next_best_product): the propensity (0-1) of each golden
+  client to buy each recommended product, its rank among the client's top-3 recommendations, the three main
+  drivers, the expected annual revenue and the model version, for the month-ends Apr-Sep 2026 (model NBP-3.1).
+  is_latest_score_month marks Sep-2026, the current scores. Propensity is a score: average it or rank by it,
+  never sum it; expected revenue is additive within one score month.
+grain: one row per golden client x product x score month
+primary_key: [golden_client_id, product, score_month]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [score_month], references: dim_date}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [owner_rm_id], references: dim_employee}
+cluster_by: [score_month, golden_client_sk]
+min_rows: 10000
+columns:
+  score_date: {type: DATE, comment: "Month-end date the model scored the client (e.g. 2026-09-30)."}
+  score_month: {type: DATE, comment: "First day of the scoring month."}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_quarter_label: {type: STRING}
+  is_latest_score_month: {type: BOOLEAN, comment: "True for the latest scoring run (Sep-2026) - use for current recommendations."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  crm_account_id: {type: STRING, comment: "CRM account whose score is kept (the best-scoring one when the client has several)."}
+  n_crm_accounts: {type: BIGINT, comment: "CRM accounts of the client that received a score for the product that month."}
+  product: {type: STRING, comment: "Recommended product (CRM sales product), e.g. Supply Chain Finance, Cash Management Mandate, Term Loan."}
+  product_id: {type: STRING}
+  product_family: {type: STRING}
+  propensity: {type: DOUBLE, comment: "Propensity to buy 0-1 (model score) - average or rank, never sum."}
+  propensity_rank: {type: INT, comment: "Rank of the product among the client's recommendations that month (1 = next best product)."}
+  is_top_ranked: {type: BOOLEAN, comment: "True when the product is the client's rank-1 next best product."}
+  is_high_propensity: {type: BOOLEAN, comment: "True when propensity >= 0.7 (dim_threshold NBP_HIGH_PROPENSITY) - Clients With Score >= 0.7."}
+  propensity_band: {type: STRING, comment: "High (>= 0.7), Medium (0.4-0.7) or Low (< 0.4)."}
+  top_drivers: {type: STRING, comment: "Main model drivers (one to three) as ' | '-separated text, e.g. Trade corridor CN->VN up 50% YoY | SCF anchor candidate | Supplier spend."}
+  driver_1: {type: STRING, comment: "Main driver of the score."}
+  driver_2: {type: STRING, comment: "Second driver; null when the model reported only one."}
+  driver_3: {type: STRING, comment: "Third driver; null when the model reported fewer than three."}
+  expected_revenue_usd: {type: DOUBLE, comment: "Expected annual revenue in USD if the product is sold."}
+  propensity_weighted_revenue_usd: {type: DOUBLE, comment: "expected_revenue_usd x propensity in USD."}
+  model_version: {type: STRING, comment: "Scoring model version (NBP-3.1)."}
+  owner_rm_code: {type: STRING, comment: "CRM code of the client's RM."}
+  owner_rm_id: {type: STRING, comment: "Employee id of the client's RM; join to gold.dim_employee."}
+  client_holds_product_family: {type: BOOLEAN, comment: "True when the client already holds a product of the family at that month-end (deepen); false = cross-sell into a new family."}
+checks:
+  - name: kinokawa_scf_rank1_latest
+    sql: >-
+      SELECT CASE WHEN count(*) BETWEEN 1 AND 9 THEN 0 ELSE 1 END FROM ${table}
+      WHERE client_group_id = 'SYN-G-0001' AND is_latest_score_month AND is_top_ranked AND product_family = 'Supply Chain Finance'
+reconcile:
+  - name: golden_rows_vs_silver
+    silver: SELECT count(*) FROM (SELECT DISTINCT golden_client_id, product, score_month FROM ${catalog}.silver.crm_nbp_score)

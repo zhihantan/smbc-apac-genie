@@ -1,0 +1,22 @@
+table: dim_industry
+domain: hub
+comment: >-
+  APAC industry taxonomy: sector and subsector with the ratio-benchmarking peer group, the carbon-intensive
+  flag (coal, oil and gas, petrochemicals, steel, chemicals, mining, shipping, power ...) and the
+  sector concentration limit. dim_client.industry_sector / industry_subsector reference it.
+grain: one row per industry subsector
+primary_key: [industry_sector, industry_subsector]
+foreign_keys:
+  - {columns: [peer_group_id], references: dim_peer_group}
+cluster_by: [industry_sector]
+min_rows: 40
+columns:
+  industry_sector: {type: STRING}
+  industry_subsector: {type: STRING}
+  peer_group_id: {type: STRING}
+  is_carbon_intensive: {type: BOOLEAN, comment: True for carbon-intensive (transition-risk) subsectors.}
+  sector_limit_usd: {type: DOUBLE, comment: Portfolio concentration limit for the subsector in USD.}
+  industry_label: {type: STRING, comment: "Sector - subsector label, e.g. Technology - Semiconductors."}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ref_industry_peer

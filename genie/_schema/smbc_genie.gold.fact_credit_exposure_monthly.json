@@ -1,0 +1,253 @@
+{
+ "columns": [
+  {
+   "comment": "Credit facility (FAC-nnnnnn); join to fact_facility_terms for its terms.",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end snapshot date (30-Sep-2026 = latest).",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the calendar month the row belongs to (monthly grain).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Credit obligor record of the borrower.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Facility type, e.g. Term Loan, Revolving Credit Facility, Overdraft.",
+   "is_measure": false,
+   "name": "facility_type",
+   "type": "string"
+  },
+  {
+   "comment": "Product key of the facility type; join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Facility currency (ISO 4217) of drawn_lcy.",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Committed limit at the month-end, USD.",
+   "is_measure": false,
+   "name": "limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn (outstanding) balance at the month-end, USD - funded exposure.",
+   "is_measure": false,
+   "name": "drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn balance at the month-end in facility currency.",
+   "is_measure": false,
+   "name": "drawn_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Undrawn commitment (limit - drawn, floored at 0), USD.",
+   "is_measure": false,
+   "name": "undrawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn / limit at the month-end as a fraction (0.95 = 95%).",
+   "is_measure": false,
+   "name": "utilisation_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Exposure at default, USD (allocated from the obligor's EAD; null before Apr-2024).",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Risk-weighted assets, USD (EAD x risk weight; allocated; null before Apr-2024).",
+   "is_measure": false,
+   "name": "rwa_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Obligor risk weight applied to EAD (fraction, e.g. 0.75).",
+   "is_measure": false,
+   "name": "risk_weight",
+   "type": "double"
+  },
+  {
+   "comment": "Credit conversion factor applied to undrawn commitments (fraction).",
+   "is_measure": false,
+   "name": "ccf",
+   "type": "double"
+  },
+  {
+   "comment": "Obligor 12-month probability of default (fraction).",
+   "is_measure": false,
+   "name": "pd_12m",
+   "type": "double"
+  },
+  {
+   "comment": "Obligor lifetime probability of default (fraction).",
+   "is_measure": false,
+   "name": "pd_lifetime",
+   "type": "double"
+  },
+  {
+   "comment": "Loss given default (fraction).",
+   "is_measure": false,
+   "name": "lgd",
+   "type": "double"
+  },
+  {
+   "comment": "12-month expected credit loss, USD (allocated).",
+   "is_measure": false,
+   "name": "ecl_12m_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Lifetime expected credit loss, USD (allocated).",
+   "is_measure": false,
+   "name": "ecl_lifetime_usd",
+   "type": "double"
+  },
+  {
+   "comment": "IFRS 9 ECL provision held, USD: 12-month ECL in Stage 1, lifetime ECL in Stages 2 and 3 (allocated).",
+   "is_measure": false,
+   "name": "ecl_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Change in the ECL provision vs the previous month, USD (positive = provision build).",
+   "is_measure": false,
+   "name": "ecl_change_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Share of the obligor's EAD / RWA / ECL allocated to this facility (0-1; shares of an obligor's facilities sum to 1 per month).",
+   "is_measure": false,
+   "name": "allocation_share",
+   "type": "double"
+  },
+  {
+   "comment": "IFRS 9 stage of the obligor at the month-end: 1, 2 or 3 (null before Apr-2024).",
+   "is_measure": false,
+   "name": "ifrs9_stage",
+   "type": "int"
+  },
+  {
+   "comment": "Internal rating grade of the obligor at the month-end (1 best .. 10 default).",
+   "is_measure": false,
+   "name": "internal_grade",
+   "type": "int"
+  },
+  {
+   "comment": "External-scale equivalent of the internal grade.",
+   "is_measure": false,
+   "name": "rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "Days past due on the month-end day (0 = current).",
+   "is_measure": false,
+   "name": "days_past_due",
+   "type": "int"
+  },
+  {
+   "comment": "Highest days past due seen during the month.",
+   "is_measure": false,
+   "name": "dpd_max_in_month",
+   "type": "int"
+  },
+  {
+   "comment": "DPD bucket at the month-end: Current, 1-29, 30-59, 60-89 or 90+.",
+   "is_measure": false,
+   "name": "dpd_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Amount overdue on the month-end day, USD (0 when current).",
+   "is_measure": false,
+   "name": "overdue_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when past due at the month-end (facilities overdue).",
+   "is_measure": false,
+   "name": "is_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when 30 or more days past due at the month-end (numerator of the 30+ DPD rate).",
+   "is_measure": false,
+   "name": "is_30_plus_dpd",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when more than 90 days past due at the month-end (default).",
+   "is_measure": false,
+   "name": "is_90_plus_dpd",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the facility was past due at the previous month-end.",
+   "is_measure": false,
+   "name": "was_overdue_prior_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the facility was past due on any day of the month (denominator of the cure rate).",
+   "is_measure": false,
+   "name": "in_arrears_during_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when an arrears episode of the facility was cured (arrears cleared) during the month.",
+   "is_measure": false,
+   "name": "is_cured_in_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when EAD / RWA / ECL are available for the month (from Apr-2024).",
+   "is_measure": false,
+   "name": "has_capital_measures",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Month-end credit exposure and delinquency per facility (brief 5.4 delinquency, PLAN 7), Apr-2023 to Sep-2026: limit, drawn, undrawn and utilisation; EAD, RWA, risk weight, PD / LGD and IFRS 9 ECL (12-month, lifetime and the stage-based provision ecl_usd, from Apr-2024; obligor values allocated to facilities pro rata to facility EAD so client and group totals are exact); IFRS 9 stage and internal grade; days past due and DPD bucket at the month-end (Current, 1-29, 30-59, 60-89, 90+), overdue amount, 30+ / 90+ DPD flags and the cure flags. Point-in-time snapshot: sum balances across facilities / clients for one month-end, never across months. 30+ DPD rate = SUM(drawn_usd where is_30_plus_dpd) / SUM(drawn_usd) (or facility counts); cure rate = facilities with is_cured_in_month / facilities with in_arrears_during_month. Grain: one row per facility x month-end.",
+ "identifier": "smbc_genie.gold.fact_credit_exposure_monthly",
+ "type": "MANAGED"
+}

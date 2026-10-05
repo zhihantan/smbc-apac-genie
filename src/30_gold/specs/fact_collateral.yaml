@@ -1,0 +1,47 @@
+table: fact_collateral
+domain: credit
+comment: >-
+  Collateral held against credit facilities (credit memo pack, brief 5.3): one row per collateral item with
+  type, appraised value (USD), loan-to-value, last valuation date and its age at 30-Sep-2026, and the review
+  flags LTV above 70% and valuation older than 24 months (dim_threshold LTV_HIGH / VALUATION_STALE_MONTHS),
+  plus the secured facility's type, status, limit and current drawn balance. Current snapshot (valuations
+  as last recorded).
+grain: one row per collateral item
+primary_key: [collateral_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [last_valuation_date], references: dim_date}
+cluster_by: [last_valuation_date, golden_client_sk]
+min_rows: 1000
+columns:
+  collateral_id: {type: STRING, comment: "Collateral item id (COL-nnnnnn)."}
+  facility_id: {type: STRING, comment: "Facility the collateral secures (FAC-nnnnnn); join to fact_facility_terms."}
+  obligor_id: {type: STRING, comment: "Credit-system obligor id of the borrower."}
+  golden_client_sk: {type: BIGINT, comment: "Current dim_client version of the borrower (current snapshot)."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  as_of_date: {type: DATE, comment: "Snapshot date the valuation age and flags are measured at (30-Sep-2026)."}
+  collateral_type: {type: STRING, comment: "Collateral type: Cash, Receivables, Inventory, Fixed Assets or Real Estate."}
+  appraised_value_usd: {type: DOUBLE, comment: "Appraised (market) value of the collateral at the last valuation, USD."}
+  ltv_pct: {type: DOUBLE, comment: "Loan-to-value as a fraction (0.72 = 72%): facility exposure / collateral value at the last valuation."}
+  last_valuation_date: {type: DATE, comment: "Date of the last collateral valuation."}
+  valuation_age_months: {type: INT, comment: "Whole months between the last valuation and the as-of date."}
+  is_valuation_stale: {type: BOOLEAN, comment: "True when the last valuation is older than 24 months at the as-of date (dim_threshold VALUATION_STALE_MONTHS)."}
+  is_high_ltv: {type: BOOLEAN, comment: "True when LTV is above 70% (dim_threshold LTV_HIGH)."}
+  needs_collateral_review: {type: BOOLEAN, comment: "True when LTV is above 70% or the valuation is older than 24 months."}
+  facility_type: {type: STRING, comment: "Type of the secured facility (e.g. Term Loan, Revolving Credit Facility)."}
+  facility_status: {type: STRING, comment: "Status of the secured facility: Active, Matured or Prepaid."}
+  is_facility_active: {type: BOOLEAN, comment: "True when the secured facility is active at the as-of date."}
+  security_type: {type: STRING, comment: "Security type recorded on the facility terms (Cash, Receivables, Inventory, Fixed Assets, Real Estate)."}
+  facility_limit_usd: {type: DOUBLE, comment: "Committed limit of the secured facility, USD (repeats per collateral item; do not sum across items of one facility)."}
+  facility_drawn_usd: {type: DOUBLE, comment: "Drawn balance of the secured facility at the as-of month-end, USD (repeats per collateral item)."}
+checks:
+  - name: flags_defined
+    sql: SELECT count_if(is_high_ltv IS NULL OR is_valuation_stale IS NULL) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_collateral
+  - name: collateral_value_vs_silver
+    gold: SELECT round(sum(appraised_value_usd) / 1e6) FROM ${table}
+    silver: SELECT round(sum(appraised_value_usd) / 1e6) FROM ${catalog}.silver.credit_collateral

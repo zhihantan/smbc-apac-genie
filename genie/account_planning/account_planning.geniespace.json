@@ -1,0 +1,1902 @@
+{
+  "title": "APAC Genie - Account Planning",
+  "description": "Ask about account plans, relationship footprint, global group relationships and RM engagement for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "856c4e37c249823e94f7db4e00000000",
+          "question": [
+            "Give me the account-plan status for the Kinokawa Precision group: FY2026 target vs H1 actual by product family, and the full-year run-rate."
+          ]
+        },
+        {
+          "id": "856c4e37c249823e94f7db4e00000001",
+          "question": [
+            "Which Strategic-tier groups are below 40% plan attainment at H1, by coverage office and RM?"
+          ]
+        },
+        {
+          "id": "856c4e37c249823e94f7db4e00000002",
+          "question": [
+            "Show the global relationship with Hayashi Marine Logistics - exposure, deposits and revenue by region including Japan, EMEA and Americas."
+          ]
+        },
+        {
+          "id": "856c4e37c249823e94f7db4e00000003",
+          "question": [
+            "Which Tanaka Chemical entities hold nothing but deposits with us?"
+          ]
+        },
+        {
+          "id": "856c4e37c249823e94f7db4e00000004",
+          "question": [
+            "Where is our share of wallet lowest by segment and product family in FY2025?"
+          ]
+        },
+        {
+          "id": "856c4e37c249823e94f7db4e00000005",
+          "question": [
+            "Which Strategic clients have had no RM contact in the last 90 days?"
+          ]
+        },
+        {
+          "id": "856c4e37c249823e94f7db4e00000006",
+          "question": [
+            "RM book summary: for each RM in Singapore, number of groups, revenue YTD and attainment."
+          ]
+        },
+        {
+          "id": "856c4e37c249823e94f7db4e00000007",
+          "question": [
+            "List account-plan initiatives still open for Q3 FY2026 by RM."
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_account_plan_initiative",
+          "column_configs": [
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "created_date",
+              "exclude": true
+            },
+            {
+              "column_name": "crm_account_id",
+              "exclude": true
+            },
+            {
+              "column_name": "due_fiscal_half_label",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "due_fiscal_quarter_label",
+              "synonyms": [
+                "due quarter",
+                "quarter due",
+                "Q3 FY2026",
+                "target quarter"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "fiscal_year",
+              "exclude": true
+            },
+            {
+              "column_name": "fiscal_year_label",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "initiative_description",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "initiative_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "initiative_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "linked_opportunity_id",
+              "exclude": true
+            },
+            {
+              "column_name": "owner_employee_id",
+              "exclude": true
+            },
+            {
+              "column_name": "owner_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "owner_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "owner_rm_employee_id",
+              "exclude": true
+            },
+            {
+              "column_name": "owner_rm_name",
+              "synonyms": [
+                "RM",
+                "relationship manager",
+                "account RM",
+                "plan RM",
+                "by RM"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "plan_id",
+              "exclude": true
+            },
+            {
+              "column_name": "priority",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "product_family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_carbon_intensive",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "next_best_product_propensity",
+              "exclude": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_other_bank_share_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "exclude": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "time_deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_outstanding_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_account_plan_progress",
+          "column_configs": [
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Lead Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Plan Owner RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Plan Owner RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Plan Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Top Competitor Bank",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_global_group_relationship",
+          "column_configs": [
+            {
+              "column_name": "Booking Entity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Entity",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Entity Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Lead Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Region",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_relationship_footprint",
+          "column_configs": [
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Business Line",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_rm_engagement",
+          "column_configs": [
+            {
+              "column_name": "Activity Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Contact Role",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Purpose",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Record Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "0d575a3b4881506bdb821de000000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Plan targets, attainment, run-rate, revenue YoY, wallet / share of wallet and initiative counts: mv_account_plan_progress (group x fiscal year x product family). Filter ONE `Fiscal Year`; FY2026 actuals are H1 (Apr-Sep 2026), so attainment near 50% is on track and `Attainment %` < 0.40 is behind plan.\n",
+            "- Products held, deposit-only entities, drawn lending, deposits: mv_relationship_footprint. Exposure, deposits and revenue by region (APAC, JP, EMEA, AMER): mv_global_group_relationship. RM activities and contact gaps: mv_rm_engagement. These are point-in-time: filter `Is Latest Month` for today (Sep-2026).\n",
+            "- `Client Group` has a value dictionary: filter it with = on the exact group name ('Tanaka Chemical' and 'Tanaka Chemical Group' are different groups). Use LIKE only for entity (`Client`) names.\n",
+            "- Questions about entities or subsidiaries (which entities hold only deposits, which clients were not contacted) list `Client` (legal entity) with its `Client Group`; a group question lists `Client Group`.\n",
+            "- RMs: 'by RM' = `Primary RM` (the group lead RM; `Plan Owner RM` in plan lists); 'RMs in Singapore / Hong Kong' = `Primary RM Office` = 'SG' / 'HK' (where the RM sits, not the client's `Coverage Office`).\n",
+            "- 'No RM contact in 90 days' = `Strategic Clients Not Touched 90D` (Strategic) or `Clients Not Touched 90D` on `Is Latest Month`: CRM-covered clients only; `Strategic Entities Without CRM` counts Strategic-tier entities with no CRM account at all.\n",
+            "- Initiative detail (name, status, due quarter, owner RM): gold.dim_account_plan_initiative with is_open, is_overdue and due_fiscal_quarter_label (e.g. 'FY2026-Q3'); per-group / per-RM counts: `Initiatives Open`, `Initiatives Overdue`.\n",
+            "- `Revenue YoY %` is like for like: FY2026 = H1 FY2026 vs H1 FY2025. Share of wallet: `Share of Wallet %` with `Estimated Wallet USD` > 0; 'where is it lowest' = ascending order.\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "7ffe15248b31917d20b336de00000000",
+          "question": [
+            "Global relationship with :client_group by region - entities, committed, drawn, deposits and revenue 12M (including Japan, EMEA and Americas)"
+          ],
+          "sql": [
+            "SELECT `Region`,\n",
+            "       MEASURE(`Entity Count`)           AS entities,\n",
+            "       MEASURE(`Global Committed USD`)   AS committed_usd,\n",
+            "       MEASURE(`Global Drawn USD`)       AS drawn_usd,\n",
+            "       MEASURE(`Global Deposits USD`)    AS deposits_usd,\n",
+            "       MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd\n",
+            "FROM smbc_genie.metrics.mv_global_group_relationship\n",
+            "WHERE `Client Group` = :client_group AND `Is Latest Month`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Region`"
+          ],
+          "parameters": [
+            {
+              "name": "client_group",
+              "type_hint": "STRING",
+              "description": [
+                "Exact client group name (value dictionary), e.g. Hayashi Marine Logistics"
+              ],
+              "default_value": {
+                "values": [
+                  "Hayashi Marine Logistics"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"global relationship / global exposure of <group>\", \"by region including Japan, EMEA and Americas\", \"JP parent exposure\", \"how big is <group> worldwide\"."
+          ]
+        },
+        {
+          "id": "7ffe15248b31917d20b336de00000001",
+          "question": [
+            "Which :relationship_tier tier groups are below 40% plan attainment at H1 of :fiscal_year, by coverage office and RM?"
+          ],
+          "sql": [
+            "SELECT `Coverage Office`, `Plan Owner RM`, `Client Group`,\n",
+            "       MEASURE(`Attainment %`)           AS attainment_h1,\n",
+            "       MEASURE(`Revenue Actual YTD USD`) AS revenue_h1_usd,\n",
+            "       MEASURE(`Effective Target USD`)   AS target_usd\n",
+            "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+            "WHERE `Fiscal Year` = :fiscal_year AND `Relationship Tier` = :relationship_tier\n",
+            "GROUP BY ALL\n",
+            "HAVING MEASURE(`Attainment %`) < 0.40\n",
+            "ORDER BY attainment_h1"
+          ],
+          "parameters": [
+            {
+              "name": "relationship_tier",
+              "type_hint": "STRING",
+              "description": [
+                "Relationship tier: Strategic, Core or Transactional"
+              ],
+              "default_value": {
+                "values": [
+                  "Strategic"
+                ]
+              }
+            },
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal-year label, e.g. FY2026"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"groups behind plan\", \"below 40% attainment\", \"laggards vs plan at H1 / half-year\", \"under-achieving Strategic relationships\"."
+          ]
+        },
+        {
+          "id": "7ffe15248b31917d20b336de00000002",
+          "question": [
+            "What products does the :client_group group hold with us across APAC today, by product family and product?"
+          ],
+          "sql": [
+            "SELECT `Product Family`, `Product`,\n",
+            "       MEASURE(`Product Holdings`)  AS entities_holding,\n",
+            "       MEASURE(`Deposits USD`)      AS deposits_usd,\n",
+            "       MEASURE(`Lending Drawn USD`) AS lending_drawn_usd,\n",
+            "       MEASURE(`TB Volume 12M USD`) AS tb_volume_12m_usd\n",
+            "FROM smbc_genie.metrics.mv_relationship_footprint\n",
+            "WHERE `Client Group` = :client_group AND `Is Latest Month` AND `Is Active Product`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Product Family`, `Product`"
+          ],
+          "parameters": [
+            {
+              "name": "client_group",
+              "type_hint": "STRING",
+              "description": [
+                "Exact client group name (value dictionary), e.g. Tanaka Chemical"
+              ],
+              "default_value": {
+                "values": [
+                  "Tanaka Chemical"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"what products does <group> hold\", \"product footprint / product mix of <group>\", \"products held across APAC\"."
+          ]
+        },
+        {
+          "id": "7ffe15248b31917d20b336de00000003",
+          "question": [
+            "Which :segment groups grew revenue more than 20% YoY and which fell more than 15% in :fiscal_year? Break down by product family."
+          ],
+          "sql": [
+            "WITH g AS (\n",
+            "  SELECT `Client Group`, MEASURE(`Revenue YoY %`) AS group_yoy\n",
+            "  FROM smbc_genie.metrics.mv_account_plan_progress\n",
+            "  WHERE `Fiscal Year` = :fiscal_year AND `Segment` = :segment\n",
+            "  GROUP BY ALL\n",
+            "  HAVING MEASURE(`Revenue YoY %`) > 0.20 OR MEASURE(`Revenue YoY %`) < -0.15\n",
+            "), f AS (\n",
+            "  SELECT `Client Group`, `Product Family`,\n",
+            "         MEASURE(`Revenue YTD Comparable USD`) AS revenue_h1_fy2026_usd,\n",
+            "         MEASURE(`Revenue Prior YTD USD`)      AS revenue_h1_fy2025_usd,\n",
+            "         MEASURE(`Revenue YoY %`)              AS family_yoy\n",
+            "  FROM smbc_genie.metrics.mv_account_plan_progress\n",
+            "  WHERE `Fiscal Year` = :fiscal_year AND `Segment` = :segment\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT CASE WHEN g.group_yoy > 0.20 THEN 'Grew > 20%' ELSE 'Fell > 15%' END AS bucket,\n",
+            "       g.`Client Group` AS client_group, g.group_yoy, f.`Product Family` AS product_family,\n",
+            "       f.revenue_h1_fy2026_usd, f.revenue_h1_fy2025_usd, f.family_yoy\n",
+            "FROM g JOIN f ON f.`Client Group` = g.`Client Group`\n",
+            "WHERE f.revenue_h1_fy2025_usd IS NOT NULL\n",
+            "ORDER BY bucket, g.group_yoy, product_family"
+          ],
+          "parameters": [
+            {
+              "name": "segment",
+              "type_hint": "STRING",
+              "description": [
+                "Client segment, e.g. Japanese Corporate"
+              ],
+              "default_value": {
+                "values": [
+                  "Japanese Corporate"
+                ]
+              }
+            },
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal-year label, e.g. FY2026"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"groups growing > 20% / falling > 15% year on year\", \"revenue movers by product\", \"YoY winners and losers\"; YoY is H1 FY2026 vs H1 FY2025 like for like."
+          ]
+        },
+        {
+          "id": "7ffe15248b31917d20b336de00000004",
+          "question": [
+            "For groups where APAC is less than 20% of global group revenue, what is the APAC product footprint vs the rest of the group as of :month?"
+          ],
+          "sql": [
+            "WITH s AS (\n",
+            "  SELECT `Client Group`, MEASURE(`APAC Share of Group Revenue %`) AS apac_share\n",
+            "  FROM smbc_genie.metrics.mv_global_group_relationship\n",
+            "  WHERE `Month` = :month\n",
+            "  GROUP BY ALL\n",
+            "  HAVING MEASURE(`APAC Share of Group Revenue %`) < 0.20\n",
+            "), f AS (\n",
+            "  SELECT `Client Group`, `Region`, `Product Family`,\n",
+            "         MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd,\n",
+            "         MEASURE(`Global Drawn USD`)       AS drawn_usd,\n",
+            "         MEASURE(`Global Deposits USD`)    AS deposits_usd\n",
+            "  FROM smbc_genie.metrics.mv_global_group_relationship\n",
+            "  WHERE `Month` = :month\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT CASE WHEN f.`Region` = 'APAC' THEN 'APAC' ELSE 'Rest of group' END AS scope,\n",
+            "       f.`Product Family` AS product_family,\n",
+            "       count(DISTINCT f.`Client Group`) AS groups, sum(f.revenue_12m_usd) AS revenue_12m_usd,\n",
+            "       sum(f.drawn_usd) AS drawn_usd, sum(f.deposits_usd) AS deposits_usd\n",
+            "FROM f JOIN s ON s.`Client Group` = f.`Client Group`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY scope, revenue_12m_usd DESC"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Month-end as the first day of the month; today = 2026-09-01"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"groups where APAC is a small share of the global relationship\", \"APAC footprint vs rest of group\", \"APAC share of group revenue below 20%\"."
+          ]
+        },
+        {
+          "id": "7ffe15248b31917d20b336de00000005",
+          "question": [
+            "Account-plan initiatives still open and due in :due_quarter by RM, with each RM's open and overdue initiatives for :fiscal_year"
+          ],
+          "sql": [
+            "WITH d AS (\n",
+            "  SELECT owner_rm_name, count(*) AS open_initiatives_due_q3, sum(target_revenue_usd) AS target_revenue_usd\n",
+            "  FROM smbc_genie.gold.dim_account_plan_initiative\n",
+            "  WHERE is_open AND due_fiscal_quarter_label = :due_quarter\n",
+            "  GROUP BY 1\n",
+            "), v AS (\n",
+            "  SELECT `Plan Owner RM`, MEASURE(`Initiatives Open`) AS open_initiatives_fy2026,\n",
+            "         MEASURE(`Initiatives Overdue`) AS overdue_initiatives_fy2026\n",
+            "  FROM smbc_genie.metrics.mv_account_plan_progress\n",
+            "  WHERE `Fiscal Year` = :fiscal_year\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT d.owner_rm_name AS rm, d.open_initiatives_due_q3, d.target_revenue_usd,\n",
+            "       v.open_initiatives_fy2026, v.overdue_initiatives_fy2026\n",
+            "FROM d LEFT JOIN v ON v.`Plan Owner RM` = d.owner_rm_name\n",
+            "ORDER BY d.open_initiatives_due_q3 DESC, rm"
+          ],
+          "parameters": [
+            {
+              "name": "due_quarter",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal quarter label of the due date, e.g. FY2026-Q3 (Oct-Dec 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-Q3"
+                ]
+              }
+            },
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Plan fiscal-year label, e.g. FY2026"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"open initiatives for Q3 FY2026 by RM\", \"account-plan actions due next quarter\", \"initiative backlog per RM\"; joins the initiative detail table with the plan view (CTE per source)."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "b8e44056e1b34f42e7fd456c00000000",
+          "identifier": "smbc_genie.gold.fn_account_plan_status"
+        },
+        {
+          "id": "b8e44056e1b34f42e7fd456c00000001",
+          "identifier": "smbc_genie.gold.fn_account_plan_footprint"
+        },
+        {
+          "id": "b8e44056e1b34f42e7fd456c00000002",
+          "identifier": "smbc_genie.gold.fn_account_plan_rm_book"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "6431457b48f22961b1e3272300000000",
+          "question": [
+            "Give me the account-plan status for the Kinokawa Precision group: FY2026 target vs H1 actual by product family, and the full-year run-rate (original, revised and in-force targets, H1 actual, run-rate and attainment)."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Product Family`,\n",
+                "       MEASURE(`Revenue Target USD`)     AS original_target_usd,\n",
+                "       MEASURE(`Revised Target USD`)     AS revised_target_usd,\n",
+                "       MEASURE(`Effective Target USD`)   AS target_in_force_usd,\n",
+                "       MEASURE(`Revenue Actual YTD USD`) AS h1_actual_usd,\n",
+                "       MEASURE(`Run-Rate Full-Year USD`) AS full_year_run_rate_usd,\n",
+                "       MEASURE(`Attainment %`)           AS attainment\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Client Group` = 'Kinokawa Precision' AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Product Family`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000001",
+          "question": [
+            "how is kinokawa precision tracking against its account plan this year?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Product Family`, MEASURE(`Revenue Actual YTD USD`) AS h1_actual_usd, MEASURE(`Attainment %`) AS attainment\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Client Group` = 'Kinokawa Precision' AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000002",
+          "question": [
+            "Kinokawa Precision FY26 plan vs H1 actual and run-rate by product family"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Product Family`, MEASURE(`Revenue Actual YTD USD`) AS h1_actual_usd, MEASURE(`Run-Rate Full-Year USD`) AS full_year_run_rate_usd\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Client Group` = 'Kinokawa Precision' AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000003",
+          "question": [
+            "Which Strategic-tier groups are below 40% plan attainment at H1 FY2026, by coverage office and RM? Show attainment, H1 revenue and the target in force."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Coverage Office`, `Plan Owner RM`, `Client Group`,\n",
+                "       MEASURE(`Attainment %`)              AS attainment_h1,\n",
+                "       MEASURE(`Revenue Actual YTD USD`)    AS revenue_h1_usd,\n",
+                "       MEASURE(`Effective Target USD`)      AS target_usd\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Relationship Tier` = 'Strategic'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Attainment %`) < 0.40\n",
+                "ORDER BY attainment_h1"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000004",
+          "question": [
+            "Strategic names running below 40% of plan at the half-year - by office and plan RM, with attainment, H1 revenue and target"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Coverage Office`, `Plan Owner RM`, `Client Group`,\n",
+                "       MEASURE(`Attainment %`)              AS attainment_h1,\n",
+                "       MEASURE(`Revenue Actual YTD USD`)    AS revenue_h1_usd,\n",
+                "       MEASURE(`Effective Target USD`)      AS target_usd\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Relationship Tier` = 'Strategic'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Attainment %`) < 0.40\n",
+                "ORDER BY attainment_h1"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000005",
+          "question": [
+            "Which Tanaka Chemical group entities hold nothing but deposits with us? For each entity show its coverage office, products held today, whether it is deposit-only, deposits and drawn lending."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Coverage Office`,\n",
+                "       MEASURE(`Products Held`)         AS products_held,\n",
+                "       MEASURE(`Deposit-Only Entities`) AS deposit_only_entity,\n",
+                "       MEASURE(`Deposits USD`)          AS deposits_usd,\n",
+                "       MEASURE(`Lending Drawn USD`)     AS lending_drawn_usd\n",
+                "FROM smbc_genie.metrics.mv_relationship_footprint\n",
+                "WHERE `Client Group` = 'Tanaka Chemical' AND `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Client`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000006",
+          "question": [
+            "What products does the Tanaka Chemical group hold with us across APAC today, by product family and product? Show the number of entities holding each, deposits, drawn lending and 12-month TB volume."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Product Family`, `Product`,\n",
+                "       MEASURE(`Product Holdings`) AS entities_holding,\n",
+                "       MEASURE(`Deposits USD`)     AS deposits_usd,\n",
+                "       MEASURE(`Lending Drawn USD`) AS lending_drawn_usd,\n",
+                "       MEASURE(`TB Volume 12M USD`) AS tb_volume_12m_usd\n",
+                "FROM smbc_genie.metrics.mv_relationship_footprint\n",
+                "WHERE `Client Group` = 'Tanaka Chemical' AND `Is Latest Month` AND `Is Active Product`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Product Family`, `Product`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000007",
+          "question": [
+            "Show the global relationship with Hayashi Marine Logistics - entities, committed, drawn exposure, deposits and 12-month revenue by region including Japan, EMEA and Americas."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Region`,\n",
+                "       MEASURE(`Entity Count`)           AS entities,\n",
+                "       MEASURE(`Global Committed USD`)   AS committed_usd,\n",
+                "       MEASURE(`Global Drawn USD`)       AS drawn_usd,\n",
+                "       MEASURE(`Global Deposits USD`)    AS deposits_usd,\n",
+                "       MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd\n",
+                "FROM smbc_genie.metrics.mv_global_group_relationship\n",
+                "WHERE `Client Group` = 'Hayashi Marine Logistics' AND `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Region`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000008",
+          "question": [
+            "global relationshp with Hayashi Marine Logistcs by region incl Japan, EMEA and Americas"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Region`, MEASURE(`Global Deposits USD`) AS deposits_usd, MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd\n",
+                "FROM smbc_genie.metrics.mv_global_group_relationship\n",
+                "WHERE `Client Group` = 'Hayashi Marine Logistics' AND `Is Latest Month`\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000009",
+          "question": [
+            "Our share of wallet by segment and product family in FY2025 - where is it lowest? Show the 10 lowest segment and product-family combinations with their estimated wallet."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Segment`, `Product Family`,\n",
+                "       MEASURE(`Estimated Wallet USD`) AS wallet_usd,\n",
+                "       MEASURE(`Share of Wallet %`)    AS share_of_wallet\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Fiscal Year` = 'FY2025'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Estimated Wallet USD`) > 0\n",
+                "ORDER BY share_of_wallet ASC\n",
+                "LIMIT 10"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e327230000000a",
+          "question": [
+            "FY25 SoW by segment x product family - bottom 10 with wallet size"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Segment`, `Product Family`,\n",
+                "       MEASURE(`Estimated Wallet USD`) AS wallet_usd,\n",
+                "       MEASURE(`Share of Wallet %`)    AS share_of_wallet\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Fiscal Year` = 'FY2025'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Estimated Wallet USD`) > 0\n",
+                "ORDER BY share_of_wallet ASC\n",
+                "LIMIT 10"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e327230000000b",
+          "question": [
+            "Which Strategic clients have had no RM contact in the last 90 days? List each legal entity with its group, primary RM and days since the last contact."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Client Group`, `Primary RM`,\n",
+                "       MEASURE(`Average Days Since Last Contact`) AS days_since_last_contact\n",
+                "FROM smbc_genie.metrics.mv_rm_engagement\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Strategic Clients Not Touched 90D`) > 0\n",
+                "ORDER BY days_since_last_contact DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e327230000000c",
+          "question": [
+            "How many Strategic clients have had no RM contact in 90 days, how many Strategic-tier entities have no CRM account at all, and how many CRM clients in total have not been contacted in 90 days?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Strategic Clients Not Touched 90D`) AS strategic_crm_clients_not_touched_90d,\n",
+                "       MEASURE(`Strategic Entities Without CRM`)    AS strategic_entities_without_crm_account,\n",
+                "       MEASURE(`Clients Not Touched 90D`)           AS crm_clients_not_touched_90d\n",
+                "FROM smbc_genie.metrics.mv_rm_engagement\n",
+                "WHERE `Is Latest Month`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e327230000000d",
+          "question": [
+            "RM book summary: for each RM in Singapore, the number of groups, revenue YTD and attainment."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Primary RM`,\n",
+                "       MEASURE(`Groups`)                 AS groups,\n",
+                "       MEASURE(`Revenue Actual YTD USD`) AS revenue_ytd_usd,\n",
+                "       MEASURE(`Attainment %`)           AS attainment\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Primary RM Office` = 'SG'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY revenue_ytd_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e327230000000e",
+          "question": [
+            "SG RM book - groups, rev YTD, attainment per RM"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Primary RM`,\n",
+                "       MEASURE(`Groups`)                 AS groups,\n",
+                "       MEASURE(`Revenue Actual YTD USD`) AS revenue_ytd_usd,\n",
+                "       MEASURE(`Attainment %`)           AS attainment\n",
+                "FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Primary RM Office` = 'SG'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY revenue_ytd_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e327230000000f",
+          "question": [
+            "Which Japanese-corporate groups grew revenue more than 20% YoY and which fell more than 15%? Break down by product family with H1 FY2026 and H1 FY2025 revenue and growth."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH g AS (\n",
+                "  SELECT `Client Group`, MEASURE(`Revenue YoY %`) AS group_yoy\n",
+                "  FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "  WHERE `Fiscal Year` = 'FY2026' AND `Segment` = 'Japanese Corporate'\n",
+                "  GROUP BY ALL\n",
+                "  HAVING MEASURE(`Revenue YoY %`) > 0.20 OR MEASURE(`Revenue YoY %`) < -0.15\n",
+                "), f AS (\n",
+                "  SELECT `Client Group`, `Product Family`,\n",
+                "         MEASURE(`Revenue YTD Comparable USD`) AS revenue_h1_fy2026_usd,\n",
+                "         MEASURE(`Revenue Prior YTD USD`)      AS revenue_h1_fy2025_usd,\n",
+                "         MEASURE(`Revenue YoY %`)              AS family_yoy\n",
+                "  FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "  WHERE `Fiscal Year` = 'FY2026' AND `Segment` = 'Japanese Corporate'\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT CASE WHEN g.group_yoy > 0.20 THEN 'Grew > 20%' ELSE 'Fell > 15%' END AS bucket,\n",
+                "       g.`Client Group` AS client_group, g.group_yoy, f.`Product Family` AS product_family,\n",
+                "       f.revenue_h1_fy2026_usd, f.revenue_h1_fy2025_usd, f.family_yoy\n",
+                "FROM g JOIN f ON f.`Client Group` = g.`Client Group`\n",
+                "WHERE f.revenue_h1_fy2025_usd IS NOT NULL\n",
+                "ORDER BY bucket, g.group_yoy, product_family"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000010",
+          "question": [
+            "For groups where APAC is less than 20% of global group revenue, what is the APAC product footprint vs the rest of the group? By product family show the number of groups, 12-month revenue, drawn and deposits."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH s AS (\n",
+                "  SELECT `Client Group`, MEASURE(`APAC Share of Group Revenue %`) AS apac_share\n",
+                "  FROM smbc_genie.metrics.mv_global_group_relationship\n",
+                "  WHERE `Is Latest Month`\n",
+                "  GROUP BY ALL\n",
+                "  HAVING MEASURE(`APAC Share of Group Revenue %`) < 0.20\n",
+                "), f AS (\n",
+                "  SELECT `Client Group`, `Region`, `Product Family`,\n",
+                "         MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd,\n",
+                "         MEASURE(`Global Drawn USD`)       AS drawn_usd,\n",
+                "         MEASURE(`Global Deposits USD`)    AS deposits_usd\n",
+                "  FROM smbc_genie.metrics.mv_global_group_relationship\n",
+                "  WHERE `Is Latest Month`\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT CASE WHEN f.`Region` = 'APAC' THEN 'APAC' ELSE 'Rest of group' END AS scope, f.`Product Family` AS product_family,\n",
+                "       count(DISTINCT f.`Client Group`) AS groups, sum(f.revenue_12m_usd) AS revenue_12m_usd,\n",
+                "       sum(f.drawn_usd) AS drawn_usd, sum(f.deposits_usd) AS deposits_usd\n",
+                "FROM f JOIN s ON s.`Client Group` = f.`Client Group`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY scope, revenue_12m_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6431457b48f22961b1e3272300000011",
+          "question": [
+            "List account-plan initiatives still open for Q3 FY2026 by RM: open initiatives due in the quarter and their target revenue, plus each RM's open and overdue FY2026 initiatives."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH d AS (\n",
+                "  SELECT owner_rm_name, count(*) AS open_initiatives_due_q3, sum(target_revenue_usd) AS target_revenue_usd\n",
+                "  FROM smbc_genie.gold.dim_account_plan_initiative\n",
+                "  WHERE is_open AND due_fiscal_quarter_label = 'FY2026-Q3'\n",
+                "  GROUP BY 1\n",
+                "), v AS (\n",
+                "  SELECT `Plan Owner RM`, MEASURE(`Initiatives Open`) AS open_initiatives_fy2026, MEASURE(`Initiatives Overdue`) AS overdue_initiatives_fy2026\n",
+                "  FROM smbc_genie.metrics.mv_account_plan_progress\n",
+                "  WHERE `Fiscal Year` = 'FY2026'\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT d.owner_rm_name AS rm, d.open_initiatives_due_q3, d.target_revenue_usd, v.open_initiatives_fy2026, v.overdue_initiatives_fy2026\n",
+                "FROM d LEFT JOIN v ON v.`Plan Owner RM` = d.owner_rm_name\n",
+                "ORDER BY d.open_initiatives_due_q3 DESC, rm"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

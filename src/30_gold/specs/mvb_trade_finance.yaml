@@ -1,0 +1,73 @@
+table: mvb_trade_finance
+domain: trade
+comment: >-
+  Metric-view base for the TB trade-finance view (D13 record_type union): record_type 'Issuance' = one row per
+  instrument on its issue date (issuance USD, 1 transaction, fee USD, tenor days; from
+  fact_trade_finance_transaction, Apr-2023 onwards, complete from FY2024) and record_type 'Outstanding' = one row
+  per live instrument per month-end from Apr-2024 (outstanding USD; from fact_trade_outstanding_monthly). Both
+  carry the same dimensions (product, corridor from / to, commodity, booking / beneficiary / counterparty-bank
+  country, tenor bucket, expiry quarter, carbon-intensive and sustainable flags). Issuance / transactions / fee /
+  tenor columns are flows and are 0 on Outstanding rows; outstanding_usd is POINT-IN-TIME (one month-end; never
+  sum across months) and 0 on Issuance rows. Fee yield bps = 10000 x SUM(fee_usd) / SUM(issuance_usd); average
+  tenor = SUM(tenor_days_issued) / SUM(transactions).
+grain: one row per record_type x instrument x record_date (issue date or month-end)
+primary_key: [record_type, txn_id, record_date]
+foreign_keys:
+  - {columns: [txn_id], references: fact_trade_finance_transaction}
+  - {columns: [record_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [origin_country], references: dim_country}
+  - {columns: [destination_country], references: dim_country}
+cluster_by: [record_date, golden_client_sk]
+min_rows: 10000
+columns:
+  record_type: {type: STRING, comment: "Issuance (the instrument on its issue date) or Outstanding (the live instrument at a month-end)."}
+  txn_id: {type: STRING, comment: "Trade-finance instrument id."}
+  record_date: {type: DATE, comment: "Issue date (Issuance rows) or month-end (Outstanding rows) - the time axis of the view."}
+  month: {type: DATE, comment: "First day of the month of record_date."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version valid on record_date (as-was, D11)."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  product_type: {type: STRING, comment: "Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan or Receivables Purchase."}
+  product_id: {type: STRING, comment: "Trade product key; join gold.dim_product."}
+  direction: {type: STRING, comment: "Import or Export."}
+  origin_country: {type: STRING, comment: "Corridor from: goods origin country (ISO-2)."}
+  destination_country: {type: STRING, comment: "Corridor to: goods destination country (ISO-2)."}
+  corridor: {type: STRING, comment: "Goods corridor origin->destination, e.g. CN->VN."}
+  commodity: {type: STRING, comment: "Goods traded (e.g. Electronics, Auto Parts, Mineral Fuels)."}
+  hs_chapter: {type: STRING, comment: "HS chapter of the goods."}
+  is_carbon_intensive_commodity: {type: BOOLEAN, comment: "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats)."}
+  beneficiary_country: {type: STRING, comment: "Country of the beneficiary (guarantees / SBLCs)."}
+  counterparty_bank_country: {type: STRING, comment: "Country of the counterparty's bank."}
+  booking_country: {type: STRING, comment: "SMBC booking location of the instrument (ISO-2)."}
+  tenor_bucket: {type: STRING, comment: "Original tenor bucket: 0-30 days, 31-90 days, 91-180 days, 181-365 days or Over 365 days."}
+  maturity_date: {type: DATE, comment: "Maturity / expiry date of the instrument."}
+  expiry_fiscal_quarter_label: {type: STRING, comment: "Japanese fiscal quarter of the maturity date, e.g. FY2026-Q3."}
+  is_sustainable_trade: {type: BOOLEAN, comment: "True for sustainable / green trade instruments."}
+  is_legacy_book: {type: BOOLEAN, comment: "True for instruments issued before 1-Apr-2024 (incomplete FY2023 legacy book)."}
+  is_latest_month_end: {type: BOOLEAN, comment: "True on Outstanding rows of the as-of month-end 30-Sep-2026."}
+  is_fiscal_quarter_end: {type: BOOLEAN, comment: "True on Outstanding rows of fiscal quarter-ends (quarterly trends)."}
+  issuance_usd: {type: DOUBLE, comment: "Instrument amount in USD at issue (Issuance rows; 0 on Outstanding rows) - Issuance USD (flow)."}
+  transactions: {type: INT, comment: "1 on Issuance rows, 0 on Outstanding rows - Transactions = SUM(transactions)."}
+  fee_usd: {type: DOUBLE, comment: "Commission / fee income at issue in USD (Issuance rows; 0 on Outstanding rows)."}
+  tenor_days_issued: {type: INT, comment: "Tenor in days on Issuance rows (0 on Outstanding rows) - Average Tenor Days = SUM(tenor_days_issued) / SUM(transactions)."}
+  outstanding_usd: {type: DOUBLE, comment: "Outstanding at the month-end in USD (Outstanding rows; 0 on Issuance rows; point-in-time)."}
+checks:
+  - name: measures_do_not_mix
+    sql: >-
+      SELECT count_if(record_type = 'Issuance' AND outstanding_usd <> 0)
+      + count_if(record_type = 'Outstanding' AND (issuance_usd <> 0 OR transactions <> 0 OR fee_usd <> 0)) FROM ${table}
+reconcile:
+  - name: issuance_rows_vs_fact
+    gold: SELECT count(*) FROM ${table} WHERE record_type = 'Issuance'
+    silver: SELECT count(*) FROM ${catalog}.gold.fact_trade_finance_transaction
+  - name: outstanding_rows_vs_fact
+    gold: SELECT count(*) FROM ${table} WHERE record_type = 'Outstanding'
+    silver: SELECT count(*) FROM ${catalog}.gold.fact_trade_outstanding_monthly
+  - name: fee_vs_silver
+    gold: SELECT round(sum(fee_usd)) FROM ${table}
+    silver: SELECT round(sum(commission_usd)) FROM ${catalog}.silver.trade_finance_txn
+    tolerance: 1

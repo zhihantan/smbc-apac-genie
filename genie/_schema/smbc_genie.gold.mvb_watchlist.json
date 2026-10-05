@@ -1,0 +1,211 @@
+{
+ "columns": [
+  {
+   "comment": "Row type: Event or Month-End Membership.",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "Key within the type: event_id (Event) or golden_client_id|month-end (Membership).",
+   "is_measure": false,
+   "name": "record_id",
+   "type": "string"
+  },
+  {
+   "comment": "Event date (Event) or month-end date (Membership) - the window order field.",
+   "is_measure": false,
+   "name": "record_date",
+   "type": "date"
+  },
+  {
+   "comment": "Month-end of record_date (Month dimension).",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Event rows: credit obligor record of the event.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Event rows: Added, Escalated, De-escalated or Removed (count Added / Removed here).",
+   "is_measure": false,
+   "name": "event_type",
+   "type": "string"
+  },
+  {
+   "comment": "Event rows: final EWS band before the event.",
+   "is_measure": false,
+   "name": "band_from",
+   "type": "string"
+  },
+  {
+   "comment": "Event rows: final EWS band after the event.",
+   "is_measure": false,
+   "name": "band_to",
+   "type": "string"
+  },
+  {
+   "comment": "Membership rows: final EWS band of the client at the month-end (Amber or Red).",
+   "is_measure": false,
+   "name": "watchlist_band",
+   "type": "string"
+  },
+  {
+   "comment": "Composite EWS score (event month, or the month-end score for Membership rows).",
+   "is_measure": false,
+   "name": "composite_score",
+   "type": "double"
+  },
+  {
+   "comment": "Dominant EWS driver: Credit, Liquidity, Behavioural or External (Membership rows: of the latest event).",
+   "is_measure": false,
+   "name": "lead_category",
+   "type": "string"
+  },
+  {
+   "comment": "Watchlist reason (Membership rows: of the latest event), e.g. Credit deterioration (health / utilisation / covenant).",
+   "is_measure": false,
+   "name": "lead_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Owner RM (employee_id) of the event / of the client's latest event.",
+   "is_measure": false,
+   "name": "owner_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Owner RM code (RM001-RM120).",
+   "is_measure": false,
+   "name": "owner_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Owner RM name (fictional).",
+   "is_measure": false,
+   "name": "owner_name",
+   "type": "string"
+  },
+  {
+   "comment": "Event rows: action plan required (Watchlist credit review, Recovery / exit plan, Monitoring update).",
+   "is_measure": false,
+   "name": "action_type",
+   "type": "string"
+  },
+  {
+   "comment": "Event rows: action due date.",
+   "is_measure": false,
+   "name": "action_due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Event rows: action status at the as-of date (Completed, Open, Overdue).",
+   "is_measure": false,
+   "name": "action_status",
+   "type": "string"
+  },
+  {
+   "comment": "Event rows: action overdue at 30-Sep-2026 (Actions Overdue).",
+   "is_measure": false,
+   "name": "is_action_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "Event rows: action not yet completed.",
+   "is_measure": false,
+   "name": "is_action_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "Event rows: days the action is past due.",
+   "is_measure": false,
+   "name": "action_days_overdue",
+   "type": "int"
+  },
+  {
+   "comment": "Event rows: latest event of an obligor still on the watchlist today.",
+   "is_measure": false,
+   "name": "is_on_watchlist_as_of",
+   "type": "boolean"
+  },
+  {
+   "comment": "Event rows: next watchlist review of names still on the list.",
+   "is_measure": false,
+   "name": "next_review_date",
+   "type": "date"
+  },
+  {
+   "comment": "Event rows: client drawn exposure at the event month-end, USD.",
+   "is_measure": false,
+   "name": "exposure_at_event_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Event rows: client ECL in the event month, USD.",
+   "is_measure": false,
+   "name": "ecl_at_event_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Membership rows: date the client was (last) added to the watchlist.",
+   "is_measure": false,
+   "name": "added_date",
+   "type": "date"
+  },
+  {
+   "comment": "Membership rows: days on the watchlist at the month-end since the last addition.",
+   "is_measure": false,
+   "name": "days_on_watchlist",
+   "type": "int"
+  },
+  {
+   "comment": "Membership rows: client drawn lending exposure at the month-end, USD (Watchlist Exposure; point-in-time).",
+   "is_measure": false,
+   "name": "exposure_drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Membership rows: client exposure at default at the month-end, USD (from Apr-2024).",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Membership rows: client IFRS 9 ECL at the month-end, USD (ECL on Watchlist; point-in-time).",
+   "is_measure": false,
+   "name": "ecl_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Membership rows: true for the 30-Sep-2026 month-end (today's watchlist).",
+   "is_measure": false,
+   "name": "is_as_of_month_end",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Metric-view base for the credit watchlist (mv_watchlist, D13): a record_type union of Event rows (one per watchlist register event: Added, Escalated, De-escalated, Removed, with reason, owner RM and the action plan status at 30-Sep-2026) and Month-End Membership rows (one per client on the watchlist at each month-end from Apr-2024: final EWS band, days on the list, drawn exposure, EAD and ECL at that month-end). Event measures (Added, Removed, Actions Overdue) are populated only on Event rows; membership measures (Watchlist Clients, Watchlist Exposure USD, ECL on Watchlist USD) only on Membership rows - these are point-in-time: take the latest month-end (window semiadditive last), never sum across months. Grain: one row per record_type x record (watchlist event, or client x month-end on the watchlist).",
+ "identifier": "smbc_genie.gold.mvb_watchlist",
+ "type": "MANAGED"
+}

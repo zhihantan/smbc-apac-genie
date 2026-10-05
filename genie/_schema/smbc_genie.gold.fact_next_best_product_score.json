@@ -1,0 +1,181 @@
+{
+ "columns": [
+  {
+   "comment": "Month-end date the model scored the client (e.g. 2026-09-30).",
+   "is_measure": false,
+   "name": "score_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the scoring month.",
+   "is_measure": false,
+   "name": "score_month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "True for the latest scoring run (Sep-2026) - use for current recommendations.",
+   "is_measure": false,
+   "name": "is_latest_score_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account whose score is kept (the best-scoring one when the client has several).",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM accounts of the client that received a score for the product that month.",
+   "is_measure": false,
+   "name": "n_crm_accounts",
+   "type": "bigint"
+  },
+  {
+   "comment": "Recommended product (CRM sales product), e.g. Supply Chain Finance, Cash Management Mandate, Term Loan.",
+   "is_measure": false,
+   "name": "product",
+   "type": "string"
+  },
+  {
+   "comment": "Product key (PRD-<NAME>); join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Propensity to buy 0-1 (model score) - average or rank, never sum.",
+   "is_measure": false,
+   "name": "propensity",
+   "type": "double"
+  },
+  {
+   "comment": "Rank of the product among the client's recommendations that month (1 = next best product).",
+   "is_measure": false,
+   "name": "propensity_rank",
+   "type": "int"
+  },
+  {
+   "comment": "True when the product is the client's rank-1 next best product.",
+   "is_measure": false,
+   "name": "is_top_ranked",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when propensity >= 0.7 (dim_threshold NBP_HIGH_PROPENSITY) - Clients With Score >= 0.7.",
+   "is_measure": false,
+   "name": "is_high_propensity",
+   "type": "boolean"
+  },
+  {
+   "comment": "High (>= 0.7), Medium (0.4-0.7) or Low (< 0.4).",
+   "is_measure": false,
+   "name": "propensity_band",
+   "type": "string"
+  },
+  {
+   "comment": "Main model drivers (one to three) as ' | '-separated text, e.g. Trade corridor CN->VN up 50% YoY | SCF anchor candidate | Supplier spend.",
+   "is_measure": false,
+   "name": "top_drivers",
+   "type": "string"
+  },
+  {
+   "comment": "Main driver of the score.",
+   "is_measure": false,
+   "name": "driver_1",
+   "type": "string"
+  },
+  {
+   "comment": "Second driver; null when the model reported only one.",
+   "is_measure": false,
+   "name": "driver_2",
+   "type": "string"
+  },
+  {
+   "comment": "Third driver; null when the model reported fewer than three.",
+   "is_measure": false,
+   "name": "driver_3",
+   "type": "string"
+  },
+  {
+   "comment": "Expected annual revenue in USD if the product is sold.",
+   "is_measure": false,
+   "name": "expected_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "expected_revenue_usd x propensity in USD.",
+   "is_measure": false,
+   "name": "propensity_weighted_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Scoring model version (NBP-3.1).",
+   "is_measure": false,
+   "name": "model_version",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the client's RM.",
+   "is_measure": false,
+   "name": "owner_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Employee id of the client's RM; join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "owner_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client already holds a product of the family at that month-end (deepen); false = cross-sell into a new family.",
+   "is_measure": false,
+   "name": "client_holds_product_family",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Next-best-product scores (Opportunity Identification, mv_next_best_product): the propensity (0-1) of each golden client to buy each recommended product, its rank among the client's top-3 recommendations, the three main drivers, the expected annual revenue and the model version, for the month-ends Apr-Sep 2026 (model NBP-3.1). is_latest_score_month marks Sep-2026, the current scores. Propensity is a score: average it or rank by it, never sum it; expected revenue is additive within one score month. Grain: one row per golden client x product x score month.",
+ "identifier": "smbc_genie.gold.fact_next_best_product_score",
+ "type": "MANAGED"
+}

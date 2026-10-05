@@ -1,0 +1,1863 @@
+{
+  "title": "APAC Genie - Customer 360 Data Foundation",
+  "description": "Ask about entity-resolution quality, golden-record coverage, data quality, Delta Sharing freshness and the exposure impact of entity resolution for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "556b90fc8f824cb4571190ef00000000",
+          "question": [
+            "What are the entity-resolution match rate and precision by source system for the latest run?"
+          ]
+        },
+        {
+          "id": "556b90fc8f824cb4571190ef00000001",
+          "question": [
+            "How many client records collapsed into how many golden records in each ER run?"
+          ]
+        },
+        {
+          "id": "556b90fc8f824cb4571190ef00000002",
+          "question": [
+            "How old is the data-steward queue?"
+          ]
+        },
+        {
+          "id": "556b90fc8f824cb4571190ef00000003",
+          "question": [
+            "How many golden clients are missing KYC or credit data, by relationship tier?"
+          ]
+        },
+        {
+          "id": "556b90fc8f824cb4571190ef00000004",
+          "question": [
+            "How did DQ scores by table and dimension change this month vs last?"
+          ]
+        },
+        {
+          "id": "556b90fc8f824cb4571190ef00000005",
+          "question": [
+            "How fresh is the Delta Share from Japan over the last 30 days, and are any tables stale?"
+          ]
+        },
+        {
+          "id": "556b90fc8f824cb4571190ef00000006",
+          "question": [
+            "Which exposures changed by more than 20% after the March 2026 resolution of Meridian Agri Holdings?"
+          ]
+        },
+        {
+          "id": "556b90fc8f824cb4571190ef00000007",
+          "question": [
+            "What is the attribute completeness of Strategic clients' golden records?"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "is_japanese_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_strategic_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_basis",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "master_status",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "n_apac_countries",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_carbon_intensive",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_deposit_only",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_japanese_corporate",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_single_product_lending",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product_propensity",
+              "exclude": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "open_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_other_bank_share_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "exclude": true
+            },
+            {
+              "column_name": "product_families_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "products_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "revenue_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_prior_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_yoy_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "time_deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_outstanding_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.xref_client_source",
+          "column_configs": [
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "country_as_recorded",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "er_run_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lei_as_recorded",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "match_method",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "match_rule",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "resolved_in_run_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "source_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "source_name_as_recorded",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "source_system",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "steward_decision",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_data_quality",
+          "column_configs": [
+            {
+              "column_name": "DQ Dimension",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Incident",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Layer",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Rule",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Rule Severity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Rule Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Score Basis",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Table",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_delta_sharing_freshness",
+          "column_configs": [
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Provider Region",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Refresh Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Share",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Shared Table",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_entity_resolution",
+          "column_configs": [
+            {
+              "column_name": "Aging Bucket",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Match Method",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Rule Version",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Run",
+              "synonyms": [
+                "March 2026 resolution",
+                "latest ER run",
+                "quarterly run"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Steward Decision",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Steward Queue Open",
+              "synonyms": [
+                "steward backlog",
+                "open steward items",
+                "steward queue aging"
+              ]
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_er_exposure_impact",
+          "column_configs": [
+            {
+              "column_name": "Attribution Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Lead Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Material Resolution Change",
+              "synonyms": [
+                "changed by more than 20%",
+                "exposure changed more than 20 percent"
+              ]
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Rule Version",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Run",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_golden_record_coverage",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Source System",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "e644a9fbe9089c31c7131d3600000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Views: mv_entity_resolution = quarterly ER runs (records in, matches, golden records, precision / recall, steward queue); mv_golden_record_coverage = golden clients by source system, missing KYC / credit, attribute completeness; mv_data_quality = DQ scores by layer / table / DQ dimension plus the latest rule results; mv_delta_sharing_freshness = JP / EMEA / AMER share lag and staleness; mv_er_exposure_impact = group exposure before vs after each run's re-resolution.\n",
+            "- ER runs ER-20250630 .. ER-20260930 are quarter-end snapshots (rule set v1 to Dec-2025, v2 from Mar-2026): latest run = `Is Latest Month`; compare runs by grouping by `Run`, never add runs; \"the March 2026 resolution\" = `Month` = DATE'2026-03-01' (ER-20260331).\n",
+            "- ER per source system: group by `Source System` and exclude the technical ALL value (or use fn_er_run_summary). Whole-run ER figures (records in, match rate, golden records, precision, recall of a run): put no Source System condition in the query at all. Precision % and Recall % are never summed across sources.\n",
+            "- Steward queue aging = items open at 30-Sep-2026: MEASURE(`Steward Queue Open`) and MEASURE(`Average Days Open`) by `Aging Bucket` with HAVING MEASURE(`Steward Queue Open`) > 0.\n",
+            "- Coverage and DQ measures are month-end snapshots: today = `Is Latest Month` (`Month` = DATE'2026-09-01'); \"this month vs last\" = `Month` = DATE'2026-09-01' with DQ Score % and DQ Score Prior Month %. Attribute completeness exists for Sep-2026 only.\n",
+            "- Delta Share freshness: \"from Japan\" = `Provider Region` = 'JP'; last 30 days = `Date` >= DATE'2026-09-01'; stale = lag > 24h (Stale Table-Days = stale days, Tables Stale = tables); lag and stale counts add up over the selected days.\n",
+            "- Exposures changed by more than 20% after a resolution (all groups) = `Material Resolution Change` in mv_er_exposure_impact or fn_er_exposure_changes; one named group = the example query (before / after, attention threshold, crossed). Unattributed exposure has no Client Group: show COALESCE(`Client Group`, '(unattributed)') AS client_group with `Attribution Status`.\n",
+            "- Golden clients missing KYC / credit = Clients Missing KYC Data / Clients Missing Credit Data; \"by tier\" = Relationship Tier, keeping the null tier (clients without a CRM tier). Client = legal entity, matched with LIKE, e.g. `Client` LIKE 'Meridian Agri Holdings (Singapore)%'.\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "4488f31c556ffbe517e5e0e100000000",
+          "question": [
+            "Steward queue aging - open steward items and their average age by aging bucket"
+          ],
+          "sql": [
+            "SELECT `Aging Bucket`,\n",
+            "       MEASURE(`Steward Queue Open`) AS open_items,\n",
+            "       MEASURE(`Average Days Open`)  AS average_days_open\n",
+            "FROM smbc_genie.metrics.mv_entity_resolution\n",
+            "GROUP BY ALL\n",
+            "HAVING MEASURE(`Steward Queue Open`) > 0\n",
+            "ORDER BY average_days_open"
+          ],
+          "usage_guidance": [
+            "Use for \"steward queue aging\", \"how old is the steward backlog\", \"open data-steward reviews\"; only buckets with open items (HAVING), as of 30-Sep-2026."
+          ]
+        },
+        {
+          "id": "4488f31c556ffbe517e5e0e100000001",
+          "question": [
+            "Golden clients missing KYC or credit data by relationship tier at :month"
+          ],
+          "sql": [
+            "SELECT `Relationship Tier`,\n",
+            "       MEASURE(`Golden Clients`)              AS golden_clients,\n",
+            "       MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,\n",
+            "       MEASURE(`Clients Missing Credit Data`) AS missing_credit\n",
+            "FROM smbc_genie.metrics.mv_golden_record_coverage\n",
+            "WHERE `Month` = :month\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Relationship Tier`"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Coverage month as its first day (today = 2026-09-01)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"golden clients missing from KYC / credit\", \"coverage gaps by tier\"; month-end snapshot (today = 2026-09-01), keeps the null-tier row."
+          ]
+        },
+        {
+          "id": "4488f31c556ffbe517e5e0e100000002",
+          "question": [
+            "DQ score by layer and DQ dimension for :month vs the month before"
+          ],
+          "sql": [
+            "SELECT `Layer`, `DQ Dimension`,\n",
+            "       MEASURE(`DQ Score %`)             AS dq_score,\n",
+            "       MEASURE(`DQ Score Prior Month %`) AS dq_score_prior_month,\n",
+            "       MEASURE(`Row Pass Rate %`)        AS row_pass_rate,\n",
+            "       MEASURE(`Tables Below Target`)    AS tables_below_95\n",
+            "FROM smbc_genie.metrics.mv_data_quality\n",
+            "WHERE `Month` = :month\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Layer`, `DQ Dimension`"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Scored month as its first day (this month = 2026-09-01)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"DQ score this month vs last\" by layer and dimension, \"data quality scorecard\", \"tables below 95%\"; Month = 2026-09-01 is this month (the prior-month measure gives August)."
+          ]
+        },
+        {
+          "id": "4488f31c556ffbe517e5e0e100000003",
+          "question": [
+            "What did the :month entity resolution do to the exposure of :client_group, and did it cross the USD 500m threshold"
+          ],
+          "sql": [
+            "SELECT `Client Group`,\n",
+            "       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n",
+            "       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n",
+            "       MEASURE(`Resolution Change %`)            AS resolution_change,\n",
+            "       MEASURE(`Attention Threshold USD`)        AS attention_threshold_usd,\n",
+            "       MEASURE(`Groups Crossing Threshold`)      AS crossed_threshold\n",
+            "FROM smbc_genie.metrics.mv_er_exposure_impact\n",
+            "WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Month` = :month\n",
+            "GROUP BY ALL"
+          ],
+          "parameters": [
+            {
+              "name": "client_group",
+              "type_hint": "STRING",
+              "description": [
+                "Full client group name (LIKE match), e.g. Meridian Agri Holdings"
+              ],
+              "default_value": {
+                "values": [
+                  "Meridian Agri Holdings"
+                ]
+              }
+            },
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Run month as its first day (March 2026 resolution = 2026-03-01)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-03-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for one named group: \"what did the March 2026 resolution do to <group> exposure\", \"did <group> cross the 500m attention threshold after ER\" (month = the run month, March 2026 = 2026-03-01). For every group changed by more than 20% in a run use fn_er_exposure_changes instead."
+          ]
+        },
+        {
+          "id": "4488f31c556ffbe517e5e0e100000004",
+          "question": [
+            "Source records and golden records per ER run for the client :client from :from_month to :to_month"
+          ],
+          "sql": [
+            "SELECT `Run`,\n",
+            "       MEASURE(`Records In`)     AS records,\n",
+            "       MEASURE(`Golden Records`) AS golden_records\n",
+            "FROM smbc_genie.metrics.mv_entity_resolution\n",
+            "WHERE lower(`Client`) LIKE lower(CONCAT(:client, '%')) AND `Month` BETWEEN :from_month AND :to_month\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Run`"
+          ],
+          "parameters": [
+            {
+              "name": "client",
+              "type_hint": "STRING",
+              "description": [
+                "Legal entity name prefix, e.g. Meridian Agri Holdings (Singapore)"
+              ],
+              "default_value": {
+                "values": [
+                  "Meridian Agri Holdings (Singapore)"
+                ]
+              }
+            },
+            {
+              "name": "from_month",
+              "type_hint": "DATE",
+              "description": [
+                "First run month as its first day (all runs = 2025-06-01)"
+              ],
+              "default_value": {
+                "values": [
+                  "2025-06-01"
+                ]
+              }
+            },
+            {
+              "name": "to_month",
+              "type_hint": "DATE",
+              "description": [
+                "Last run month as its first day (latest run = 2026-09-01)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"how many golden records did <entity>'s records sit in, run by run\", \"when did <entity> merge\"; Client is the legal entity (LIKE match). Runs are quarter-end months: December 2025 and March 2026 runs = from_month 2025-12-01 to to_month 2026-03-01; all runs = 2025-06-01 to 2026-09-01."
+          ]
+        },
+        {
+          "id": "4488f31c556ffbe517e5e0e100000005",
+          "question": [
+            "ER records and match rate by source system at :month vs golden clients present in each source"
+          ],
+          "sql": [
+            "WITH er AS (\n",
+            "  SELECT `Source System`, MEASURE(`Records In`) AS records_in, MEASURE(`Match Rate %`) AS match_rate\n",
+            "  FROM smbc_genie.metrics.mv_entity_resolution\n",
+            "  WHERE `Month` = :month AND `Source System` <> 'ALL'\n",
+            "  GROUP BY ALL\n",
+            "), cov AS (\n",
+            "  SELECT `Source System`,\n",
+            "         MEASURE(`Clients Present in Source`)   AS golden_clients_present,\n",
+            "         MEASURE(`Clients Present in Source %`) AS share_of_golden_clients\n",
+            "  FROM smbc_genie.metrics.mv_golden_record_coverage\n",
+            "  WHERE `Month` = :month\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT e.`Source System`, e.records_in, e.match_rate, c.golden_clients_present, c.share_of_golden_clients\n",
+            "FROM er e\n",
+            "LEFT JOIN cov c ON c.`Source System` = e.`Source System`\n",
+            "ORDER BY e.`Source System`"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Run / coverage month as its first day (latest = 2026-09-01)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use to compare entity resolution with source coverage per source system - the cross-view CTE pattern (one CTE per metric view, joined on Source System); :month = a quarter-end run month, 2026-09-01 = latest run."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "09e0a17dc9c647824291f3a000000000",
+          "identifier": "smbc_genie.gold.fn_er_run_summary"
+        },
+        {
+          "id": "09e0a17dc9c647824291f3a000000001",
+          "identifier": "smbc_genie.gold.fn_er_exposure_changes"
+        },
+        {
+          "id": "09e0a17dc9c647824291f3a000000002",
+          "identifier": "smbc_genie.gold.fn_dq_score_changes"
+        },
+        {
+          "id": "09e0a17dc9c647824291f3a000000003",
+          "identifier": "smbc_genie.gold.fn_as_of_date"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000000",
+          "question": [
+            "For the latest entity-resolution run, show records in, matched records, match rate, fuzzy share, pairwise precision and pairwise recall by source system."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Source System`,\n",
+                "       MEASURE(`Records In`)      AS records_in,\n",
+                "       MEASURE(`Matched Records`) AS matched_records,\n",
+                "       MEASURE(`Match Rate %`)    AS match_rate,\n",
+                "       MEASURE(`Fuzzy Share %`)   AS fuzzy_share,\n",
+                "       MEASURE(`Precision %`)     AS pairwise_precision,\n",
+                "       MEASURE(`Recall %`)        AS pairwise_recall\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "WHERE `Is Latest Month` AND `Source System` <> 'ALL'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Source System`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000001",
+          "question": [
+            "latest ER run by source system - records in, matched, match rate, fuzzy share, precision, recall"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Source System`,\n",
+                "       MEASURE(`Records In`)      AS records_in,\n",
+                "       MEASURE(`Matched Records`) AS matched_records,\n",
+                "       MEASURE(`Match Rate %`)    AS match_rate,\n",
+                "       MEASURE(`Fuzzy Share %`)   AS fuzzy_share,\n",
+                "       MEASURE(`Precision %`)     AS pairwise_precision,\n",
+                "       MEASURE(`Recall %`)        AS pairwise_recall\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "WHERE `Is Latest Month` AND `Source System` <> 'ALL'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Source System`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000002",
+          "question": [
+            "For the latest entity-resolution run as a whole (all source systems together), what were the records in, match rate, pairwise precision and pairwise recall?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Records In`) AS records_in, MEASURE(`Match Rate %`) AS match_rate,\n",
+                "       MEASURE(`Precision %`) AS pairwise_precision, MEASURE(`Recall %`) AS pairwise_recall\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "WHERE `Is Latest Month`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000003",
+          "question": [
+            "How many client source records collapsed into how many golden records in each ER run? Show the run, rule version, records in, golden records, records per golden record and duplicates merged."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Run`, `Rule Version`,\n",
+                "       MEASURE(`Records In`)                AS records_in,\n",
+                "       MEASURE(`Golden Records`)            AS golden_records,\n",
+                "       MEASURE(`Records per Golden Record`) AS records_per_golden_record,\n",
+                "       MEASURE(`Duplicates Merged`)         AS duplicates_merged\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Run`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000004",
+          "question": [
+            "how many records turned into how many golden records each ER run? include the rule version, records per golden record and duplicates merged"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Run`, `Rule Version`,\n",
+                "       MEASURE(`Records In`)                AS records_in,\n",
+                "       MEASURE(`Golden Records`)            AS golden_records,\n",
+                "       MEASURE(`Records per Golden Record`) AS records_per_golden_record,\n",
+                "       MEASURE(`Duplicates Merged`)         AS duplicates_merged\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Run`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000005",
+          "question": [
+            "Steward queue aging: how many steward items are open at 30 Sep 2026 in each aging bucket, and what is their average number of days open?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Aging Bucket`,\n",
+                "       MEASURE(`Steward Queue Open`) AS open_items,\n",
+                "       MEASURE(`Average Days Open`)  AS average_days_open\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Steward Queue Open`) > 0\n",
+                "ORDER BY average_days_open"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000006",
+          "question": [
+            "By the ER run that raised them, how many steward decisions were made and how many steward items are still open?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Run`, MEASURE(`Steward Decisions`) AS steward_decisions, MEASURE(`Steward Queue Open`) AS still_open\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Run`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000007",
+          "question": [
+            "Today, how many golden clients are missing from the KYC source and from the credit source, by relationship tier? Include the number of golden clients in each tier."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Relationship Tier`,\n",
+                "       MEASURE(`Golden Clients`)              AS golden_clients,\n",
+                "       MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,\n",
+                "       MEASURE(`Clients Missing Credit Data`) AS missing_credit\n",
+                "FROM smbc_genie.metrics.mv_golden_record_coverage\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Relationship Tier`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000008",
+          "question": [
+            "golden clients mising KYC or credit data by relationship tier as of today, with total golden clients per tier"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Relationship Tier`,\n",
+                "       MEASURE(`Golden Clients`)              AS golden_clients,\n",
+                "       MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,\n",
+                "       MEASURE(`Clients Missing Credit Data`) AS missing_credit\n",
+                "FROM smbc_genie.metrics.mv_golden_record_coverage\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Relationship Tier`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000009",
+          "question": [
+            "Which 10 table and DQ-dimension pairs had the largest month-on-month change in DQ score, this month vs last (September vs August 2026)? Show the table, DQ dimension, the September score, the August score and the change."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Table`, `DQ Dimension`,\n",
+                "       MEASURE(`DQ Score %`)                         AS dq_score_sep_2026,\n",
+                "       MEASURE(`DQ Score Prior Month %`)             AS dq_score_aug_2026,\n",
+                "       MEASURE(`DQ Score Change vs Prior Month pts`) AS change\n",
+                "FROM smbc_genie.metrics.mv_data_quality\n",
+                "WHERE `Month` = DATE'2026-09-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY abs(change) DESC NULLS LAST\n",
+                "LIMIT 10"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a0000000a",
+          "question": [
+            "DQ score by layer and DQ dimension this month vs last month (September vs August 2026), with this month's row pass rate and number of tables below 95%."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Layer`, `DQ Dimension`,\n",
+                "       MEASURE(`DQ Score %`)             AS dq_score_sep_2026,\n",
+                "       MEASURE(`DQ Score Prior Month %`) AS dq_score_aug_2026,\n",
+                "       MEASURE(`Row Pass Rate %`)        AS row_pass_rate_sep_2026,\n",
+                "       MEASURE(`Tables Below Target`)    AS tables_below_95\n",
+                "FROM smbc_genie.metrics.mv_data_quality\n",
+                "WHERE `Month` = DATE'2026-09-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Layer`, `DQ Dimension`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a0000000b",
+          "question": [
+            "Delta Share freshness from Japan over the last 30 days (1-30 Sep 2026): average lag hours, max lag hours, stale days and freshness SLA met for each shared table."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Shared Table`,\n",
+                "       MEASURE(`Average Lag Hours`)   AS avg_lag_hours,\n",
+                "       MEASURE(`Max Lag Hours`)       AS max_lag_hours,\n",
+                "       MEASURE(`Stale Table-Days`)    AS stale_days,\n",
+                "       MEASURE(`Freshness SLA Met %`) AS sla_met\n",
+                "FROM smbc_genie.metrics.mv_delta_sharing_freshness\n",
+                "WHERE `Provider Region` = 'JP' AND `Date` >= DATE'2026-09-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Shared Table`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a0000000c",
+          "question": [
+            "In August 2026, how many stale days, what maximum lag in hours and what longest run of consecutive stale days did each Japan shared table have?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Shared Table`, MEASURE(`Stale Table-Days`) AS stale_days, MEASURE(`Max Lag Hours`) AS max_lag_hours,\n",
+                "       MEASURE(`Longest Stale Run Days`) AS longest_stale_run_days\n",
+                "FROM smbc_genie.metrics.mv_delta_sharing_freshness\n",
+                "WHERE `Provider Region` = 'JP' AND `Month` = DATE'2026-08-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY stale_days DESC, `Shared Table`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a0000000d",
+          "question": [
+            "Which exposures changed by more than 20% after the March 2026 entity resolution? Show the client group (or unattributed), attribution status, exposure before and after resolution, the change in USD and in %, and whether the group crossed the USD 500m attention threshold."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT coalesce(`Client Group`, '(unattributed)') AS client_group, `Attribution Status`,\n",
+                "       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n",
+                "       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n",
+                "       MEASURE(`Resolution Change USD`)          AS resolution_change_usd,\n",
+                "       MEASURE(`Resolution Change %`)            AS resolution_change,\n",
+                "       MEASURE(`Groups Crossing Threshold`)      AS crossed_500m_threshold\n",
+                "FROM smbc_genie.metrics.mv_er_exposure_impact\n",
+                "WHERE `Month` = DATE'2026-03-01' AND `Material Resolution Change`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY abs(resolution_change_usd) DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a0000000e",
+          "question": [
+            "Post-ER exposure deltas above 20% on the Mar-26 run: group (or unattributed), attribution, exposure before / after, delta USD, delta % and whether it crossed the USD 500m single-borrower threshold"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT coalesce(`Client Group`, '(unattributed)') AS client_group, `Attribution Status`,\n",
+                "       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n",
+                "       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n",
+                "       MEASURE(`Resolution Change USD`)          AS resolution_change_usd,\n",
+                "       MEASURE(`Resolution Change %`)            AS resolution_change,\n",
+                "       MEASURE(`Groups Crossing Threshold`)      AS crossed_500m_threshold\n",
+                "FROM smbc_genie.metrics.mv_er_exposure_impact\n",
+                "WHERE `Month` = DATE'2026-03-01' AND `Material Resolution Change`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY abs(resolution_change_usd) DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a0000000f",
+          "question": [
+            "What is the average attribute completeness of the golden records by relationship tier today, with the golden clients and fully complete golden records in each tier?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Relationship Tier`,\n",
+                "       MEASURE(`Golden Clients`)                   AS golden_clients,\n",
+                "       MEASURE(`Average Attribute Completeness %`) AS avg_attribute_completeness,\n",
+                "       MEASURE(`Fully Complete Golden Records`)    AS fully_complete\n",
+                "FROM smbc_genie.metrics.mv_golden_record_coverage\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Relationship Tier`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000010",
+          "question": [
+            "In the December 2025 and March 2026 ER runs, how many source records and how many golden records did today's Meridian Agri Holdings (Singapore) golden client have?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Run`, MEASURE(`Records In`) AS records, MEASURE(`Golden Records`) AS golden_records\n",
+                "FROM smbc_genie.metrics.mv_entity_resolution\n",
+                "WHERE `Client` LIKE 'Meridian Agri Holdings (Singapore)%' AND `Run` IN ('ER-20251231', 'ER-20260331')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Run`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000011",
+          "question": [
+            "What did the March 2026 resolution do to Meridian Agri Holdings' exposure? Show the client group, exposure before and after, the change %, the attention threshold and whether it crossed the threshold."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`,\n",
+                "       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n",
+                "       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n",
+                "       MEASURE(`Resolution Change %`)            AS resolution_change,\n",
+                "       MEASURE(`Attention Threshold USD`)        AS attention_threshold_usd,\n",
+                "       MEASURE(`Groups Crossing Threshold`)      AS crossed_threshold\n",
+                "FROM smbc_genie.metrics.mv_er_exposure_impact\n",
+                "WHERE `Client Group` = 'Meridian Agri Holdings' AND `Month` = DATE'2026-03-01'\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000012",
+          "question": [
+            "List every day on which share_jp_parent_rating was stale, with its lag hours and its consecutive stale days."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Date`, MEASURE(`Max Lag Hours`) AS lag_hours, MEASURE(`Longest Stale Run Days`) AS consecutive_stale_days\n",
+                "FROM smbc_genie.metrics.mv_delta_sharing_freshness\n",
+                "WHERE `Shared Table` = 'share_jp_parent_rating' AND `Is Stale`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Date`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b7e3d4e096ec87b478acca6a00000013",
+          "question": [
+            "For the pay_payment_message:key_unique DQ rule, how many rows failed and how many were de-duplicated in each layer in the latest DQ run? Show the layer, rule, failed rows and de-duplicated rows."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Layer`, `Rule`, MEASURE(`Rule Failed Rows`) AS failed_rows, MEASURE(`Rows De-duplicated`) AS rows_deduplicated\n",
+                "FROM smbc_genie.metrics.mv_data_quality\n",
+                "WHERE `Rule` = 'pay_payment_message:key_unique'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Layer`"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

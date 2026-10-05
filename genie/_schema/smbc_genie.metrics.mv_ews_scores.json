@@ -1,0 +1,289 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date of the score date. Today is 30-Sep-2026 (never use CURRENT_DATE); \"last N days\" means Date between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date return the last date of any longer period you group by.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the score date as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the score date, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the score date).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Final EWS band on the score date after steward overrides: Green (score < 40), Amber (40-69) or Red (>= 70) - the band to report (\"Red today\" = Date 2026-09-30 and Daily EWS Band = Red).",
+   "is_measure": false,
+   "name": "Daily EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Band computed from the composite score before any steward override (Green, Amber, Red).",
+   "is_measure": false,
+   "name": "Model Band",
+   "type": "string"
+  },
+  {
+   "comment": "Final band move on the day, e.g. Green to Amber, Amber to Red (null when unchanged); daily moves can flicker around 40 / 70.",
+   "is_measure": false,
+   "name": "Band Change",
+   "type": "string"
+  },
+  {
+   "comment": "Rationale of the steward override in force, e.g. Parent support confirmed (JP data): keepwell from the Japanese parent ...; null when no override.",
+   "is_measure": false,
+   "name": "Override Reason",
+   "type": "string"
+  },
+  {
+   "comment": "Direction of the override in force: Soften (band lowered), Escalate (band raised) or Affirm; null when none.",
+   "is_measure": false,
+   "name": "Override Direction",
+   "type": "string"
+  },
+  {
+   "comment": "The three strongest EWS triggers of the score's month (most score points, then severity), e.g. UTIL_HIGH, COV_BREACH, DPD_30 - UTIL_HIGH = utilisation >= 90%, COV_BREACH = covenant breach, COV_HEADROOM_LOW = covenant headroom < 10%, NEWS_NEGATIVE = negative news; details in mv_ews_signals.",
+   "is_measure": false,
+   "name": "Top Triggers",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist on the score date (the register membership that day).",
+   "is_measure": false,
+   "name": "Watchlisted Daily",
+   "type": "boolean"
+  },
+  {
+   "comment": "Credit analyst of the client (latest credit review, else the CRM team analyst; fictional name).",
+   "is_measure": false,
+   "name": "Credit Analyst",
+   "type": "string"
+  },
+  {
+   "comment": "Clients with an EWS score on the last day of the selection (point-in-time).",
+   "is_measure": true,
+   "name": "Clients Scored",
+   "type": "bigint"
+  },
+  {
+   "comment": "Composite EWS score (0-100) on the last day of the selection - for one client its latest score, for several their average.",
+   "is_measure": true,
+   "name": "Latest Score",
+   "type": "double"
+  },
+  {
+   "comment": "Average daily composite score over all days of the selection (e.g. a month's average); use Latest Score for the score at a date.",
+   "is_measure": true,
+   "name": "Average Score",
+   "type": "double"
+  },
+  {
+   "comment": "Clients in the Red final band on the last day of the selection (point-in-time).",
+   "is_measure": true,
+   "name": "Clients Red",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients in the Amber final band on the last day of the selection (point-in-time).",
+   "is_measure": true,
+   "name": "Clients Amber",
+   "type": "bigint"
+  },
+  {
+   "comment": "Drawn lending exposure (month-end of the score month) of clients Red on the last day of the selection, USD.",
+   "is_measure": true,
+   "name": "Exposure in Red USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn lending exposure of clients Amber on the last day of the selection, USD (by Month = month-end).",
+   "is_measure": true,
+   "name": "Exposure in Amber USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn lending exposure of all scored clients on the last day of the selection, USD.",
+   "is_measure": true,
+   "name": "Exposure Scored USD",
+   "type": "double"
+  },
+  {
+   "comment": "Clients Amber on the last day of the selection that were Green 30 days earlier (robust to day-to-day flicker) - with Date = 2026-09-30 it answers \"moved from Green to Amber in the last 30 days\".",
+   "is_measure": true,
+   "name": "Moved Green to Amber 30D",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients whose final band entered Red (from Green or Amber) on a day in the selection - a flow over the period.",
+   "is_measure": true,
+   "name": "Entered Red",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average consecutive days the clients have been in their current final band on the last day of the selection.",
+   "is_measure": true,
+   "name": "Average Days in Current Band",
+   "type": "double"
+  },
+  {
+   "comment": "Steward overrides made or re-confirmed on days in the selection (this year = Fiscal Year FY2026) - a flow.",
+   "is_measure": true,
+   "name": "Override Events",
+   "type": "bigint"
+  },
+  {
+   "comment": "Override events whose reason is parent support confirmed from the Japan share (keepwell / parent rating).",
+   "is_measure": true,
+   "name": "Parent Support Overrides",
+   "type": "bigint"
+  },
+  {
+   "comment": "Override events confirmed on a day the JP share feed was stale (refresh lag > 24h) - audit flag.",
+   "is_measure": true,
+   "name": "Overrides on Stale Data",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients whose final band differs from the model band on the last day of the selection.",
+   "is_measure": true,
+   "name": "Clients Overridden",
+   "type": "bigint"
+  },
+  {
+   "comment": "Scored clients on the credit watchlist on the last day of the selection.",
+   "is_measure": true,
+   "name": "Watchlisted Clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client-days scored in the selection (a flow), e.g. days a client spent in a band (group by Daily EWS Band or Model Band).",
+   "is_measure": true,
+   "name": "Client Days",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Daily early-warning (EWS) scores of SMBC's APAC credit clients, 1-Apr-2025 to 30-Sep-2026: composite score 0-100, final band after overrides (Green < 40, Amber 40-69, Red >= 70) and the model band, clients and exposure in Red / Amber, moves Green to Amber over 30 days, entries into Red, days in band, steward overrides (parent support from the JP share, stale-data flag), top triggers and watchlist status. Scores, bands, counts and exposure are POINT-IN-TIME: they return the last day of the selected period (Date = DATE'2026-09-30' or Is Latest Month for today; by Month = month-end). Override events and Red entries are flows. Grain: one row per client per day (gold.fact_ews_score_daily, daily scoring incl. weekends).",
+ "identifier": "smbc_genie.metrics.mv_ews_scores",
+ "type": "METRIC_VIEW"
+}

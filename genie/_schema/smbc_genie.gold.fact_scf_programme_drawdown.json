@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "SCF invoice id.",
+   "is_measure": false,
+   "name": "invoice_id",
+   "type": "string"
+  },
+  {
+   "comment": "SCF programme id; join gold.dim_scf_programme.",
+   "is_measure": false,
+   "name": "programme_id",
+   "type": "string"
+  },
+  {
+   "comment": "Payables Finance (buyer-led) or Receivables Finance (seller-led).",
+   "is_measure": false,
+   "name": "programme_type",
+   "type": "string"
+  },
+  {
+   "comment": "PRD-PAYABLES-FINANCE or PRD-RECEIVABLES-FINANCE; join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version of the anchor valid on the invoice date (as-was, D11).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client id of the programme anchor (buyer for payables finance).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Trade-platform party id of the anchor.",
+   "is_measure": false,
+   "name": "anchor_party_id",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office of the anchor (ISO-2).",
+   "is_measure": false,
+   "name": "anchor_country",
+   "type": "string"
+  },
+  {
+   "comment": "SCF supplier id (supplier of the anchor; not a bank client).",
+   "is_measure": false,
+   "name": "supplier_id",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier name (fictional).",
+   "is_measure": false,
+   "name": "supplier_name",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier country (ISO-2).",
+   "is_measure": false,
+   "name": "supplier_country",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier spend segment within its programme by invoice value Oct-2025 to Sep-2026: Strategic (top 20%), Core (next 30%) or Long tail (bottom 50%).",
+   "is_measure": false,
+   "name": "supplier_segment",
+   "type": "string"
+  },
+  {
+   "comment": "True when the supplier is onboarded to the programme (able to finance) at the as-of date.",
+   "is_measure": false,
+   "name": "is_supplier_onboarded",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date the supplier was onboarded (null = not onboarded).",
+   "is_measure": false,
+   "name": "supplier_onboarded_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the supplier's own payments route to another bank (an account-opening opportunity).",
+   "is_measure": false,
+   "name": "supplier_routes_to_other_bank",
+   "type": "boolean"
+  },
+  {
+   "comment": "Supplier's invoice number.",
+   "is_measure": false,
+   "name": "supplier_invoice_no",
+   "type": "string"
+  },
+  {
+   "comment": "Invoice date (the grain date).",
+   "is_measure": false,
+   "name": "invoice_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of invoice_date.",
+   "is_measure": false,
+   "name": "invoice_month",
+   "type": "date"
+  },
+  {
+   "comment": "Date the anchor approved the invoice for payment / financing.",
+   "is_measure": false,
+   "name": "approval_date",
+   "type": "date"
+  },
+  {
+   "comment": "Invoice due date (the anchor pays the bank / supplier then).",
+   "is_measure": false,
+   "name": "due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Invoice currency (ISO 4217).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Approved invoice amount in USD (flow).",
+   "is_measure": false,
+   "name": "invoice_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when the supplier drew down (financed the invoice early) - a drawdown.",
+   "is_measure": false,
+   "name": "is_financed",
+   "type": "boolean"
+  },
+  {
+   "comment": "Drawdown date (null when not financed).",
+   "is_measure": false,
+   "name": "financing_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of financing_date (null when not financed) - use for Financed USD by month.",
+   "is_measure": false,
+   "name": "financing_month",
+   "type": "date"
+  },
+  {
+   "comment": "Amount advanced to the supplier in USD (0 when not financed; flow at financing_date).",
+   "is_measure": false,
+   "name": "financed_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Share of the invoice advanced (0-1).",
+   "is_measure": false,
+   "name": "advance_rate",
+   "type": "double"
+  },
+  {
+   "comment": "Annual discount rate charged (% p.a.).",
+   "is_measure": false,
+   "name": "discount_rate_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Days from financing to the due date (null when not financed). Average Days Financed = SUM(days_financed) / count_if(is_financed).",
+   "is_measure": false,
+   "name": "days_financed",
+   "type": "int"
+  },
+  {
+   "comment": "financed_amount_usd x days_financed (USD-days, for the annualised yield).",
+   "is_measure": false,
+   "name": "financed_usd_days",
+   "type": "double"
+  },
+  {
+   "comment": "Discount (financing income to the bank) in USD (0 when not financed).",
+   "is_measure": false,
+   "name": "discount_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Cash paid to the supplier = financed amount - discount (USD).",
+   "is_measure": false,
+   "name": "net_proceeds_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Approved (awaiting due date), Financed (drawn, not yet due), Settled (financed and repaid) or Paid at Maturity (not financed).",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "True when financed on / before 30-Sep-2026 and not yet due (counts in the programme's drawn amount).",
+   "is_measure": false,
+   "name": "is_outstanding_at_as_of",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Supply-chain-finance invoices from Apr-2024: one row per approved supplier invoice uploaded to an SCF programme (payables / receivables finance) with the anchor buyer (golden client), the supplier (name, country, onboarding, whether it banks elsewhere, spend segment), invoice / approval / due dates, invoice amount, and - when the supplier drew down (is_financed) - the financing date, financed amount, advance rate, discount rate, days financed, discount (financing income) and net proceeds. Amounts are flows by their dates (additive). Yield bps = 10000 x SUM(discount_amount_usd) / SUM(financed_usd_days / 365). Suppliers are not bank clients (no golden id); golden_client_* is the anchor. Grain: one row per SCF invoice (invoice_id).",
+ "identifier": "smbc_genie.gold.fact_scf_programme_drawdown",
+ "type": "MANAGED"
+}

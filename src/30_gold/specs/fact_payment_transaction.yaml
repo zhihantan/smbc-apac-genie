@@ -1,0 +1,76 @@
+table: fact_payment_transaction
+domain: tb
+comment: >-
+  One row per client payment (inbound and outbound) through SMBC APAC from 1-Apr-2024 to 30-Sep-2026, after the
+  silver de-duplication of the 17-Jun-2026 replay file (storyline 12: exactly one row per payment_id, totals equal
+  silver): channel (SWIFT MT, ISO 20022, host-to-host, payments API, portal, RTGS, FAST), direction, purpose
+  (supplier, payroll, tax, intercompany, loan service, dividend, trade settlement), client / counterparty / payer /
+  payee country and money corridor, cross-border flag, counterparty bank (SMBC, a competitor bank or intercompany),
+  STP / repair reason / processing time, the account currency and the tariff fee. Amounts are flows (additive).
+  The richest signal source of the Customer 360: payments to other banks, supplier counts, trade corridors.
+grain: one row per payment message (payment_id)
+primary_key: [payment_id]
+foreign_keys:
+  - {columns: [payment_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [account_id], references: dim_account}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [counterparty_bank_id], references: dim_competitor_bank}
+  - {columns: [client_country], references: dim_country}
+  - {columns: [counterparty_country], references: dim_country}
+cluster_by: [payment_date, golden_client_sk]
+min_rows: 100000
+columns:
+  payment_id: {type: STRING, comment: "Payment message id (unique after the silver replay de-duplication)."}
+  payment_date: {type: DATE, comment: "Value / processing date of the payment."}
+  month: {type: DATE, comment: "First day of the month of payment_date."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  cust_no: {type: STRING, comment: "Core-banking customer number (source identity record) of the paying / receiving client."}
+  account_id: {type: STRING, comment: "Client account debited (outbound) or credited (inbound); join gold.dim_account."}
+  booking_country: {type: STRING, comment: "APAC booking location of the client account (ISO-2); join gold.dim_booking_entity."}
+  currency: {type: STRING, comment: "ISO 4217 currency of the client account the payment is booked to (the payments feed reports USD only)."}
+  amount_usd: {type: DOUBLE, comment: "Payment amount in USD (flow, always positive; direction gives the sign of the cash flow)."}
+  amount_lcy: {type: DOUBLE, comment: "Payment amount in the account currency, derived from amount_usd at the payment-date rate of gold.fx_rate_daily."}
+  direction: {type: STRING, comment: "Inbound (client receives) or Outbound (client pays)."}
+  channel: {type: STRING, comment: "Channel / rail: SWIFT MT, ISO 20022, Host-to-Host, Payments API, Portal, RTGS or FAST."}
+  channel_type: {type: STRING, comment: "Digital (Portal, Payments API, Host-to-Host - client-initiated electronically) or Network rail (SWIFT MT, ISO 20022, RTGS, FAST - where operations may still key manual instructions)."}
+  payment_purpose: {type: STRING, comment: "Supplier, Payroll, Tax, Intercompany, Loan Service, Dividend or Trade Settlement."}
+  is_trade_settlement: {type: BOOLEAN, comment: "True when payment_purpose = Trade Settlement (trade flows visible from payments)."}
+  client_country: {type: STRING, comment: "Country of the SMBC client side of the payment (the source's debtor_country field, which records the client's country for both directions)."}
+  counterparty_country: {type: STRING, comment: "Country of the counterparty (beneficiary for outbound, remitter for inbound)."}
+  payer_country: {type: STRING, comment: "Country the money leaves: client_country for outbound, counterparty_country for inbound."}
+  payee_country: {type: STRING, comment: "Country the money goes to: counterparty_country for outbound, client_country for inbound."}
+  corridor: {type: STRING, comment: "Money-flow corridor payer_country->payee_country, e.g. CN->VN (Kinokawa's China entity paying Vietnam)."}
+  is_cross_border: {type: BOOLEAN, comment: "True for cross-border payments (as flagged by the payments hub)."}
+  counterparty_bank_type: {type: STRING, comment: "SMBC (on-us), Other Bank (competitor bank) or Intercompany (transfer within the client group)."}
+  counterparty_bank_name: {type: STRING, comment: "Counterparty bank name (fictional competitors, SMBC or Intercompany)."}
+  counterparty_bank_id: {type: STRING, comment: "Counterparty bank key BNK-<NAME>; join gold.dim_competitor_bank."}
+  is_other_bank_counterparty: {type: BOOLEAN, comment: "True when the counterparty banks with a competitor (Other Bank). Share paid via other banks = SUM(amount_usd WHERE true) / SUM(amount_usd) for outbound payments."}
+  counterparty_ref: {type: STRING, comment: "Pseudonymous counterparty id for supplier and trade-settlement payments (count distinct = distinct suppliers / trading partners); null for other purposes."}
+  stp_flag: {type: BOOLEAN, comment: "True when the payment went straight through (no manual repair). STP rate = count_if(stp_flag) / count(*)."}
+  is_repaired: {type: BOOLEAN, comment: "True when the payment needed a manual repair (not STP)."}
+  repair_reason: {type: STRING, comment: "Why the payment was repaired: FX cover missing, Invalid BIC, Missing beneficiary, Sanctions hold, Format error or Duplicate instruction; null for STP payments."}
+  processing_seconds: {type: INT, comment: "End-to-end processing time in seconds (repairs take hours)."}
+  product_id: {type: STRING, comment: "Payments product: PRD-CROSS-BORDER-PAYMENTS or PRD-DOMESTIC-PAYMENTS; join gold.dim_product."}
+  fee_usd: {type: DOUBLE, comment: "Payment fee income in USD from the bank's TB tariff used by the finance engine: USD 3 per payment message plus 10 bps of the value of cross-border payments (flow)."}
+checks:
+  - name: no_duplicate_payment_ids_vs_silver   # storyline 12: one row per payment, none lost
+    sql: >-
+      SELECT abs((SELECT count(DISTINCT payment_id) FROM ${table}) - (SELECT count(DISTINCT payment_id) FROM ${catalog}.silver.pay_payment_message))
+      + abs((SELECT count(*) FROM ${table}) - (SELECT count(DISTINCT payment_id) FROM ${table}))
+  - name: stp_and_repair_consistent
+    sql: SELECT count_if(stp_flag = is_repaired OR (stp_flag AND repair_reason IS NOT NULL) OR (NOT stp_flag AND repair_reason IS NULL)) FROM ${table}
+  - name: positive_amounts
+    sql: SELECT count_if(amount_usd IS NULL OR amount_usd <= 0) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.pay_payment_message
+  - name: amount_usd_vs_silver
+    gold: SELECT round(sum(amount_usd)) FROM ${table}
+    silver: SELECT round(sum(amount_usd)) FROM ${catalog}.silver.pay_payment_message
+    tolerance: 1

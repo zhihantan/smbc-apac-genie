@@ -1,0 +1,61 @@
+{
+ "columns": [
+  {
+   "comment": "Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group label = industry sector - subsector (e.g. Energy - Oil, Gas & Coal).",
+   "is_measure": false,
+   "name": "peer_group_name",
+   "type": "string"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_sector",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_subsector",
+   "type": "string"
+  },
+  {
+   "comment": "True when the peer group's subsector is carbon-intensive.",
+   "is_measure": false,
+   "name": "is_carbon_intensive",
+   "type": "boolean"
+  },
+  {
+   "comment": "Distinct financial ratios benchmarked for the peer group.",
+   "is_measure": false,
+   "name": "n_benchmark_ratios",
+   "type": "int"
+  },
+  {
+   "comment": "Earliest fiscal year with peer benchmarks.",
+   "is_measure": false,
+   "name": "first_benchmark_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Latest fiscal year with peer benchmarks.",
+   "is_measure": false,
+   "name": "last_benchmark_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Clients in the peer sample in the latest benchmarked fiscal year (maximum over ratios).",
+   "is_measure": false,
+   "name": "n_peers_latest",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Peer groups used to benchmark client financial ratios (P25 / median / P75 per ratio and fiscal year in fact_peer_benchmark_annual): one peer group per industry subsector, with the benchmark coverage. Grain: one row per peer group.",
+ "identifier": "smbc_genie.gold.dim_peer_group",
+ "type": "MANAGED"
+}

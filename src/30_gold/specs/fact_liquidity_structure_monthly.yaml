@@ -1,0 +1,77 @@
+table: fact_liquidity_structure_monthly
+domain: tb
+comment: >-
+  Liquidity structures (cash pools) at each month-end from Apr-2023: notional pooling, physical pooling, sweeps and
+  interest optimisation set up for multi-entity client groups, one row per member account (the header account and
+  every participant account live at the month-end) with the member's country, currency, role and month-end
+  balance, the structure attributes (type, header account / country, pooling currency, sweep frequency,
+  cross-border flag, interest benefit, monthly fee) and the estimated interest saved. Structures = count distinct
+  structure_id (or SUM(is_header)); Participants = count of rows with role Participant; Pooled Balance = SUM of
+  member_balance_usd at one month-end (POINT-IN-TIME: never sum balances across months). interest_saved_usd and
+  monthly_fee_usd are monthly flows (the fee sits on the header row only).
+grain: one row per liquidity structure per member account (header or participant) per month-end while the structure is active
+primary_key: [structure_id, member_account_id, month_end_date]
+foreign_keys:
+  - {columns: [month_end_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [member_account_id], references: dim_account}
+  - {columns: [header_account_id], references: dim_account}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [header_country], references: dim_booking_entity}
+  - {columns: [member_country], references: dim_booking_entity}
+  - {columns: [pooling_currency], references: dim_currency}
+  - {columns: [member_currency], references: dim_currency}
+cluster_by: [month_end_date, golden_client_sk]
+min_rows: 1000
+columns:
+  structure_id: {type: STRING, comment: "Liquidity structure (cash pool) id."}
+  member_account_id: {type: STRING, comment: "Account in the structure (the header account or a participant account); join gold.dim_account."}
+  month_end_date: {type: DATE, comment: "Month-end of the snapshot (the structure and the member are active on this date)."}
+  month: {type: DATE, comment: "First day of the month of month_end_date."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version (as-was at the month-end) of the client holding the member account."}
+  golden_client_id: {type: STRING, not_null: true, comment: "Golden client id of the client holding the member account (group entity)."}
+  client_group_id: {type: STRING, comment: "Client group of the structure (all members belong to the same group); join gold.dim_client_group."}
+  structure_name: {type: STRING, comment: "Structure label (group + structure type + region)."}
+  structure_type: {type: STRING, comment: "Notional Pooling, Physical Pooling, Sweep or Interest Optimisation."}
+  product_id: {type: STRING, comment: "Product of the structure type (PRD-NOTIONAL-POOLING, PRD-PHYSICAL-POOLING, PRD-SWEEP, PRD-INTEREST-OPTIMISATION); join gold.dim_product."}
+  header_account_id: {type: STRING, comment: "Header (master) account of the structure."}
+  header_golden_client_id: {type: STRING, comment: "Golden client id of the header account holder (the group treasury entity running the pool)."}
+  header_country: {type: STRING, comment: "Booking country of the header account (ISO-2)."}
+  pooling_currency: {type: STRING, comment: "Currency the structure pools / reports in (ISO 4217)."}
+  sweep_frequency: {type: STRING, comment: "Daily, Intraday, Weekly, Monthly or Daily (Notional) for notional pools."}
+  is_cross_border: {type: BOOLEAN, comment: "True when the structure spans more than one country."}
+  interest_benefit_bps: {type: DOUBLE, comment: "Estimated annual interest benefit of the structure on pooled balances, in basis points."}
+  structure_start_date: {type: DATE, comment: "Date the structure went live."}
+  member_role: {type: STRING, comment: "Header or Participant."}
+  is_header: {type: BOOLEAN, comment: "True for the header account row (one per structure and month-end; use SUM(is_header) or count distinct structure_id to count structures)."}
+  member_country: {type: STRING, comment: "Booking country of the member account (ISO-2) - the participant country."}
+  member_currency: {type: STRING, comment: "Currency of the member account (ISO 4217)."}
+  sweep_direction: {type: STRING, comment: "How funds move for a participant: Notional (no movement), Two-way or Concentration only; null for the header."}
+  target_balance_lcy: {type: DOUBLE, comment: "Target balance left on the participant account after sweeps, in the member currency (null for notional / header)."}
+  member_join_date: {type: DATE, comment: "Date the account joined the structure."}
+  member_balance_usd: {type: DOUBLE, comment: "Month-end balance of the member account in USD (point-in-time; never sum across months; 0 when the account joined before it was funded)."}
+  member_balance_lcy: {type: DOUBLE, comment: "Month-end balance of the member account in its own currency."}
+  interest_saved_usd: {type: DOUBLE, comment: "Estimated interest saved / earned in the month thanks to the structure = member_balance_usd x interest_benefit_bps / 10000 / 12 (USD, monthly flow, estimate)."}
+  monthly_fee_usd: {type: DOUBLE, comment: "Monthly structure fee charged to the client (USD, on the header row only; 0 on participant rows)."}
+  structure_members: {type: INT, comment: "Accounts in the structure at the month-end incl. the header (structure attribute repeated on every row - do not sum)."}
+  structure_countries: {type: INT, comment: "Distinct member countries of the structure at the month-end (structure attribute - do not sum)."}
+  structure_countries_text: {type: STRING, comment: "Member countries of the structure at the month-end, comma-separated (e.g. HK, SG, TH)."}
+  is_latest_month_end: {type: BOOLEAN, comment: "True for the as-of month-end 30-Sep-2026."}
+checks:
+  - name: one_header_per_structure_month
+    sql: >-
+      SELECT count(*) FROM (SELECT structure_id, month_end_date FROM ${table} GROUP BY ALL HAVING count_if(is_header) <> 1)
+  - name: member_balances_match_deposit_fact   # members without a month-end balance row are not funded yet (0)
+    sql: >-
+      SELECT count_if(abs(f.member_balance_usd - coalesce(d.balance_usd, 0.0)) > 0.005) FROM ${table} f
+      LEFT JOIN ${catalog}.gold.fact_deposit_balance_monthly d
+      ON d.account_id = f.member_account_id AND d.balance_date = f.month_end_date
+  - name: fee_only_on_header
+    sql: SELECT count_if(NOT is_header AND monthly_fee_usd <> 0) FROM ${table}
+reconcile:
+  - name: active_structures_at_as_of_vs_silver
+    gold: SELECT count(DISTINCT structure_id) FROM ${table} WHERE is_latest_month_end
+    silver: >-
+      SELECT count(*) FROM ${catalog}.silver.core_liquidity_structure WHERE start_date <= DATE'${as_of_date}'
+      AND (end_date IS NULL OR end_date > DATE'${as_of_date}')

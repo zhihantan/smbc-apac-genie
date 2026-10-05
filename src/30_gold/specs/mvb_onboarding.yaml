@@ -1,0 +1,86 @@
+table: mvb_onboarding
+domain: onboarding
+comment: >-
+  Metric-view base for the onboarding funnel (mv_onboarding_funnel, D13): a record_type union of Case rows (one
+  per onboarding case - is_primary_row), Product Request rows (one per case x product requested), Document
+  rows (one per KYC document requested) and Feedback rows (one per post-onboarding survey). Case descriptors
+  (booking country, segment, request month / fiscal year, status, current stage, owner, blocker, match timing,
+  KYC-migration period, over-SLA and stuck-in-KYC-Docs flags) repeat on every row for slicing; case measures are
+  populated only on Case rows, document / feedback / product fields only on their own rows, so counts never
+  double. Examples: Cases Opened = COUNT_IF(is_primary_row); Conversion to Live % = COUNT_IF(is_live) /
+  COUNT_IF(is_primary_row AND NOT is_open); Matched to Existing Group % = COUNT_IF(matched_existing_group) /
+  COUNT_IF(is_primary_row); documents outstanding = COUNT_IF(is_document_outstanding); average satisfaction =
+  AVG(satisfaction_score).
+grain: one row per record_type x record (case, case x product, document or survey response)
+primary_key: [record_type, record_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [record_date], references: dim_date}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [owner_id], references: dim_employee}
+cluster_by: [record_type, record_date, golden_client_sk]
+min_rows: 3000
+columns:
+  record_type: {type: STRING, comment: "Row type: Case, Product Request, Document or Feedback."}
+  record_id: {type: STRING, comment: "Key within the type: case_id, case_id|product, document_id or feedback_id."}
+  is_primary_row: {type: BOOLEAN, comment: "True on the one Case row per onboarding case - use for case counts."}
+  record_date: {type: DATE, comment: "Request date (Case, Product Request), document requested date (Document) or survey date (Feedback)."}
+  case_id: {type: STRING, comment: "Onboarding case (ONB-nnnnn) of the row."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the onboarded client at the request date (null for applicants that never went live)."}
+  golden_client_id: {type: STRING, comment: "Golden client of the case (null for applicants that never went live)."}
+  client_group_id: {type: STRING, comment: "Client group of the case (ER group, else the intake link)."}
+  booking_country: {type: STRING, comment: "Booking location of the case (ISO-2)."}
+  segment: {type: STRING}
+  request_date: {type: DATE, comment: "Request date of the case."}
+  request_month: {type: DATE, comment: "First day of the request month."}
+  request_fiscal_year: {type: INT, comment: "Japanese fiscal year of the request (this fiscal year = 2026, last = 2025)."}
+  case_status: {type: STRING, comment: "Case status: Open, Live, Withdrawn or Rejected."}
+  current_stage: {type: STRING, comment: "Stage the case is in / ended in (Complete = live and transacted)."}
+  owner_id: {type: STRING, comment: "Onboarding officer owning the case (employee_id)."}
+  blocker_reason: {type: STRING, comment: "Blocker of an open case (e.g. Workflow Migration Backlog)."}
+  match_timing: {type: STRING, comment: "Group match: At Intake, After Account Opening or New Group."}
+  primary_product: {type: STRING, comment: "Anchor product requested (Current Account / Correspondent Account)."}
+  kyc_migration_period: {type: STRING, comment: "Request period vs the Feb-2026 KYC migration: Pre-migration, Migration (Feb-2026), Backlog peak (Mar-May 2026), Recovery (from Jun-2026)."}
+  case_over_sla: {type: BOOLEAN, comment: "Case descriptor: open case whose current stage is over its SLA (over SLA right now)."}
+  case_stuck_in_kyc_docs_15d: {type: BOOLEAN, comment: "Case descriptor: open case in KYC Docs for more than 15 days."}
+  products_requested: {type: STRING, comment: "Case rows: products requested ('; '-separated)."}
+  n_products_requested: {type: INT, comment: "Case rows: number of products requested."}
+  is_open: {type: BOOLEAN, comment: "Case rows: open case."}
+  is_live: {type: BOOLEAN, comment: "Case rows: case went live."}
+  is_withdrawn: {type: BOOLEAN, comment: "Case rows: case withdrawn."}
+  is_rejected: {type: BOOLEAN, comment: "Case rows: case rejected."}
+  matched_existing_group: {type: BOOLEAN, comment: "Case rows: matched to an existing client group (at intake or after account opening)."}
+  go_live_date: {type: DATE, comment: "Case rows: go-live date (end of Account Open)."}
+  go_live_fiscal_year: {type: INT, comment: "Case rows: fiscal year of go-live (2026 = onboarded in FY2026)."}
+  days_to_live: {type: INT, comment: "Case rows: days from request to go-live (live cases)."}
+  first_transaction_lag_days: {type: INT, comment: "Case rows: days from go-live to the first transaction."}
+  transacted_within_60d: {type: BOOLEAN, comment: "Case rows (live): first transaction within 60 days of go-live; false = not activated within 60 days."}
+  days_in_current_stage: {type: INT, comment: "Case rows (open): days in the current stage."}
+  documents_outstanding: {type: INT, comment: "Case rows: documents outstanding on the case."}
+  product_requested: {type: STRING, comment: "Product Request rows: one product requested (e.g. Current Account, Payments, Time Deposit, Trade Finance, FX)."}
+  document_type: {type: STRING, comment: "Document rows: KYC document type (e.g. UBO Declaration, Board Resolution)."}
+  document_status: {type: STRING, comment: "Document rows: Received, Outstanding, Waived or Cancelled."}
+  is_mandatory_document: {type: BOOLEAN, comment: "Document rows: mandatory document."}
+  is_document_outstanding: {type: BOOLEAN, comment: "Document rows: still outstanding at the as-of date."}
+  document_days_outstanding: {type: INT, comment: "Document rows: days outstanding at the as-of date."}
+  satisfaction_score: {type: INT, comment: "Feedback rows: survey score 1-5."}
+  feedback_sentiment: {type: STRING, comment: "Feedback rows: Negative (1-2), Neutral (3) or Positive (4-5)."}
+  is_negative_feedback: {type: BOOLEAN, comment: "Feedback rows: negative response (score <= 2)."}
+  feedback_theme: {type: STRING, comment: "Feedback rows: comment theme (Turnaround Time, Relationship Manager, Account Setup, Digital Portal, Communication, Document Requests)."}
+  feedback_comment: {type: STRING, comment: "Feedback rows: client comment text."}
+checks:
+  - name: one_case_row_per_case
+    sql: SELECT abs(count_if(is_primary_row) - (SELECT count(*) FROM ${catalog}.gold.fact_onboarding_case)) FROM ${table}
+  - name: case_measures_only_on_case_rows
+    sql: SELECT count_if(record_type <> 'Case' AND (is_live IS NOT NULL OR days_to_live IS NOT NULL)) FROM ${table}
+reconcile:
+  - name: case_rows_vs_silver
+    gold: SELECT count_if(record_type = 'Case') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_case
+  - name: document_rows_vs_silver
+    gold: SELECT count_if(record_type = 'Document') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_document
+  - name: feedback_rows_vs_silver
+    gold: SELECT count_if(record_type = 'Feedback') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_feedback

@@ -1,0 +1,61 @@
+table: fact_trade_document_check
+domain: trade
+comment: >-
+  One row per LC document presentation examined by trade operations (import and export LCs) from May-2023: received
+  and checked timestamps, turnaround hours vs the 24-hour SLA, discrepant flag with discrepancy count / types /
+  primary type, decision (complying, discrepant - waived or refused, pending examination), re-presentation flag,
+  amount, operations team and booking location, LC amendments made before the presentation, and each client's
+  discrepancy-rate trend (H1 FY2026 vs H2 FY2025) as an early-warning input. Discrepancy rate =
+  count_if(is_discrepant) / count_if(is_examined); median turnaround over examined rows; Amendments per
+  Transaction = SUM(txn_amendment_count WHERE is_first_presentation) / count distinct txn_id.
+grain: one row per document presentation (presentation_id)
+primary_key: [presentation_id]
+foreign_keys:
+  - {columns: [txn_id], references: fact_trade_finance_transaction}
+  - {columns: [received_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [received_date, golden_client_sk]
+min_rows: 5000
+columns:
+  presentation_id: {type: STRING, comment: "Document presentation id (instrument id + presentation number)."}
+  txn_id: {type: STRING, comment: "LC the documents were presented under (join gold.fact_trade_finance_transaction)."}
+  presentation_no: {type: INT, comment: "Sequence of the presentation under the LC (1 = first)."}
+  is_first_presentation: {type: BOOLEAN, comment: "True for the LC's first presentation (one row per LC - use for per-transaction measures)."}
+  is_re_presentation: {type: BOOLEAN, comment: "True when the documents were re-presented after a refusal."}
+  received_ts: {type: TIMESTAMP, comment: "Timestamp the documents were received by trade operations."}
+  received_date: {type: DATE, comment: "Date the documents were received (the grain date)."}
+  month: {type: DATE, comment: "First day of the month of received_date."}
+  checked_ts: {type: TIMESTAMP, comment: "Timestamp the examination was completed (null while pending)."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  product_type: {type: STRING, comment: "Import LC or Export LC."}
+  product_id: {type: STRING, comment: "PRD-IMPORT-LC or PRD-EXPORT-LC; join gold.dim_product."}
+  booking_country: {type: STRING, comment: "Booking location of the LC (ISO-2)."}
+  ops_team: {type: STRING, comment: "Trade operations team that examined the documents (e.g. SG Trade Ops Hub, VN Trade Ops)."}
+  amount_usd: {type: DOUBLE, comment: "Amount claimed under the presentation in USD."}
+  turnaround_hours: {type: DOUBLE, comment: "Hours from receipt to completed examination (null while pending). Use the median over examined rows."}
+  sla_hours: {type: DOUBLE, comment: "Examination SLA in hours (24)."}
+  is_over_sla: {type: BOOLEAN, comment: "True when the examination took longer than the SLA."}
+  is_examined: {type: BOOLEAN, comment: "True once the examination is complete (decision is not Pending Examination) - the denominator of the discrepancy rate."}
+  is_discrepant: {type: BOOLEAN, comment: "True when the documents were found discrepant (false for complying and pending)."}
+  discrepancy_count: {type: INT, comment: "Number of discrepancies found (0 when complying)."}
+  discrepancy_types: {type: STRING, comment: "All discrepancy types found, semicolon-separated."}
+  primary_discrepancy_type: {type: STRING, comment: "Main discrepancy (e.g. Late Shipment, Inconsistent Data Between Documents); None for complying presentations; null while pending."}
+  decision: {type: STRING, comment: "Complying, Discrepant - Waived, Discrepant - Refused or Pending Examination."}
+  is_waived: {type: BOOLEAN, comment: "True when discrepancies were waived by the applicant."}
+  is_refused: {type: BOOLEAN, comment: "True when the presentation was refused."}
+  amendments_before_presentation: {type: INT, comment: "LC amendments made on or before the date the documents were received."}
+  txn_amendment_count: {type: INT, comment: "All amendments of the LC (instrument attribute repeated on each of its presentations - sum it only over is_first_presentation rows)."}
+  client_discrepancy_rate_h1_fy2026: {type: DOUBLE, comment: "Client's discrepancy rate over its examined presentations received Apr-Sep 2026 (client attribute as of 30-Sep-2026; null below 3 presentations)."}
+  client_discrepancy_rate_h2_fy2025: {type: DOUBLE, comment: "Client's discrepancy rate over its examined presentations received Oct-2025 to Mar-2026 (client attribute; null below 3 presentations)."}
+  is_client_discrepancy_rising: {type: BOOLEAN, comment: "True when the client's discrepancy rate rose by 10 points or more from H2 FY2025 to H1 FY2026 (>= 3 examined presentations in each half) - an early-warning input."}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.trade_presentation
+  - name: discrepant_vs_silver
+    gold: SELECT count_if(is_discrepant) FROM ${table}
+    silver: SELECT count_if(is_discrepant) FROM ${catalog}.silver.trade_presentation

@@ -1,0 +1,93 @@
+table: fact_client_pnl_waterfall_annual
+domain: profitability
+comment: >-
+  Client ROE waterfall per fiscal year (Client Profitability, mv_roe_waterfall): revenue -> opex (allocated
+  cost) -> credit cost (expected loss) -> pre-tax profit -> tax -> net income -> allocated capital -> ROE, for
+  FY2024, FY2025 and FY2026 to date (Apr-Sep 2026, flows not annualised; ratios annualised). Built from
+  gold.fact_client_revenue_monthly, so amounts tie to the monthly fact. ROE = annualised net income / average
+  allocated capital (12.5% of RWA; hurdle 10%); RoRWA and RAROC use the relationship-P&L net profit (hurdles 1.2%
+  and 12%) - the same definitions as the monthly fact. Ratios are winsorised to -0.25..1.00 for display while the
+  below-hurdle flags use the unwinsorised ratios; aggregate ROE = SUM(net_income_annualised_usd) /
+  SUM(avg_allocated_capital_usd). Flows add across clients (not across years of one client); average balances
+  add across clients.
+grain: one row per golden client x fiscal year (FY2026 = year to date)
+primary_key: [golden_client_id, fiscal_year]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+  - {columns: [tax_jurisdiction], references: dim_booking_entity}
+cluster_by: [fiscal_year_end_date, golden_client_sk]
+min_rows: 3000
+columns:
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_year_end_date: {type: DATE, comment: "Last day of the fiscal year (31-Mar), e.g. 2026-03-31 for FY2025."}
+  period_end_date: {type: DATE, comment: "Last day covered: the fiscal year end, or the as-of date 30-Sep-2026 for FY2026."}
+  months_in_period: {type: BIGINT, comment: "Months covered: 12 for a full year, 6 for FY2026 (H1) - annualisation factor 12 / months."}
+  is_full_year: {type: BOOLEAN, comment: "True for complete fiscal years (FY2024, FY2025); false for FY2026 to date."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version valid at period_end_date (as-was)."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  tax_jurisdiction: {type: STRING, comment: "Coverage office (ISO-2) whose statutory corporate tax rate is applied."}
+  revenue_usd: {type: DOUBLE, comment: "Total revenue in USD for the period (NII + fees + trading, incl. other TB and advisory)."}
+  nii_usd: {type: DOUBLE, comment: "Net interest income in USD for the period."}
+  fee_usd: {type: DOUBLE, comment: "Fee and commission income in USD for the period."}
+  trading_usd: {type: DOUBLE, comment: "Trading (FX) revenue in USD for the period."}
+  lending_revenue_usd: {type: DOUBLE, comment: "Revenue of the Lending business line in USD."}
+  tb_revenue_usd: {type: DOUBLE, comment: "Revenue of the Transaction Banking business line in USD (cash, liquidity, payments, trade, other TB and advisory)."}
+  markets_revenue_usd: {type: DOUBLE, comment: "Revenue of the Markets business line in USD (FX)."}
+  opex_usd: {type: DOUBLE, comment: "Operating expense = allocated cost to serve in USD for the period."}
+  credit_cost_usd: {type: DOUBLE, comment: "Credit cost = expected loss in USD for the period."}
+  pre_tax_profit_usd: {type: DOUBLE, comment: "Pre-tax profit in USD = revenue - opex - credit cost (= net contribution)."}
+  tax_rate: {type: DOUBLE, comment: "Statutory corporate tax rate applied (fraction, e.g. 0.17 for Singapore); a fixed business rule in gold."}
+  tax_usd: {type: DOUBLE, comment: "Tax in USD = max(pre-tax profit, 0) x tax_rate (no credit for losses)."}
+  net_income_usd: {type: DOUBLE, comment: "Net income in USD = pre-tax profit - tax, for the period (FY2026 = 6 months)."}
+  net_income_annualised_usd: {type: DOUBLE, comment: "Net income annualised in USD (x 12 / months_in_period) - ROE numerator."}
+  avg_ead_usd: {type: DOUBLE, comment: "Average month-end EAD over the period in USD."}
+  period_end_ead_usd: {type: DOUBLE, comment: "EAD at the last month of the period in USD (exposure for Exposure Below Hurdle)."}
+  avg_rwa_usd: {type: DOUBLE, comment: "Average month-end RWA over the period in USD (sum of monthly RWA / months_in_period)."}
+  avg_economic_capital_usd: {type: DOUBLE, comment: "Average economic capital over the period in USD - RAROC denominator."}
+  avg_allocated_capital_usd: {type: DOUBLE, comment: "Average allocated capital (12.5% of RWA) over the period in USD - ROE denominator."}
+  cost_of_capital_usd: {type: DOUBLE, comment: "Charge for allocated capital at the 10% cost of equity in USD for the period."}
+  economic_profit_usd: {type: DOUBLE, comment: "Economic profit in USD = net income - cost of capital (negative = value-destroying)."}
+  ecl_charge_usd: {type: DOUBLE, comment: "Change in the IFRS 9 ECL allowance over the period in USD (impairment charge; information, not in the waterfall)."}
+  relationship_net_profit_usd: {type: DOUBLE, comment: "Relationship net profit (pre-tax, finance hurdle basis, excl. FX and trade fees) in USD for the period - RoRWA / RAROC numerator."}
+  relationship_net_profit_annualised_usd: {type: DOUBLE, comment: "relationship_net_profit_usd x 12 / months_in_period."}
+  roe: {type: DOUBLE, comment: "ROE = net_income_annualised_usd / avg_allocated_capital_usd (fraction), winsorised to -0.25..1.00; null without capital."}
+  rorwa: {type: DOUBLE, comment: "RoRWA = relationship_net_profit_annualised_usd / avg_rwa_usd (fraction), winsorised to -0.25..1.00; null without RWA."}
+  raroc: {type: DOUBLE, comment: "RAROC = relationship_net_profit_annualised_usd / avg_economic_capital_usd (fraction), winsorised to -0.25..1.00."}
+  roe_hurdle_gap: {type: DOUBLE, comment: "roe - ROE hurdle 10% (fraction; x 100 = percentage points; negative = below hurdle)."}
+  below_roe_hurdle: {type: BOOLEAN, comment: "True when the unwinsorised ROE is below the 10% ROE hurdle (dim_threshold ROE_HURDLE); null without capital."}
+  below_rorwa_hurdle: {type: BOOLEAN, comment: "True when the unwinsorised RoRWA is below the 1.2% hurdle (dim_threshold RORWA_HURDLE; also for questions saying 8% hurdle); null without RWA."}
+  below_raroc_hurdle: {type: BOOLEAN, comment: "True when the unwinsorised RAROC is below the 12% hurdle (dim_threshold RAROC_HURDLE); null without RWA."}
+  credit_cost_to_revenue: {type: DOUBLE, comment: "credit_cost_usd / revenue_usd (fraction)."}
+  is_credit_cost_above_30pct: {type: BOOLEAN, comment: "True when credit cost exceeds 30% of revenue (dim_threshold CREDIT_COST_SHARE_HIGH)."}
+  cost_income_ratio: {type: DOUBLE, comment: "opex_usd / revenue_usd (fraction)."}
+  revenue_per_rwa: {type: DOUBLE, comment: "Annualised revenue / average RWA (fraction; low = capital-hungry relationship); null without RWA."}
+  has_capital: {type: BOOLEAN, comment: "True when the client consumed RWA in the period (credit relationship)."}
+  products_held_count: {type: BIGINT, comment: "Products held at the last month of the period."}
+  product_count_bucket: {type: STRING, comment: "Bucket of products_held_count at the period end: 0 products, 1 product, 2 products, 3-4 products, 5-7 products or 8+ products."}
+  is_single_product_lending: {type: BOOLEAN, comment: "True when, at the period end, the client's only products are credit facilities."}
+  is_lending_only_relationship: {type: BOOLEAN, comment: "True when the client is known only to the credit system (no core-banking, treasury or trade record)."}
+  is_deposit_only: {type: BOOLEAN, comment: "True when, at the period end, the client holds nothing but deposits."}
+checks:
+  - name: waterfall_adds_up
+    sql: SELECT count_if(abs(revenue_usd - opex_usd - credit_cost_usd - tax_usd - net_income_usd) > 0.05) FROM ${table}
+  - name: flags_null_without_capital
+    sql: >-
+      SELECT count_if((below_roe_hurdle IS NOT NULL OR below_rorwa_hurdle IS NOT NULL OR below_raroc_hurdle IS NOT NULL)
+      AND NOT has_capital) FROM ${table}
+  - name: ratios_null_without_capital     # greatest() skips NULLs: no capital must never show the -0.25 floor
+    sql: SELECT count_if((roe IS NOT NULL OR rorwa IS NOT NULL OR raroc IS NOT NULL OR roe_hurdle_gap IS NOT NULL) AND NOT has_capital) FROM ${table}
+reconcile:
+  - name: revenue_vs_monthly_fact
+    gold: SELECT sum(revenue_usd) FROM ${table}
+    silver: >-
+      SELECT (SELECT sum(total_revenue_usd) FROM ${catalog}.silver.fin_client_revenue)
+      + (SELECT sum(rev_other) FROM ${catalog}.silver.fin_relationship_pnl)
+    tolerance: 1
+  - name: relationship_net_profit_vs_silver
+    gold: SELECT sum(relationship_net_profit_usd) FROM ${table}
+    silver: SELECT sum(net_profit) FROM ${catalog}.silver.fin_relationship_pnl
+    tolerance: 1

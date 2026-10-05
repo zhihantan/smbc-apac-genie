@@ -1,0 +1,229 @@
+# WP9b - space 5, Client Profitability & ROE. Client x fiscal year ROE waterfall: revenue -> opex -> credit cost ->
+# tax -> net income -> allocated capital -> ROE vs the 10% hurdle. Flows are per fiscal year (filter one Fiscal
+# Year); capital and client counts are window measures (latest year of the selection); ROE / RoRWA / RAROC are ratios
+# of sums, with a median beside them because deposit-rich clients with little capital have extreme ROE.
+# Must-answer queries: metrics/_answers/client_profitability_roe.sql.
+view: mv_roe_waterfall
+space: client_profitability_roe
+comment: >-
+  ROE waterfall of SMBC APAC clients by fiscal year (FY2024, FY2025, FY2026 to date = Apr-Sep 2026; USD): revenue,
+  operating expense, credit cost (expected loss), pre-tax profit, tax, net income, allocated capital (12.5% of RWA)
+  and ROE vs the 10% hurdle (gold.dim_threshold), hurdle gap, clients and exposure below hurdle, credit cost /
+  revenue, RoRWA and RAROC (hurdle basis). Filter ONE Fiscal Year for amounts; FY2026 flows are six months while
+  ratios are annualised. ROE % = annualised net income / allocated capital (ratio of sums): deposit-rich clients
+  and groups with little capital show very high ROE - rank groups with a capital floor or read Median Client ROE.
+grain: one row per golden client x fiscal year (gold.fact_client_pnl_waterfall_annual)
+source: ${catalog}.gold.fact_client_pnl_waterfall_annual
+blocks:
+  calendar: {fy: source.fiscal_year, grain: fiscal_year, what: the P&L year}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: thr
+    source: ${catalog}.gold.dim_threshold
+    'on': "thr.threshold_code = 'ROE_HURDLE'"
+dimensions:
+  - name: Is Full Year
+    expr: source.is_full_year
+    display_name: Is Full Fiscal Year
+    comment: True for complete fiscal years (FY2024, FY2025); false for FY2026 to date (Apr-Sep 2026).
+    synonyms: [full year, complete year, closed year, year to date, partial year]
+  - name: Below ROE Hurdle
+    expr: source.below_roe_hurdle
+    display_name: Below ROE Hurdle
+    comment: True when the client's ROE for the year is below the 10% ROE hurdle; null without capital (no lending).
+    synonyms: [below hurdle, under hurdle, sub-hurdle, below cost of equity, value destroying, dilutive]
+  - name: Below RoRWA Hurdle
+    expr: source.below_rorwa_hurdle
+    display_name: Below RoRWA Hurdle
+    comment: True when the client's RoRWA for the year is below the 1.2% hurdle (also meant by "below the 8% hurdle"); null without RWA.
+    synonyms: [below RoRWA hurdle, RoRWA below hurdle, 8% hurdle, under RoRWA hurdle, low RoRWA]
+  - name: Credit Cost Above 30%
+    expr: source.is_credit_cost_above_30pct
+    display_name: Credit Cost Above 30% of Revenue
+    comment: True when credit cost exceeds 30% of revenue in the year (dim_threshold CREDIT_COST_SHARE_HIGH).
+    synonyms: [high credit cost, credit cost above 30%, cost of risk high, risk-heavy, credit cost share]
+  - name: Has Capital
+    expr: source.has_capital
+    display_name: Has Capital (credit relationship)
+    comment: True when the client consumed RWA / capital in the year (a credit relationship); ROE is undefined otherwise.
+    synonyms: [has capital, credit relationship, lending client, borrower, capital user]
+  - name: Product Count Bucket
+    expr: source.product_count_bucket
+    display_name: Products Held Bucket (year end)
+    comment: Products held at the end of the period, bucketed - 0 products, 1 product, 2 products, 3-4, 5-7, 8+ products.
+    synonyms: [product count bucket, products held, number of products, product depth, cross-sell bucket]
+measures:
+  - name: Revenue USD
+    expr: SUM(source.revenue_usd)
+    display_name: Revenue (USD)
+    comment: Total revenue in USD for the fiscal year (NII + fees + trading incl. other TB and advisory; FY2026 = Apr-Sep).
+    synonyms: [revenue, income, total revenue, top line, operating income, client revenue]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Opex USD
+    expr: SUM(source.opex_usd)
+    display_name: Operating Expense (USD)
+    comment: Allocated operating cost (cost to serve) in USD for the fiscal year.
+    synonyms: [opex, operating expense, cost, cost to serve, expenses, allocated cost]
+    format: *usd
+  - name: Credit Cost USD
+    expr: SUM(source.credit_cost_usd)
+    display_name: Credit Cost (USD)
+    comment: Credit cost = expected loss in USD for the fiscal year.
+    synonyms: [credit cost, expected loss, EL, cost of risk, risk cost, impairment]
+    format: *usd
+  - name: Pre-Tax Profit USD
+    expr: SUM(source.pre_tax_profit_usd)
+    display_name: Pre-Tax Profit (USD)
+    comment: Revenue - opex - credit cost in USD (= net contribution).
+    synonyms: [pre-tax profit, PBT, profit before tax, net contribution, operating profit]
+    format: *usd
+  - name: Tax USD
+    expr: SUM(source.tax_usd)
+    display_name: Tax (USD)
+    comment: Tax at the statutory rate of the coverage office on positive pre-tax profit, USD.
+    synonyms: [tax, income tax, tax charge, taxes]
+    format: *usd
+  - name: Net Income USD
+    expr: SUM(source.net_income_usd)
+    display_name: Net Income (USD)
+    comment: Net income in USD for the fiscal year = pre-tax profit - tax (FY2026 = six months).
+    synonyms: [net income, net profit, profit after tax, PAT, bottom line, earnings]
+    format: *usd
+  - name: Net Income Annualised USD
+    expr: SUM(source.net_income_annualised_usd)
+    display_name: Net Income Annualised (USD)
+    comment: Net income annualised in USD (FY2026 x 2) - the ROE numerator.
+    synonyms: [annualised net income, run-rate net income, annualized profit]
+    format: *usd
+  - name: Allocated Capital USD
+    expr: SUM(source.avg_allocated_capital_usd)
+    display_name: Allocated Capital (average, USD)
+    comment: Average capital allocated over the year at 12.5% of RWA, in USD (latest fiscal year of the selection).
+    synonyms: [allocated capital, capital, equity, capital consumed, CET1 capital, capital usage]
+    format: *usd
+    window: &fy
+      - {order: Fiscal Year Number, range: current, semiadditive: last}
+  - name: Average RWA USD
+    expr: SUM(source.avg_rwa_usd)
+    display_name: Average RWA (USD)
+    comment: Average risk-weighted assets over the year in USD (latest fiscal year of the selection).
+    synonyms: [RWA, average RWA, risk weighted assets, risk assets, capital usage]
+    format: *usd
+    window: *fy
+  - name: ROE %
+    expr: SUM(source.net_income_annualised_usd) / NULLIF(SUM(source.avg_allocated_capital_usd), 0)
+    display_name: ROE
+    comment: >-
+      Return on allocated capital = annualised net income / average allocated capital (fraction; hurdle 10%). Extreme for
+      deposit-rich clients with little capital - compare with Median Client ROE.
+    synonyms: [ROE, return on equity, return on capital, relationship ROE, return on allocated capital]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Median Client ROE %
+    expr: MEDIAN(source.roe)
+    display_name: Median Client ROE
+    comment: Median of the clients' ROE (winsorised -25%..100%, credit clients only) - the typical relationship return.
+    synonyms: [median ROE, typical ROE, ROE median, middle ROE, client median ROE]
+    format: *pct
+  - name: ROE Hurdle %
+    expr: MAX(thr.threshold_value)
+    display_name: ROE Hurdle
+    comment: The configured ROE hurdle from gold.dim_threshold (ROE_HURDLE, 0.10 = 10%, the cost of equity).
+    synonyms: [ROE hurdle, hurdle, cost of equity, hurdle rate, target ROE]
+    format: *pct
+  - name: Hurdle Gap pts
+    expr: MEASURE(`ROE %`) - MEASURE(`ROE Hurdle %`)
+    display_name: ROE Gap to Hurdle (pts)
+    comment: ROE minus the hurdle (fraction; -0.03 = 3 percentage points below the 10% hurdle).
+    synonyms: [hurdle gap, gap to hurdle, ROE vs hurdle, excess return, shortfall to hurdle]
+    format: *pct
+  - name: Clients
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients
+    comment: Clients with revenue or capital in the year (latest fiscal year of the selection).
+    synonyms: [clients, number of clients, relationships, entities, client count]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *fy
+  - name: Clients Below Hurdle
+    expr: COUNT(DISTINCT CASE WHEN source.below_roe_hurdle THEN source.golden_client_id END)
+    display_name: Clients Below ROE Hurdle
+    comment: Credit clients whose ROE for the year is below the 10% hurdle (latest fiscal year of the selection).
+    synonyms: [clients below hurdle, below-hurdle clients, sub-hurdle relationships, dilutive clients]
+    format: *count
+    window: *fy
+  - name: Exposure Below Hurdle USD
+    expr: SUM(CASE WHEN source.below_roe_hurdle THEN source.period_end_ead_usd END)
+    display_name: Exposure Below ROE Hurdle (USD)
+    comment: EAD at the end of the year of the clients below the ROE hurdle, USD (latest fiscal year of the selection).
+    synonyms: [exposure below hurdle, sub-hurdle exposure, EAD below hurdle, dilutive exposure]
+    format: *usd
+    window: *fy
+  - name: RoRWA %
+    expr: SUM(source.relationship_net_profit_annualised_usd) / NULLIF(SUM(source.avg_rwa_usd), 0)
+    display_name: RoRWA (hurdle basis)
+    comment: Annualised relationship net profit / average RWA (fraction; hurdle 1.2%) - the same basis as mv_client_profitability.
+    synonyms: [RoRWA, return on RWA, return on risk weighted assets, risk-adjusted return]
+    format: *pct
+  - name: RAROC %
+    expr: SUM(source.relationship_net_profit_annualised_usd) / NULLIF(SUM(source.avg_economic_capital_usd), 0)
+    display_name: RAROC (hurdle basis)
+    comment: Annualised relationship net profit / average economic capital (fraction; hurdle 12%).
+    synonyms: [RAROC, risk adjusted return on capital, return on economic capital, RoEC]
+    format: *pct
+  - name: Credit Cost to Revenue %
+    expr: MEASURE(`Credit Cost USD`) / NULLIF(MEASURE(`Revenue USD`), 0)
+    display_name: Credit Cost / Revenue
+    comment: Credit cost as a share of revenue (fraction; above 0.30 = high).
+    synonyms: [credit cost ratio, cost of risk ratio, credit cost share, loss ratio, risk cost to income]
+    format: *pct
+  - name: Clients With High Credit Cost
+    expr: COUNT(DISTINCT CASE WHEN source.is_credit_cost_above_30pct THEN source.golden_client_id END)
+    display_name: Clients With Credit Cost Above 30% of Revenue
+    comment: Clients whose credit cost exceeded 30% of revenue in the year (latest fiscal year of the selection).
+    synonyms: [high credit cost clients, risk-heavy clients, credit cost above 30 percent, loss-making credit]
+    format: *count
+    window: *fy
+  - name: Economic Profit USD
+    expr: SUM(source.economic_profit_usd)
+    display_name: Economic Profit (USD)
+    comment: Net income minus the 10% cost of the allocated capital, USD (negative = value-destroying).
+    synonyms: [economic profit, EVA, value added, profit after capital charge, SVA]
+    format: *usd
+validate:
+  dims: [Fiscal Year, Segment, Coverage Office]
+reconcile:
+  - name: revenue_fy2025
+    measure: Revenue USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT sum(revenue_usd) FROM ${catalog}.gold.fact_client_pnl_waterfall_annual WHERE fiscal_year = 2025
+  - name: roe_hayashi_fy2025
+    measure: ROE %
+    where: "`Fiscal Year` = 'FY2025' AND `Client Group` = 'Hayashi Marine Logistics'"
+    gold: >-
+      SELECT sum(w.net_income_annualised_usd) / sum(w.avg_allocated_capital_usd) FROM ${catalog}.gold.fact_client_pnl_waterfall_annual w
+      JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = w.client_group_id
+      WHERE w.fiscal_year = 2025 AND g.group_name = 'Hayashi Marine Logistics'
+  - name: allocated_capital_by_segment_fy2025
+    measure: Allocated Capital USD
+    by: [Segment]
+    where: "`Fiscal Year` = 'FY2025' AND `Segment` IS NOT NULL"
+    gold: >-
+      SELECT c.segment, sum(w.avg_allocated_capital_usd) FROM ${catalog}.gold.fact_client_pnl_waterfall_annual w
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = w.golden_client_sk
+      WHERE w.fiscal_year = 2025 AND c.segment IS NOT NULL GROUP BY 1
+  - name: clients_below_roe_hurdle_fy2025
+    measure: Clients Below Hurdle
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT count_if(below_roe_hurdle) FROM ${catalog}.gold.fact_client_pnl_waterfall_annual WHERE fiscal_year = 2025
+  - name: median_client_roe_fy2025
+    measure: Median Client ROE %
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT percentile(roe, 0.5) FROM ${catalog}.gold.fact_client_pnl_waterfall_annual WHERE fiscal_year = 2025
+  - name: credit_cost_above_30pct_fy2025
+    measure: Clients With High Credit Cost
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT count_if(is_credit_cost_above_30pct) FROM ${catalog}.gold.fact_client_pnl_waterfall_annual WHERE fiscal_year = 2025
+glossary:
+  caveats:
+    - >-
+      Filter one Fiscal Year for amounts (FY2026 = Apr-Sep, ratios annualised). Group ROE (ratio of sums) is extreme for
+      deposit-rich groups with little capital - use a capital floor (Allocated Capital USD) or Median Client ROE.

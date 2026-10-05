@@ -1,0 +1,161 @@
+{
+  "slug": "client_onboarding_kyc",
+  "title": "APAC Genie - Client Onboarding & KYC",
+  "description": "Ask about client onboarding (funnel, cycle time, SLA, documents, group matching) and KYC health (periodic reviews, screening, satisfaction) for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_onboarding_funnel",
+    "smbc_genie.metrics.mv_onboarding_cycle_time",
+    "smbc_genie.metrics.mv_kyc_health",
+    "smbc_genie.gold.vw_client_360",
+    "smbc_genie.gold.dim_client_group",
+    "smbc_genie.gold.dim_onboarding_stage"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_onboarding_funnel.Client Group",
+    "smbc_genie.metrics.mv_onboarding_funnel.Booking Country",
+    "smbc_genie.metrics.mv_onboarding_funnel.Request Segment",
+    "smbc_genie.metrics.mv_onboarding_funnel.Primary Product",
+    "smbc_genie.metrics.mv_onboarding_funnel.Product Requested",
+    "smbc_genie.metrics.mv_onboarding_funnel.Current Stage",
+    "smbc_genie.metrics.mv_onboarding_funnel.Case Status",
+    "smbc_genie.metrics.mv_onboarding_funnel.Blocker Reason",
+    "smbc_genie.metrics.mv_onboarding_funnel.Owner",
+    "smbc_genie.metrics.mv_onboarding_funnel.Match Timing",
+    "smbc_genie.metrics.mv_onboarding_funnel.Go-Live Fiscal Year",
+    "smbc_genie.metrics.mv_onboarding_funnel.Document Type",
+    "smbc_genie.metrics.mv_onboarding_funnel.Feedback Theme",
+    "smbc_genie.metrics.mv_onboarding_cycle_time.Stage",
+    "smbc_genie.metrics.mv_onboarding_cycle_time.Booking Country",
+    "smbc_genie.metrics.mv_onboarding_cycle_time.Request Segment",
+    "smbc_genie.metrics.mv_onboarding_cycle_time.Case Status",
+    "smbc_genie.metrics.mv_onboarding_cycle_time.KYC Migration Period",
+    "smbc_genie.metrics.mv_kyc_health.Client Group",
+    "smbc_genie.metrics.mv_kyc_health.Segment",
+    "smbc_genie.metrics.mv_kyc_health.Record Type",
+    "smbc_genie.metrics.mv_kyc_health.Booking Country",
+    "smbc_genie.metrics.mv_kyc_health.Review Type",
+    "smbc_genie.metrics.mv_kyc_health.Client Risk Rating",
+    "smbc_genie.metrics.mv_kyc_health.Status",
+    "smbc_genie.metrics.mv_kyc_health.List",
+    "smbc_genie.metrics.mv_kyc_health.List Category",
+    "smbc_genie.metrics.mv_kyc_health.Screening Context",
+    "smbc_genie.metrics.mv_kyc_health.Hit Type",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.segment",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.vw_client_360.primary_rm_name",
+    "smbc_genie.gold.vw_client_360.kyc_risk_rating",
+    "smbc_genie.gold.vw_client_360.latest_onboarding_status",
+    "smbc_genie.gold.vw_client_360.latest_onboarding_match_timing",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_onboarding_stage.stage_name"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- Onboarding requests: use Booking Country and Request Segment (applicants that never went live have no client record); \"FI\" = Request Segment 'Financial Institution'. Date = the request date (request cohorts); statuses (open, live, over SLA, outstanding) are as of 30-Sep-2026.\n- Cases, documents and KYC reviews are per legal entity: list every matching row (no top-20 cut) with Client and Booking Country. When counting by a label (owner, blocker, document type, risk rating, country, theme), keep only groups whose count is > 0 (HAVING MEASURE(...) > 0).\n- mv_onboarding_funnel: \"open cases over SLA right now\" = Case Status 'Open' with Cases Over SLA; \"stuck in KYC Docs > 15 days\" = Stuck in KYC Docs 15D; Documents Outstanding by Document Type; Product Requests by Product Requested; group matches by Match Timing (At Intake / After Account Opening / New Group); Average Satisfaction and Negative Responses by Feedback Theme.\n- mv_onboarding_cycle_time: Median / P90 / Average Days to Live are per live case - add Case Status = 'Live' when grouping by month or country; Average Days in Stage by Stage Number and Stage (1-6 = request to account open, 7 = first transaction); \"after February 2026\" = Is After KYC Migration; migration periods = KYC Migration Period.\n- mv_kyc_health: Overdue and High-Risk Overdue are month-end point-in-time - filter one Month or group by Month (Is Latest Month = today); \"high-risk\" = Client Risk Rating 'High' (KYC master); screening = Record Type 'Screening' by List (Screening Alerts, True Matches, Screening True Match Rate %, Average Resolution Hours).\n- \"This fiscal year vs last\" for requests = Fiscal Half 'FY2026-H1' vs 'FY2025-H1' (same months), plus full Fiscal Year 'FY2025' when asked; \"onboarded in FY2026\" = Go-Live Fiscal Year 'FY2026'.\n- Case-level detail of open cases (case id, applicant, days in stage vs SLA, owner) = fn_onboarding_open_cases(booking_country or 'ALL'); the list of KYC reviews overdue today = fn_kyc_overdue_reviews(booking_country or 'ALL').\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "Median and P90 days to go live by booking country, by request month since April 2025",
+    "Which stage adds the most days for Financial Institution clients, and did it change after February 2026?",
+    "Open onboarding cases over SLA right now, by owner and blocker reason",
+    "Documents outstanding by type for cases stuck in KYC Docs more than 15 days",
+    "Break down all new onboarding cases by match timing (at intake, only after account opening, new group): how many cases and what share of all cases?",
+    "Periodic KYC reviews overdue by risk rating and country, trend since January 2026",
+    "Screening true-match rate and average resolution hours by list",
+    "Post-onboarding satisfaction by country and the most common negative comment themes"
+  ],
+  "trusted_queries": [
+    {
+      "name": "Median and P90 days to go live by booking country and request month since :from_month",
+      "usage_guidance": "Use for onboarding cycle time / time to go live / TAT by booking country and request month; medians and P90 are per live case, so keep Case Status = 'Live'.",
+      "parameters": [
+        {
+          "name": "from_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Booking Country`, `Month` AS request_month,\n       MEASURE(`Live Cases`)          AS live_cases,\n       MEASURE(`Median Days to Live`) AS median_days_to_live,\n       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\nFROM smbc_genie.metrics.mv_onboarding_cycle_time\nWHERE `Date` >= :from_month AND `Case Status` = 'Live'\nGROUP BY ALL\nORDER BY `Booking Country`, request_month"
+    },
+    {
+      "name": "Average days in each onboarding stage for :request_segment clients, before vs from February 2026",
+      "usage_guidance": "Use for which stage adds the most days, stage bottlenecks, or before / after the Feb-2026 KYC workflow migration for a segment (\"FI\" = Financial Institution); one row per stage with the two periods side by side.",
+      "parameters": [
+        {
+          "name": "request_segment",
+          "type": "STRING"
+        }
+      ],
+      "sql": "WITH st AS (\n  SELECT `Stage Number`, `Stage`, `Is After KYC Migration`, MEASURE(`Average Days in Stage`) AS avg_days_in_stage\n  FROM smbc_genie.metrics.mv_onboarding_cycle_time\n  WHERE `Request Segment` = :request_segment AND `Stage Number` <= 6\n  GROUP BY ALL\n)\nSELECT `Stage Number`, `Stage`,\n       max(CASE WHEN NOT `Is After KYC Migration` THEN avg_days_in_stage END) AS avg_days_before_feb_2026,\n       max(CASE WHEN `Is After KYC Migration` THEN avg_days_in_stage END)     AS avg_days_from_feb_2026\nFROM st\nGROUP BY `Stage Number`, `Stage`\nORDER BY `Stage Number`"
+    },
+    {
+      "name": "Open onboarding cases over SLA right now in :booking_country, by owner and blocker reason",
+      "usage_guidance": "Use for open cases breaching SLA, late or stuck onboarding cases by owner / blocker; pass ALL for every booking country. Keep only owner x blocker groups with cases over SLA.",
+      "parameters": [
+        {
+          "name": "booking_country",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Case Status` = 'Open' AND (:booking_country = 'ALL' OR `Booking Country` = :booking_country)\nGROUP BY ALL\nHAVING MEASURE(`Cases Over SLA`) > 0\nORDER BY cases_over_sla DESC, `Owner`"
+    },
+    {
+      "name": ":review_type KYC reviews overdue by client risk rating and booking country at each month-end since :from_month",
+      "usage_guidance": "Use for overdue KYC / CDD reviews, the KYC backlog or its trend by risk rating and country; overdue is a month-end position, so group by Month and keep only groups with overdue reviews.",
+      "parameters": [
+        {
+          "name": "review_type",
+          "type": "STRING"
+        },
+        {
+          "name": "from_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Month`, `Client Risk Rating`, `Booking Country`, MEASURE(`Overdue`) AS overdue_reviews\nFROM smbc_genie.metrics.mv_kyc_health\nWHERE `Review Type` = :review_type AND `Month` >= :from_month\nGROUP BY ALL\nHAVING MEASURE(`Overdue`) > 0\nORDER BY `Month`, `Client Risk Rating`, `Booking Country`"
+    },
+    {
+      "name": "Onboarding requests by request segment and product requested, :fiscal_year to date vs the same period of :prior_fiscal_year and the full prior year",
+      "usage_guidance": "Use for onboarding requests / demand by segment and product, this fiscal year vs last; FY2026 to date = FY2026-H1 (Apr-Sep), compared with FY2025-H1 and full FY2025.",
+      "parameters": [
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        },
+        {
+          "name": "prior_fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "WITH p AS (\n  SELECT `Request Segment`, `Product Requested`, `Fiscal Year`, `Fiscal Half`, MEASURE(`Product Requests`) AS requests\n  FROM smbc_genie.metrics.mv_onboarding_funnel\n  WHERE `Fiscal Year` IN (:fiscal_year, :prior_fiscal_year)\n  GROUP BY ALL\n)\nSELECT `Request Segment`, `Product Requested`,\n       sum(CASE WHEN `Fiscal Half` = CONCAT(:fiscal_year, '-H1') THEN requests ELSE 0 END)       AS fytd_h1_requests,\n       sum(CASE WHEN `Fiscal Half` = CONCAT(:prior_fiscal_year, '-H1') THEN requests ELSE 0 END) AS prior_h1_requests,\n       sum(CASE WHEN `Fiscal Year` = :prior_fiscal_year THEN requests ELSE 0 END)                AS prior_full_year_requests\nFROM p\nWHERE `Product Requested` IS NOT NULL\nGROUP BY ALL\nORDER BY fytd_h1_requests DESC, prior_full_year_requests DESC"
+    },
+    {
+      "name": "Booking-country scorecard: median days to go live for :fiscal_year requests vs KYC reviews overdue at :month",
+      "usage_guidance": "Cross-view pattern (cycle time + KYC health) - wrap each metric-view query in a CTE and join the CTEs on Booking Country; use when a question combines onboarding speed with KYC backlog per country.",
+      "parameters": [
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        },
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "WITH ct AS (\n  SELECT `Booking Country`, MEASURE(`Live Cases`) AS live_cases, MEASURE(`Median Days to Live`) AS median_days_to_live\n  FROM smbc_genie.metrics.mv_onboarding_cycle_time\n  WHERE `Fiscal Year` = :fiscal_year AND `Case Status` = 'Live'\n  GROUP BY ALL\n),\nkyc AS (\n  SELECT `Booking Country`, MEASURE(`Overdue`) AS overdue_reviews, MEASURE(`High-Risk Overdue`) AS high_risk_overdue\n  FROM smbc_genie.metrics.mv_kyc_health\n  WHERE `Month` = :month AND `Record Type` = 'Review Snapshot'\n  GROUP BY ALL\n)\nSELECT COALESCE(ct.`Booking Country`, kyc.`Booking Country`) AS booking_country,\n       ct.live_cases, ct.median_days_to_live, kyc.overdue_reviews, kyc.high_risk_overdue\nFROM ct FULL OUTER JOIN kyc ON kyc.`Booking Country` = ct.`Booking Country`\nORDER BY kyc.overdue_reviews DESC NULLS LAST, booking_country"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_onboarding_open_cases",
+    "smbc_genie.gold.fn_kyc_overdue_reviews"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 6,
+    "example_sqls": 6,
+    "sql_functions": 2,
+    "text_instructions": 1,
+    "instruction_lines": 19,
+    "instructions_total": 9,
+    "sample_questions": 8,
+    "benchmarks": 20,
+    "entity_matching_columns": 38
+  }
+}

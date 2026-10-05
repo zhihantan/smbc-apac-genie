@@ -1,0 +1,277 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the payment as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the payment, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office of the paying / receiving client (ISO-2). For payments it equals Booking Country (the client account's booking location) - prefer Booking Country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location of the client account the payment is booked to (ISO-2: SG, HK, CN, TH, ID, IN, AU, VN, MY, KR, TW, PH, NZ). \"Country\" in payment questions means this unless the user says counterparty country.",
+   "is_measure": false,
+   "name": "Booking Country",
+   "type": "string"
+  },
+  {
+   "comment": "Channel / rail of the payment: SWIFT MT, ISO 20022, Host-to-Host, Payments API, Portal (e-banking), RTGS or FAST. Digital channels = Portal, Payments API, Host-to-Host.",
+   "is_measure": false,
+   "name": "Channel",
+   "type": "string"
+  },
+  {
+   "comment": "Inbound (the client receives money) or Outbound (the client pays).",
+   "is_measure": false,
+   "name": "Direction",
+   "type": "string"
+  },
+  {
+   "comment": "Purpose of the payment: Supplier, Payroll, Tax, Intercompany, Loan Service (debt service to a lender), Dividend or Trade Settlement.",
+   "is_measure": false,
+   "name": "Payment Purpose",
+   "type": "string"
+  },
+  {
+   "comment": "ISO 4217 currency of the client account the payment is booked to (amounts are reported in USD).",
+   "is_measure": false,
+   "name": "Currency",
+   "type": "string"
+  },
+  {
+   "comment": "True for cross-border payments (payer and payee in different countries, as flagged by the payments hub).",
+   "is_measure": false,
+   "name": "Is Cross-Border",
+   "type": "boolean"
+  },
+  {
+   "comment": "Money-flow corridor payer country->payee country, e.g. CN->VN = money paid from China to Vietnam (Kinokawa's China entity paying Vietnam). Domestic payments show the same country twice (SG->SG).",
+   "is_measure": false,
+   "name": "Corridor",
+   "type": "string"
+  },
+  {
+   "comment": "Country of the counterparty (beneficiary of an outbound payment, remitter of an inbound one), ISO-2.",
+   "is_measure": false,
+   "name": "Counterparty Country",
+   "type": "string"
+  },
+  {
+   "comment": "Where the counterparty banks: SMBC (on-us), Other Bank (a competitor bank - wallet leakage) or Intercompany (a transfer within the client group).",
+   "is_measure": false,
+   "name": "Counterparty Bank Type",
+   "type": "string"
+  },
+  {
+   "comment": "Counterparty bank name: SMBC, Intercompany or a fictional competitor (e.g. Nordlys Bank, Garuda Commercial Bank, Meridian Pacific Bank).",
+   "is_measure": false,
+   "name": "Counterparty Bank",
+   "type": "string"
+  },
+  {
+   "comment": "Why a payment needed manual repair: FX cover missing, Invalid BIC, Missing beneficiary, Sanctions hold, Format error or Duplicate instruction; null for straight-through (STP) payments.",
+   "is_measure": false,
+   "name": "Repair Reason",
+   "type": "string"
+  },
+  {
+   "comment": "Value of the selected payments in USD (a flow - adds up over months).",
+   "is_measure": true,
+   "name": "Payment Volume USD",
+   "type": "double"
+  },
+  {
+   "comment": "Number of payment messages (one per payment; the June-2026 replay duplicates are removed).",
+   "is_measure": true,
+   "name": "Payments",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average payment size in USD = volume / number of payments.",
+   "is_measure": true,
+   "name": "Average Ticket USD",
+   "type": "double"
+  },
+  {
+   "comment": "Share of payments processed straight through without manual repair (fraction; 0.92 = 92%).",
+   "is_measure": true,
+   "name": "STP Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Share of payments that needed a manual repair (fraction) = 1 - STP Rate.",
+   "is_measure": true,
+   "name": "Repair Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Number of payments that needed a manual repair - group by Repair Reason / Channel to see where they concentrate.",
+   "is_measure": true,
+   "name": "Repairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average end-to-end processing time in hours (repaired payments take about half a day).",
+   "is_measure": true,
+   "name": "Average Processing Hours",
+   "type": "double"
+  },
+  {
+   "comment": "Share of payment value that is cross-border (fraction).",
+   "is_measure": true,
+   "name": "Cross-Border Share %",
+   "type": "double"
+  },
+  {
+   "comment": "Value of payments whose counterparty banks with a competitor (Other Bank), USD - wallet leakage.",
+   "is_measure": true,
+   "name": "Volume via Other Banks USD",
+   "type": "double"
+  },
+  {
+   "comment": "Share of payment value whose counterparty banks with a competitor (fraction). With Direction = Outbound and Payment Purpose = Supplier: how much of clients' supplier payments go to accounts at other banks.",
+   "is_measure": true,
+   "name": "Share Paid via Other Banks %",
+   "type": "double"
+  },
+  {
+   "comment": "Payment fee income in USD from the TB tariff: USD 3 per payment message plus 10 bps of cross-border value (a flow). Account-level TB fees (maintenance, channels, pooling) are in gold.fact_tb_fee_income_monthly.",
+   "is_measure": true,
+   "name": "Fee Income USD",
+   "type": "double"
+  },
+  {
+   "comment": "Distinct suppliers the selected clients paid through SMBC (outbound supplier payments, by pseudonymous counterparty id) - buyers paying >= 50 suppliers are SCF anchor candidates (dim_threshold SCF_ANCHOR_MIN_SUPPLIERS).",
+   "is_measure": true,
+   "name": "Distinct Suppliers Paid",
+   "type": "bigint"
+  },
+  {
+   "comment": "Legal entities (golden clients) with at least one payment in the selection.",
+   "is_measure": true,
+   "name": "Paying Clients",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Client payments through SMBC APAC, Apr-2024 to Sep-2026 (USD): volume, count, average ticket, STP and repair rates, cross-border share, the share paid to accounts at other (competitor) banks, distinct suppliers paid and the tariff fee income, by channel (SWIFT MT, ISO 20022, host-to-host, payments API, portal, RTGS, FAST), direction, purpose (supplier, payroll, tax, intercompany, loan service, dividend, trade settlement), account currency, money corridor (payer->payee country) and counterparty bank. All measures are flows: they add up over any months. For \"supplier payments to other banks\" filter Direction = Outbound and Payment Purpose = Supplier. Grain: one row per payment message (gold.fact_payment_transaction).",
+ "identifier": "smbc_genie.metrics.mv_tb_payments",
+ "type": "METRIC_VIEW"
+}

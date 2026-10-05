@@ -1,0 +1,169 @@
+{
+ "columns": [
+  {
+   "comment": "ER run id ER-yyyymmdd.",
+   "is_measure": false,
+   "name": "run_id",
+   "type": "string"
+  },
+  {
+   "comment": "client_group_id, or UNATTRIBUTED for exposure on records the run could not attribute to a group.",
+   "is_measure": false,
+   "name": "group_key",
+   "type": "string"
+  },
+  {
+   "comment": "As-of date of the ER run and of the exposure snapshot (the grain date).",
+   "is_measure": false,
+   "name": "run_date",
+   "type": "date"
+  },
+  {
+   "comment": "Rule set of the run (v1 or v2).",
+   "is_measure": false,
+   "name": "rule_version",
+   "type": "string"
+  },
+  {
+   "comment": "Run sequence 1-6 in date order.",
+   "is_measure": false,
+   "name": "run_seq",
+   "type": "int"
+  },
+  {
+   "comment": "True for the latest run (ER-20260930).",
+   "is_measure": false,
+   "name": "is_latest_run",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the first run of a new rule set (ER-20260331 = first v2 run - the March 2026 resolution).",
+   "is_measure": false,
+   "name": "is_rule_version_change",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group (SYN-G-nnnn); null on the UNATTRIBUTED row. Join gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the group's lead entity (version valid on this row's date) - the client attributes used for group-grain facts (D12).",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Attributed (records resolved to a group) or Unattributed.",
+   "is_measure": false,
+   "name": "attribution_status",
+   "type": "string"
+  },
+  {
+   "comment": "Golden clients of the group holding the exposure records under this run.",
+   "is_measure": false,
+   "name": "n_golden_clients",
+   "type": "int"
+  },
+  {
+   "comment": "Credit obligor records attributed to the group under this run.",
+   "is_measure": false,
+   "name": "n_obligor_records",
+   "type": "int"
+  },
+  {
+   "comment": "Trade party records attributed to the group under this run.",
+   "is_measure": false,
+   "name": "n_trade_party_records",
+   "type": "int"
+  },
+  {
+   "comment": "Drawn lending in USD at the run date (core facility balances of the attributed obligor records).",
+   "is_measure": false,
+   "name": "lending_drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Trade finance outstanding in USD at the run date (instruments of the attributed trade party records).",
+   "is_measure": false,
+   "name": "trade_outstanding_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Group credit exposure in USD under this run's resolution = lending drawn + trade outstanding (point-in-time).",
+   "is_measure": false,
+   "name": "total_exposure_usd",
+   "type": "double"
+  },
+  {
+   "comment": "The same run-date exposure attributed with the previous run's resolution (null for the first run).",
+   "is_measure": false,
+   "name": "prior_resolution_exposure_usd",
+   "type": "double"
+  },
+  {
+   "comment": "total_exposure_usd - prior_resolution_exposure_usd = the exposure change caused by re-resolution alone (USD).",
+   "is_measure": false,
+   "name": "resolution_change_usd",
+   "type": "double"
+  },
+  {
+   "comment": "resolution_change_usd / prior_resolution_exposure_usd (fraction; 0.38 = +38%); null when there was no prior exposure.",
+   "is_measure": false,
+   "name": "resolution_change_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Group exposure reported at the previous run (its own date and resolution).",
+   "is_measure": false,
+   "name": "prev_run_exposure_usd",
+   "type": "double"
+  },
+  {
+   "comment": "total_exposure_usd - prev_run_exposure_usd (resolution plus balance movements).",
+   "is_measure": false,
+   "name": "change_vs_prev_run_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Change vs the previous run as a fraction of prev_run_exposure_usd.",
+   "is_measure": false,
+   "name": "change_vs_prev_run_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Single-borrower attention threshold in USD (500m; gold.dim_threshold SINGLE_BORROWER_ATTENTION_USD).",
+   "is_measure": false,
+   "name": "attention_threshold_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when total_exposure_usd is at or above the attention threshold under this run.",
+   "is_measure": false,
+   "name": "is_above_threshold",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the prior-resolution exposure was already at or above the threshold.",
+   "is_measure": false,
+   "name": "was_above_threshold_before_resolution",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when re-resolution in this run moved the group across the attention threshold (Meridian at ER-20260331).",
+   "is_measure": false,
+   "name": "crossed_threshold_on_resolution",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when |resolution_change_pct| > 20% (gold.dim_threshold ER_EXPOSURE_CHANGE) - the exposures that changed by more than 20% after a resolution.",
+   "is_measure": false,
+   "name": "is_material_resolution_change",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Why entity resolution matters: credit exposure of each client group under each quarterly ER run (USD) = drawn lending + trade finance outstanding at the run date, attributed to the group through that run's resolution, beside the same exposure attributed with the previous run's resolution. resolution_change isolates the effect of re-resolution (e.g. Meridian Agri Holdings +38% at the Mar-2026 v2 run, crossing the USD 500m single-borrower attention threshold); change_vs_prev_run also includes balance movements. Point-in-time per run: never sum exposure across runs. Exposure not attributable to any group is one UNATTRIBUTED row per run. Grain: one row per ER run per client group (group_key UNATTRIBUTED for unattributed exposure).",
+ "identifier": "smbc_genie.gold.fact_group_exposure_by_er_run",
+ "type": "MANAGED"
+}

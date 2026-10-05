@@ -1,0 +1,29 @@
+table: dim_ews_trigger
+domain: hub
+comment: >-
+  Early-warning rule book: every EWS trigger with its category (Credit, Liquidity, Behavioural, External),
+  severity, firing threshold, the score points it typically adds to the 0-100 composite, whether it
+  forces a watchlist review, and how often it has fired.
+grain: one row per EWS trigger code
+primary_key: [trigger_code]
+cluster_by: [trigger_code]
+min_rows: 10
+columns:
+  trigger_code: {type: STRING, comment: "EWS trigger code, e.g. UTIL_HIGH, COV_BREACH, DEPOSIT_OUTFLOW_SEVERE, DPD_30, NEWS_NEGATIVE."}
+  trigger_name: {type: STRING, comment: Trigger name.}
+  category: {type: STRING, comment: "Trigger category: Credit, Liquidity, Behavioural or External."}
+  severity: {type: STRING, comment: "Default severity: High, Medium or Low."}
+  threshold_description: {type: STRING, comment: The firing rule in words (e.g. max utilisation across facilities >= 0.90).}
+  description: {type: STRING, comment: What the trigger indicates.}
+  is_active: {type: BOOLEAN, comment: True when the trigger is live in the EWS engine.}
+  source_quadrant: {type: STRING, comment: "Data quadrant: Internal Quantitative (credit, liquidity, behavioural data) or External Qualitative (news)."}
+  score_points: {type: DOUBLE, comment: Average composite-score points the trigger contributed when it fired (0 = informational trigger that does not move the score).}
+  max_score_points: {type: DOUBLE, comment: Largest composite-score contribution observed for the trigger.}
+  auto_watchlist_flag: {type: BOOLEAN, comment: True for High-severity triggers that put the client up for an immediate watchlist review.}
+  signals_fired: {type: BIGINT, comment: Monthly trigger firings recorded to the as-of date (client x month).}
+  clients_fired: {type: BIGINT, comment: Distinct golden clients the trigger has fired for.}
+  first_fired_month: {type: DATE, comment: First month the trigger fired.}
+  last_fired_month: {type: DATE, comment: Latest month the trigger fired.}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ews_trigger_catalog

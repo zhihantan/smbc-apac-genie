@@ -1,0 +1,1868 @@
+{
+  "title": "APAC Genie - Transactional Banking: Cash, Payments & Liquidity",
+  "description": "Ask about operating deposits, CASA behaviour, payment flows and counterparties, liquidity structures (cash pooling) and digital channel adoption for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "ab86d15da845687e3a81757a00000000",
+          "question": [
+            "What was the total CASA balance by booking country at the end of September 2026, and how did it move versus August?"
+          ]
+        },
+        {
+          "id": "ab86d15da845687e3a81757a00000001",
+          "question": [
+            "Which client groups drove the largest CASA outflow in Q2 FY2026, and did it move to time deposits or leave the bank?"
+          ]
+        },
+        {
+          "id": "ab86d15da845687e3a81757a00000002",
+          "question": [
+            "How has the CASA ratio of Japanese vs non-Japanese corporates trended month by month since FY2025?"
+          ]
+        },
+        {
+          "id": "ab86d15da845687e3a81757a00000003",
+          "question": [
+            "How much of our clients' outbound supplier payments this fiscal year went to accounts at other banks?"
+          ]
+        },
+        {
+          "id": "ab86d15da845687e3a81757a00000004",
+          "question": [
+            "Where is the STP rate lowest by channel and currency this fiscal year, and where are repairs concentrated?"
+          ]
+        },
+        {
+          "id": "ab86d15da845687e3a81757a00000005",
+          "question": [
+            "Which multi-country groups have no liquidity pooling structure, ranked by their deposits?"
+          ]
+        },
+        {
+          "id": "ab86d15da845687e3a81757a00000006",
+          "question": [
+            "Which clients' payment volume through us dropped more than 30% year on year while their balances held steady?"
+          ]
+        },
+        {
+          "id": "ab86d15da845687e3a81757a00000007",
+          "question": [
+            "Who still sends manual payment instructions - digital adoption by segment this fiscal year?"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_amer",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_emea",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_global",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_carbon_intensive",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_deposit_only",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_single_product_lending",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product_propensity",
+              "exclude": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "open_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "product_families_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "products_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "revenue_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_prior_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_yoy_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "exclude": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_outstanding_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_tb_channel_adoption",
+          "column_configs": [
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Channel",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Channel Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_tb_deposits",
+          "column_configs": [
+            {
+              "column_name": "Account Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Currency",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "TD Maturity Bucket",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_tb_liquidity_structures",
+          "column_configs": [
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Currency",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Header Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Lead Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Member Entity",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Member Role",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Participant Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Record Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Structure",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Structure Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_tb_payments",
+          "column_configs": [
+            {
+              "column_name": "Booking Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Channel",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Counterparty Bank",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Counterparty Bank Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Counterparty Country",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Currency",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Direction",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Payment Purpose",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Repair Reason",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "0a7f8566b238489f143bf98200000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Views: mv_tb_deposits = deposit balances, CASA / time deposits (TD), CASA ratio, depositors, top-10 concentration, TD maturities; mv_tb_payments = payment flows, STP and repairs, purpose, counterparty bank (other-bank leakage); mv_tb_liquidity_structures = cash pools and pooling candidates (group level); mv_tb_channel_adoption = digital channels and manual instructions.\n",
+            "- Point-in-time measures (balances, CASA, CASA ratio, depositors, TD maturing, pooled balance, group deposits, pooling candidates) need ONE `Month` or `Is Latest Month` (today = Sep 2026); CASA Movement, Deposit Movement, Transferred to TD, payments, fees and channel counts are flows that add up over months.\n",
+            "- 'CASA vs last month' = `CASA Balance USD`, `CASA Balance Prior Month USD` and `CASA Change vs Prior Month USD` on one `Month` (September 2026 = DATE'2026-09-01'). CASA outflow over a quarter = `CASA Movement USD` with `Fiscal Quarter` (Q2 FY2026 = 'FY2026-Q2'); compare it with `Transferred to TD USD` and `Deposit Movement USD` for 'moved to TD or left the bank'.\n",
+            "- Booking Country = Coverage Office for deposits and payments (use Booking Country). Payment `Corridor` is the money flow payer->payee, e.g. CN->VN = paid from China to Vietnam.\n",
+            "- 'Supplier payments to other banks' = `Share Paid via Other Banks %` with `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'. Repairs = `Repairs` by `Repair Reason` and `Channel`; STP = `STP Rate %`. Ratios and shares are fractions (0.35 = 35%).\n",
+            "- Pooling candidates = `Is Pooling Candidate` on `Is Latest Month` (groups with deposit accounts in >= 3 APAC countries and no active structure), ranked by `Unpooled Group Deposits USD`; counts: `Clients Without Pooling`, `Multi-Country Groups`, `Pooling Penetration %`.\n",
+            "- `Client Group` has a value dictionary: filter it with = on the exact group name. Questions about entities, depositors or 'legal entities' list `Client`; the largest depositors of a country = `Depositor Rank in Country` <= 10 on `Is Latest Month`. Only add LIMIT when the user asks for a top N.\n",
+            "- Functions (STRING arguments): payment volume down > 30% YoY while deposits held steady = smbc_genie.gold.fn_tb_payment_drop_steady_deposits('FY2026-H1'); CASA by country vs the prior month-end = fn_casa_movement_by_country('2026-09'); one group's cash profile by entity = fn_tb_group_cash_profile('<exact group name>').\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "1c17fb4006c7f1fd1e56eb2000000000",
+          "question": [
+            "Which client groups drove the largest CASA outflow in :fiscal_quarter, and did it move to time deposits or leave the bank?"
+          ],
+          "sql": [
+            "WITH g AS (\n",
+            "  SELECT `Client Group`,\n",
+            "         MEASURE(`CASA Movement USD`)     AS casa_movement_usd,\n",
+            "         MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,\n",
+            "         MEASURE(`Deposit Movement USD`)  AS total_deposit_movement_usd\n",
+            "  FROM smbc_genie.metrics.mv_tb_deposits\n",
+            "  WHERE `Fiscal Quarter` = :fiscal_quarter\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Client Group`, casa_movement_usd, casa_moved_to_td_usd, total_deposit_movement_usd,\n",
+            "       CASE WHEN total_deposit_movement_usd >= casa_movement_usd / 2 THEN 'Mostly moved to time deposits'\n",
+            "            ELSE 'Mostly left the bank' END AS where_it_went\n",
+            "FROM g\n",
+            "WHERE casa_movement_usd < 0\n",
+            "ORDER BY casa_movement_usd ASC\n",
+            "LIMIT 20"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_quarter",
+              "type_hint": "STRING",
+              "description": [
+                "Japanese fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-Q2"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"largest CASA outflows / run-off by group in a quarter\", \"did the CASA go to TD or leave the bank\", \"CASA attrition by client group\", \"CASA to TD migration\"."
+          ]
+        },
+        {
+          "id": "1c17fb4006c7f1fd1e56eb2000000001",
+          "question": [
+            "Monthly CASA ratio of Japanese corporates vs non-Japanese clients since :from_month"
+          ],
+          "sql": [
+            "SELECT `Month`,\n",
+            "       CASE WHEN `Is Japanese Corporate` THEN 'Japanese corporate' ELSE 'Non-Japanese' END AS client_type,\n",
+            "       MEASURE(`CASA Ratio %`) AS casa_ratio\n",
+            "FROM smbc_genie.metrics.mv_tb_deposits\n",
+            "WHERE `Month` >= :from_month\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Month`, client_type"
+          ],
+          "parameters": [
+            {
+              "name": "from_month",
+              "type_hint": "DATE",
+              "description": [
+                "First month as its first day, e.g. 2025-04-01 (start of FY2025)"
+              ],
+              "default_value": {
+                "values": [
+                  "2025-04-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"CASA ratio trend\", \"CASA mix over time\", \"Japanese vs non-Japanese (JC vs non-JC) CASA ratio by month\"."
+          ]
+        },
+        {
+          "id": "1c17fb4006c7f1fd1e56eb2000000002",
+          "question": [
+            "Which entities' payment volume dropped more than 30% in :fiscal_half vs :prior_fiscal_half while their average month-end deposits held steady (within 10%)?"
+          ],
+          "sql": [
+            "WITH pay AS (\n",
+            "  SELECT `Client`, `Fiscal Half`, MEASURE(`Payment Volume USD`) AS payment_volume_usd\n",
+            "  FROM smbc_genie.metrics.mv_tb_payments\n",
+            "  WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)\n",
+            "  GROUP BY ALL\n",
+            "), p AS (\n",
+            "  SELECT `Client`,\n",
+            "         sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN payment_volume_usd END) AS payments_prior_half_usd,\n",
+            "         sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN payment_volume_usd END) AS payments_half_usd\n",
+            "  FROM pay GROUP BY `Client`\n",
+            "), dep AS (\n",
+            "  SELECT `Client`, `Fiscal Half`, `Month`, MEASURE(`End of Month Balance USD`) AS deposits_usd\n",
+            "  FROM smbc_genie.metrics.mv_tb_deposits\n",
+            "  WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)\n",
+            "  GROUP BY ALL\n",
+            "), d AS (\n",
+            "  SELECT `Client`,\n",
+            "         sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN deposits_usd END) / 6 AS avg_deposits_prior_usd,\n",
+            "         sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN deposits_usd END) / 6 AS avg_deposits_usd\n",
+            "  FROM dep GROUP BY `Client`\n",
+            ")\n",
+            "SELECT p.`Client`, p.payments_prior_half_usd, coalesce(p.payments_half_usd, 0) AS payments_half_usd,\n",
+            "       coalesce(p.payments_half_usd, 0) / p.payments_prior_half_usd - 1 AS payment_volume_yoy,\n",
+            "       d.avg_deposits_usd / d.avg_deposits_prior_usd - 1 AS avg_deposits_change\n",
+            "FROM p JOIN d ON d.`Client` = p.`Client`\n",
+            "WHERE p.payments_prior_half_usd >= 1000000\n",
+            "  AND coalesce(p.payments_half_usd, 0) / p.payments_prior_half_usd - 1 < -0.30\n",
+            "  AND abs(d.avg_deposits_usd / d.avg_deposits_prior_usd - 1) <= 0.10\n",
+            "ORDER BY p.payments_prior_half_usd - coalesce(p.payments_half_usd, 0) DESC"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal half to test, e.g. FY2026-H1 (Apr-Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-H1"
+                ]
+              }
+            },
+            {
+              "name": "prior_fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Same half one year earlier, e.g. FY2025-H1"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025-H1"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"payments down but balances steady\", \"payment attrition with stable deposits\", \"clients moving their payments to other banks\"; a payments CTE joined to a deposits CTE (metric views cannot be joined directly)."
+          ]
+        },
+        {
+          "id": "1c17fb4006c7f1fd1e56eb2000000003",
+          "question": [
+            "Who are the ten largest depositors in :booking_country today?"
+          ],
+          "sql": [
+            "SELECT `Client`, `Client Group`, `Depositor Rank in Country`,\n",
+            "       MEASURE(`End of Month Balance USD`) AS deposits_usd\n",
+            "FROM smbc_genie.metrics.mv_tb_deposits\n",
+            "WHERE `Is Latest Month` AND `Booking Country` = :booking_country AND `Depositor Rank in Country` <= 10\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Depositor Rank in Country`"
+          ],
+          "parameters": [
+            {
+              "name": "booking_country",
+              "type_hint": "STRING",
+              "description": [
+                "APAC booking country ISO-2 code, e.g. SG (Singapore), HK (Hong Kong), CN (China)"
+              ],
+              "default_value": {
+                "values": [
+                  "SG"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"largest / top depositors in <country>\", \"who holds the most deposits in Singapore\", \"depositor ranking\"; Booking Country is an ISO-2 code."
+          ]
+        },
+        {
+          "id": "1c17fb4006c7f1fd1e56eb2000000004",
+          "question": [
+            "Multi-country client groups with no liquidity pooling structure at the end of :month, ranked by their deposits"
+          ],
+          "sql": [
+            "SELECT `Client Group`, `Group APAC Countries`,\n",
+            "       MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd\n",
+            "FROM smbc_genie.metrics.mv_tb_liquidity_structures\n",
+            "WHERE `Month` = :month AND `Is Pooling Candidate`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY group_deposits_usd DESC\n",
+            "LIMIT 20"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Month as its first day; 2026-09-01 = today (Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"pooling candidates\", \"groups in 3+ APAC countries without a cash pool / sweep\", \"liquidity structure cross-sell list\", \"unpooled groups ranked by balances\"."
+          ]
+        },
+        {
+          "id": "1c17fb4006c7f1fd1e56eb2000000005",
+          "question": [
+            "Time deposits maturing in the next 90 days after the end of :month, by booking country and currency"
+          ],
+          "sql": [
+            "SELECT * FROM (\n",
+            "  SELECT `Booking Country`, `Currency`,\n",
+            "         MEASURE(`TD Maturing Next 90D USD`) AS td_maturing_next_90d_usd\n",
+            "  FROM smbc_genie.metrics.mv_tb_deposits\n",
+            "  WHERE `Month` = :month\n",
+            "  GROUP BY ALL\n",
+            ") WHERE td_maturing_next_90d_usd > 0\n",
+            "ORDER BY `Booking Country`, td_maturing_next_90d_usd DESC"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Month-end as its first day; 2026-09-01 = today (maturities to 29-Dec-2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"TD maturities next 90 days\", \"maturity wall\", \"time deposits rolling off by country / currency\"; keep only pairs with maturities."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "d257fbe8bbf7eaabf664a3da00000000",
+          "identifier": "smbc_genie.gold.fn_casa_movement_by_country"
+        },
+        {
+          "id": "d257fbe8bbf7eaabf664a3da00000001",
+          "identifier": "smbc_genie.gold.fn_tb_payment_drop_steady_deposits"
+        },
+        {
+          "id": "d257fbe8bbf7eaabf664a3da00000002",
+          "identifier": "smbc_genie.gold.fn_tb_group_cash_profile"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "9f803003a4ec24b612f1454000000000",
+          "question": [
+            "What was the total CASA balance by booking country at the end of September 2026, with the end-August 2026 balance and the change versus August?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Booking Country`,\n",
+                "       MEASURE(`CASA Balance USD`)               AS casa_balance_sep_2026_usd,\n",
+                "       MEASURE(`CASA Balance Prior Month USD`)   AS casa_balance_aug_2026_usd,\n",
+                "       MEASURE(`CASA Change vs Prior Month USD`) AS casa_change_vs_aug_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "WHERE `Month` = DATE'2026-09-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY casa_balance_sep_2026_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000001",
+          "question": [
+            "casa by country end of sept vs end of aug, and how much did it change?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Booking Country`,\n",
+                "       MEASURE(`CASA Balance USD`)               AS casa_balance_sep_2026_usd,\n",
+                "       MEASURE(`CASA Balance Prior Month USD`)   AS casa_balance_aug_2026_usd,\n",
+                "       MEASURE(`CASA Change vs Prior Month USD`) AS casa_change_vs_aug_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "WHERE `Month` = DATE'2026-09-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY casa_balance_sep_2026_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000002",
+          "question": [
+            "Show the 20 client groups with the largest CASA outflow in Q2 FY2026, with the CASA moved into time deposits, their total deposit movement, and whether the money mostly moved to time deposits or left the bank."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH g AS (\n",
+                "  SELECT `Client Group`,\n",
+                "         MEASURE(`CASA Movement USD`)     AS casa_movement_usd,\n",
+                "         MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,\n",
+                "         MEASURE(`Deposit Movement USD`)  AS total_deposit_movement_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "  WHERE `Fiscal Quarter` = 'FY2026-Q2'\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Client Group`, casa_movement_usd, casa_moved_to_td_usd, total_deposit_movement_usd,\n",
+                "       CASE WHEN total_deposit_movement_usd >= casa_movement_usd / 2 THEN 'Mostly moved to time deposits'\n",
+                "            ELSE 'Mostly left the bank' END AS where_it_went\n",
+                "FROM g\n",
+                "WHERE casa_movement_usd < 0\n",
+                "ORDER BY casa_movement_usd ASC\n",
+                "LIMIT 20"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000003",
+          "question": [
+            "For Hong Kong, month by month from June to August 2026, what were the CASA movement, the CASA transferred into time deposits and the CASA ratio?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Month`,\n",
+                "       MEASURE(`CASA Movement USD`)     AS casa_movement_usd,\n",
+                "       MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,\n",
+                "       MEASURE(`CASA Ratio %`)          AS casa_ratio\n",
+                "FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "WHERE `Booking Country` = 'HK' AND `Month` BETWEEN DATE'2026-06-01' AND DATE'2026-08-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Month`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000004",
+          "question": [
+            "Show the monthly CASA ratio since April 2025, Japanese corporates versus non-Japanese clients."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Month`,\n",
+                "       CASE WHEN `Is Japanese Corporate` THEN 'Japanese corporate' ELSE 'Non-Japanese' END AS client_type,\n",
+                "       MEASURE(`CASA Ratio %`) AS casa_ratio\n",
+                "FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "WHERE `Month` >= DATE'2025-04-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Month`, client_type"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000005",
+          "question": [
+            "For outbound payments this fiscal year, what are the payment volume and the number of payments by payment purpose and counterparty bank type?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Payment Purpose`, `Counterparty Bank Type`,\n",
+                "       MEASURE(`Payment Volume USD`) AS payment_volume_usd,\n",
+                "       MEASURE(`Payments`)           AS payments\n",
+                "FROM smbc_genie.metrics.mv_tb_payments\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Direction` = 'Outbound'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Payment Purpose`, payment_volume_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000006",
+          "question": [
+            "What share of our clients' outbound supplier payments this fiscal year went to accounts at other banks? Show the share, the value paid to other banks and the total supplier payment value."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Share Paid via Other Banks %`) AS supplier_share_paid_to_other_banks,\n",
+                "       MEASURE(`Volume via Other Banks USD`)   AS supplier_payments_to_other_banks_usd,\n",
+                "       MEASURE(`Payment Volume USD`)           AS supplier_payments_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_payments\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000007",
+          "question": [
+            "Supplier-payment leakage FYTD - what % of outbound supplier flows went to competitor banks, the leaked value and total supplier payments?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Share Paid via Other Banks %`) AS supplier_share_paid_to_other_banks,\n",
+                "       MEASURE(`Volume via Other Banks USD`)   AS supplier_payments_to_other_banks_usd,\n",
+                "       MEASURE(`Payment Volume USD`)           AS supplier_payments_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_payments\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000008",
+          "question": [
+            "Which 12 channel and currency combinations with at least 200 payments had the lowest STP rate this fiscal year? Show the number of payments, the STP rate and the number of repairs."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT * FROM (\n",
+                "  SELECT `Channel`, `Currency`,\n",
+                "         MEASURE(`Payments`)   AS payments,\n",
+                "         MEASURE(`STP Rate %`) AS stp_rate,\n",
+                "         MEASURE(`Repairs`)    AS repairs\n",
+                "  FROM smbc_genie.metrics.mv_tb_payments\n",
+                "  WHERE `Fiscal Year` = 'FY2026'\n",
+                "  GROUP BY ALL\n",
+                ") WHERE payments >= 200\n",
+                "ORDER BY stp_rate\n",
+                "LIMIT 12"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000009",
+          "question": [
+            "Where were payment repairs concentrated this fiscal year? Show the top 10 repair reason and channel combinations by number of repairs, with their average processing hours."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Repair Reason`, `Channel`,\n",
+                "       MEASURE(`Repairs`)                  AS repairs,\n",
+                "       MEASURE(`Average Processing Hours`) AS average_processing_hours\n",
+                "FROM smbc_genie.metrics.mv_tb_payments\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Repair Reason` IS NOT NULL\n",
+                "GROUP BY ALL\n",
+                "ORDER BY repairs DESC\n",
+                "LIMIT 10"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f145400000000a",
+          "question": [
+            "Rank the multi-country client groups (deposit accounts in 3 or more APAC countries) that have no liquidity pooling structure today by their total deposits - the top 20, with their number of APAC countries."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`, `Group APAC Countries`,\n",
+                "       MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_liquidity_structures\n",
+                "WHERE `Is Latest Month` AND `Is Pooling Candidate`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY group_deposits_usd DESC\n",
+                "LIMIT 20"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f145400000000b",
+          "question": [
+            "top 20 multi-country groups with no cash poolng structure today by deposits, with their number of APAC countries"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`, `Group APAC Countries`,\n",
+                "       MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_liquidity_structures\n",
+                "WHERE `Is Latest Month` AND `Is Pooling Candidate`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY group_deposits_usd DESC\n",
+                "LIMIT 20"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f145400000000c",
+          "question": [
+            "How many multi-country groups have no pooling structure today, out of how many multi-country groups, what is the pooling penetration and how much do the unpooled groups hold in deposits?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Clients Without Pooling`)     AS multi_country_groups_without_pooling,\n",
+                "       MEASURE(`Multi-Country Groups`)        AS multi_country_groups,\n",
+                "       MEASURE(`Pooling Penetration %`)       AS pooling_penetration,\n",
+                "       MEASURE(`Unpooled Group Deposits USD`) AS unpooled_group_deposits_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_liquidity_structures\n",
+                "WHERE `Is Latest Month`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f145400000000d",
+          "question": [
+            "What is the top-10 depositor concentration in each booking country today, with each country's total deposits and number of depositors?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Booking Country`,\n",
+                "       MEASURE(`Top-10 Depositor Concentration %`) AS top10_depositor_share,\n",
+                "       MEASURE(`End of Month Balance USD`)         AS total_deposits_usd,\n",
+                "       MEASURE(`Depositors`)                       AS depositors\n",
+                "FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY top10_depositor_share DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f145400000000e",
+          "question": [
+            "Who are the ten largest depositors in Singapore today? Show each entity with its client group, its depositor rank and its deposits."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Client Group`, `Depositor Rank in Country`,\n",
+                "       MEASURE(`End of Month Balance USD`) AS deposits_usd\n",
+                "FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "WHERE `Is Latest Month` AND `Booking Country` = 'SG' AND `Depositor Rank in Country` <= 10\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Depositor Rank in Country`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f145400000000f",
+          "question": [
+            "List every legal entity whose total deposits held steady year on year at end-September 2026 (within plus or minus 10% of end-September 2025), with its client group, booking country, both month-end balances and the YoY change."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT * FROM (\n",
+                "  SELECT `Client`, `Client Group`, `Booking Country`,\n",
+                "         MEASURE(`End of Month Balance USD`)            AS deposits_sep_2026_usd,\n",
+                "         MEASURE(`End of Month Balance Prior Year USD`) AS deposits_sep_2025_usd,\n",
+                "         MEASURE(`Balance YoY %`)                       AS deposits_yoy\n",
+                "  FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "  WHERE `Is Latest Month`\n",
+                "  GROUP BY ALL\n",
+                ") WHERE deposits_yoy BETWEEN -0.10 AND 0.10\n",
+                "ORDER BY deposits_sep_2026_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000010",
+          "question": [
+            "Which legal entities saw their payment volume through us drop by more than 30% in H1 FY2026 versus H1 FY2025 (with at least USD 1m of payments in H1 FY2025) while their average month-end deposits held steady within plus or minus 10%? Show both halves' payment volume, the payment change and the deposit change."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH pay AS (\n",
+                "  SELECT `Client`, `Fiscal Half`, MEASURE(`Payment Volume USD`) AS payment_volume_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_payments\n",
+                "  WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\n",
+                "  GROUP BY ALL\n",
+                "), p AS (\n",
+                "  SELECT `Client`,\n",
+                "         sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN payment_volume_usd END) AS payments_h1_fy2025_usd,\n",
+                "         sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN payment_volume_usd END) AS payments_h1_fy2026_usd\n",
+                "  FROM pay GROUP BY `Client`\n",
+                "), dep AS (\n",
+                "  SELECT `Client`, `Fiscal Half`, `Month`, MEASURE(`End of Month Balance USD`) AS deposits_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "  WHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\n",
+                "  GROUP BY ALL\n",
+                "), d AS (\n",
+                "  SELECT `Client`,\n",
+                "         sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN deposits_usd END) / 6 AS avg_deposits_h1_fy2025_usd,\n",
+                "         sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN deposits_usd END) / 6 AS avg_deposits_h1_fy2026_usd\n",
+                "  FROM dep GROUP BY `Client`\n",
+                ")\n",
+                "SELECT p.`Client`, p.payments_h1_fy2025_usd, coalesce(p.payments_h1_fy2026_usd, 0) AS payments_h1_fy2026_usd,\n",
+                "       coalesce(p.payments_h1_fy2026_usd, 0) / p.payments_h1_fy2025_usd - 1 AS payment_volume_yoy,\n",
+                "       d.avg_deposits_h1_fy2026_usd / d.avg_deposits_h1_fy2025_usd - 1 AS avg_deposits_change\n",
+                "FROM p JOIN d ON d.`Client` = p.`Client`\n",
+                "WHERE p.payments_h1_fy2025_usd >= 1000000\n",
+                "  AND coalesce(p.payments_h1_fy2026_usd, 0) / p.payments_h1_fy2025_usd - 1 < -0.30\n",
+                "  AND abs(d.avg_deposits_h1_fy2026_usd / d.avg_deposits_h1_fy2025_usd - 1) <= 0.10\n",
+                "ORDER BY p.payments_h1_fy2025_usd - coalesce(p.payments_h1_fy2026_usd, 0) DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000011",
+          "question": [
+            "Digital channel adoption by segment this fiscal year - show active clients, the digital share of payments, the manual instruction share and the number of clients still sending manual instructions."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Segment`,\n",
+                "       MEASURE(`Active Clients`)                      AS active_clients,\n",
+                "       MEASURE(`Digital Share of Payments %`)         AS digital_share,\n",
+                "       MEASURE(`Manual Instruction Share %`)          AS manual_instruction_share,\n",
+                "       MEASURE(`Clients Sending Manual Instructions`) AS clients_sending_manual_instructions\n",
+                "FROM smbc_genie.metrics.mv_tb_channel_adoption\n",
+                "WHERE `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY manual_instruction_share DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000012",
+          "question": [
+            "Which entities sent 5 or more manual payment instructions this fiscal year? Show their segment, relationship tier, number of manual instructions and manual instruction share."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Segment`, `Relationship Tier`,\n",
+                "       MEASURE(`Manual Instructions`)        AS manual_instructions,\n",
+                "       MEASURE(`Manual Instruction Share %`) AS manual_instruction_share\n",
+                "FROM smbc_genie.metrics.mv_tb_channel_adoption\n",
+                "WHERE `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Manual Instructions`) >= 5\n",
+                "ORDER BY manual_instructions DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "9f803003a4ec24b612f1454000000013",
+          "question": [
+            "How much time-deposit principal matures in the next 90 days, by booking country and currency? Only show country and currency pairs with maturities."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT * FROM (\n",
+                "  SELECT `Booking Country`, `Currency`,\n",
+                "         MEASURE(`TD Maturing Next 90D USD`) AS td_maturing_next_90d_usd\n",
+                "  FROM smbc_genie.metrics.mv_tb_deposits\n",
+                "  WHERE `Is Latest Month`\n",
+                "  GROUP BY ALL\n",
+                ") WHERE td_maturing_next_90d_usd > 0\n",
+                "ORDER BY `Booking Country`, td_maturing_next_90d_usd DESC"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

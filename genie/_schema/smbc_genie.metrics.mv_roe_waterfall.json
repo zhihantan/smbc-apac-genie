@@ -1,0 +1,277 @@
+{
+ "columns": [
+  {
+   "comment": "Japanese fiscal year as a number (2026 = FY2026 = Apr 2026 - Mar 2027); the order field for prior-year comparisons (offset -1).",
+   "is_measure": false,
+   "name": "Fiscal Year Number",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label of the P&L year, April to March: FY2026 = Apr 2026 - Mar 2027 (in progress, H1 closed 30-Sep-2026), FY2025 = Apr 2025 - Mar 2026 (the latest complete year).",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "True for FY2026, the fiscal year containing the as-of date 30-Sep-2026 (\"this fiscal year\").",
+   "is_measure": false,
+   "name": "Is Latest Fiscal Year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "True for complete fiscal years (FY2024, FY2025); false for FY2026 to date (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "Is Full Year",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client's ROE for the year is below the 10% ROE hurdle; null without capital (no lending).",
+   "is_measure": false,
+   "name": "Below ROE Hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client's RoRWA for the year is below the 1.2% hurdle (also meant by \"below the 8% hurdle\"); null without RWA.",
+   "is_measure": false,
+   "name": "Below RoRWA Hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when credit cost exceeds 30% of revenue in the year (dim_threshold CREDIT_COST_SHARE_HIGH).",
+   "is_measure": false,
+   "name": "Credit Cost Above 30%",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client consumed RWA / capital in the year (a credit relationship); ROE is undefined otherwise.",
+   "is_measure": false,
+   "name": "Has Capital",
+   "type": "boolean"
+  },
+  {
+   "comment": "Products held at the end of the period, bucketed - 0 products, 1 product, 2 products, 3-4, 5-7, 8+ products.",
+   "is_measure": false,
+   "name": "Product Count Bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Total revenue in USD for the fiscal year (NII + fees + trading incl. other TB and advisory; FY2026 = Apr-Sep).",
+   "is_measure": true,
+   "name": "Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "Allocated operating cost (cost to serve) in USD for the fiscal year.",
+   "is_measure": true,
+   "name": "Opex USD",
+   "type": "double"
+  },
+  {
+   "comment": "Credit cost = expected loss in USD for the fiscal year.",
+   "is_measure": true,
+   "name": "Credit Cost USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue - opex - credit cost in USD (= net contribution).",
+   "is_measure": true,
+   "name": "Pre-Tax Profit USD",
+   "type": "double"
+  },
+  {
+   "comment": "Tax at the statutory rate of the coverage office on positive pre-tax profit, USD.",
+   "is_measure": true,
+   "name": "Tax USD",
+   "type": "double"
+  },
+  {
+   "comment": "Net income in USD for the fiscal year = pre-tax profit - tax (FY2026 = six months).",
+   "is_measure": true,
+   "name": "Net Income USD",
+   "type": "double"
+  },
+  {
+   "comment": "Net income annualised in USD (FY2026 x 2) - the ROE numerator.",
+   "is_measure": true,
+   "name": "Net Income Annualised USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average capital allocated over the year at 12.5% of RWA, in USD (latest fiscal year of the selection).",
+   "is_measure": true,
+   "name": "Allocated Capital USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average risk-weighted assets over the year in USD (latest fiscal year of the selection).",
+   "is_measure": true,
+   "name": "Average RWA USD",
+   "type": "double"
+  },
+  {
+   "comment": "Return on allocated capital = annualised net income / average allocated capital (fraction; hurdle 10%). Extreme for deposit-rich clients with little capital - compare with Median Client ROE.",
+   "is_measure": true,
+   "name": "ROE %",
+   "type": "double"
+  },
+  {
+   "comment": "Median of the clients' ROE (winsorised -25%..100%, credit clients only) - the typical relationship return.",
+   "is_measure": true,
+   "name": "Median Client ROE %",
+   "type": "double"
+  },
+  {
+   "comment": "The configured ROE hurdle from gold.dim_threshold (ROE_HURDLE, 0.10 = 10%, the cost of equity).",
+   "is_measure": true,
+   "name": "ROE Hurdle %",
+   "type": "double"
+  },
+  {
+   "comment": "ROE minus the hurdle (fraction; -0.03 = 3 percentage points below the 10% hurdle).",
+   "is_measure": true,
+   "name": "Hurdle Gap pts",
+   "type": "double"
+  },
+  {
+   "comment": "Clients with revenue or capital in the year (latest fiscal year of the selection).",
+   "is_measure": true,
+   "name": "Clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Credit clients whose ROE for the year is below the 10% hurdle (latest fiscal year of the selection).",
+   "is_measure": true,
+   "name": "Clients Below Hurdle",
+   "type": "bigint"
+  },
+  {
+   "comment": "EAD at the end of the year of the clients below the ROE hurdle, USD (latest fiscal year of the selection).",
+   "is_measure": true,
+   "name": "Exposure Below Hurdle USD",
+   "type": "double"
+  },
+  {
+   "comment": "Annualised relationship net profit / average RWA (fraction; hurdle 1.2%) - the same basis as mv_client_profitability.",
+   "is_measure": true,
+   "name": "RoRWA %",
+   "type": "double"
+  },
+  {
+   "comment": "Annualised relationship net profit / average economic capital (fraction; hurdle 12%).",
+   "is_measure": true,
+   "name": "RAROC %",
+   "type": "double"
+  },
+  {
+   "comment": "Credit cost as a share of revenue (fraction; above 0.30 = high).",
+   "is_measure": true,
+   "name": "Credit Cost to Revenue %",
+   "type": "double"
+  },
+  {
+   "comment": "Clients whose credit cost exceeded 30% of revenue in the year (latest fiscal year of the selection).",
+   "is_measure": true,
+   "name": "Clients With High Credit Cost",
+   "type": "bigint"
+  },
+  {
+   "comment": "Net income minus the 10% cost of the allocated capital, USD (negative = value-destroying).",
+   "is_measure": true,
+   "name": "Economic Profit USD",
+   "type": "double"
+  }
+ ],
+ "comment": "ROE waterfall of SMBC APAC clients by fiscal year (FY2024, FY2025, FY2026 to date = Apr-Sep 2026; USD): revenue, operating expense, credit cost (expected loss), pre-tax profit, tax, net income, allocated capital (12.5% of RWA) and ROE vs the 10% hurdle (gold.dim_threshold), hurdle gap, clients and exposure below hurdle, credit cost / revenue, RoRWA and RAROC (hurdle basis). Filter ONE Fiscal Year for amounts; FY2026 flows are six months while ratios are annualised. ROE % = annualised net income / allocated capital (ratio of sums): deposit-rich clients and groups with little capital show very high ROE - rank groups with a capital floor or read Median Client ROE. Grain: one row per golden client x fiscal year (gold.fact_client_pnl_waterfall_annual).",
+ "identifier": "smbc_genie.metrics.mv_roe_waterfall",
+ "type": "METRIC_VIEW"
+}

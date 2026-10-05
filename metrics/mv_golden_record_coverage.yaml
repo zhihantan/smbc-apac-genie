@@ -1,0 +1,164 @@
+# Space 11, Customer 360 Data Foundation (WP8f). Golden-record coverage per month: every measure is a month-end
+# snapshot (window last over Month). The source is dense (7 rows per client-month, one per source system), so
+# client counts use COUNT(DISTINCT golden_client_id) and client attributes are averaged over the equal rows - both
+# exact with or without a Source System filter. Answers: metrics/_answers/customer360_data_foundation.sql.
+view: mv_golden_record_coverage
+space: customer360_data_foundation
+comment: >-
+  Golden-record coverage of the Customer 360, Apr-2023 to Sep-2026: golden clients (resolved legal entities),
+  how many are present in each identity source system (core banking, CRM, KYC, credit, trade, treasury,
+  external company master) and in all three core sources, golden clients missing KYC or credit data, sources
+  per client, source field completeness and - at Sep-2026 - golden-record attribute completeness (10 key
+  attributes). All measures are month-end snapshots: a quarter or year returns its last month (filter Month =
+  DATE'2026-09-01' or Is Latest Month for today); group by Source System for per-source coverage.
+grain: one row per golden client per month per identity source system (gold.fact_golden_record_coverage_monthly)
+source: ${catalog}.gold.fact_golden_record_coverage_monthly
+blocks:
+  calendar: {date: source.month, grain: month, what: the coverage month-end}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Source System
+    expr: source.source_system
+    display_name: Source System
+    comment: >-
+      Identity source system: core_customer (core banking), crm_account (CRM), kyc_customer (KYC),
+      credit_obligor (credit), trade_party (trade finance), tsy_counterparty (treasury), ext_company_master
+      (external company master).
+    synonyms: [source system, source, system, feed, application, master, data source]
+  - name: Is Core Source
+    expr: source.is_core_source
+    display_name: Is Core Source
+    comment: True for the three core sources core_customer, crm_account and kyc_customer.
+    synonyms: [core source, core system, core sources, primary source, key source]
+  - name: Present in Source
+    expr: source.is_present
+    display_name: Present in Source
+    comment: True when the source system holds a record of the client at the month-end (false = missing from it).
+    synonyms: [present, in source, has record, covered, missing, not in source]
+measures:
+  - name: Golden Clients
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Golden Clients
+    comment: Golden clients (resolved legal entities) at the month-end.
+    synonyms: [golden clients, golden records, clients, entities, legal entities, resolved clients, client count]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Clients Present in Source
+    expr: COUNT(DISTINCT CASE WHEN source.is_present THEN source.golden_client_id END)
+    display_name: Golden Clients Present in Source
+    comment: Golden clients with a record in the source system at the month-end - group by Source System.
+    synonyms: [clients present, clients in source, covered clients, clients with a record, source coverage count]
+    format: *count
+    window: *eom
+  - name: Clients Present in Source %
+    expr: MEASURE(`Clients Present in Source`) / NULLIF(MEASURE(`Golden Clients`), 0)
+    display_name: Share of Golden Clients Present in Source
+    comment: Golden clients present in the source / all golden clients (fraction) - group by Source System.
+    synonyms: [source coverage, coverage rate, presence rate, clients present %, coverage %, penetration of source]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Clients in All Core Sources
+    expr: COUNT(DISTINCT CASE WHEN source.in_all_core_sources THEN source.golden_client_id END)
+    display_name: Golden Clients in All Core Sources
+    comment: Golden clients present in core banking, CRM and KYC at the month-end.
+    synonyms: [clients in all core sources, fully covered clients, complete core coverage, core complete]
+    format: *count
+    window: *eom
+  - name: Clients in All Core Sources %
+    expr: MEASURE(`Clients in All Core Sources`) / NULLIF(MEASURE(`Golden Clients`), 0)
+    display_name: Share of Golden Clients in All Core Sources
+    comment: Golden clients in all three core sources / all golden clients (fraction).
+    synonyms: [all core sources %, core coverage, full coverage rate, core completeness, all core %]
+    format: *pct
+  - name: Clients Missing KYC Data
+    expr: COUNT(DISTINCT CASE WHEN source.source_system = 'kyc_customer' AND source.is_missing THEN source.golden_client_id END)
+    display_name: Golden Clients Missing KYC Data
+    comment: Golden clients with no KYC record at the month-end.
+    synonyms: [missing KYC, no KYC record, clients without KYC, KYC gap, KYC missing, uncovered by KYC]
+    format: *count
+    window: *eom
+  - name: Clients Missing Credit Data
+    expr: COUNT(DISTINCT CASE WHEN source.source_system = 'credit_obligor' AND source.is_missing THEN source.golden_client_id END)
+    display_name: Golden Clients Missing Credit Data
+    comment: Golden clients with no credit (obligor) record at the month-end - mostly non-borrowers.
+    synonyms: [missing credit, no credit record, clients without credit data, credit gap, no obligor record]
+    format: *count
+    window: *eom
+  - name: Average Sources per Client
+    expr: AVG(source.n_sources_present)
+    display_name: Average Sources per Golden Client
+    comment: Average number of identity source systems (of 7) holding each golden client at the month-end.
+    synonyms: [sources per client, average sources, source count, systems per client, footprint]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+    window: *eom
+  - name: Average Attribute Completeness %
+    expr: AVG(source.attribute_completeness_pct)
+    display_name: Average Attribute Completeness
+    comment: >-
+      Average golden-record attribute completeness = populated of 10 key attributes (legal name, LEI, tax id,
+      country, group, segment, tier, RM, rating, KYC risk), fraction; measured at Sep-2026 only (null earlier).
+    synonyms: [attribute completeness, completeness, data completeness, record completeness, golden record quality, fill rate]
+    format: *pct
+    window: *eom
+  - name: Fully Complete Golden Records
+    expr: COUNT(DISTINCT CASE WHEN source.attribute_completeness_pct >= 1 THEN source.golden_client_id END)
+    display_name: Fully Complete Golden Records
+    comment: Golden clients with all 10 key attributes populated (Sep-2026).
+    synonyms: [complete records, fully complete, 100% complete, complete golden records]
+    format: *count
+    window: *eom
+  - name: Average Source Field Completeness %
+    expr: AVG(CASE WHEN source.is_present THEN source.source_field_completeness END)
+    display_name: Average Source Field Completeness
+    comment: Average share of the source's key identity fields populated on the client's records (present clients only).
+    synonyms: [field completeness, source completeness, field fill rate, source data quality, populated fields]
+    format: *pct
+    window: *eom
+validate:
+  dims: [Month, Source System]
+reconcile:
+  - name: golden_clients_sep26
+    measure: Golden Clients
+    where: "`Is Latest Month`"
+    gold: SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_golden_record_coverage_monthly WHERE is_latest_month
+  - name: present_by_source_sep26
+    measure: Clients Present in Source
+    by: [Source System]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT source_system, count_if(is_present) FROM ${catalog}.gold.fact_golden_record_coverage_monthly
+      WHERE is_latest_month GROUP BY 1
+  - name: present_pct_by_source_mar26
+    measure: Clients Present in Source %
+    by: [Source System]
+    where: "`Month` = DATE'2026-03-01'"
+    gold: >-
+      SELECT source_system, avg(CASE WHEN is_present THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_golden_record_coverage_monthly
+      WHERE month = DATE'2026-03-01' GROUP BY 1
+  - name: missing_kyc_by_tier_sep26
+    measure: Clients Missing KYC Data
+    by: [Relationship Tier]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT c.relationship_tier, count(*) FROM ${catalog}.gold.fact_golden_record_coverage_monthly f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.is_latest_month AND f.source_system = 'kyc_customer' AND f.is_missing GROUP BY 1
+  - name: all_core_sources_pct_fy2025_is_mar26
+    measure: Clients in All Core Sources %
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT avg(CASE WHEN in_all_core_sources THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_golden_record_coverage_monthly
+      WHERE month = DATE'2026-03-01' AND is_client_primary_row
+  - name: attribute_completeness_by_tier_sep26
+    measure: Average Attribute Completeness %
+    by: [Relationship Tier]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT c.relationship_tier, avg(f.attribute_completeness_pct) FROM ${catalog}.gold.fact_golden_record_coverage_monthly f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.is_latest_month AND f.is_client_primary_row GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Month-end snapshots (window last): never add months. Attribute completeness exists for Sep-2026 only.
+      Client counts are distinct golden clients (the source has one row per client, month and source system).

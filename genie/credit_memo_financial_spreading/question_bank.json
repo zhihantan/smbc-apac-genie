@@ -1,0 +1,1284 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 69,
+      "columns": [
+        "Fiscal Year",
+        "Statement Type",
+        "Statement Line",
+        "Line Order",
+        "amount_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "INT",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "FY2023",
+          "P&L",
+          "Revenue",
+          "10",
+          "1.0466045057E8"
+        ],
+        [
+          "FY2024",
+          "P&L",
+          "Revenue",
+          "10",
+          "1.1113938736E8"
+        ],
+        [
+          "FY2025",
+          "P&L",
+          "Revenue",
+          "10",
+          "1.1734847319E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "3eaf76aed8522169",
+      "sorted_by": null
+    },
+    "Q1b": {
+      "rows": 15,
+      "columns": [
+        "Ratio Name",
+        "Fiscal Year",
+        "ratio_value",
+        "peer_median",
+        "peer_percentile_rank",
+        "worse_than_p25"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Current Ratio",
+          "FY2023",
+          "1.1415",
+          "1.2108",
+          "0.0",
+          "1"
+        ],
+        [
+          "Current Ratio",
+          "FY2024",
+          "1.0268",
+          "1.2096",
+          "0.0",
+          "1"
+        ],
+        [
+          "Current Ratio",
+          "FY2025",
+          "0.8351",
+          "1.2078",
+          "0.0",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "de1f368c97b75093",
+      "sorted_by": null
+    },
+    "Q1c": {
+      "rows": 4,
+      "columns": [
+        "Facility",
+        "Facility Type",
+        "Facility Status",
+        "Security Type",
+        "Guarantor Type",
+        "limit_usd",
+        "drawn_usd",
+        "margin_bps",
+        "collateral_value_usd",
+        "max_ltv"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "FAC-001503",
+          "Syndicated Loan",
+          "Active",
+          "Unsecured",
+          "None",
+          "9.5E7",
+          "7.41E7",
+          "285.0",
+          null,
+          null
+        ],
+        [
+          "FAC-000019",
+          "Overdraft",
+          "Active",
+          "Unsecured",
+          "None",
+          "2.199126159E7",
+          "2.133152374E7",
+          "255.0",
+          null,
+          null
+        ],
+        [
+          "FAC-000017",
+          "Revolving Credit Facility",
+          "Active",
+          "Real Estate",
+          "Corporate Guarantee",
+          "9222111.4",
+          "8945448.06",
+          "230.0",
+          "9372355.26",
+          "0.5156"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9846db3f598cb597",
+      "sorted_by": null
+    },
+    "Q1d": {
+      "rows": 13,
+      "columns": [
+        "Facility",
+        "Covenant Type",
+        "test_date",
+        "Is Latest Test",
+        "actual",
+        "threshold",
+        "headroom",
+        "breaches"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DATE",
+        "BOOLEAN",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "FAC-000017",
+          "ICR",
+          "2025-12-31",
+          "false",
+          "3.59",
+          "2.5",
+          "0.436",
+          "0"
+        ],
+        [
+          "FAC-000017",
+          "ICR",
+          "2026-03-31",
+          "false",
+          "3.39",
+          "2.5",
+          "0.356",
+          "0"
+        ],
+        [
+          "FAC-000017",
+          "ICR",
+          "2026-06-30",
+          "false",
+          "3.15",
+          "2.5",
+          "0.26",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1f82ef61013cfe01",
+      "sorted_by": null
+    },
+    "Q1e": {
+      "rows": 1,
+      "columns": [
+        "drawn_usd",
+        "limit_usd",
+        "ead_usd",
+        "rwa_usd",
+        "ecl_usd",
+        "stage3_exposure_usd",
+        "overdue_usd"
+      ],
+      "types": [
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "1.043769718E8",
+          "1.2621337299000001E8",
+          "1.1529517238999999E8",
+          "1.3130839078E8",
+          "5.061917592E7",
+          "1.043769718E8",
+          "397917.18"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "3580b9f664e12bdb",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 6,
+      "columns": [
+        "Client",
+        "Facility",
+        "Headroom Bucket",
+        "Watchlist",
+        "actual",
+        "threshold",
+        "headroom"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "BOOLEAN",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Sunda Energi Nusantara (Jakarta) PT Tbk",
+          "FAC-001503",
+          "Breached",
+          "true",
+          "5.1",
+          "4.0",
+          "-0.275"
+        ],
+        [
+          "LANGKAWI VENTURES (MANILA)",
+          "FAC-001350",
+          "0-10%",
+          "true",
+          "3.87",
+          "4.0",
+          "0.0325"
+        ],
+        [
+          "Hoshioka Electronics Group Industries PT Tbk",
+          "FAC-000740",
+          "0-10%",
+          "true",
+          "3.74",
+          "4.0",
+          "0.065"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9b6b975020474675",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 18,
+      "columns": [
+        "Client",
+        "Subsector",
+        "Ratio Name",
+        "Fiscal Year",
+        "ratio_value",
+        "peer_median",
+        "gap_to_peer_median"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Langkawi Energy Holdings (Jakarta) PT",
+          "Oil, Gas & Coal",
+          "ICR",
+          "FY2023",
+          "5.9563",
+          "5.436",
+          "0.5202999999999998"
+        ],
+        [
+          "Langkawi Energy Holdings (Jakarta) PT",
+          "Oil, Gas & Coal",
+          "ICR",
+          "FY2024",
+          "6.096",
+          "5.0318",
+          "1.0642000000000005"
+        ],
+        [
+          "Langkawi Energy Holdings (Jakarta) PT",
+          "Oil, Gas & Coal",
+          "ICR",
+          "FY2025",
+          "5.6976",
+          "4.6088",
+          "1.0888000000000009"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "aca4536078220a84",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 43,
+      "columns": [
+        "Analyst",
+        "statements_not_spread",
+        "avg_days_overdue",
+        "max_days_overdue"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "INT"
+      ],
+      "head": [
+        [
+          "Yuki Devi",
+          "9",
+          "127.66666666666667",
+          "209"
+        ],
+        [
+          "Lara Wong",
+          "9",
+          "126.88888888888889",
+          "206"
+        ],
+        [
+          "Chen Lee",
+          "9",
+          "142.55555555555554",
+          "189"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "78c916831b0dd107",
+      "sorted_by": null
+    },
+    "Q4b": {
+      "rows": 128,
+      "columns": [
+        "Client",
+        "Analyst",
+        "Status",
+        "days_overdue"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "INT"
+      ],
+      "head": [
+        [
+          "Sunda Power Holdings (Taipei) Co Ltd",
+          "Jun Ito",
+          "In Progress",
+          "211"
+        ],
+        [
+          "Mahakam Property Resources (Bangkok) PCL",
+          "Mei Reddy",
+          "In Progress",
+          "211"
+        ],
+        [
+          "Catba Insurance Holdings Trading (Mumbai) Ltd",
+          "Hideo Sharma",
+          "Received - Not Started",
+          "211"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "06685c13762ae909",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 65,
+      "columns": [
+        "Analyst",
+        "Status",
+        "reviews_due",
+        "avg_days_in_preparation"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Aiko Wong",
+          "In Preparation",
+          "1",
+          "6.0"
+        ],
+        [
+          "Arun Nguyen",
+          "In Preparation",
+          "1",
+          "24.0"
+        ],
+        [
+          "Arun Nguyen",
+          "Not Started",
+          "1",
+          null
+        ]
+      ],
+      "error": null,
+      "sql_sha": "6b78eed96572c155",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 308,
+      "columns": [
+        "Client",
+        "Facility",
+        "Collateral Type",
+        "collateral_value_usd",
+        "ltv",
+        "valuation_age_months"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "INT"
+      ],
+      "head": [
+        [
+          "Kinokawa Construction Group (Taipei) Co Ltd",
+          "FAC-000418",
+          "Cash",
+          "1126485.61",
+          "0.8469",
+          "23"
+        ],
+        [
+          "CHAOPHRAYA BEVERAGES (SHANGHAI)",
+          "FAC-001107",
+          "Cash",
+          "3039675.77",
+          "0.8454",
+          "5"
+        ],
+        [
+          "Sabah Leasing (Shanghai) Co Ltd",
+          "FAC-001257",
+          "Fixed Assets",
+          "6720791.82",
+          "0.8451",
+          "11"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "31f708984d3d0a39",
+      "sorted_by": null
+    },
+    "Q6b": {
+      "rows": 5,
+      "columns": [
+        "Collateral Type",
+        "items_needing_review",
+        "ltv_over_70",
+        "valuation_over_24m"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Fixed Assets",
+          "69",
+          "43",
+          "39"
+        ],
+        [
+          "Real Estate",
+          "68",
+          "43",
+          "42"
+        ],
+        [
+          "Inventory",
+          "61",
+          "37",
+          "32"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4a70ea713fb469a4",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 159,
+      "columns": [
+        "Client",
+        "Client Group",
+        "Guarantor Type",
+        "Parent Rating",
+        "facilities",
+        "drawn_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Fuwi Heavy Industries Trading Co Ltd",
+          "Fuwa Heavy Industries",
+          "Keepwell",
+          "A+",
+          "1",
+          "2.8771428627E8"
+        ],
+        [
+          "KONABE PRECISION GROUP (SHANGHtI)",
+          "Konabe Precision Group",
+          "Keepwell",
+          "A+",
+          "1",
+          "9.93311489E7"
+        ],
+        [
+          "Chemical Ebisawa Industries (Bangkot) PCL",
+          "Ebisawa Chemical",
+          "Parent Guarantee",
+          "AAA",
+          "1",
+          "6.058402296E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "c853d98e0fc28bb3",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 12,
+      "columns": [
+        "Ratio Name",
+        "Fiscal Year",
+        "clients",
+        "client_average_days",
+        "peer_median_days"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Cash Conversion Cycle",
+          "FY2023",
+          "55",
+          "62.062445454545454",
+          "63.51414545454544"
+        ],
+        [
+          "Cash Conversion Cycle",
+          "FY2024",
+          "55",
+          "60.83312727272727",
+          "62.311336363636386"
+        ],
+        [
+          "Cash Conversion Cycle",
+          "FY2025",
+          "55",
+          "58.91825454545454",
+          "60.27479999999999"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "c8bebf9acc71029d",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 1,
+      "columns": [
+        "waivers",
+        "exposure_with_waivers_usd",
+        "covenant_tests_fy2026"
+      ],
+      "types": [
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "0",
+          null,
+          "1230"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2fe0ebf8377822bf",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 9,
+      "columns": [
+        "Coverage Office",
+        "approvals",
+        "amount_usd",
+        "weighted_margin_bps",
+        "avg_days_to_approval"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "SG",
+          "11",
+          "1.1393747289000002E8",
+          "186.16377669696092",
+          "34.81818181818182"
+        ],
+        [
+          "HK",
+          "8",
+          "6.852330837E7",
+          "191.11532732975073",
+          "32.875"
+        ],
+        [
+          "TH",
+          "3",
+          "4.688267871E7",
+          "87.49733578480503",
+          "30.666666666666668"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0954d67432a3e301",
+      "sorted_by": null
+    },
+    "Q2-jargon": {
+      "rows": 6,
+      "columns": [
+        "Client",
+        "Facility",
+        "Headroom Bucket",
+        "Watchlist",
+        "actual",
+        "threshold",
+        "headroom"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "BOOLEAN",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Sunda Energi Nusantara (Jakarta) PT Tbk",
+          "FAC-001503",
+          "Breached",
+          "true",
+          "5.1",
+          "4.0",
+          "-0.275"
+        ],
+        [
+          "LANGKAWI VENTURES (MANILA)",
+          "FAC-001350",
+          "0-10%",
+          "true",
+          "3.87",
+          "4.0",
+          "0.0325"
+        ],
+        [
+          "Hoshioka Electronics Group Industries PT Tbk",
+          "FAC-000740",
+          "0-10%",
+          "true",
+          "3.74",
+          "4.0",
+          "0.065"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9b6b975020474675",
+      "sorted_by": null
+    },
+    "Q10-abbrev": {
+      "rows": 9,
+      "columns": [
+        "Coverage Office",
+        "approvals",
+        "amount_usd",
+        "weighted_margin_bps",
+        "avg_days_to_approval"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "SG",
+          "11",
+          "1.1393747289000002E8",
+          "186.16377669696092",
+          "34.81818181818182"
+        ],
+        [
+          "HK",
+          "8",
+          "6.852330837E7",
+          "191.11532732975073",
+          "32.875"
+        ],
+        [
+          "TH",
+          "3",
+          "4.688267871E7",
+          "87.49733578480503",
+          "30.666666666666668"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0954d67432a3e301",
+      "sorted_by": null
+    },
+    "Q4b-typo": {
+      "rows": 128,
+      "columns": [
+        "Client",
+        "Analyst",
+        "Status",
+        "days_overdue"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "INT"
+      ],
+      "head": [
+        [
+          "Sunda Power Holdings (Taipei) Co Ltd",
+          "Jun Ito",
+          "In Progress",
+          "211"
+        ],
+        [
+          "Mahakam Property Resources (Bangkok) PCL",
+          "Mei Reddy",
+          "In Progress",
+          "211"
+        ],
+        [
+          "Catba Insurance Holdings Trading (Mumbai) Ltd",
+          "Hideo Sharma",
+          "Received - Not Started",
+          "211"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "06685c13762ae909",
+      "sorted_by": null
+    },
+    "Q9-casual": {
+      "rows": 1,
+      "columns": [
+        "waivers",
+        "exposure_with_waivers_usd",
+        "covenant_tests_fy2026"
+      ],
+      "types": [
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "0",
+          null,
+          "1230"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2fe0ebf8377822bf",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_financial_spreads",
+      "type": "METRIC_VIEW",
+      "field": "Fiscal Year",
+      "first": "FY2023",
+      "last": "FY2025",
+      "periods": 3
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_financial_ratios_vs_peers",
+      "type": "METRIC_VIEW",
+      "field": "Fiscal Year",
+      "first": "FY2023",
+      "last": "FY2025",
+      "periods": 3
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_facilities_covenants_collateral",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2023-06-30",
+      "last": "2026-09-30",
+      "periods": 714
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_credit_review_workflow",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2023-04-03",
+      "last": "2026-12-25",
+      "periods": 990
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_peer_group",
+      "type": "MANAGED",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:30:18+00:00",
+  "questions_captured_at": "2026-10-04T15:39:39+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "Credit memo pack for Sunda Energi Nusantara (Jakarta): show its spread P&L and balance sheet for the last 3 fiscal years.",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_credit_memo_financials`(client_name => 'Sunda Energi Nusantara (Jakarta)')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "fiscal_year",
+        "statement_type",
+        "statement_line",
+        "line_order",
+        "amount_usd"
+      ],
+      "genie_rows": 69,
+      "seconds": 15.5,
+      "asked_at": "2026-10-04T15:36:35+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Now show its key ratios against the peer median, with its percentile rank in the peer group.",
+      "after": "S1",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (15 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Ratio Name`, `Fiscal Year`,\n       MEASURE(`Ratio Value`)                     AS ratio_value,\n       MEASURE(`Peer Median`)                     AS peer_median,\n       MEASURE(`Percentile Rank in Peer Group %`) AS peer_percentile_rank,\n       MEASURE(`Clients Below Peer P25`)          AS worse_than_p25\nFROM smbc_genie.metrics.mv_financial_ratios_vs_peers\nWHERE `Client` LIKE CONCAT('%', :client_name, '%')\n  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR', 'DSCR', 'Current Ratio', 'EBITDA Margin')\nGROUP BY ALL\nORDER BY `Ratio Name`, `Fiscal Year`",
+      "genie_parameters": [
+        {
+          "keyword": "client_name",
+          "value": "Sunda Energi Nusantara (Jakarta)",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Ratio Name",
+        "Fiscal Year",
+        "ratio_value",
+        "peer_median",
+        "peer_percentile_rank",
+        "worse_than_p25"
+      ],
+      "genie_rows": 15,
+      "seconds": 32.2,
+      "asked_at": "2026-10-04T15:36:50+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F2",
+      "question": "Now list its facilities with limit, drawn amount, margin and collateral.",
+      "after": "S1",
+      "benchmark": "Q1c",
+      "matched": "Q1c",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_credit_memo_facilities`(client_name => 'Sunda Energi Nusantara (Jakarta)')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "facility",
+        "facility_type",
+        "facility_status",
+        "security_type",
+        "guarantor_type",
+        "limit_usd",
+        "drawn_usd",
+        "margin_bps",
+        "collateral_value_usd",
+        "max_ltv"
+      ],
+      "genie_rows": 4,
+      "seconds": 21.1,
+      "asked_at": "2026-10-04T15:37:22+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F3",
+      "question": "And its current exposure at 30 Sep 2026: drawn, limit, EAD, RWA, ECL, Stage 3 exposure and overdue amount.",
+      "after": "S1",
+      "benchmark": "Q1e",
+      "matched": "Q1e",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_credit_memo_exposure`(client_name => 'Sunda Energi Nusantara (Jakarta)')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "drawn_usd",
+        "limit_usd",
+        "ead_usd",
+        "rwa_usd",
+        "ecl_usd",
+        "stage3_exposure_usd",
+        "overdue_usd"
+      ],
+      "genie_rows": 1,
+      "seconds": 22.1,
+      "asked_at": "2026-10-04T15:37:43+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which clients breached or have less than 10% headroom on a leverage covenant at the latest test?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`,\n       MEASURE(`Covenant Actual`)         AS actual,\n       MEASURE(`Covenant Threshold`)      AS threshold,\n       MEASURE(`Min Covenant Headroom %`) AS headroom\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = :covenant_type\n  AND `Headroom Bucket` IN ('Breached', '0-10%')\nGROUP BY ALL\nORDER BY headroom",
+      "genie_parameters": [
+        {
+          "keyword": "covenant_type",
+          "value": "Net Debt/EBITDA",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client",
+        "Facility",
+        "Headroom Bucket",
+        "Watchlist",
+        "actual",
+        "threshold",
+        "headroom"
+      ],
+      "genie_rows": 6,
+      "seconds": 19.4,
+      "asked_at": "2026-10-04T14:30:31+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F4",
+      "question": "Which of those clients are not on the watchlist?",
+      "after": "S2",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (3 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`, MEASURE(`Covenant Actual`) AS `actual`, MEASURE(`Covenant Threshold`) AS `threshold`, MEASURE(`Min Covenant Headroom %`) AS `headroom`\nFROM `smbc_genie`.`metrics`.`mv_facilities_covenants_collateral`\nWHERE `Record Type` = 'Covenant Test'\n  AND `Is Latest Test` = true\n  AND `Covenant Type` = 'Net Debt/EBITDA'\n  AND `Headroom Bucket` IN ('Breached', '0-10%')\n  AND `Watchlist` = false\nGROUP BY ALL\nORDER BY `headroom` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Facility",
+        "Headroom Bucket",
+        "Watchlist",
+        "actual",
+        "threshold",
+        "headroom"
+      ],
+      "genie_rows": 3,
+      "seconds": 22.7,
+      "asked_at": "2026-10-04T15:38:24+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "Net Debt/EBITDA and ICR for all Indonesian mining clients vs their peer median, FY2023-FY2025",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Subsector`, `Ratio Name`, `Fiscal Year`,\n       MEASURE(`Ratio Value`)        AS ratio_value,\n       MEASURE(`Peer Median`)        AS peer_median,\n       MEASURE(`Gap to Peer Median`) AS gap_to_peer_median\nFROM smbc_genie.metrics.mv_financial_ratios_vs_peers\nWHERE `Coverage Office` = :coverage_office\n  AND `Subsector` IN ('Mining', 'Minerals', 'Natural Resources', 'Oil, Gas & Coal')\n  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR')\nGROUP BY ALL\nORDER BY `Client`, `Ratio Name`, `Fiscal Year`",
+      "genie_parameters": [
+        {
+          "keyword": "coverage_office",
+          "value": "ID",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client",
+        "Subsector",
+        "Ratio Name",
+        "Fiscal Year",
+        "ratio_value",
+        "peer_median",
+        "gap_to_peer_median"
+      ],
+      "genie_rows": 18,
+      "seconds": 21.3,
+      "asked_at": "2026-10-04T14:30:50+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "Which clients' FY2025 financials are not yet spread, by analyst and days overdue?",
+      "after": null,
+      "benchmark": "Q4b",
+      "matched": "Q4b",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Analyst`, `Status`, MEASURE(`Max Days Overdue`) AS days_overdue\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = :review_fiscal_year AND `Is Not Yet Spread`\nGROUP BY ALL\nORDER BY days_overdue DESC",
+      "genie_parameters": [
+        {
+          "keyword": "review_fiscal_year",
+          "value": "FY2025",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client",
+        "Analyst",
+        "Status",
+        "days_overdue"
+      ],
+      "genie_rows": 128,
+      "seconds": 18.6,
+      "asked_at": "2026-10-04T14:31:12+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Annual reviews due in Q3 FY2026 by analyst, with the current status and days in preparation",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": "Q5",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Analyst`, `Status`, MEASURE(`Reviews Due`) AS reviews_due, MEASURE(`Average Days in Preparation`) AS days_in_preparation\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'Annual'\n  AND `Fiscal Quarter` = 'FY2026-Q3'\n  AND `Analyst` IS NOT NULL\n  AND `Status` IS NOT NULL\nGROUP BY ALL\nORDER BY `Analyst` ASC, `Status` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Analyst",
+        "Status",
+        "reviews_due",
+        "days_in_preparation"
+      ],
+      "genie_rows": 65,
+      "seconds": 25.5,
+      "asked_at": "2026-10-04T14:31:31+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Which collateral on active facilities has an LTV above 70% or a valuation older than 24 months?",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows as the benchmark; Genie adds 5 columns",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Client` AS `client`,\n  `Facility` AS `facility`,\n  `Collateral Type` AS `collateral_type`,\n  `Security Type` AS `security_type`,\n  `Coverage Office` AS `coverage_office`,\n  `Date` AS `valuation_date`,\n  MEASURE(`Collateral Value USD`) AS `collateral_value_usd`,\n  MEASURE(`Average LTV %`) AS `average_ltv_pct`,\n  MEASURE(`Max LTV %`) AS `max_ltv_pct`,\n  MEASURE(`Max Valuation Age Months`) AS `valuation_age_months`,\n  MEASURE(`Collateral Needing Review`) AS `collateral_needing_review`\nFROM `smbc_genie`.`metrics`.`mv_facilities_covenants_collateral`\nWHERE `Record Type` = 'Collateral'\n  AND `Facility Status` = 'Active'\n  AND `Client` IS NOT NULL\n  AND `Facility` IS NOT NULL\n  AND `Collateral Type` IS NOT NULL\nGROUP BY ALL\nHAVING `collateral_needing_review` > 0\nORDER BY `valuation_age_months` DESC, `max_ltv_pct` DESC, `client` ASC, `facility` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "client",
+        "facility",
+        "collateral_type",
+        "security_type",
+        "coverage_office",
+        "valuation_date",
+        "collateral_value_usd",
+        "average_ltv_pct",
+        "max_ltv_pct",
+        "valuation_age_months",
+        "collateral_needing_review"
+      ],
+      "genie_rows": 308,
+      "seconds": 26.9,
+      "asked_at": "2026-10-04T14:31:57+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Which Japanese-corporate subsidiaries rely on a parent guarantee or keepwell on their active facilities, and what is the parent's external rating?",
+      "after": null,
+      "benchmark": "Q7",
+      "matched": "Q7",
+      "verdict": "match",
+      "note": "same rows; Genie shows 4 of the benchmark's 6 columns (not shown: Client Group, drawn USD); adds 1 column",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Coverage Office`, `Guarantor Type`, `Parent Rating`, MEASURE(`Facilities`) AS `facilities`\nFROM `smbc_genie`.`metrics`.`mv_facilities_covenants_collateral`\nWHERE `Record Type` = 'Facility'\n  AND `Facility Status` = 'Active'\n  AND `Is Japanese Corporate` = true\n  AND `Guarantor Type` IN ('Parent Guarantee', 'Keepwell')\n  AND `Client` IS NOT NULL\n  AND `Coverage Office` IS NOT NULL\n  AND `Guarantor Type` IS NOT NULL\n  AND `Parent Rating` IS NOT NULL\nGROUP BY ALL\nORDER BY `Client` ASC, `Guarantor Type` ASC, `Parent Rating` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Coverage Office",
+        "Guarantor Type",
+        "Parent Rating",
+        "facilities"
+      ],
+      "genie_rows": 159,
+      "seconds": 24.3,
+      "asked_at": "2026-10-04T15:38:47+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "New-money requests approved in H1 FY2026: amount, margin and time to approval by coverage office",
+      "after": null,
+      "benchmark": "Q10",
+      "matched": "Q10",
+      "verdict": "match",
+      "note": "same rows; Genie shows 4 of the benchmark's 5 columns (not shown: approvals)",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Coverage Office` AS `coverage_office`,\n  MEASURE(`Requested Amount USD`) AS `requested_amount_usd`,\n  MEASURE(`Weighted Margin bps`) AS `weighted_margin_bps`,\n  MEASURE(`Average Days to Approval`) AS `average_days_to_approval`\nFROM `smbc_genie`.`metrics`.`mv_credit_review_workflow`\nWHERE `Review Type` = 'New Money'\n  AND `Approval Fiscal Half` = 'FY2026-H1'\n  AND `Outcome` IN ('Approved', 'Approved with Conditions')\n  AND `Coverage Office` IS NOT NULL\nGROUP BY ALL\nORDER BY `coverage_office` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "coverage_office",
+        "requested_amount_usd",
+        "weighted_margin_bps",
+        "average_days_to_approval"
+      ],
+      "genie_rows": 9,
+      "seconds": 21.5,
+      "asked_at": "2026-10-04T14:32:45+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "safer",
+      "id": "Q10",
+      "question": "New-money requests with an approved outcome in H1 FY2026, by coverage office: number approved, requested amount, weighted margin in bps and average days to approval.",
+      "after": null,
+      "benchmark": "Q10",
+      "matched": "Q10",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Coverage Office`,\n  MEASURE(`Approved`) AS `approved`,\n  MEASURE(`Requested Amount USD`) AS `requested_amount_usd`,\n  MEASURE(`Weighted Margin bps`) AS `weighted_margin_bps`,\n  MEASURE(`Average Days to Approval`) AS `average_days_to_approval`\nFROM `smbc_genie`.`metrics`.`mv_credit_review_workflow`\nWHERE `Review Type` = 'New Money'\n  AND `Approval Fiscal Half` = 'FY2026-H1'\n  AND `Outcome` IN ('Approved', 'Approved with Conditions')\n  AND `Coverage Office` IS NOT NULL\nGROUP BY ALL\nORDER BY `Coverage Office` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Coverage Office",
+        "approved",
+        "requested_amount_usd",
+        "weighted_margin_bps",
+        "average_days_to_approval"
+      ],
+      "genie_rows": 9,
+      "seconds": 25.5,
+      "asked_at": "2026-10-04T15:39:12+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "credit_memo_financial_spreading",
+  "space_id": "my-agent-id"
+}

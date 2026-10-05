@@ -1,0 +1,181 @@
+{
+ "columns": [
+  {
+   "comment": "Row type: Review Snapshot or Screening.",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "Key within the type: review_id|month-end (Review Snapshot) or screening_id (Screening).",
+   "is_measure": false,
+   "name": "record_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end (Review Snapshot) or screening date (Screening) - the window order field.",
+   "is_measure": false,
+   "name": "record_date",
+   "type": "date"
+  },
+  {
+   "comment": "Month-end the row belongs to (Month dimension) on both row types.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version of the client (null for screening of applicants that never became clients).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client (null for applicants that never became clients).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client's booking location / coverage office (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  },
+  {
+   "comment": "Client's KYC / AML risk rating from the KYC master: High, Medium or Low (null for applicants).",
+   "is_measure": false,
+   "name": "kyc_risk_rating",
+   "type": "string"
+  },
+  {
+   "comment": "True for High-risk clients.",
+   "is_measure": false,
+   "name": "is_high_risk",
+   "type": "boolean"
+  },
+  {
+   "comment": "Review Snapshot: Completed, Overdue or Due at the month-end. Screening: disposition (False Positive - Cleared, True Match - Escalated / EDD Applied / Rejected).",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "Review Snapshot rows: KYC review id.",
+   "is_measure": false,
+   "name": "review_id",
+   "type": "string"
+  },
+  {
+   "comment": "Review Snapshot rows: Onboarding, Periodic or Trigger.",
+   "is_measure": false,
+   "name": "review_type",
+   "type": "string"
+  },
+  {
+   "comment": "Review Snapshot rows: review due date.",
+   "is_measure": false,
+   "name": "due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Review Snapshot rows: completion date (null while open).",
+   "is_measure": false,
+   "name": "completed_date",
+   "type": "date"
+  },
+  {
+   "comment": "Review Snapshot rows: review fell due in the month (Reviews Due).",
+   "is_measure": false,
+   "name": "is_due_in_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Review Snapshot rows: review completed in the month (Completed).",
+   "is_measure": false,
+   "name": "is_completed_in_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Review Snapshot rows: completed in the month on or before its due date.",
+   "is_measure": false,
+   "name": "is_completed_on_time",
+   "type": "boolean"
+  },
+  {
+   "comment": "Review Snapshot rows: due before the month-end and not completed by it (Overdue).",
+   "is_measure": false,
+   "name": "is_overdue_at_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "Review Snapshot rows: days past due at the month-end (average over overdue rows).",
+   "is_measure": false,
+   "name": "overdue_days_at_month_end",
+   "type": "int"
+  },
+  {
+   "comment": "Screening rows: alert id.",
+   "is_measure": false,
+   "name": "screening_id",
+   "type": "string"
+  },
+  {
+   "comment": "Screening rows: Onboarding or Ongoing.",
+   "is_measure": false,
+   "name": "screening_context",
+   "type": "string"
+  },
+  {
+   "comment": "Screening rows: list hit (UN / EU / UK HMT / US OFAC SDN sanctions, PEP Database, Adverse Media, Internal / Local Regulator Watchlist).",
+   "is_measure": false,
+   "name": "list_name",
+   "type": "string"
+  },
+  {
+   "comment": "Screening rows: Sanctions, PEP, Adverse Media or Watchlist.",
+   "is_measure": false,
+   "name": "list_category",
+   "type": "string"
+  },
+  {
+   "comment": "Screening rows: Exact, Alias, Fuzzy or Partial Name Match.",
+   "is_measure": false,
+   "name": "hit_type",
+   "type": "string"
+  },
+  {
+   "comment": "Screening rows: confirmed true match.",
+   "is_measure": false,
+   "name": "is_true_match",
+   "type": "boolean"
+  },
+  {
+   "comment": "Screening rows: hours to resolve the alert.",
+   "is_measure": false,
+   "name": "resolution_hours",
+   "type": "double"
+  },
+  {
+   "comment": "True on Screening rows (denominator of the true-match rate).",
+   "is_measure": false,
+   "name": "is_screening_alert",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Metric-view base for KYC health (mv_kyc_health, D13): a record_type union of Review Snapshot rows (one per KYC review x month-end in which it fell due, was completed or was overdue; Apr-2023 to Sep-2026) and Screening rows (one per sanctions / PEP / adverse-media alert, Apr-2024 to Sep-2026). Both carry the month-end, booking country, segment, the client's KYC risk rating and a status (review status at the month-end, or the screening disposition). Review flags live only on Review Snapshot rows and screening fields only on Screening rows. Overdue at month-end is point-in-time (take the latest month-end, never sum months); due, completed and screening alerts are flows. Examples: Overdue = COUNT_IF(is_overdue_at_month_end); High-Risk Overdue = COUNT_IF(is_overdue_at_month_end AND is_high_risk); Screening True Match Rate % = COUNT_IF(is_true_match) / COUNT_IF(is_screening_alert). Grain: one row per record_type x record (review x month-end, or screening alert).",
+ "identifier": "smbc_genie.gold.mvb_kyc_health",
+ "type": "MANAGED"
+}

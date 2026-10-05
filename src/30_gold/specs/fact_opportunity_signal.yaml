@@ -1,0 +1,85 @@
+table: fact_opportunity_signal
+domain: opportunity
+comment: >-
+  Opportunity signals (Opportunity Identification, mv_opportunity_signals): one row per signal the CRM signal
+  engine or news alerts raised on a client from May-2024 to Sep-2026 - FX_FLOW_VIA_OTHER_BANK, LOAN_SERVICE_TO_OTHER_BANK,
+  DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH, SCF_ANCHOR_CANDIDATE, SLL_ELIGIBLE, FACILITY_MATURING_12M,
+  PRODUCT_GAP_VS_PEERS, CAPEX_NEWS and MA_NEWS - derived from real behaviour (payments to other banks, deposit
+  balances, trade corridors, maturities, peer gaps, news), with estimated annual revenue, confidence, lifecycle
+  status (Open, In Pipeline, Dismissed), RM action and lag, the linked pipeline opportunity and precomputed flags.
+  "Open opportunities" in Genie questions means open signals unless the user says pipeline. Converted to
+  Pipeline % = signals with a linked opportunity / signals (D21).
+grain: one row per opportunity signal
+primary_key: [signal_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [detected_date], references: dim_date}
+  - {columns: [signal_code], references: dim_signal_type}
+  - {columns: [recommended_product_id], references: dim_product}
+  - {columns: [owner_rm_id], references: dim_employee}
+cluster_by: [detected_date, golden_client_sk]
+min_rows: 1000
+columns:
+  signal_id: {type: STRING, comment: "Signal id (CRM signal engine)."}
+  detected_date: {type: DATE, comment: "Date the signal was detected."}
+  signal_month: {type: DATE, comment: "First day of the month of detection."}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_quarter_label: {type: STRING}
+  fiscal_half_label: {type: STRING}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  crm_account_id: {type: STRING}
+  signal_code: {type: STRING, comment: "Signal type code; join to gold.dim_signal_type (e.g. FX_FLOW_VIA_OTHER_BANK, DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH, CAPEX_NEWS)."}
+  signal_name: {type: STRING, comment: "Signal type name, e.g. Deposit surplus."}
+  signal_category: {type: STRING, comment: "Signal category: Wallet Leakage, Liquidity, Growth, Sustainability, Refinancing, Peer Gap or News."}
+  polarity: {type: STRING, comment: "Opportunity for every CRM signal (risk signals live in the EWS facts)."}
+  source_quadrant: {type: STRING, comment: "Data quadrant behind the signal: Internal Quantitative or External Qualitative."}
+  detection_engine: {type: STRING, comment: "signal_engine (behavioural rules on internal data) or news_alerts."}
+  strength: {type: DOUBLE, comment: "Signal strength 0-1 from the detection rule."}
+  confidence: {type: DOUBLE, comment: "Confidence 0-1 that the opportunity is real - average it."}
+  estimated_revenue_usd: {type: DOUBLE, comment: "Estimated annual revenue in USD if the opportunity is won. Additive."}
+  observed_amount_usd: {type: DOUBLE, comment: "Observed amount behind the signal in USD: FX flow routed via other banks (12 months), surplus deposit, maturing facility amount, corridor value, supplier spend."}
+  metric_value: {type: DOUBLE, comment: "Rule metric that fired (e.g. corridor growth rate, surplus ratio, peer penetration gap)."}
+  currency_pair: {type: STRING, comment: "Currency pair of the FX flow for FX_FLOW_VIA_OTHER_BANK (e.g. USD/JPY, USD/VND); null otherwise."}
+  corridor_origin: {type: STRING, comment: "Trade corridor origin country (ISO-2) for TRADE_CORRIDOR_GROWTH; null otherwise."}
+  corridor_destination: {type: STRING, comment: "Trade corridor destination country (ISO-2) for TRADE_CORRIDOR_GROWTH, e.g. VN or IN; null otherwise."}
+  related_ref: {type: STRING, comment: "Reference of the underlying object (facility, news item, competitor bank)."}
+  recommended_product: {type: STRING, comment: "Product the signal recommends (CRM sales product, e.g. FX Forward Programme, Time Deposit)."}
+  recommended_product_id: {type: STRING, comment: "dim_product key (PRD-<NAME>) of the recommended product."}
+  recommended_product_family: {type: STRING, comment: "Product family of the recommended product."}
+  signal_detail: {type: STRING, comment: "Short explanation of what was observed."}
+  owner_rm_code: {type: STRING, comment: "CRM code of the RM owning the signal."}
+  owner_rm_id: {type: STRING, comment: "Employee id of the RM owning the signal; join to gold.dim_employee."}
+  source_status: {type: STRING, comment: "Status in the CRM: New, Actioned, Converted or Dismissed."}
+  signal_status: {type: STRING, comment: "Lifecycle status: Open (New or Actioned), In Pipeline (converted to an opportunity) or Dismissed."}
+  is_open: {type: BOOLEAN, comment: "True while the signal is open (not converted, not dismissed) at the as-of date - Open Signals."}
+  is_actioned: {type: BOOLEAN, comment: "True when an RM has acted on the signal (actioned_date set); false = not actioned by an RM."}
+  status_date: {type: DATE, comment: "Date of the latest status change."}
+  actioned_date: {type: DATE, comment: "Date the RM first acted on the signal; null if never."}
+  actioned_by: {type: STRING, comment: "Who actioned the signal."}
+  action_lag_days: {type: INT, comment: "Days from detection to the first RM action; null when not actioned."}
+  dismissed_reason: {type: STRING, comment: "Reason the signal was dismissed; null otherwise."}
+  linked_opportunity_id: {type: STRING, comment: "Pipeline opportunity created from the signal (fact_pipeline_opportunity.opportunity_id)."}
+  is_converted_to_pipeline: {type: BOOLEAN, comment: "True when the signal produced a pipeline opportunity - Converted to Pipeline %."}
+  linked_opportunity_stage: {type: STRING, comment: "Stage of the linked opportunity at the as-of date (Prospecting ... Won / Lost)."}
+  is_linked_opportunity_won: {type: BOOLEAN, comment: "True when the linked opportunity was won."}
+  days_open: {type: INT, comment: "Days the signal has been (or was) open: to the as-of date for open signals, else to the status date - Days Open Average."}
+  days_since_detected: {type: INT, comment: "Days from detection to the as-of date 30-Sep-2026."}
+  is_last_60_days: {type: BOOLEAN, comment: "True for signals detected in the 60 days to the as-of date (dim_threshold DEPOSIT_SURPLUS_LOOKBACK_DAYS)."}
+  client_holds_td_or_investment: {type: BOOLEAN, comment: "True when the client holds a time deposit, money-market or investment (Liquidity) product at the as-of month-end."}
+  client_has_open_lending_opportunity: {type: BOOLEAN, comment: "True when the client has an open lending / refinancing opportunity (Corporate Lending or Sustainable Finance) in the pipeline at the as-of date."}
+checks:
+  - name: banksia_one_sll_signal       # storyline 10 group (many other fictional groups share the Banksia stem)
+    sql: >-
+      SELECT abs(count(*) - 1) FROM ${table} s JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = s.client_group_id
+      WHERE g.group_name LIKE 'Banksia Renewables%' AND s.signal_code = 'SLL_ELIGIBLE'
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_signal
+  - name: estimated_revenue_vs_silver
+    gold: SELECT sum(estimated_revenue_usd) FROM ${table}
+    silver: SELECT sum(estimated_revenue_usd) FROM ${catalog}.silver.crm_signal
+    tolerance: 1

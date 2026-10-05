@@ -1,0 +1,145 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date of the freshness check. Today is 30-Sep-2026 (never use CURRENT_DATE); \"last N days\" means Date between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date return the last date of any longer period you group by.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the freshness check as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the freshness check, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the freshness check).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Lakehouse publishing the share: JP (Tokyo head office), EMEA or AMER - \"from Japan\" means JP.",
+   "is_measure": false,
+   "name": "Provider Region",
+   "type": "string"
+  },
+  {
+   "comment": "Delta Share the table arrives in: jp_head_office_share, emea_regional_share or amer_regional_share.",
+   "is_measure": false,
+   "name": "Share",
+   "type": "string"
+  },
+  {
+   "comment": "Shared table, e.g. share_jp_parent_rating, share_jp_group_master, share_jp_support_letters, share_emea_exposure_monthly, share_amer_entity_master.",
+   "is_measure": false,
+   "name": "Shared Table",
+   "type": "string"
+  },
+  {
+   "comment": "Outcome of the provider's scheduled daily refresh: Success, Late or Failed.",
+   "is_measure": false,
+   "name": "Refresh Status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the lag since the last provider refresh exceeds the 24-hour SLA that day.",
+   "is_measure": false,
+   "name": "Is Stale",
+   "type": "boolean"
+  },
+  {
+   "comment": "Average hours since the last provider refresh across the selected tables and days.",
+   "is_measure": true,
+   "name": "Average Lag Hours",
+   "type": "double"
+  },
+  {
+   "comment": "Largest lag in hours over the selected tables and days (124.6h for share_jp_parent_rating on 15-Aug-2026).",
+   "is_measure": true,
+   "name": "Max Lag Hours",
+   "type": "double"
+  },
+  {
+   "comment": "Table-days with lag above 24 hours (stale days) over the selection - a flow.",
+   "is_measure": true,
+   "name": "Stale Table-Days",
+   "type": "bigint"
+  },
+  {
+   "comment": "Shared tables stale on at least one day of the selection.",
+   "is_measure": true,
+   "name": "Tables Stale",
+   "type": "bigint"
+  },
+  {
+   "comment": "Shared tables with a freshness check in the selection.",
+   "is_measure": true,
+   "name": "Tables Monitored",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of table-days refreshed within the 24-hour SLA (fraction).",
+   "is_measure": true,
+   "name": "Freshness SLA Met %",
+   "type": "double"
+  },
+  {
+   "comment": "Days on which the provider's scheduled refresh failed.",
+   "is_measure": true,
+   "name": "Failed Refreshes",
+   "type": "bigint"
+  },
+  {
+   "comment": "Days on which the provider changed a shared table's schema.",
+   "is_measure": true,
+   "name": "Schema Drift Events",
+   "type": "bigint"
+  },
+  {
+   "comment": "Longest run of consecutive stale days of a table within the selection (5 for share_jp_parent_rating in Aug-2026).",
+   "is_measure": true,
+   "name": "Longest Stale Run Days",
+   "type": "int"
+  },
+  {
+   "comment": "Rows in the shared tables at the check on the last day of the selection - point-in-time.",
+   "is_measure": true,
+   "name": "Row Count",
+   "type": "bigint"
+  },
+  {
+   "comment": "Shared tables stale on the last day of the selection (today = 30-Sep-2026) - point-in-time.",
+   "is_measure": true,
+   "name": "Tables Stale Latest Day",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Delta Sharing freshness of the 11 tables shared by the JP (Tokyo head office), EMEA and AMER lakehouses, daily Apr-2024 to Sep-2026: average and maximum lag since the last provider refresh (hours, SLA 24h), stale table-days and stale tables (lag > 24h), share of days within SLA, failed refreshes, schema drift events, the longest stale run and the shared row count. Storyline 13: share_jp_parent_rating was not refreshed 11-15 Aug 2026 (5 stale days, lag up to 125h). Lag and stale counts cover the selected days; Row Count and Tables Stale Latest Day are point-in-time (last day of the selection). Grain: one row per shared table per day (gold.fact_delta_share_freshness_daily).",
+ "identifier": "smbc_genie.metrics.mv_delta_sharing_freshness",
+ "type": "METRIC_VIEW"
+}

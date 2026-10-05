@@ -1,0 +1,145 @@
+{
+ "columns": [
+  {
+   "comment": "Document request id (ONB-nnnnn-Dnn).",
+   "is_measure": false,
+   "name": "document_id",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding case (ONB-nnnnn); join to fact_onboarding_case.",
+   "is_measure": false,
+   "name": "case_id",
+   "type": "string"
+  },
+  {
+   "comment": "KYC customer record (live cases); null for applicants.",
+   "is_measure": false,
+   "name": "kyc_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version of the onboarded client at the request date (null for applicants that never went live).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client of the case (null for applicants that never went live).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group of the case (ER group, else the intake group link).",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "KYC document type: Certificate of Incorporation, Constitutional Documents, Board Resolution, Register of Directors, UBO Declaration, Authorised Signatory List, Audited Financial Statements, Tax Self-Certification (FATCA/CRS), Banking Licence, AML/CTF Questionnaire, Group Structure Chart or Government Mandate Letter.",
+   "is_measure": false,
+   "name": "document_type",
+   "type": "string"
+  },
+  {
+   "comment": "True when the document is mandatory for onboarding.",
+   "is_measure": false,
+   "name": "is_mandatory",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date the document was requested (KYC Docs stage entry).",
+   "is_measure": false,
+   "name": "requested_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the document was received; null if not received.",
+   "is_measure": false,
+   "name": "received_date",
+   "type": "date"
+  },
+  {
+   "comment": "Received, Outstanding (still awaited on an open case), Waived or Cancelled (case closed before receipt).",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "True for documents still outstanding at the as-of date.",
+   "is_measure": false,
+   "name": "is_outstanding",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for received documents.",
+   "is_measure": false,
+   "name": "is_received",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days from request to receipt (received documents).",
+   "is_measure": false,
+   "name": "days_to_receive",
+   "type": "int"
+  },
+  {
+   "comment": "Days the document has been outstanding at the as-of date (outstanding documents).",
+   "is_measure": false,
+   "name": "days_outstanding",
+   "type": "int"
+  },
+  {
+   "comment": "Status of the case: Open, Live, Withdrawn or Rejected.",
+   "is_measure": false,
+   "name": "case_status",
+   "type": "string"
+  },
+  {
+   "comment": "Stage the case is in / ended in.",
+   "is_measure": false,
+   "name": "case_current_stage",
+   "type": "string"
+  },
+  {
+   "comment": "Days the case has spent in KYC Docs (to the as-of date if still there).",
+   "is_measure": false,
+   "name": "case_kyc_docs_days",
+   "type": "int"
+  },
+  {
+   "comment": "True when the case is open in KYC Docs for more than 15 days (dim_threshold KYC_DOCS_STUCK_DAYS).",
+   "is_measure": false,
+   "name": "case_stuck_in_kyc_docs_15d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Booking location of the case (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding officer owning the case (employee_id).",
+   "is_measure": false,
+   "name": "owner_id",
+   "type": "string"
+  },
+  {
+   "comment": "Request date of the case.",
+   "is_measure": false,
+   "name": "request_date",
+   "type": "date"
+  }
+ ],
+ "comment": "KYC / CDD documents requested in onboarding cases (brief 5.6, PLAN 7): one row per document request with document type (e.g. Certificate of Incorporation, Board Resolution, UBO Declaration, AML/CTF Questionnaire), mandatory flag, requested / received dates, status (Received, Outstanding, Waived, Cancelled), days to receive, days outstanding at 30-Sep-2026 and the case context (case status and stage, KYC Docs days, stuck in KYC Docs for more than 15 days, booking country, segment, owner). Documents are requested when the case enters KYC Docs. Grain: one row per document requested in an onboarding case.",
+ "identifier": "smbc_genie.gold.fact_kyc_document",
+ "type": "MANAGED"
+}

@@ -1,0 +1,54 @@
+table: fact_dpd_daily
+domain: ews
+comment: >-
+  Daily delinquency (brief 5.4): one row per credit facility x day in arrears (Apr-2023 to Sep-2026) with days
+  past due, DPD bucket (1-29, 30-59, 60-89, 90+), overdue amount (USD and local currency), the arrears episode,
+  its missed due date and cure date (a cure after 30-Sep-2026 is not known yet: null / not cured). Only days in
+  arrears are present (a facility absent on a day is current). DPD and overdue amounts are point-in-time:
+  never sum across days. For rates over the whole book (30+ DPD rate, cure rate) use
+  fact_credit_exposure_monthly.
+grain: one row per facility x day in arrears
+primary_key: [facility_id, dpd_date]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [dpd_date], references: dim_date}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [product_id], references: dim_product}
+cluster_by: [dpd_date, golden_client_sk]
+min_rows: 4000
+columns:
+  facility_id: {type: STRING, comment: "Credit facility in arrears (FAC-nnnnnn)."}
+  dpd_date: {type: DATE, comment: "Calendar day the facility is past due."}
+  obligor_id: {type: STRING, comment: "Credit obligor record of the borrower."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  days_past_due: {type: INT, comment: "Days past due on the day (1 = first day after the missed due date)."}
+  dpd_bucket: {type: STRING, comment: "DPD bucket: 1-29, 30-59, 60-89 or 90+ (90+ = default / Stage 3 territory)."}
+  is_30_plus_dpd: {type: BOOLEAN, comment: "True when 30 or more days past due (dim_threshold DPD_30_PLUS)."}
+  is_90_plus_dpd: {type: BOOLEAN, comment: "True when more than 90 days past due (default, dim_threshold DPD_DEFAULT)."}
+  overdue_amount_usd: {type: DOUBLE, comment: "Amount overdue on the day, USD (point-in-time)."}
+  overdue_amount_lcy: {type: DOUBLE, comment: "Amount overdue on the day in facility currency."}
+  currency: {type: STRING, comment: "Facility currency (ISO 4217)."}
+  arrears_episode_id: {type: STRING, comment: "Arrears episode (ARR-nnnnn): consecutive days in arrears from one missed payment until cure."}
+  missed_due_date: {type: DATE, comment: "Payment due date that was missed and started the episode."}
+  cure_date: {type: DATE, comment: "Date the arrears were cleared (episode cured); null when not cured by 30-Sep-2026."}
+  is_episode_cured: {type: BOOLEAN, comment: "True when the episode was cured on or before the as-of date."}
+  facility_type: {type: STRING, comment: "Facility type (e.g. Revolving Credit Facility, Term Loan)."}
+  product_id: {type: STRING, comment: "Product key of the facility type; join to gold.dim_product."}
+  is_month_end: {type: BOOLEAN, comment: "True on calendar month-ends (month-end delinquency snapshots)."}
+checks:
+  - name: storyline1_sunda_dpd_15_and_30_in_april
+    sql: >-
+      SELECT CASE WHEN count_if(f.days_past_due = 15) >= 1 AND count_if(f.days_past_due = 30) >= 1 THEN 0 ELSE 1 END
+      FROM ${table} f JOIN ${catalog}.gold.dim_client d ON d.golden_client_sk = f.golden_client_sk
+      WHERE d.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%' AND f.dpd_date BETWEEN DATE'2026-04-01' AND DATE'2026-04-30'
+  - name: no_cure_after_as_of
+    sql: SELECT count_if(cure_date > DATE'${as_of_date}') FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.core_dpd WHERE dpd_date BETWEEN DATE'${history_start}' AND DATE'${as_of_date}'
+  - name: overdue_usd_vs_silver
+    gold: SELECT round(sum(overdue_amount_usd) / 1e6) FROM ${table}
+    silver: SELECT round(sum(overdue_amount_usd) / 1e6) FROM ${catalog}.silver.core_dpd WHERE dpd_date BETWEEN DATE'${history_start}' AND DATE'${as_of_date}'

@@ -1,0 +1,28 @@
+table: fx_rate_daily
+domain: hub
+comment: >-
+  Daily FX rates to USD for every gold currency over the dim_date window (1-Apr-2023 to 31-Mar-2027),
+  dense: a day without a published rate carries the last published rate forward (is_carried_forward).
+  USD value = amount_lcy x usd_per_unit (or amount_lcy / rate_per_usd); gold.fn_usd(amount, currency, date)
+  wraps the lookup. Month-end rates: filter is_month_end.
+grain: one row per currency per calendar day
+primary_key: [currency_code, date]
+foreign_keys:
+  - {columns: [currency_code], references: dim_currency}
+  - {columns: [date], references: dim_date}
+cluster_by: [date, currency_code]
+columns:
+  date: {type: DATE, comment: Rate date.}
+  currency_code: {type: STRING}
+  rate_per_usd: {type: DOUBLE, comment: Currency units per 1 USD on the date (USD = 1).}
+  usd_per_unit: {type: DOUBLE, comment: USD value of one currency unit on the date (1 / rate_per_usd).}
+  month_avg_usd_per_unit: {type: DOUBLE, comment: Average usd_per_unit over the calendar month (for converting monthly flows such as revenue).}
+  is_month_end: {type: BOOLEAN, comment: True on the last calendar day of the month (month-end revaluation rate).}
+  is_carried_forward: {type: BOOLEAN, comment: True when no rate was published that day and the previous published rate is carried forward.}
+checks:
+  - name: dense_currency_by_day
+    sql: >-
+      SELECT (SELECT count(*) FROM ${catalog}.gold.dim_currency) * (SELECT count(*) FROM ${catalog}.gold.dim_date)
+      - (SELECT count(*) FROM ${table})
+  - name: no_missing_rates
+    sql: SELECT count_if(rate_per_usd IS NULL OR rate_per_usd <= 0) FROM ${table}

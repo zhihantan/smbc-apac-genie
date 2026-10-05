@@ -1,0 +1,174 @@
+# Space 9, Cashflow Forecasting (WP9b / WP8e). Source: gold.fact_client_cashflow_daily, a record_type union (D13):
+# Flow rows (payments by purpose per client and day), Balance rows (closing deposit balance: daily from Dec-2025,
+# month-ends before) and Month Total rows (one per client and month: the month's inflows / outflows and the client's
+# average monthly inflow = the seasonality baseline). Inflow / outflow are flows on Flow rows; Closing Balance is a
+# point-in-time window measure on Balance rows (last date of the selection); volatility, averages and the seasonality
+# index read Month Total rows only. Must-answer queries: metrics/_answers/cashflow_forecasting.sql.
+view: mv_client_cashflow
+space: cashflow_forecasting
+comment: >-
+  Client operating cash flows derived from payments, daily from Apr-2024 to Sep-2026 (USD): inflows, outflows and net
+  cash flow by cash-flow category (payment purpose), the closing deposit balance, average monthly inflow, inflow
+  volatility (standard deviation and coefficient of variation of monthly inflows) and the seasonality index (actual /
+  flat-average inflow; above 1 = seasonal peak, e.g. March fiscal year-end or September half-year). Inflows and
+  outflows add up over any period; Closing Balance is POINT-IN-TIME (last date of the selection; daily from
+  Dec-2025, month-ends before). For seasonality group by Calendar Month; for volatility group by Client over 12 months.
+grain: one row per client x date x cash-flow category (payment purpose, Closing Balance or Month Total) (gold.fact_client_cashflow_daily)
+source: ${catalog}.gold.fact_client_cashflow_daily
+blocks:
+  calendar: {date: source.cashflow_date, grain: day, what: the cash flow}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: cur
+    source: ${catalog}.gold.dim_client
+    'on': source.golden_client_id = cur.golden_client_id AND cur.is_current
+dimensions:
+  - name: Cashflow Category
+    expr: source.cashflow_category
+    display_name: Cash-Flow Category
+    comment: >-
+      Payment purpose of the flow: Supplier, Payroll, Tax, Intercompany, Loan Service, Dividend, Trade Settlement;
+      Closing Balance / Month Total on the balance and monthly-summary rows.
+    synonyms: [cash flow category, category, purpose, payment purpose, flow type, cash flow type]
+  - name: Cashflow Category Group
+    expr: source.cashflow_category_group
+    display_name: Cash-Flow Category Group
+    comment: Operating (supplier, payroll, tax, trade settlement), Financing (loan service, dividend), Intercompany, Balance or Month Total.
+    synonyms: [category group, operating cash flow, financing cash flow, intercompany flows, cash flow group]
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: Client's coverage office / booking location (ISO-2).
+    synonyms: [booking country, country, booking location, market, office]
+  - name: Calendar Month
+    expr: MONTH(`Date`)
+    display_name: Calendar Month Number
+    comment: Calendar month number 1-12 of the date (3 = March fiscal year-end, 9 = September half-year) - group by it for seasonality.
+    synonyms: [calendar month, month of year, month number, seasonality month, March, September]
+    format: {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Current EWS Band
+    expr: cur.ews_band
+    display_name: Current EWS Band (today)
+    comment: >-
+      The client's final early-warning band today (30-Sep-2026): Green, Amber or Red; null = not scored. Use it for
+      "Red / Amber clients" (EWS Band is the band at each row's month-end).
+    synonyms: [current EWS band, EWS today, current RAG, red amber clients, warning band today, current risk band]
+measures:
+  - name: Inflow USD
+    expr: SUM(source.inflow_usd)
+    display_name: Inflows (USD)
+    comment: Inbound payments received in USD over the selection (a flow; Flow rows).
+    synonyms: [inflows, receipts, collections, cash in, incoming payments, money in, inbound]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Outflow USD
+    expr: SUM(source.outflow_usd)
+    display_name: Outflows (USD)
+    comment: Outbound payments made in USD over the selection (a flow; Flow rows).
+    synonyms: [outflows, disbursements, payments out, cash out, outgoing payments, money out, outbound]
+    format: *usd
+  - name: Net Cashflow USD
+    expr: SUM(CASE WHEN source.record_type = 'Flow' THEN source.net_cashflow_usd ELSE 0 END)
+    display_name: Net Cash Flow (USD)
+    comment: Inflows - outflows over the selection, USD (negative = net outflow).
+    synonyms: [net cash flow, net flow, net cash, free cash flow, net movement, cash generation]
+    format: *usd
+  - name: Closing Balance USD
+    expr: SUM(source.closing_balance_usd)
+    display_name: Closing Deposit Balance (USD)
+    comment: >-
+      Client's total end-of-day deposit balance (CASA + TD) in USD at the last date of the selection (point-in-time;
+      Balance rows - daily from Dec-2025, month-ends before; never summed across dates).
+    synonyms: [closing balance, cash balance, deposit balance, liquidity, ending balance, cash position]
+    format: *usd
+    window: &last_day
+      - {order: Date, range: current, semiadditive: last}
+  - name: Closing CASA Balance USD
+    expr: SUM(source.closing_casa_balance_usd)
+    display_name: Closing CASA Balance (USD)
+    comment: CASA (operating cash) part of the closing balance, USD (point-in-time, last date of the selection).
+    synonyms: [CASA balance, operating cash, current account balance, liquid cash, available cash]
+    format: *usd
+    window: *last_day
+  - name: Average Monthly Inflow USD
+    expr: AVG(source.month_inflow_usd)
+    display_name: Average Monthly Inflow (USD)
+    comment: Average of the clients' monthly inflows over the selected months (Month Total rows; per client when grouped by Client).
+    synonyms: [average monthly inflow, mean monthly receipts, monthly collections, typical inflow, average inflow]
+    format: *usd
+  - name: Inflow Volatility USD
+    expr: STDDEV_SAMP(source.month_inflow_usd)
+    display_name: Inflow Volatility (std dev of monthly inflows, USD)
+    comment: >-
+      Standard deviation of monthly inflows over the selected months (Month Total rows) - group by Client and filter
+      12 months for a client's inflow volatility.
+    synonyms: [inflow volatility, volatility, standard deviation, stddev, inflow variability, cash flow volatility]
+    format: *usd
+  - name: Inflow Volatility CV %
+    expr: STDDEV_SAMP(source.month_inflow_usd) / NULLIF(AVG(source.month_inflow_usd), 0)
+    display_name: Inflow Coefficient of Variation
+    comment: Standard deviation / average of monthly inflows (fraction; 0.6 = 60%) - volatility comparable across client sizes.
+    synonyms: [coefficient of variation, CV, relative volatility, inflow CV, normalised volatility, volatility ratio]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Seasonality Index
+    expr: SUM(source.month_inflow_usd) / NULLIF(SUM(source.inflow_baseline_usd), 0)
+    display_name: Inflow Seasonality Index
+    comment: >-
+      Actual inflows / the clients' flat average monthly inflow for the selected months (1.0 = average; 1.3 = 30% above
+      a typical month). Group by Industry and Calendar Month to find March / September peaks.
+    synonyms: [seasonality, seasonality index, seasonal peak, seasonal factor, month effect, inflow peak]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+  - name: Clients with Cash Flows
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Flow' THEN source.golden_client_id END)
+    display_name: Clients with Cash Flows
+    comment: Legal entities with at least one payment in the selection.
+    synonyms: [clients, active clients, transacting clients, number of clients, cash flow clients]
+    format: {type: number, decimal_places: {type: exact, places: 0}}
+validate:
+  dims: [Month, Cashflow Category]
+reconcile:
+  - name: inflows_fy2025_by_category
+    measure: Inflow USD
+    by: [Cashflow Category]
+    where: "`Fiscal Year` = 'FY2025' AND `Cashflow Category` NOT IN ('Closing Balance', 'Month Total')"
+    gold: >-
+      SELECT payment_purpose, sum(amount_usd) FROM ${catalog}.gold.fact_payment_transaction
+      WHERE direction = 'Inbound' AND payment_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31' GROUP BY 1
+  - name: net_cashflow_h1_fy2026
+    measure: Net Cashflow USD
+    where: "`Fiscal Half` = 'FY2026-H1'"
+    gold: >-
+      SELECT sum(CASE WHEN direction = 'Inbound' THEN amount_usd ELSE -amount_usd END) FROM ${catalog}.gold.fact_payment_transaction
+      WHERE payment_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30'
+  - name: closing_balance_sep26
+    measure: Closing Balance USD
+    where: "`Date` = DATE'2026-09-30'"
+    gold: SELECT sum(balance_usd) FROM ${catalog}.gold.fact_deposit_balance_daily WHERE is_as_of_date
+  - name: closing_balance_by_month_fy2025_is_month_end
+    measure: Closing Balance USD
+    by: [Month]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT trunc(balance_date, 'MM'), sum(balance_usd) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE balance_date BETWEEN DATE'2025-04-30' AND DATE'2026-03-31' GROUP BY 1
+  - name: seasonality_by_calendar_month_agriculture
+    measure: Seasonality Index
+    by: [Calendar Month]
+    where: "`Industry` = 'Agriculture'"
+    gold: >-
+      SELECT f.calendar_month, sum(f.month_inflow_usd) / sum(f.inflow_baseline_usd) FROM ${catalog}.gold.fact_client_cashflow_daily f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.record_type = 'Month Total' AND c.industry_sector = 'Agriculture' GROUP BY 1
+  - name: inflow_volatility_sunda_12m
+    measure: Inflow Volatility USD
+    where: "`Month` >= DATE'2025-10-01' AND `Client` = 'Sunda Energi Nusantara (Jakarta) PT Tbk'"
+    gold: >-
+      SELECT stddev_samp(f.month_inflow_usd) FROM ${catalog}.gold.fact_client_cashflow_daily f
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = f.golden_client_sk
+      WHERE f.record_type = 'Month Total' AND f.month >= DATE'2025-10-01'
+        AND c.display_name = 'Sunda Energi Nusantara (Jakarta) PT Tbk'
+glossary:
+  caveats:
+    - >-
+      Inflows / outflows are flows (Flow rows); Closing Balance is point-in-time (Balance rows, last date of the
+      selection); averages, volatility and seasonality read the dense Month Total rows (months without inflows count
+      as 0). Current EWS Band is today's band; EWS Band (client block) is the band at each row's month-end.

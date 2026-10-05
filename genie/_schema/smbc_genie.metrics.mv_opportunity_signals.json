@@ -1,0 +1,277 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date of the signal detection. Today is 30-Sep-2026 (never use CURRENT_DATE); \"last N days\" means Date between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date return the last date of any longer period you group by.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the signal detection as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the signal detection, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the signal detection).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Signal code: FX_FLOW_VIA_OTHER_BANK, LOAN_SERVICE_TO_OTHER_BANK, DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH, SCF_ANCHOR_CANDIDATE, SLL_ELIGIBLE, FACILITY_MATURING_12M, PRODUCT_GAP_VS_PEERS, CAPEX_NEWS or MA_NEWS.",
+   "is_measure": false,
+   "name": "Signal Type",
+   "type": "string"
+  },
+  {
+   "comment": "Wallet Leakage, Liquidity, Growth, Sustainability, Refinancing, Peer Gap or News.",
+   "is_measure": false,
+   "name": "Signal Category",
+   "type": "string"
+  },
+  {
+   "comment": "Open (new or actioned, not yet in the pipeline), In Pipeline (converted to an opportunity) or Dismissed.",
+   "is_measure": false,
+   "name": "Status",
+   "type": "string"
+  },
+  {
+   "comment": "Currency pair of the FX flow routed via other banks (FX_FLOW_VIA_OTHER_BANK), e.g. USD/JPY, USD/VND; blank otherwise.",
+   "is_measure": false,
+   "name": "Currency Pair",
+   "type": "string"
+  },
+  {
+   "comment": "Destination country (ISO-2) of a growing trade corridor (TRADE_CORRIDOR_GROWTH), e.g. VN Vietnam, IN India.",
+   "is_measure": false,
+   "name": "Corridor Destination",
+   "type": "string"
+  },
+  {
+   "comment": "Product the signal recommends (CRM sales product), e.g. FX Forward Programme, Time Deposit, Supply Chain Finance.",
+   "is_measure": false,
+   "name": "Recommended Product",
+   "type": "string"
+  },
+  {
+   "comment": "True when an RM has acted on the signal; false = not actioned by an RM.",
+   "is_measure": false,
+   "name": "Is Actioned",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client holds a time deposit, money-market or investment product at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "Holds TD or Investment",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has an open lending / refinancing opportunity in the pipeline at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "Has Open Lending Opportunity",
+   "type": "boolean"
+  },
+  {
+   "comment": "Opportunity signals detected in the selected period.",
+   "is_measure": true,
+   "name": "Signals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Signals still open at 30-Sep-2026 (not converted to the pipeline, not dismissed) - \"open opportunities\".",
+   "is_measure": true,
+   "name": "Open Signals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Estimated annual revenue in USD if the signalled opportunities are won.",
+   "is_measure": true,
+   "name": "Estimated Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "Estimated annual revenue in USD of the signals still open.",
+   "is_measure": true,
+   "name": "Open Estimated Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "Amount observed behind the signals in USD (12-month FX flow via other banks, surplus deposits, maturing amount, corridor value), summed over the signals - a client signalled every month counts every time; use Latest Observed Amount for a client's current flow.",
+   "is_measure": true,
+   "name": "Observed Amount USD",
+   "type": "double"
+  },
+  {
+   "comment": "Observed amount of the most recent signal in the selection, USD - e.g. the current 12-month FX flow a client pays via other banks.",
+   "is_measure": true,
+   "name": "Latest Observed Amount USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average confidence (0-100%) that the signalled opportunities are real.",
+   "is_measure": true,
+   "name": "Average Confidence %",
+   "type": "double"
+  },
+  {
+   "comment": "Signals that produced a pipeline opportunity.",
+   "is_measure": true,
+   "name": "Signals Converted",
+   "type": "bigint"
+  },
+  {
+   "comment": "Signals with a linked pipeline opportunity / signals (fraction; D21).",
+   "is_measure": true,
+   "name": "Converted to Pipeline %",
+   "type": "double"
+  },
+  {
+   "comment": "Average days the signals have been (or were) open - to 30-Sep-2026 for open signals, to the status date otherwise.",
+   "is_measure": true,
+   "name": "Days Open Average",
+   "type": "double"
+  },
+  {
+   "comment": "Signals an RM acted on.",
+   "is_measure": true,
+   "name": "Signals Actioned",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average days from detection to the first RM action, for actioned signals.",
+   "is_measure": true,
+   "name": "Average Action Lag Days",
+   "type": "double"
+  },
+  {
+   "comment": "Shortest days from detection to the first RM action among the selected actioned signals.",
+   "is_measure": true,
+   "name": "Shortest Action Lag Days",
+   "type": "int"
+  },
+  {
+   "comment": "Distinct clients with at least one signal in the selection.",
+   "is_measure": true,
+   "name": "Clients With Signals",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Opportunity signals raised on SMBC APAC clients, May-2024 to Sep-2026 - FX flow and loan servicing via other banks, deposit surpluses, trade-corridor growth, SCF anchor candidates, SLL eligibility, facilities maturing in 12 months, product gaps vs peers, capex / expansion and M&A news - with estimated annual revenue, confidence, status (Open, In Pipeline, Dismissed), RM action and lag, conversion to pipeline and days open. \"Open opportunities\" means open signals unless the user says pipeline. Signals are events dated by detection: measures add up over any period; \"last 60 days\" = Date between DATE'2026-08-02' and DATE'2026-09-30'. Grain: one row per opportunity signal (gold.fact_opportunity_signal).",
+ "identifier": "smbc_genie.metrics.mv_opportunity_signals",
+ "type": "METRIC_VIEW"
+}

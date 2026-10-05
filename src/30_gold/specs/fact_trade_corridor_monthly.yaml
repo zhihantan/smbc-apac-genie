@@ -1,0 +1,78 @@
+table: fact_trade_corridor_monthly
+domain: trade
+comment: >-
+  Monthly trade-corridor activity at client grain with the external trade statistics allocated (Apr-2023 to
+  Sep-2026). Goods corridor = origin -> destination country x HS chapter (commodity). record_type 'Client' rows: one
+  per golden client x corridor x HS chapter x month with SMBC trade finance issued on the corridor (instruments,
+  USD, fees) and the client's cross-border trade-settlement payments mapped to the goods corridor (outbound = the
+  client imports: counterparty -> client country; inbound = exports; commodity = the client's main traded goods
+  from its industry), whether the client holds a trade product with SMBC, and its allocated share of the corridor
+  market. record_type 'Market residual' rows: corridor-months of the vendor statistics where no SMBC client is
+  active, holding the full market value. SUM(market_value_allocated_usd) over any set of corridors / commodities /
+  months = the external market value (no double count), so SMBC Share Estimate = SUM(tf_issuance_usd) /
+  SUM(market_value_allocated_usd). Flows (additive by month). Corridor-level market attributes
+  (market_value_corridor_usd, prior-year value, YoY growth) repeat on every row of the corridor-month - do not sum them.
+grain: one row per record_type x corridor (origin, destination) x HS chapter x month x golden client (null on market residual rows)
+primary_key: [corridor_row_id]
+foreign_keys:
+  - {columns: [month], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [origin_country], references: dim_country}
+  - {columns: [destination_country], references: dim_country}
+cluster_by: [month, origin_country, destination_country, golden_client_sk]
+min_rows: 50000
+columns:
+  corridor_row_id: {type: STRING, comment: "Row key = yyyy-MM | origin | destination | HS chapter | golden client id (MARKET for market residual rows)."}
+  record_type: {type: STRING, comment: "Client (an SMBC client active in the corridor) or Market residual (vendor statistics of a corridor-month with no active SMBC client)."}
+  month: {type: DATE, comment: "First day of the month."}
+  origin_country: {type: STRING, comment: "Corridor from: goods origin country (ISO-2)."}
+  destination_country: {type: STRING, comment: "Corridor to: goods destination country (ISO-2)."}
+  corridor: {type: STRING, comment: "Goods corridor origin->destination, e.g. CN->VN (goods shipped from China into Vietnam)."}
+  hs_chapter: {type: STRING, comment: "HS chapter of the goods (00 = unclassified: payment-only activity of a client whose industry has no main traded goods)."}
+  commodity: {type: STRING, comment: "Commodity of the HS chapter (e.g. Electronics = HS 85, Auto Parts = HS 87); Unclassified for HS 00."}
+  is_carbon_intensive_commodity: {type: BOOLEAN, comment: "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats)."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the client valid in the month (as-was, D11); null on market residual rows."}
+  golden_client_id: {type: STRING, comment: "Golden client active in the corridor (null on market residual rows). Clients Active in Corridor = count distinct golden_client_id."}
+  client_group_id: {type: STRING}
+  tf_transactions: {type: INT, comment: "SMBC trade-finance instruments issued for the client on the corridor in the month (flow)."}
+  tf_issuance_usd: {type: DOUBLE, comment: "USD amount of those instruments - SMBC trade finance volume on the corridor (flow)."}
+  tf_fee_usd: {type: DOUBLE, comment: "Commission on those instruments, USD (flow)."}
+  trade_settlement_payments: {type: INT, comment: "The client's cross-border trade-settlement payments on the goods corridor in the month (visible from payments; flow)."}
+  trade_settlement_usd: {type: DOUBLE, comment: "USD value of those payments (flow)."}
+  activity_usd: {type: DOUBLE, comment: "tf_issuance_usd + trade_settlement_usd - the client's visible activity on the corridor, the allocation key of the market value."}
+  is_payment_visible: {type: BOOLEAN, comment: "True when the client's trade-settlement payments show it trading on the corridor in the month."}
+  has_trade_product_12m: {type: BOOLEAN, comment: "True when the client had an SMBC trade-finance instrument issued in the 12 months to the month-end or live at the month-end (any corridor). Payment-visible clients without one = trade finance opportunity."}
+  has_trade_product_as_of: {type: BOOLEAN, comment: "True when the client has a live SMBC trade-finance instrument at 30-Sep-2026 or one issued Oct-2025 to Sep-2026 (today's view, repeated on all its rows)."}
+  market_value_allocated_usd: {type: DOUBLE, comment: "External trade statistics (vendor, USD) of the corridor x HS chapter x month allocated to the row: split over the active SMBC clients in proportion to activity_usd, or the full value on the market residual row. Additive - SUM = corridor market value."}
+  market_value_prior_year_allocated_usd: {type: DOUBLE, comment: "External trade value of the same corridor x HS chapter 12 months earlier, allocated to the row with the same keys as market_value_allocated_usd (additive; null before Apr-2024 = no prior-year statistics). Corridor Growth YoY = SUM(market_value_allocated_usd) / SUM(market_value_prior_year_allocated_usd) - 1."}
+  market_value_corridor_usd: {type: DOUBLE, comment: "Full external trade value of the corridor x HS chapter x month (corridor attribute repeated on every row; do not sum)."}
+  market_value_prior_year_corridor_usd: {type: DOUBLE, comment: "External trade value of the same corridor x HS chapter 12 months earlier (corridor attribute; do not sum)."}
+  market_yoy_growth_corridor: {type: DOUBLE, comment: "market_value_corridor_usd / market_value_prior_year_corridor_usd - 1 (corridor attribute; e.g. 0.37 = +37% YoY)."}
+  market_data_status: {type: STRING, comment: "Status of the vendor statistic: Final, Preliminary or Flash Estimate (latest months are estimates)."}
+checks:
+  - name: market_fully_allocated   # allocated market = vendor statistics in total (no double count)
+    sql: >-
+      SELECT abs((SELECT sum(market_value_allocated_usd) FROM ${table})
+      - (SELECT sum(trade_value_usd) FROM ${catalog}.silver.ext_trade_statistics)) / 1e6
+    max: 1
+  - name: prior_year_fully_allocated   # allocated PY market = vendor statistics 12 months earlier (where both exist)
+    sql: >-
+      SELECT abs((SELECT sum(market_value_prior_year_allocated_usd) FROM ${table})
+      - (SELECT sum(py.trade_value_usd) FROM ${catalog}.silver.ext_trade_statistics m
+         JOIN ${catalog}.silver.ext_trade_statistics py ON py.origin_country = m.origin_country
+          AND py.destination_country = m.destination_country AND py.hs_chapter = m.hs_chapter
+          AND py.period_month = add_months(m.period_month, -12))) / 1e6
+    max: 1
+  - name: client_rows_have_activity
+    sql: SELECT count_if(record_type = 'Client' AND (activity_usd <= 0 OR golden_client_id IS NULL)) FROM ${table}
+reconcile:
+  - name: tf_issuance_vs_silver   # every cross-border instrument lands on its corridor
+    gold: SELECT round(sum(tf_issuance_usd)) FROM ${table}
+    silver: SELECT round(sum(amount_usd)) FROM ${catalog}.silver.trade_finance_txn WHERE origin_country <> destination_country
+    tolerance: 1
+  - name: trade_settlements_vs_silver
+    gold: SELECT sum(trade_settlement_payments) FROM ${table}
+    silver: >-
+      SELECT count(*) FROM ${catalog}.silver.pay_payment_message WHERE payment_purpose = 'Trade Settlement'
+      AND debtor_country <> counterparty_country

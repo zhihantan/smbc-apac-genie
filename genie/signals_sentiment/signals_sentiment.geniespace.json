@@ -1,0 +1,1968 @@
+{
+  "title": "APAC Genie - Signals & Sentiment",
+  "description": "Ask about news sentiment, RM-note sentiment, market signals on listed parents and the unified signal feed for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "3fdb2864d221687ad3264a6200000000",
+          "question": [
+            "What has been happening around Kinokawa Precision in the last 90 days?"
+          ]
+        },
+        {
+          "id": "3fdb2864d221687ad3264a6200000001",
+          "question": [
+            "Which groups are sentiment blind spots today - negative news while RM notes stay positive?"
+          ]
+        },
+        {
+          "id": "3fdb2864d221687ad3264a6200000002",
+          "question": [
+            "What are the most common topics behind negative news, by industry, over the last 12 months?"
+          ]
+        },
+        {
+          "id": "3fdb2864d221687ad3264a6200000003",
+          "question": [
+            "Which listed parents are at a 52-week low with APAC exposure above USD 100m?"
+          ]
+        },
+        {
+          "id": "3fdb2864d221687ad3264a6200000004",
+          "question": [
+            "Show unacknowledged risk signals by RM for the last 90 days"
+          ]
+        },
+        {
+          "id": "3fdb2864d221687ad3264a6200000005",
+          "question": [
+            "Which entities in Australia and India had positive expansion signals this fiscal year with no pipeline?"
+          ]
+        },
+        {
+          "id": "3fdb2864d221687ad3264a6200000006",
+          "question": [
+            "How has news sentiment trended for the coal and shipping sectors by fiscal quarter?"
+          ]
+        },
+        {
+          "id": "3fdb2864d221687ad3264a6200000007",
+          "question": [
+            "List the rating actions from the JP-shared parent data this fiscal year"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "is_strategic_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "n_apac_countries",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_amer",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_emea",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_global",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.dim_signal_type",
+          "column_configs": [
+            {
+              "column_name": "consumed_by",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "description",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "polarity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signal_category",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signal_code",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signal_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "source_quadrant",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "source_system",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_carbon_intensive",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_deposit_only",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_japanese_corporate",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_single_product_lending",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product_propensity",
+              "exclude": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "open_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_other_bank_share_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "product_families_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "products_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "revenue_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_prior_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_yoy_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "exclude": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "time_deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_outstanding_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_internal_sentiment",
+          "column_configs": [
+            {
+              "column_name": "AI Sentiment Label",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Action Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Blind Spot Groups",
+              "synonyms": [
+                "blind spot",
+                "sentiment blind spot",
+                "adverse media missed by RMs"
+              ]
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Note RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Note Topic",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Sentiment Polarity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_market_signals",
+          "column_configs": [
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "External Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Lead Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Listed Parent",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Outlook",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_news_sentiment",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "News Region",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Sector Theme",
+              "synonyms": [
+                "coal sector",
+                "shipping sector",
+                "sector trend theme"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Sentiment Polarity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Source Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subtopic",
+              "synonyms": [
+                "coal regulation",
+                "market entry",
+                "story subtopic"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Topic",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_signal_feed",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Consumed By",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Polarity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Signal Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Source Feed",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Source Quadrant",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Source Region",
+              "synonyms": [
+                "JP-shared",
+                "JP-shared parent data",
+                "Japan Delta Share"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Unacknowledged Risk Signals",
+              "synonyms": [
+                "unactioned red flags",
+                "risk alerts not followed up"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "550a0bb41870b753c1d77fb700000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Views: mv_signal_feed = every signal (CRM opportunity, EWS, news, market, agency and JP-parent ratings, RM notes) by Source Feed / Signal Type / Polarity / Acknowledged / Has Pipeline; mv_news_sentiment = news items and sentiment by Topic / Subtopic / Sector Theme; mv_internal_sentiment = RM call notes, divergence and blind spots; mv_market_signals = listed parents (share price, CDS, 52-week lows, ratings, APAC exposure).\n",
+            "- \"Everything about <group> in the last N days\" = mv_signal_feed by Source Feed and Signal Type (or fn_group_signal_digest); its news, RM-note and market picture = the CTE example or fn_group_sentiment_snapshot. Match the group with `Client Group` LIKE '%<full group name>%'.\n",
+            "- Sentiment runs -1..+1 (negative <= -0.2, positive >= 0.2) and is always averaged, never summed. Sentiment Last 30D / 90D, Sentiment Change 30D / 90D, Groups With Negative Trend, Blind Spot Groups and Group News / Note Sentiment Last 90D are fixed to 30-Sep-2026: use them without a Date filter (a Date filter that cuts their window returns null).\n",
+            "- Market measures (share price and CDS changes, Groups at 52-Week Low, APAC Exposure USD, rating and outlook in force) are point-in-time: filter `Date` = DATE'2026-09-30' for today. \"At a 52-week low with APAC exposure above USD 100m\" = `At 52-Week Low` AND `APAC Exposure Above 100m`.\n",
+            "- Blind spots = groups with MEASURE(`Blind Spot Groups`) > 0 in mv_internal_sentiment (news turned negative while RM notes stayed positive), see fn_sentiment_blind_spots. \"Coal and shipping sectors\" = `Sector Theme` IN ('Coal', 'Shipping').\n",
+            "- \"Rating actions from JP-shared parent data\" = mv_signal_feed `Source Region` = 'JP' (PARENT_RATING_UPGRADE / _DOWNGRADE). Acknowledgement of non-CRM signals is a proxy: an RM activity with the group within 30 days.\n",
+            "- Unacknowledged risk signals by RM: filter `Polarity` = 'Risk' AND NOT `Acknowledged`, group by COALESCE(`Primary RM`, '(no RM coverage)') AS rm and `Primary RM Office` (RM names repeat across offices).\n",
+            "- Expansion signals = `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') with `Polarity` = 'Opportunity'; \"no pipeline\" = NOT `Has Pipeline`; Australia = `Coverage Office` 'AU', India = 'IN'; list them per legal entity (`Client`).\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "b70c5752ee7f1fabbfa61d9400000000",
+          "question": [
+            "Signals by source feed and signal type for :client_group since :from_date"
+          ],
+          "sql": [
+            "SELECT `Source Feed`, `Signal Type`,\n",
+            "       MEASURE(`Signals`)                AS signals,\n",
+            "       MEASURE(`Risk Signals`)           AS risk_signals,\n",
+            "       MEASURE(`Opportunity Signals`)    AS opportunity_signals,\n",
+            "       MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals\n",
+            "FROM smbc_genie.metrics.mv_signal_feed\n",
+            "WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Source Feed`, signals DESC"
+          ],
+          "parameters": [
+            {
+              "name": "client_group",
+              "type_hint": "STRING",
+              "description": [
+                "Full client group name (LIKE match)"
+              ],
+              "default_value": {
+                "values": [
+                  "Kinokawa Precision"
+                ]
+              }
+            },
+            {
+              "name": "from_date",
+              "type_hint": "DATE",
+              "description": [
+                "First day of the window (last 90 days = 2026-07-03)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-07-03"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"everything about / what is happening around <group> in the last N days\", \"signal digest\", \"all signals on <group>\"; from_date = DATE'2026-09-30' minus (N-1) days (last 90 days = 2026-07-03)."
+          ]
+        },
+        {
+          "id": "b70c5752ee7f1fabbfa61d9400000001",
+          "question": [
+            "News, RM-note and market snapshot of :client_group since :from_date"
+          ],
+          "sql": [
+            "WITH news AS (\n",
+            "  SELECT `Client Group`, MEASURE(`News Items`) AS news_items, MEASURE(`Average Sentiment`) AS news_sentiment\n",
+            "  FROM smbc_genie.metrics.mv_news_sentiment\n",
+            "  WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date\n",
+            "  GROUP BY ALL\n",
+            "), notes AS (\n",
+            "  SELECT `Client Group`, MEASURE(`Notes`) AS rm_notes, MEASURE(`Average Note Sentiment`) AS rm_note_sentiment\n",
+            "  FROM smbc_genie.metrics.mv_internal_sentiment\n",
+            "  WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date\n",
+            "  GROUP BY ALL\n",
+            "), mkt AS (\n",
+            "  SELECT `Client Group`, `External Rating`, `Outlook`,\n",
+            "         MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d,\n",
+            "         MEASURE(`Average CDS Change 30D bps`)       AS cds_change_30d_bps,\n",
+            "         MEASURE(`Groups at 52-Week Low`)            AS at_52_week_low,\n",
+            "         MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd\n",
+            "  FROM smbc_genie.metrics.mv_market_signals\n",
+            "  WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` = DATE'2026-09-30'\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT n.`Client Group`, n.news_items, n.news_sentiment, r.rm_notes, r.rm_note_sentiment,\n",
+            "       m.`External Rating` AS external_rating, m.`Outlook` AS outlook, m.share_price_change_30d,\n",
+            "       m.cds_change_30d_bps, m.at_52_week_low, m.apac_exposure_usd\n",
+            "FROM news n\n",
+            "LEFT JOIN notes r ON r.`Client Group` = n.`Client Group`\n",
+            "LEFT JOIN mkt m ON m.`Client Group` = n.`Client Group`"
+          ],
+          "parameters": [
+            {
+              "name": "client_group",
+              "type_hint": "STRING",
+              "description": [
+                "Full client group name (LIKE match)"
+              ],
+              "default_value": {
+                "values": [
+                  "Kinokawa Precision"
+                ]
+              }
+            },
+            {
+              "name": "from_date",
+              "type_hint": "DATE",
+              "description": [
+                "First day of the news / RM-note window (last 90 days = 2026-07-03)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-07-03"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for a group's news sentiment plus RM-note sentiment plus its listed parent today (rating, outlook, share price, CDS, 52-week low, APAC exposure) in one row - the cross-view CTE pattern (one CTE per metric view)."
+          ]
+        },
+        {
+          "id": "b70c5752ee7f1fabbfa61d9400000002",
+          "question": [
+            "Most common negative-news topic in each industry since :from_date"
+          ],
+          "sql": [
+            "WITH t AS (\n",
+            "  SELECT `Industry`, `Topic`,\n",
+            "         MEASURE(`Negative Items`)    AS negative_items,\n",
+            "         MEASURE(`Average Sentiment`) AS avg_sentiment\n",
+            "  FROM smbc_genie.metrics.mv_news_sentiment\n",
+            "  WHERE `Date` >= :from_date AND `Sentiment Polarity` = 'Negative'\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,\n",
+            "       SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items\n",
+            "FROM t\n",
+            "QUALIFY ROW_NUMBER() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1\n",
+            "ORDER BY industry_negative_items DESC"
+          ],
+          "parameters": [
+            {
+              "name": "from_date",
+              "type_hint": "DATE",
+              "description": [
+                "First day of the window (last 12 months = 2025-10-01)"
+              ],
+              "default_value": {
+                "values": [
+                  "2025-10-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"topics behind negative sentiment by industry\", \"what drives adverse news per sector\"; one row per industry with its top negative topic (last 12 months = from 2025-10-01)."
+          ]
+        },
+        {
+          "id": "b70c5752ee7f1fabbfa61d9400000003",
+          "question": [
+            "Listed parents at a 52-week low on :as_of_date with APAC exposure above USD 100m"
+          ],
+          "sql": [
+            "SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,\n",
+            "       MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,\n",
+            "       MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d\n",
+            "FROM smbc_genie.metrics.mv_market_signals\n",
+            "WHERE `Date` = :as_of_date AND `At 52-Week Low` AND `APAC Exposure Above 100m`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY apac_exposure_usd DESC"
+          ],
+          "parameters": [
+            {
+              "name": "as_of_date",
+              "type_hint": "DATE",
+              "description": [
+                "Trading day (today = 2026-09-30)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-30"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"listed parents / groups at 52-week lows\", \"stressed listed parents with big exposure\"; market measures are point-in-time, so filter one Date (today = 2026-09-30)."
+          ]
+        },
+        {
+          "id": "b70c5752ee7f1fabbfa61d9400000004",
+          "question": [
+            "Unacknowledged risk signals by RM since :from_date, RMs with at least :min_signals"
+          ],
+          "sql": [
+            "SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,\n",
+            "       MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,\n",
+            "       MEASURE(`Clients Signalled`)           AS clients_with_signals\n",
+            "FROM smbc_genie.metrics.mv_signal_feed\n",
+            "WHERE `Date` >= :from_date AND `Polarity` = 'Risk' AND NOT `Acknowledged`\n",
+            "GROUP BY ALL\n",
+            "HAVING MEASURE(`Unacknowledged Risk Signals`) >= CAST(:min_signals AS INT)\n",
+            "ORDER BY unacknowledged_risk_signals DESC"
+          ],
+          "parameters": [
+            {
+              "name": "from_date",
+              "type_hint": "DATE",
+              "description": [
+                "First day of the window (last 90 days = 2026-07-03)"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-07-03"
+                ]
+              }
+            },
+            {
+              "name": "min_signals",
+              "type_hint": "STRING",
+              "description": [
+                "Minimum unacknowledged risk signals per RM (1 = every RM; 'at least 5' = 5)"
+              ],
+              "default_value": {
+                "values": [
+                  "1"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"unacknowledged / unactioned risk signals (red flags) by RM\", \"which RMs are not following up\", \"RMs with 5 or more unacknowledged risk signals\" (min_signals = 5; 1 = every RM); keeps the RM office (names repeat) and labels clients without RM coverage."
+          ]
+        },
+        {
+          "id": "b70c5752ee7f1fabbfa61d9400000005",
+          "question": [
+            "Positive expansion signals with no pipeline in Australia and India for :fiscal_year"
+          ],
+          "sql": [
+            "SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,\n",
+            "       MEASURE(`Signals`)          AS signals,\n",
+            "       MEASURE(`Average Strength`) AS strength\n",
+            "FROM smbc_genie.metrics.mv_signal_feed\n",
+            "WHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'\n",
+            "  AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = :fiscal_year\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Coverage Office`, `Date`"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal year label, e.g. FY2026 (this year)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"expansion / capex signals without pipeline\", \"growth signals we have not converted\" in given coverage offices; one row per entity, signal and date."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "65ae7b4f6d85d4c2c1a5528100000000",
+          "identifier": "smbc_genie.gold.fn_group_signal_digest"
+        },
+        {
+          "id": "65ae7b4f6d85d4c2c1a5528100000001",
+          "identifier": "smbc_genie.gold.fn_group_sentiment_snapshot"
+        },
+        {
+          "id": "65ae7b4f6d85d4c2c1a5528100000002",
+          "identifier": "smbc_genie.gold.fn_sentiment_blind_spots"
+        },
+        {
+          "id": "65ae7b4f6d85d4c2c1a5528100000003",
+          "identifier": "smbc_genie.gold.fn_as_of_date"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000000",
+          "question": [
+            "Everything about Kinokawa Precision in the last 90 days (3 Jul - 30 Sep 2026): signals, risk signals, opportunity signals and unacknowledged signals by source feed and signal type."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Source Feed`, `Signal Type`,\n",
+                "       MEASURE(`Signals`)                AS signals,\n",
+                "       MEASURE(`Risk Signals`)           AS risk_signals,\n",
+                "       MEASURE(`Opportunity Signals`)    AS opportunity_signals,\n",
+                "       MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Source Feed`, signals DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000001",
+          "question": [
+            "what's been going on with kinokawa precision over the last 90 days? break the signals down by feed and signal type with risk, opportunity and unacknowledged counts"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Source Feed`, `Signal Type`,\n",
+                "       MEASURE(`Signals`)                AS signals,\n",
+                "       MEASURE(`Risk Signals`)           AS risk_signals,\n",
+                "       MEASURE(`Opportunity Signals`)    AS opportunity_signals,\n",
+                "       MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Source Feed`, signals DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000002",
+          "question": [
+            "For Kinokawa Precision, show the news items and average news sentiment and the RM notes and average RM-note sentiment over the last 90 days (3 Jul - 30 Sep 2026), plus its listed parent today: external rating, outlook, 30-day share-price change, 30-day CDS change, whether it is at a 52-week low (count of groups) and APAC exposure."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH news AS (\n",
+                "  SELECT `Client Group`, MEASURE(`News Items`) AS news_items_90d, MEASURE(`Average Sentiment`) AS news_sentiment_90d\n",
+                "  FROM smbc_genie.metrics.mv_news_sentiment\n",
+                "  WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03' GROUP BY ALL\n",
+                "), notes AS (\n",
+                "  SELECT `Client Group`, MEASURE(`Notes`) AS rm_notes_90d, MEASURE(`Average Note Sentiment`) AS rm_note_sentiment_90d\n",
+                "  FROM smbc_genie.metrics.mv_internal_sentiment\n",
+                "  WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` >= DATE'2026-07-03' GROUP BY ALL\n",
+                "), mkt AS (\n",
+                "  SELECT `Client Group`, `External Rating`, `Outlook`,\n",
+                "         MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d,\n",
+                "         MEASURE(`Average CDS Change 30D bps`)       AS cds_change_30d_bps,\n",
+                "         MEASURE(`Groups at 52-Week Low`)            AS at_52_week_low,\n",
+                "         MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd\n",
+                "  FROM smbc_genie.metrics.mv_market_signals\n",
+                "  WHERE `Client Group` LIKE '%Kinokawa Precision%' AND `Date` = DATE'2026-09-30' GROUP BY ALL\n",
+                ")\n",
+                "SELECT n.`Client Group`, n.news_items_90d, n.news_sentiment_90d, r.rm_notes_90d, r.rm_note_sentiment_90d,\n",
+                "       m.`External Rating` AS external_rating, m.`Outlook` AS outlook, m.share_price_change_30d, m.cds_change_30d_bps,\n",
+                "       m.at_52_week_low, m.apac_exposure_usd\n",
+                "FROM news n LEFT JOIN notes r ON r.`Client Group` = n.`Client Group` LEFT JOIN mkt m ON m.`Client Group` = n.`Client Group`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000003",
+          "question": [
+            "Which client groups are sentiment blind spots today - external news sentiment turned negative over the last 90 days while RM notes stayed positive? Show each group's last-90-day news sentiment, its 90-day change in news sentiment and its last-90-day RM-note sentiment."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH blind AS (\n",
+                "  SELECT `Client Group`,\n",
+                "         MEASURE(`Group News Sentiment Last 90D`) AS news_sentiment_last_90d,\n",
+                "         MEASURE(`Group Note Sentiment Last 90D`) AS rm_note_sentiment_last_90d,\n",
+                "         MEASURE(`Blind Spot Groups`)             AS is_blind_spot\n",
+                "  FROM smbc_genie.metrics.mv_internal_sentiment\n",
+                "  GROUP BY ALL\n",
+                "  HAVING MEASURE(`Blind Spot Groups`) > 0\n",
+                "), trend AS (\n",
+                "  SELECT `Client Group`, MEASURE(`Sentiment Change 90D`) AS news_sentiment_change_90d\n",
+                "  FROM smbc_genie.metrics.mv_news_sentiment GROUP BY ALL\n",
+                ")\n",
+                "SELECT b.`Client Group`, b.news_sentiment_last_90d, t.news_sentiment_change_90d, b.rm_note_sentiment_last_90d\n",
+                "FROM blind b LEFT JOIN trend t ON t.`Client Group` = b.`Client Group`\n",
+                "ORDER BY b.news_sentiment_last_90d"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000004",
+          "question": [
+            "Blind-spot check: where has adverse media turned negative over the last 90 days while our RM call reports stayed upbeat? Give each group's 90-day news sentiment, the 90-day change in news sentiment and the 90-day RM-note sentiment."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH blind AS (\n",
+                "  SELECT `Client Group`,\n",
+                "         MEASURE(`Group News Sentiment Last 90D`) AS news_sentiment_last_90d,\n",
+                "         MEASURE(`Group Note Sentiment Last 90D`) AS rm_note_sentiment_last_90d,\n",
+                "         MEASURE(`Blind Spot Groups`)             AS is_blind_spot\n",
+                "  FROM smbc_genie.metrics.mv_internal_sentiment\n",
+                "  GROUP BY ALL\n",
+                "  HAVING MEASURE(`Blind Spot Groups`) > 0\n",
+                "), trend AS (\n",
+                "  SELECT `Client Group`, MEASURE(`Sentiment Change 90D`) AS news_sentiment_change_90d\n",
+                "  FROM smbc_genie.metrics.mv_news_sentiment GROUP BY ALL\n",
+                ")\n",
+                "SELECT b.`Client Group`, b.news_sentiment_last_90d, t.news_sentiment_change_90d, b.rm_note_sentiment_last_90d\n",
+                "FROM blind b LEFT JOIN trend t ON t.`Client Group` = b.`Client Group`\n",
+                "ORDER BY b.news_sentiment_last_90d"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000005",
+          "question": [
+            "Over the last 12 months (Oct 2025 - Sep 2026), what is the single most common topic behind negative news in each industry? Show the industry, that topic, its negative items, the average sentiment of those negative items and the industry's total negative items."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH t AS (\n",
+                "  SELECT `Industry`, `Topic`, MEASURE(`Negative Items`) AS negative_items, MEASURE(`Average Sentiment`) AS avg_sentiment\n",
+                "  FROM smbc_genie.metrics.mv_news_sentiment\n",
+                "  WHERE `Date` > DATE'2025-09-30' AND `Sentiment Polarity` = 'Negative'\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,\n",
+                "       SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items\n",
+                "FROM t\n",
+                "QUALIFY row_number() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1\n",
+                "ORDER BY industry_negative_items DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000006",
+          "question": [
+            "top negative news topic per industry, last 12m: topic, neg items, avg sentiment of those items, total neg items for the industry"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH t AS (\n",
+                "  SELECT `Industry`, `Topic`, MEASURE(`Negative Items`) AS negative_items, MEASURE(`Average Sentiment`) AS avg_sentiment\n",
+                "  FROM smbc_genie.metrics.mv_news_sentiment\n",
+                "  WHERE `Date` > DATE'2025-09-30' AND `Sentiment Polarity` = 'Negative'\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,\n",
+                "       SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items\n",
+                "FROM t\n",
+                "QUALIFY row_number() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1\n",
+                "ORDER BY industry_negative_items DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000007",
+          "question": [
+            "Which listed parents are at a 52-week low today with APAC exposure above USD 100m? Show the client group, listed parent, external rating, outlook, APAC exposure and 30-day share-price change."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,\n",
+                "       MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,\n",
+                "       MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d\n",
+                "FROM smbc_genie.metrics.mv_market_signals\n",
+                "WHERE `Date` = DATE'2026-09-30' AND `At 52-Week Low` AND `APAC Exposure Above 100m`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY apac_exposure_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000008",
+          "question": [
+            "listed parnets at 52-week lows today with APAC exposure over USD 100m - group, parent, rating, outlook, exposure and 30d share price change"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,\n",
+                "       MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,\n",
+                "       MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d\n",
+                "FROM smbc_genie.metrics.mv_market_signals\n",
+                "WHERE `Date` = DATE'2026-09-30' AND `At 52-Week Low` AND `APAC Exposure Above 100m`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY apac_exposure_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000009",
+          "question": [
+            "Which RMs have at least 5 unacknowledged risk signals over the last 90 days (3 Jul - 30 Sep 2026)? Show the RM, the RM's office, the unacknowledged risk signals and the number of clients with unacknowledged risk signals."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,\n",
+                "       MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,\n",
+                "       MEASURE(`Clients Signalled`)           AS clients_with_signals\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Date` >= DATE'2026-07-03' AND `Polarity` = 'Risk' AND NOT `Acknowledged`\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Unacknowledged Risk Signals`) >= 5\n",
+                "ORDER BY unacknowledged_risk_signals DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c0000000a",
+          "question": [
+            "Which RMs are sitting on 5 or more unactioned red flags from the last 90 days? RM, RM office, number of unacknowledged risk signals and clients affected."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,\n",
+                "       MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,\n",
+                "       MEASURE(`Clients Signalled`)           AS clients_with_signals\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Date` >= DATE'2026-07-03' AND `Polarity` = 'Risk' AND NOT `Acknowledged`\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Unacknowledged Risk Signals`) >= 5\n",
+                "ORDER BY unacknowledged_risk_signals DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c0000000b",
+          "question": [
+            "List the legal entities in Australia and India that had positive expansion signals (expansion or capex news) in FY2026 with no pipeline: coverage office, client, signal type, date, signals and signal strength."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,\n",
+                "       MEASURE(`Signals`)          AS signals,\n",
+                "       MEASURE(`Average Strength`) AS strength\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'\n",
+                "  AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Coverage Office`, `Date`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c0000000c",
+          "question": [
+            "any positive expansion or capex news on our AU or IN entities this fiscal year where we have no pipeline? show office, client, signal type, date, signals and strength"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,\n",
+                "       MEASURE(`Signals`)          AS signals,\n",
+                "       MEASURE(`Average Strength`) AS strength\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'\n",
+                "  AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Coverage Office`, `Date`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c0000000d",
+          "question": [
+            "What is the news sentiment trend for the coal and shipping sectors by fiscal quarter from FY2024 onward? Show news items, average sentiment and negative items per sector theme and quarter."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Sector Theme`, `Fiscal Quarter`,\n",
+                "       MEASURE(`News Items`)        AS news_items,\n",
+                "       MEASURE(`Average Sentiment`) AS avg_sentiment,\n",
+                "       MEASURE(`Negative Items`)    AS negative_items\n",
+                "FROM smbc_genie.metrics.mv_news_sentiment\n",
+                "WHERE `Sector Theme` IN ('Coal', 'Shipping') AND `Date` >= DATE'2024-04-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Sector Theme`, `Fiscal Quarter`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c0000000e",
+          "question": [
+            "sentimnet trend for coal and shipping by fiscal quarter since FY2024 - items, average sentiment and negative items per sector and quarter"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Sector Theme`, `Fiscal Quarter`,\n",
+                "       MEASURE(`News Items`)        AS news_items,\n",
+                "       MEASURE(`Average Sentiment`) AS avg_sentiment,\n",
+                "       MEASURE(`Negative Items`)    AS negative_items\n",
+                "FROM smbc_genie.metrics.mv_news_sentiment\n",
+                "WHERE `Sector Theme` IN ('Coal', 'Shipping') AND `Date` >= DATE'2024-04-01'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Sector Theme`, `Fiscal Quarter`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c0000000f",
+          "question": [
+            "List all rating-action signals from the JP-shared parent data in FY2026: date, client group, signal type, signals and average signal strength."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Date`, `Client Group`, `Signal Type`, MEASURE(`Signals`) AS signals, MEASURE(`Average Strength`) AS strength\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Source Region` = 'JP' AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Date`, `Client Group`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000010",
+          "question": [
+            "JP-share parent rating actions FY26 - date, group, signal type, signals, avg strength"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Date`, `Client Group`, `Signal Type`, MEASURE(`Signals`) AS signals, MEASURE(`Average Strength`) AS strength\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Source Region` = 'JP' AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Date`, `Client Group`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000011",
+          "question": [
+            "How many coal-regulation news items did Sunda Energi Nusantara have in January 2026, and what were their lowest, highest and average sentiment?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`News Items`) AS items, MEASURE(`Lowest Sentiment`) AS min_sentiment,\n",
+                "       MEASURE(`Highest Sentiment`) AS max_sentiment, MEASURE(`Average Sentiment`) AS avg_sentiment\n",
+                "FROM smbc_genie.metrics.mv_news_sentiment\n",
+                "WHERE `Client Group` = 'Sunda Energi Nusantara' AND `Subtopic` = 'Coal Regulation' AND `Month` = DATE'2026-01-01'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000012",
+          "question": [
+            "For Banksia Renewables Partners, show the client group, the number of expansion news items and their average sentiment from April to July 2026."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`, MEASURE(`News Items`) AS items, MEASURE(`Average Sentiment`) AS avg_sentiment\n",
+                "FROM smbc_genie.metrics.mv_news_sentiment\n",
+                "WHERE `Client Group` = 'Banksia Renewables Partners' AND `Topic` = 'Expansion'\n",
+                "  AND `Date` BETWEEN DATE'2026-04-01' AND DATE'2026-07-31'\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f2bc1abe2d31d8a1ce1df55c00000013",
+          "question": [
+            "When did Tanaka Chemical's JP parent rating action reach the signal feed? Show the date, client group, client, signal type, source region and signals."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Date`, `Client Group`, `Client`, `Signal Type`, `Source Region`, MEASURE(`Signals`) AS signals\n",
+                "FROM smbc_genie.metrics.mv_signal_feed\n",
+                "WHERE `Client Group` = 'Tanaka Chemical' AND `Signal Type` LIKE 'PARENT_RATING_%'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Date`"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

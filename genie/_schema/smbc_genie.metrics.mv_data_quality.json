@@ -1,0 +1,181 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the scored month as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the scored month, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Lakehouse layer: bronze (raw landing), shared (Delta Sharing inbound) or silver (cleansed, conformed).",
+   "is_measure": false,
+   "name": "Layer",
+   "type": "string"
+  },
+  {
+   "comment": "Table scored, with its layer, e.g. silver.kyc_review, bronze.pay_payment_message, silver.share_jp_parent_rating; match with LIKE '%pay_payment_message%'.",
+   "is_measure": false,
+   "name": "Table",
+   "type": "string"
+  },
+  {
+   "comment": "Data-quality dimension: completeness, validity, uniqueness, timeliness (incl. freshness of shared tables) or consistency.",
+   "is_measure": false,
+   "name": "DQ Dimension",
+   "type": "string"
+  },
+  {
+   "comment": "DQ rule of the latest run (Sep-2026 rule results only), e.g. pay_payment_message:key_unique, pay_payment_message:x:landing_ties_to_cash_flow; null on the monthly score rows.",
+   "is_measure": false,
+   "name": "Rule",
+   "type": "string"
+  },
+  {
+   "comment": "Severity of the rule (rule results only): error, warn or info.",
+   "is_measure": false,
+   "name": "Rule Severity",
+   "type": "string"
+  },
+  {
+   "comment": "Result of the rule in the latest run (rule results only): pass, warn or fail.",
+   "is_measure": false,
+   "name": "Rule Status",
+   "type": "string"
+  },
+  {
+   "comment": "simulated (score history), incident (an explainable dip) or actual (the current DQ run, Sep-2026, and all rule results).",
+   "is_measure": false,
+   "name": "Score Basis",
+   "type": "string"
+  },
+  {
+   "comment": "Incident behind a dip: payments_replay_landing and payments_replay_tie (Jun-2026 payments replay, storyline 12), kyc_migration_backlog / kyc_migration_recovery (Feb-2026 KYC migration, storyline 7), jp_share_outage (11-15 Aug 2026 Japan share outage, storyline 13); null otherwise.",
+   "is_measure": false,
+   "name": "Incident",
+   "type": "string"
+  },
+  {
+   "comment": "True when the monthly score of the table and dimension is below 95%.",
+   "is_measure": false,
+   "name": "Is Below 95%",
+   "type": "boolean"
+  },
+  {
+   "comment": "Average monthly DQ score of the selected tables and dimensions (fraction; one table and dimension = its score, 0.978 = 97.8%), for the last month of the selection.",
+   "is_measure": true,
+   "name": "DQ Score %",
+   "type": "double"
+  },
+  {
+   "comment": "The same score one month earlier (Month = Sep 2026 gives Aug 2026) - for \"this month vs last\".",
+   "is_measure": true,
+   "name": "DQ Score Prior Month %",
+   "type": "double"
+  },
+  {
+   "comment": "DQ score minus the prior month's (fraction points; negative = deterioration).",
+   "is_measure": true,
+   "name": "DQ Score Change vs Prior Month pts",
+   "type": "double"
+  },
+  {
+   "comment": "Rows passing / rows evaluated over the selected tables and dimensions (row-weighted), last month of the selection.",
+   "is_measure": true,
+   "name": "Row Pass Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "DQ rules evaluated on the selected tables and dimensions in the last month of the selection.",
+   "is_measure": true,
+   "name": "Rules Evaluated",
+   "type": "bigint"
+  },
+  {
+   "comment": "DQ rules that failed their threshold in the last month of the selection.",
+   "is_measure": true,
+   "name": "Rules Failed",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rows checked by the dimension's rules in the last month of the selection.",
+   "is_measure": true,
+   "name": "Rows Evaluated",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rows failing the dimension's rules in the last month of the selection (e.g. 3,966 replayed payment messages at Sep-2026, bronze uniqueness).",
+   "is_measure": true,
+   "name": "Rows Failed",
+   "type": "bigint"
+  },
+  {
+   "comment": "Tables with at least one DQ dimension scoring below 95% in the last month of the selection.",
+   "is_measure": true,
+   "name": "Tables Below Target",
+   "type": "bigint"
+  },
+  {
+   "comment": "Tables with a DQ score in the last month of the selection.",
+   "is_measure": true,
+   "name": "Tables Scored",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rule evaluations of the latest DQ run (Sep-2026) on the selected tables.",
+   "is_measure": true,
+   "name": "Rule Results",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rule evaluations of the latest run with status warn or fail.",
+   "is_measure": true,
+   "name": "Rules Not Passed",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rows failing the selected rules in the latest run (for de-duplication rules = duplicates removed).",
+   "is_measure": true,
+   "name": "Rule Failed Rows",
+   "type": "bigint"
+  },
+  {
+   "comment": "Duplicate rows removed by business-key de-duplication in the latest run (bronze pay_payment_message:key_unique = 3,966 replayed messages of batch PAY_20260617_R).",
+   "is_measure": true,
+   "name": "Rows De-duplicated",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Data quality of the bronze, shared and silver layers, Apr-2023 to Sep-2026: monthly DQ score per table and DQ dimension (completeness, validity, uniqueness, timeliness, consistency) as a fraction of rows passing, the previous month's score and the change, row pass rate, rules evaluated / failed, rows failed, tables below 95%, and - for the latest DQ run (Sep-2026) - the rule-level results (rule, severity, status, failed and de-duplicated rows). Explainable dips: Jun-2026 payments replay (bronze uniqueness), Feb-May 2026 KYC migration (timeliness), Aug-2026 Japan share outage (timeliness). Scores are monthly snapshots: a quarter or year returns its last month; \"this month vs last\" = Month = DATE'2026-09-01' with the prior-month measures. Grain: one row per month x layer-qualified table x DQ dimension (score history) plus one row per DQ rule x layer of the latest run (Sep-2026, rule results).",
+ "identifier": "smbc_genie.metrics.mv_data_quality",
+ "type": "METRIC_VIEW"
+}

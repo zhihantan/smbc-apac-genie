@@ -1,0 +1,145 @@
+# Space 9, Cashflow Forecasting (WP9b / WP8e). Source: gold.fact_forecast_accuracy_monthly - the scored (backtest)
+# forecasts per client and target month. Errors are not additive: MAPE = AVG of row APEs, Bias = SUM(error) / SUM(actual),
+# Coverage = share of rows inside P10-P90 - all correct at any grain. Clients Within 10% is a point-in-time count
+# (latest target month of the selection). Only the 30D horizon is scored (7D / 90D forward forecasts have no actuals).
+view: mv_forecast_accuracy
+space: cashflow_forecasting
+comment: >-
+  Cash-flow forecast accuracy per client and target month, Apr-2024 to Sep-2026: MAPE, weighted APE, bias, P10-P90
+  interval coverage and the clients forecast within 10%, by model version (v1 until the May-2026 targets, v2 from
+  June-2026 - the model upgrade: MAPE about 18% -> 11%), horizon (30D one-month-ahead; the only backtested horizon),
+  segment, industry and booking country. All measures are ratios / averages of the scored client-months, correct at
+  any grain; compare before vs after the upgrade by Model Version or Is After V2 Upgrade.
+grain: one row per client x target month x horizon x model version (gold.fact_forecast_accuracy_monthly)
+source: ${catalog}.gold.fact_forecast_accuracy_monthly
+blocks:
+  calendar: {date: source.target_month, grain: month, what: the forecast target month}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Horizon
+    expr: source.horizon_label
+    display_name: Forecast Horizon
+    comment: 30D = one-month-ahead (the only horizon with backtests; 7D / 90D forward forecasts have no actuals yet).
+    synonyms: [horizon, forecast horizon, 30 days, one month ahead, lookahead]
+  - name: Model Version
+    expr: source.model_version
+    display_name: Model Version
+    comment: v1 (targets Apr-2024 to May-2026) or v2 (the upgraded model, targets from Jun-2026).
+    synonyms: [model version, model, v1, v2, forecast model, before after upgrade]
+  - name: Is After V2 Upgrade
+    expr: source.is_after_v2_upgrade
+    display_name: Is After the V2 Upgrade
+    comment: True for target months from June 2026 (scored with model v2) - "after the upgrade".
+    synonyms: [after upgrade, post upgrade, after v2, new model, before vs after]
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: Client's coverage office / booking location (ISO-2).
+    synonyms: [booking country, country, booking location, market, office]
+  - name: Is Within 10 Pct
+    expr: source.is_within_10pct
+    display_name: Forecast Within 10%
+    comment: True when the client-month's absolute % error is at most 10% (dim_threshold MAPE_GOOD).
+    synonyms: [within 10%, accurate, good forecast, well forecast, within tolerance]
+measures:
+  - name: MAPE %
+    expr: AVG(source.abs_pct_error)
+    display_name: MAPE
+    comment: Mean absolute percentage error of the inflow forecasts = average of |forecast - actual| / actual (fraction; 0.11 = 11%).
+    synonyms: [MAPE, forecast error, accuracy, mean absolute percentage error, error rate, APE]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Weighted APE %
+    expr: SUM(source.abs_error_usd) / NULLIF(SUM(source.actual_inflow_usd), 0)
+    display_name: Weighted Absolute % Error (WAPE)
+    comment: Sum of absolute errors / sum of actual inflows (fraction) - volume-weighted error.
+    synonyms: [WAPE, weighted MAPE, volume weighted error, weighted error]
+    format: *pct
+  - name: Median APE %
+    expr: MEDIAN(source.abs_pct_error)
+    display_name: Median Absolute % Error
+    comment: Median client-month absolute % error (fraction).
+    synonyms: [median error, median APE, typical error, median MAPE]
+    format: *pct
+  - name: Bias %
+    expr: SUM(source.forecast_error_usd) / NULLIF(SUM(source.actual_inflow_usd), 0)
+    display_name: Forecast Bias
+    comment: Sum of (forecast - actual) / sum of actual inflows (fraction; positive = over-forecast, negative = under-forecast).
+    synonyms: [bias, forecast bias, over-forecast, under-forecast, systematic error, mean error]
+    format: *pct
+  - name: Interval Coverage %
+    expr: AVG(CASE WHEN source.is_within_p10_p90 THEN 1.0 ELSE 0.0 END)
+    display_name: P10-P90 Interval Coverage
+    comment: Share of client-months whose actual inflows fell inside the forecast P10-P90 interval (fraction; target 80%).
+    synonyms: [interval coverage, coverage, P10 P90 coverage, hit rate, calibration, prediction interval coverage]
+    format: *pct
+  - name: Within 10% Share %
+    expr: AVG(CASE WHEN source.is_within_10pct THEN 1.0 ELSE 0.0 END)
+    display_name: Share of Forecasts Within 10%
+    comment: Share of client-months forecast within 10% absolute error (fraction).
+    synonyms: [share within 10%, accurate share, good forecast share, within tolerance share]
+    format: *pct
+  - name: Well-Forecast Clients
+    expr: COUNT(DISTINCT CASE WHEN source.is_within_10pct THEN source.golden_client_id END)
+    display_name: Clients Forecast Within 10% (latest month)
+    comment: Legal entities whose forecast was within 10% in the latest target month of the selection (point-in-time count).
+    synonyms: [clients within 10% MAPE, clients within 10%, well forecast clients, accurate clients, clients within tolerance]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window:
+      - {order: Month, range: current, semiadditive: last}
+  - name: Scored Forecasts
+    expr: COUNT(1)
+    display_name: Scored Forecasts (client-months)
+    comment: Client-month forecasts scored against actuals in the selection.
+    synonyms: [scored forecasts, forecasts, sample size, number of forecasts, client months]
+    format: *count
+  - name: Forecast Inflow USD
+    expr: SUM(source.forecast_inflow_usd)
+    display_name: Forecast Inflows (USD)
+    comment: Forecast inflows of the scored target months, USD (a flow).
+    synonyms: [forecast inflows, forecast collections, predicted inflows, forecast]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Actual Inflow USD
+    expr: SUM(source.actual_inflow_usd)
+    display_name: Actual Inflows (USD)
+    comment: Actual inflows of the scored target months (from payments), USD (a flow).
+    synonyms: [actual inflows, actual collections, realised inflows, actuals]
+    format: *usd
+validate:
+  dims: [Model Version, Segment]
+reconcile:
+  - name: mape_by_model_version
+    measure: MAPE %
+    by: [Model Version]
+    gold: SELECT model_version, avg(abs_pct_error) FROM ${catalog}.gold.fact_forecast_accuracy_monthly GROUP BY 1
+  - name: bias_by_country_v2
+    measure: Bias %
+    by: [Booking Country]
+    where: "`Model Version` = 'v2'"
+    gold: >-
+      SELECT booking_country, sum(forecast_error_usd) / sum(actual_inflow_usd) FROM ${catalog}.gold.fact_forecast_accuracy_monthly
+      WHERE model_version = 'v2' GROUP BY 1
+  - name: coverage_by_model
+    measure: Interval Coverage %
+    by: [Model Version]
+    gold: >-
+      SELECT model_version, avg(CASE WHEN is_within_p10_p90 THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_forecast_accuracy_monthly
+      GROUP BY 1
+  - name: clients_within_10pct_sep26
+    measure: Well-Forecast Clients
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_forecast_accuracy_monthly
+      WHERE target_month = DATE'2026-09-01' AND is_within_10pct
+  - name: mape_by_segment_after_upgrade
+    measure: MAPE %
+    by: [Segment]
+    where: "`Is After V2 Upgrade`"
+    gold: >-
+      SELECT c.segment, avg(a.abs_pct_error) FROM ${catalog}.gold.fact_forecast_accuracy_monthly a
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = a.golden_client_sk
+      WHERE a.is_after_v2_upgrade GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Errors are not additive - MAPE / bias / coverage are averages or ratios of the scored client-months. Only the
+      30D horizon is backtested; the forward 7D / 90D forecasts in mv_cashflow_forecast have no actuals yet.

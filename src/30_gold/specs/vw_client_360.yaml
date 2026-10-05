@@ -1,0 +1,154 @@
+table: vw_client_360
+kind: view
+domain: c360
+comment: >-
+  Customer 360 drill-through view for Genie: one row per current golden client (legal entity) as of
+  30-Sep-2026 with its headline attributes (names and aliases for LIKE search, group, segment, tier,
+  industry, coverage office, primary RM, internal and external rating, IFRS 9 stage, EWS band, watchlist, KYC
+  risk) and the latest KPI of every domain: FYTD revenue and RoRWA, products held, open pipeline and next-best product, RM contact; credit limit,
+  drawn, EAD / RWA / ECL, DPD, EWS score, covenant headroom, credit review due; KYC reviews and onboarding;
+  deposits / CASA / TD, payments in the last 90 days, trade outstanding; 30-day cash-flow forecast and the latest liquidity need; signals, news and RM-note sentiment
+  in the last 90 days; source coverage and attribute completeness. Point-in-time KPIs are at the 30-Sep-2026
+  month-end / day; FYTD = 1-Apr .. 30-Sep-2026 (FY2026 H1). USD amounts; 0 = none.
+grain: one row per current golden client
+columns:
+  golden_client_id: {type: STRING, comment: "Golden client id (GC-nnnnnn) - one resolved legal entity."}
+  golden_client_sk: {type: BIGINT, comment: Surrogate key of the client's current dim_client version.}
+  display_name: {type: STRING, comment: "Unique client label keeping the location, e.g. Kinokawa Precision (Singapore) Pte Ltd."}
+  legal_name: {type: STRING, comment: Survived legal name of the client.}
+  short_name: {type: STRING, comment: "Name without location and legal form, e.g. Kinokawa Precision - match with LIKE '%...%'."}
+  aliases_text: {type: STRING, comment: "Other names used by source records, ' | '-separated (for LIKE searches)."}
+  lei_like_id: {type: STRING, comment: Fictional LEI-like identifier (null when none).}
+  country_of_incorporation: {type: STRING, comment: ISO-2 country of incorporation.}
+  client_group_id: {type: STRING, comment: Client group id (SYN-G-nnnn); join gold.dim_client_group.}
+  group_name: {type: STRING, comment: "Client group short brand, e.g. Kinokawa Precision."}
+  is_group_lead: {type: BOOLEAN, comment: True when the client is its group's lead (relationship) entity.}
+  group_lead_client_name: {type: STRING, comment: Display name of the group's lead entity.}
+  jp_parent_legal_name: {type: STRING, comment: Legal name of the Japanese parent (Japan share); null for groups without one.}
+  jp_parent_rating_equivalent: {type: STRING, comment: External-scale equivalent of the JP parent's Tokyo HO grade (Japan share).}
+  segment: {type: STRING, comment: "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector."}
+  is_japanese_corporate: {type: BOOLEAN, comment: True for APAC subsidiaries of Japanese groups (segment Japanese Corporate).}
+  relationship_tier: {type: STRING, comment: "Relationship tier: Strategic, Core or Transactional."}
+  industry_sector: {type: STRING, comment: "Industry sector, e.g. Technology, Materials."}
+  industry_subsector: {type: STRING, comment: "Industry subsector, e.g. Semiconductors, Oil, Gas & Coal."}
+  is_carbon_intensive: {type: BOOLEAN, comment: True when the subsector is carbon-intensive.}
+  is_listed: {type: BOOLEAN, comment: True when the entity is listed (external company master).}
+  coverage_office: {type: STRING, comment: "Coverage office = APAC booking location (ISO-2, e.g. SG, HK)."}
+  coverage_office_name: {type: STRING, comment: "Country name of the coverage office, e.g. Singapore."}
+  primary_rm_id: {type: STRING, comment: Employee id of the primary RM today (null = no RM coverage).}
+  primary_rm_code: {type: STRING, comment: CRM code of the primary RM (RM001-RM120).}
+  primary_rm_name: {type: STRING, comment: Name of the primary RM (fictional).}
+  primary_rm_office: {type: STRING, comment: "Office of the primary RM (APAC booking location, e.g. SG)."}
+  credit_analyst_name: {type: STRING, comment: Credit analyst on the client's latest credit review (fictional).}
+  internal_rating_grade: {type: INT, comment: "Internal rating grade 1-10 today (1 best, 10 default); null = not rated."}
+  rating_equivalent: {type: STRING, comment: "External-scale equivalent of the internal grade (AAA ... D)."}
+  ifrs9_stage: {type: INT, comment: IFRS 9 stage 1 / 2 / 3 today; null = not rated.}
+  external_rating: {type: STRING, comment: Agency rating of the client's group issuer today (fictional agencies; null = unrated).}
+  ews_band: {type: STRING, comment: "Final EWS band today (after overrides): Green (< 40), Amber (40-69) or Red (>= 70); null = not scored."}
+  watchlist_flag: {type: BOOLEAN, comment: True when the client is on the credit watchlist today.}
+  kyc_risk_rating: {type: STRING, comment: "KYC / AML risk rating Low, Medium or High today; null = no KYC record."}
+  kyc_next_review_date: {type: DATE, comment: Due date of the next KYC review not yet completed (past date = overdue).}
+  has_account_plan: {type: BOOLEAN, comment: True when the client's group has an FY2026 account plan.}
+  onboarding_date: {type: DATE, comment: Customer-since date recorded by KYC.}
+  relationship_start_date: {type: DATE, comment: Earliest evidence of the banking relationship.}
+  esg_rating: {type: STRING, comment: "ESG risk High / Medium / Low (carbon-intensive subsector and / or ESG-controversy news in the last 12 months)."}
+  source_systems_text: {type: STRING, comment: "Identity source systems holding the client, comma-separated."}
+  n_source_records: {type: INT, comment: Source identity records resolved to the client.}
+  golden_record_confidence: {type: DOUBLE, comment: 0-1 confidence of the golden record.}
+  revenue_fytd_usd: {type: DOUBLE, comment: "Revenue FY2026 to date (Apr-Sep 2026) in USD, all product families (fact_client_revenue_monthly)."}
+  revenue_prior_fytd_usd: {type: DOUBLE, comment: Revenue of the same months one year earlier (Apr-Sep 2025) in USD.}
+  revenue_yoy_pct: {type: DOUBLE, comment: "FYTD revenue vs prior FYTD as a fraction (-0.22 = -22%); null without prior revenue."}
+  net_contribution_fytd_usd: {type: DOUBLE, comment: Net contribution (revenue - allocated cost - credit cost) FY2026 to date in USD.}
+  rorwa_latest_quarter: {type: DOUBLE, comment: "Annualised RoRWA of the latest fiscal quarter (FY2026-Q2) as a fraction (hurdle 1.2%); null = no RWA."}
+  below_rorwa_hurdle: {type: BOOLEAN, comment: True when the latest-quarter RoRWA is below the configured hurdle (gold.dim_threshold RORWA_HURDLE).}
+  products_held_count: {type: BIGINT, comment: Products held at Sep-2026 (fact_product_holding_monthly).}
+  product_families_held_count: {type: BIGINT, comment: Product families held at Sep-2026.}
+  is_deposit_only: {type: BOOLEAN, comment: True when the client holds only deposit products at Sep-2026.}
+  is_single_product_lending: {type: BOOLEAN, comment: True when the client's only product is lending at Sep-2026.}
+  open_opportunities: {type: INT, comment: Pipeline opportunities open at 30-Sep-2026 (fact_pipeline_opportunity; stages Prospecting to Negotiation).}
+  open_pipeline_usd: {type: DOUBLE, comment: Amount of the open pipeline opportunities in USD.}
+  weighted_pipeline_usd: {type: DOUBLE, comment: Open pipeline weighted by win probability in USD.}
+  won_fytd_usd: {type: DOUBLE, comment: Amount of opportunities won in FY2026 to date (Apr-Sep 2026) in USD.}
+  next_best_product: {type: STRING, comment: "Product ranked 1 by the latest next-best-product scoring (fact_next_best_product_score, Sep-2026), e.g. Supply Chain Finance; null = not scored."}
+  next_best_product_propensity: {type: DOUBLE, comment: Propensity 0-1 of the next-best product.}
+  last_rm_contact_date: {type: DATE, comment: Date of the latest RM activity (meeting / call / e-mail / visit) with the client.}
+  days_since_last_rm_contact: {type: INT, comment: Days from the latest RM activity to 30-Sep-2026 (null = never contacted; > 90 = not touched in 90 days).}
+  rm_contacts_last_90d: {type: INT, comment: RM activities with the client in the last 90 days.}
+  open_rm_actions: {type: INT, comment: Follow-up actions from RM notes still Open or Overdue.}
+  facilities: {type: INT, comment: Credit facilities with a 30-Sep-2026 month-end snapshot (fact_credit_exposure_monthly).}
+  credit_limit_usd: {type: DOUBLE, comment: Committed credit limits at 30-Sep-2026 in USD.}
+  drawn_usd: {type: DOUBLE, comment: Drawn credit at 30-Sep-2026 in USD.}
+  undrawn_usd: {type: DOUBLE, comment: Undrawn commitments at 30-Sep-2026 in USD (RCF headroom).}
+  utilisation_pct: {type: DOUBLE, comment: Drawn / limit at 30-Sep-2026 (fraction); null without limits.}
+  ead_usd: {type: DOUBLE, comment: Exposure at default at 30-Sep-2026 in USD.}
+  rwa_usd: {type: DOUBLE, comment: Risk-weighted assets at 30-Sep-2026 in USD.}
+  ecl_usd: {type: DOUBLE, comment: IFRS 9 expected credit loss provision at 30-Sep-2026 in USD.}
+  max_days_past_due: {type: INT, comment: Highest days past due across the client's facilities at 30-Sep-2026 (null = no facility).}
+  ews_score: {type: DOUBLE, comment: EWS composite score 0-100 on 30-Sep-2026 (null = not scored).}
+  ews_computed_band: {type: STRING, comment: EWS band computed by the model on 30-Sep-2026 (before overrides).}
+  ews_score_change_30d: {type: DOUBLE, comment: Change of the EWS score over the last 30 days (points).}
+  is_ews_overridden: {type: BOOLEAN, comment: True when the final band differs from the computed band on 30-Sep-2026 (analyst override).}
+  ews_top_triggers: {type: STRING, comment: Top EWS triggers driving the score on 30-Sep-2026.}
+  covenant_min_headroom_pct: {type: DOUBLE, comment: Lowest covenant headroom at the latest test (fraction; negative = breach); null = no covenants.}
+  has_covenant_breach: {type: BOOLEAN, comment: True when a covenant is breached at its latest test.}
+  tight_covenants: {type: INT, comment: Covenants with tight headroom at their latest test.}
+  next_credit_review_due_date: {type: DATE, comment: Due date of the open annual credit review (null = none open).}
+  is_credit_review_overdue: {type: BOOLEAN, comment: True when a credit review is overdue at 30-Sep-2026.}
+  open_kyc_reviews: {type: INT, comment: KYC reviews not completed at 30-Sep-2026.}
+  overdue_kyc_reviews: {type: INT, comment: KYC reviews overdue at 30-Sep-2026.}
+  latest_onboarding_case_id: {type: STRING, comment: Latest onboarding case of the client (null = none).}
+  latest_onboarding_status: {type: STRING, comment: "Status of the latest onboarding case (e.g. Live, Open, Withdrawn)."}
+  latest_onboarding_go_live_date: {type: DATE, comment: Go-live date of the latest onboarding case.}
+  latest_onboarding_match_timing: {type: STRING, comment: "When the latest onboarding case was matched to the existing group: At Intake, After Account Opening or New Group."}
+  deposits_usd: {type: DOUBLE, comment: Deposit balances at 30-Sep-2026 in USD (fact_deposit_balance_monthly).}
+  casa_usd: {type: DOUBLE, comment: Current and savings account (CASA) balances at 30-Sep-2026 in USD.}
+  time_deposits_usd: {type: DOUBLE, comment: Time-deposit balances at 30-Sep-2026 in USD.}
+  casa_ratio: {type: DOUBLE, comment: CASA / total deposits at 30-Sep-2026 (fraction).}
+  td_maturing_90d_usd: {type: DOUBLE, comment: Time-deposit principal maturing in the next 90 days in USD.}
+  payments_last_90d: {type: INT, comment: Payment messages in the last 90 days (fact_payment_transaction).}
+  payments_last_90d_usd: {type: DOUBLE, comment: Payment value in the last 90 days in USD.}
+  payments_other_bank_share_90d: {type: DOUBLE, comment: Share of the last-90-day payment value with counterparties at other banks (fraction).}
+  trade_outstanding_usd: {type: DOUBLE, comment: Trade finance outstanding at 30-Sep-2026 in USD (fact_trade_outstanding_monthly).}
+  trade_instruments_outstanding: {type: INT, comment: Trade finance instruments outstanding at 30-Sep-2026.}
+  forecast_net_30d_usd: {type: DOUBLE, comment: "Net cash flow forecast for the next 30 days made on 30-Sep-2026 (latest model, USD; negative = predicted outflow)."}
+  forecast_net_30d_p10_usd: {type: DOUBLE, comment: P10 (pessimistic) of the 30-day net cash-flow forecast in USD.}
+  forecast_net_30d_p90_usd: {type: DOUBLE, comment: P90 (optimistic) of the 30-day net cash-flow forecast in USD.}
+  is_forecast_negative_30d: {type: BOOLEAN, comment: True when the 30-day net cash-flow forecast is negative (client forecast to go negative).}
+  latest_liquidity_event_type: {type: STRING, comment: "Latest predicted liquidity need of the client: Predicted Shortfall or Predicted Surplus (null = none)."}
+  latest_liquidity_event_date: {type: DATE, comment: Date of the latest predicted liquidity need.}
+  latest_liquidity_event_usd: {type: DOUBLE, comment: Predicted shortfall / surplus amount of the latest event in USD.}
+  latest_liquidity_event_status: {type: STRING, comment: "Status of the latest liquidity event: Open, Actioned or Closed - No Action."}
+  latest_liquidity_event_action: {type: STRING, comment: "Action taken on the latest liquidity event: RCF Drawdown, TD Placed or None."}
+  signals_last_90d: {type: INT, comment: Signals of any source on the client in the last 90 days (fact_signal_event; group-level signals count on the lead entity).}
+  risk_signals_last_90d: {type: INT, comment: Risk-polarity signals in the last 90 days.}
+  opportunity_signals_last_90d: {type: INT, comment: Opportunity-polarity signals in the last 90 days.}
+  unacknowledged_risk_signals_90d: {type: INT, comment: Risk signals of the last 90 days not acknowledged by an RM.}
+  last_signal_date: {type: DATE, comment: Date of the latest signal in the last 90 days.}
+  news_items_last_90d: {type: INT, comment: News items on the client in the last 90 days.}
+  news_sentiment_last_90d: {type: DOUBLE, comment: Average news sentiment (-1..1) on the client in the last 90 days.}
+  negative_news_last_90d: {type: INT, comment: Negative news items (sentiment <= -0.2) in the last 90 days.}
+  rm_note_sentiment_last_90d: {type: DOUBLE, comment: Average RM-note sentiment (-1..1) on the client in the last 90 days.}
+  group_news_sentiment_last_90d: {type: DOUBLE, comment: Average news sentiment of the client's whole group in the last 90 days.}
+  is_blind_spot_group: {type: BOOLEAN, comment: "True when the client's group is a blind spot: external sentiment turned negative while RM notes stayed positive (last 90 days)."}
+  listed_parent_at_52w_low: {type: BOOLEAN, comment: True when the group's listed parent closed at its 52-week low on the latest trading day.}
+  listed_parent_price_change_30d_pct: {type: DOUBLE, comment: 30-day share-price change of the group's listed parent (fraction).}
+  sources_present: {type: INT, comment: Identity source systems (of 7) holding the client at Sep-2026.}
+  in_all_core_sources: {type: BOOLEAN, comment: "True when the client is in core banking, CRM and KYC."}
+  is_missing_kyc_record: {type: BOOLEAN, comment: True when the KYC platform holds no record of the client.}
+  is_missing_credit_record: {type: BOOLEAN, comment: True when the credit system holds no obligor record of the client.}
+  attribute_completeness_pct: {type: DOUBLE, comment: Golden-record attribute completeness (fraction of 10 key attributes).}
+  missing_attributes_text: {type: STRING, comment: "Key attributes missing on the golden record, comma-separated."}
+checks:
+  - name: one_row_per_current_golden_client
+    sql: >-
+      SELECT abs(count(*) - (SELECT count(*) FROM ${catalog}.gold.dim_client WHERE is_current))
+           + (count(*) - count(DISTINCT golden_client_id)) FROM ${table}
+reconcile:
+  - name: rows_vs_golden_identity
+    silver: SELECT count(*) FROM ${catalog}.silver.client_golden_identity
+  - name: deposits_vs_deposit_fact     # view KPI = the TB fact at the as-of month-end
+    gold: SELECT round(sum(deposits_usd), 0) FROM ${table}
+    silver: >-
+      SELECT round(sum(balance_usd), 0) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE balance_date = DATE'${as_of_date}' AND golden_client_id IN (SELECT golden_client_id FROM ${catalog}.gold.dim_client WHERE is_current)
+    tolerance: 1

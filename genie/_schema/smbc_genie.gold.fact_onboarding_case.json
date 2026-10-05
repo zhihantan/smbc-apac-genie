@@ -1,0 +1,325 @@
+{
+ "columns": [
+  {
+   "comment": "Onboarding case id (ONB-nnnnn).",
+   "is_measure": false,
+   "name": "case_id",
+   "type": "string"
+  },
+  {
+   "comment": "Applicant id of the request (APP-nnnnn) - the provisional id before a golden client exists.",
+   "is_measure": false,
+   "name": "applicant_id",
+   "type": "string"
+  },
+  {
+   "comment": "KYC customer record created at go-live (KYC-...); null for applicants that never went live.",
+   "is_measure": false,
+   "name": "kyc_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version of the new client valid at the request date (live cases; null for applicants without a golden client).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client of the onboarded entity (live cases); null for applicants that never went live.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group of the onboarded client (entity resolution), else the group the applicant was linked to at intake; null when no group identified.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Legal name of the applicant entity as requested (fictional).",
+   "is_measure": false,
+   "name": "applicant_name",
+   "type": "string"
+  },
+  {
+   "comment": "SMBC booking location of the request (ISO-2, e.g. SG, HK); join to gold.dim_booking_entity.",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  },
+  {
+   "comment": "Products requested, '; '-separated (e.g. Current Account; Payments; Time Deposit).",
+   "is_measure": false,
+   "name": "products_requested",
+   "type": "string"
+  },
+  {
+   "comment": "Number of products requested.",
+   "is_measure": false,
+   "name": "n_products_requested",
+   "type": "int"
+  },
+  {
+   "comment": "First / anchor product requested: Current Account (corporates) or Correspondent Account (financial institutions).",
+   "is_measure": false,
+   "name": "primary_product",
+   "type": "string"
+  },
+  {
+   "comment": "Product key of the primary product; join to gold.dim_product.",
+   "is_measure": false,
+   "name": "primary_product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the RM submitted the onboarding request (grain date).",
+   "is_measure": false,
+   "name": "request_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year of the request (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "request_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Fiscal year label of the request, e.g. FY2026.",
+   "is_measure": false,
+   "name": "request_fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Request period vs the Feb-2026 KYC workflow migration: Pre-migration (before Feb-2026), Migration (Feb-2026), Backlog peak (Mar-May 2026), Recovery (from Jun-2026).",
+   "is_measure": false,
+   "name": "kyc_migration_period",
+   "type": "string"
+  },
+  {
+   "comment": "True for requests made on or after 1-Feb-2026 (the KYC workflow migration).",
+   "is_measure": false,
+   "name": "is_after_kyc_migration",
+   "type": "boolean"
+  },
+  {
+   "comment": "Stage the case is in or ended in: Request, KYC Docs, Screening, Risk Assessment, Credit/Product Approval, Account Open, First Transaction, or Complete (live and transacted).",
+   "is_measure": false,
+   "name": "current_stage",
+   "type": "string"
+  },
+  {
+   "comment": "Stage number 1-7 of current_stage (null for Complete); join to gold.dim_onboarding_stage.",
+   "is_measure": false,
+   "name": "current_stage_no",
+   "type": "int"
+  },
+  {
+   "comment": "Case status: Open (in progress), Live (accounts opened), Withdrawn or Rejected.",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "Date the status was reached (go-live date for Live; closure date for Withdrawn / Rejected; null while open).",
+   "is_measure": false,
+   "name": "status_date",
+   "type": "date"
+  },
+  {
+   "comment": "True for open cases (in progress at the as-of date).",
+   "is_measure": false,
+   "name": "is_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for cases that went live (client onboarded).",
+   "is_measure": false,
+   "name": "is_live",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for withdrawn cases.",
+   "is_measure": false,
+   "name": "is_withdrawn",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for rejected cases.",
+   "is_measure": false,
+   "name": "is_rejected",
+   "type": "boolean"
+  },
+  {
+   "comment": "Why an open case is stuck (e.g. awaiting documents, KYC workflow migration backlog); null otherwise.",
+   "is_measure": false,
+   "name": "blocker_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Reason for a withdrawal or rejection.",
+   "is_measure": false,
+   "name": "outcome_reason",
+   "type": "string"
+  },
+  {
+   "comment": "KYC documents still outstanding on the case at the as-of date.",
+   "is_measure": false,
+   "name": "documents_outstanding",
+   "type": "int"
+  },
+  {
+   "comment": "Onboarding officer owning the case (employee_id); join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "owner_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the RM who requested the onboarding (RM001-RM120).",
+   "is_measure": false,
+   "name": "rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Requesting RM as employee_id; join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "rm_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when the request was linked to an existing client group at intake.",
+   "is_measure": false,
+   "name": "intake_group_match",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group the request was linked to at intake (null when not matched).",
+   "is_measure": false,
+   "name": "intake_group_ref",
+   "type": "string"
+  },
+  {
+   "comment": "When the new entity was matched to an existing client group: At Intake, After Account Opening (found later by entity resolution) or New Group (no existing group identified).",
+   "is_measure": false,
+   "name": "match_timing",
+   "type": "string"
+  },
+  {
+   "comment": "True when the case belongs to an existing client group (match_timing At Intake or After Account Opening).",
+   "is_measure": false,
+   "name": "matched_existing_group",
+   "type": "boolean"
+  },
+  {
+   "comment": "Go-live date = end of the Account Open stage (first account open); null when not live.",
+   "is_measure": false,
+   "name": "go_live_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year of the go-live (e.g. 2026 = onboarded in FY2026).",
+   "is_measure": false,
+   "name": "go_live_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Calendar days from request to go-live (live cases only) - use MEDIAN / P90 over live cases.",
+   "is_measure": false,
+   "name": "days_to_live",
+   "type": "int"
+  },
+  {
+   "comment": "True when days_to_live exceeds the cumulative SLA of stages 1-6 (request to account open).",
+   "is_measure": false,
+   "name": "is_over_sla_to_live",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date of the client's first transaction (end of the First Transaction stage); null when not yet transacted.",
+   "is_measure": false,
+   "name": "first_transaction_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from go-live to the first transaction (activation lag); null when not yet transacted.",
+   "is_measure": false,
+   "name": "first_transaction_lag_days",
+   "type": "int"
+  },
+  {
+   "comment": "Live cases: true when the first transaction came within 60 days of go-live (dim_threshold FIRST_TRANSACTION_DAYS); false = slow or not yet activated; null for cases not live.",
+   "is_measure": false,
+   "name": "transacted_within_60d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Open cases: days since the request at the as-of date.",
+   "is_measure": false,
+   "name": "days_open",
+   "type": "int"
+  },
+  {
+   "comment": "Open cases: days spent so far in the current stage.",
+   "is_measure": false,
+   "name": "days_in_current_stage",
+   "type": "int"
+  },
+  {
+   "comment": "Open cases: SLA days of the current stage.",
+   "is_measure": false,
+   "name": "current_stage_sla_days",
+   "type": "int"
+  },
+  {
+   "comment": "True for open cases whose current stage has run longer than its SLA (over SLA right now).",
+   "is_measure": false,
+   "name": "is_over_sla",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days the case spent in the KYC Docs stage (to the as-of date if still there).",
+   "is_measure": false,
+   "name": "kyc_docs_days",
+   "type": "int"
+  },
+  {
+   "comment": "True for open cases in the KYC Docs stage for more than 15 days (dim_threshold KYC_DOCS_STUCK_DAYS).",
+   "is_measure": false,
+   "name": "is_stuck_in_kyc_docs_15d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Stages of the case that ran over their SLA.",
+   "is_measure": false,
+   "name": "n_stages_over_sla",
+   "type": "int"
+  },
+  {
+   "comment": "Stages the case has entered (1-7).",
+   "is_measure": false,
+   "name": "n_stages_entered",
+   "type": "int"
+  },
+  {
+   "comment": "Post-onboarding survey score 1-5 (5 = very satisfied); null when no response.",
+   "is_measure": false,
+   "name": "satisfaction_score",
+   "type": "int"
+  },
+  {
+   "comment": "Theme of the survey comment, e.g. Turnaround Time, Relationship Manager, Document Requests.",
+   "is_measure": false,
+   "name": "feedback_theme",
+   "type": "string"
+  }
+ ],
+ "comment": "Client onboarding cases (brief 5.6), Apr-2024 to Sep-2026: one row per onboarding request with booking country, segment, products requested, current stage and status (Open, Live, Withdrawn, Rejected), blocker, documents outstanding, owner and RM, the group match (match_timing At Intake / After Account Opening / New Group), go-live date (end of Account Open) and days to live, first transaction and its lag after go-live (transacted_within_60d), SLA position (over SLA now for open cases), the KYC-migration period of the request (storyline 7: Feb-2026 workflow migration) and the post-live survey score. Live cases are new clients and carry their golden client; applicants that never went live have no golden client (golden_client_id null; applicant_id identifies them). Medians of days_to_live use live cases only. Grain: one row per onboarding case.",
+ "identifier": "smbc_genie.gold.fact_onboarding_case",
+ "type": "MANAGED"
+}

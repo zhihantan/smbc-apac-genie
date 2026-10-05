@@ -1,0 +1,58 @@
+table: fact_financial_ratio_annual
+domain: credit
+comment: >-
+  Client financial ratios vs peers (credit memo pack, brief 5.3): one row per credit obligor x fiscal year x
+  ratio for FY2023-FY2025 - leverage (Net Debt/EBITDA, Debt/Equity), coverage (ICR, DSCR), liquidity
+  (current, quick), margins and returns (gross, EBITDA, net margin, ROE, ROA), working capital (DSO, DIO,
+  DPO, cash conversion cycle), free cash flow (USD) and revenue YoY growth - with the peer group's P25 /
+  median / P75 for the same fiscal year, the client's percentile rank in its peer group and a
+  direction-aware worse_than_p25 flag (bottom quartile of performance). Lower is better for leverage, DSO,
+  DIO and the cash conversion cycle; higher is better for all other ratios. Ratios are point values: average
+  them, never sum.
+grain: one row per credit obligor x fiscal year x ratio
+primary_key: [obligor_id, fiscal_year, ratio_name]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+  - {columns: [peer_group_id], references: dim_peer_group}
+cluster_by: [fiscal_year_end_date, golden_client_sk]
+min_rows: 40000
+columns:
+  obligor_id: {type: STRING, comment: "Credit-system obligor id (CRD-nnnnnn) whose statements produced the ratio."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  fiscal_year: {type: INT, comment: "Client's own fiscal year of the statements behind the ratio (2023-2025)."}
+  fiscal_year_label: {type: STRING, comment: "Statement fiscal year label, e.g. FY2025."}
+  fiscal_year_end_date: {type: DATE, comment: "End of the client's fiscal year (31 Dec or 31 Mar) the ratio is measured at."}
+  peer_group_id: {type: STRING}
+  ratio_name: {type: STRING, comment: "Ratio: Net Debt/EBITDA (leverage), Debt/Equity, ICR (interest cover), DSCR, Current Ratio, Quick Ratio, Gross Margin, EBITDA Margin, Net Margin, ROE, ROA, DSO, DIO, DPO, Cash Conversion Cycle, Free Cash Flow, Revenue YoY Growth."}
+  ratio_category: {type: STRING, comment: "Ratio family: Leverage, Coverage, Liquidity, Profitability, Working Capital, Cash Flow or Growth."}
+  ratio_unit: {type: STRING, comment: "Unit of ratio_value: x (multiple, e.g. 4.6x), fraction (0.15 = 15%), days or usd (Free Cash Flow)."}
+  higher_is_better: {type: BOOLEAN, comment: "Direction used for ranking and flags: true = a higher value is better (coverage, liquidity, margins, returns, DPO, FCF, growth); false = lower is better (Net Debt/EBITDA, Debt/Equity, DSO, DIO, cash conversion cycle)."}
+  ratio_order: {type: INT, comment: "Display order of the ratio in a credit memo (1 = Net Debt/EBITDA)."}
+  ratio_value: {type: DOUBLE, comment: "Ratio value in ratio_unit (null for Revenue YoY Growth in FY2023, the first year)."}
+  prior_year_value: {type: DOUBLE, comment: "Same ratio in the previous fiscal year (null for the first year)."}
+  change_vs_prior_year: {type: DOUBLE, comment: "ratio_value - prior_year_value, in ratio_unit (positive = the ratio rose)."}
+  peer_p25: {type: DOUBLE, comment: "Peer group 25th percentile of the ratio for the fiscal year (value-based, from the peer benchmark)."}
+  peer_median: {type: DOUBLE, comment: "Peer group median (P50) of the ratio for the fiscal year."}
+  peer_p75: {type: DOUBLE, comment: "Peer group 75th percentile of the ratio for the fiscal year (value-based)."}
+  peer_n_clients: {type: INT, comment: "Clients in the peer sample behind the benchmark."}
+  gap_to_peer_median: {type: DOUBLE, comment: "ratio_value - peer_median in ratio_unit (sign is not direction-adjusted: for leverage a positive gap is worse)."}
+  value_percentile_rank: {type: DOUBLE, comment: "Percentile rank 0-1 of the value within the peer group, fiscal year and ratio, ascending by value (1 = highest value in the peer group)."}
+  peer_percentile_rank: {type: DOUBLE, comment: "Direction-adjusted percentile rank 0-1 within the peer group (1 = best performer, 0 = worst); for lower-is-better ratios a low value ranks high. Use for 'percentile in peer group'."}
+  worse_than_p25: {type: BOOLEAN, comment: "Direction-aware bottom-quartile flag: true when the ratio is worse than the peer quartile boundary - below P25 for higher-is-better ratios, above P75 for lower-is-better ratios (e.g. leverage above the peer P75). Null when no value."}
+  better_than_p75: {type: BOOLEAN, comment: "Direction-aware top-quartile flag: above P75 for higher-is-better ratios, below P25 for lower-is-better ratios."}
+  peer_quartile_position: {type: STRING, comment: "Direction-aware position vs the peer benchmark: Top quartile, Better than median, Worse than median or Bottom quartile (= worse_than_p25)."}
+  is_spread: {type: BOOLEAN, comment: "True when the statement year behind the ratio has been spread (false = provisional, FY2025 backlog)."}
+checks:
+  - name: benchmark_found_for_every_ratio
+    sql: SELECT count_if(peer_median IS NULL AND ratio_value IS NOT NULL) FROM ${table}
+  - name: direction_known
+    sql: SELECT count_if(higher_is_better IS NULL) FROM ${table}
+  - name: flags_consistent
+    sql: SELECT count_if(worse_than_p25 <> (peer_quartile_position = 'Bottom quartile')) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_ratio

@@ -1,0 +1,81 @@
+table: fact_cashflow_forecast
+domain: cashflow
+comment: >-
+  Client cash-flow forecasts with intervals and the liquidity headroom behind them. Backtest rows (forecast_type
+  Backtest, Mar-2024 to Aug-2026 runs): the treasury collections model's one-month-ahead (30D) forecast of each
+  client's inflows for the target month - model v1 until May-2026 targets, v2 from Jun-2026 - with the actual
+  inflows / outflows, expected outflows (average of the 3 months before the run, as the liquidity-event engine uses)
+  and net. Forward rows (forecast_type Forward, forecast_date = as-of 30-Sep-2026, is_latest_forecast): 7D (1-7 Oct),
+  30D (October) and 90D (Oct-Dec 2026) forecasts from the cash-flow engine's segment projection (seasonal method;
+  ai_forecast unavailable, D19) allocated to clients by their share of the segment's inflows over the last 12
+  months, with the same expected-outflow rule. P10 / P90 = the forecast x the 10th / 90th percentile of actual /
+  forecast inflows in the model version's backtests (empirical interval; the net interval treats outflows as
+  known). Undrawn committed RCF headroom and the opening deposit balance at the month-end before the window
+  answer 'who goes negative and can draw their RCF'. Forecast amounts are flows over the window; never add
+  different horizons or forecast dates together.
+grain: one row per golden client x forecast date x horizon (days) x model version
+primary_key: [golden_client_id, forecast_date, horizon_days, model_version]
+foreign_keys:
+  - {columns: [forecast_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [forecast_date, golden_client_sk]
+min_rows: 20000
+columns:
+  golden_client_id: {type: STRING, not_null: true}
+  forecast_date: {type: DATE, comment: "Date the forecast was run (backtests: 1st of the month before the target month; forward: the as-of date 30-Sep-2026)."}
+  horizon_days: {type: INT, comment: "Forecast horizon in days: 7, 30 or 90 (backtests are 30 = one month ahead)."}
+  model_version: {type: STRING, comment: "Forecast model: v1 (MAPE ~18%, targets to May-2026) or v2 (upgraded model, ~11%, targets from Jun-2026; also the forward run)."}
+  forecast_type: {type: STRING, comment: "Backtest (historical forecast scored against actuals) or Forward (forecast from the as-of date)."}
+  is_latest_forecast: {type: BOOLEAN, comment: "True for the latest forecast run (the forward forecasts dated 30-Sep-2026) - use it for 'next 7 / 30 / 90 days' questions."}
+  horizon_label: {type: STRING, comment: "7D, 30D or 90D."}
+  window_start_date: {type: DATE, comment: "First day of the forecast window."}
+  window_end_date: {type: DATE, comment: "Last day of the forecast window (30D = the calendar month, 90D = three calendar months)."}
+  method: {type: STRING, comment: "How the forecast was produced (collections model backtest, or the seasonal segment projection allocated to the client)."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version valid on forecast_date (as-was, D11)."}
+  client_group_id: {type: STRING}
+  booking_country: {type: STRING, comment: "Client's coverage office / booking location (ISO-2)."}
+  forecast_inflow_usd: {type: DOUBLE, comment: "Forecast inflows (collections) over the window, USD."}
+  forecast_outflow_usd: {type: DOUBLE, comment: "Expected outflows over the window = average monthly outflows of the 3 months before the run x window months (pro-rata for 7D); null with fewer than 2 months of history."}
+  forecast_net_usd: {type: DOUBLE, comment: "forecast_inflow_usd - forecast_outflow_usd (USD; negative = predicted net outflow / shortfall)."}
+  forecast_inflow_p10_usd: {type: DOUBLE, comment: "P10 (pessimistic) inflows: forecast x the 10th percentile of actual / forecast in the model version's backtests."}
+  forecast_inflow_p90_usd: {type: DOUBLE, comment: "P90 (optimistic) inflows: forecast x the 90th percentile of actual / forecast."}
+  forecast_net_p10_usd: {type: DOUBLE, comment: "P10 net cash flow = P10 inflows - expected outflows (USD)."}
+  forecast_net_p90_usd: {type: DOUBLE, comment: "P90 net cash flow = P90 inflows - expected outflows (USD)."}
+  actual_inflow_usd: {type: DOUBLE, comment: "Actual inflows of the target month (Backtest rows; null for Forward rows)."}
+  actual_outflow_usd: {type: DOUBLE, comment: "Actual outflows of the target month (Backtest rows)."}
+  actual_net_usd: {type: DOUBLE, comment: "Actual net cash flow of the target month (Backtest rows)."}
+  abs_pct_error: {type: DOUBLE, comment: "|forecast - actual| / actual inflows (Backtest rows) - MAPE = average over rows."}
+  is_within_p10_p90: {type: BOOLEAN, comment: "True when actual inflows fell inside [P10, P90] (Backtest rows) - interval coverage."}
+  opening_balance_usd: {type: DOUBLE, comment: "Client's total deposits at the month-end before the window (30-Sep-2026 for forward rows), USD."}
+  projected_closing_balance_usd: {type: DOUBLE, comment: "opening_balance_usd + forecast_net_usd: the deposit position at the end of the window if nothing else changes."}
+  is_forecast_net_negative: {type: BOOLEAN, comment: "True when forecast_net_usd < 0 (the client is forecast to run a net cash outflow over the window - Clients Forecast Negative)."}
+  typical_gross_flow_usd: {type: DOUBLE, comment: "Client's typical gross monthly flow = average monthly (inflows + outflows) over the 6 months before the run, USD - the materiality base of the liquidity-event engine."}
+  severity_ratio: {type: DOUBLE, comment: "|forecast_net_usd| / (typical_gross_flow_usd x window months), 0-1+ (pro-rata for 7D)."}
+  is_material_shortfall: {type: BOOLEAN, comment: "True when the forecast net is negative and at least 50% of the typical gross flow (the engine's predicted-shortfall materiality rule) - a liquidity need worth an RCF / overdraft conversation."}
+  is_projected_balance_negative: {type: BOOLEAN, comment: "True when projected_closing_balance_usd < 0 (the outflow would exhaust the client's deposits - needs RCF / overdraft funding)."}
+  has_rcf: {type: BOOLEAN, comment: "True when the client has a committed revolving credit facility with a balance at the month-end before the window."}
+  undrawn_rcf_usd: {type: DOUBLE, comment: "Undrawn committed RCF headroom (sum of limit - drawn over the client's RCFs) at the month-end before the window, USD."}
+  outflow_basis_months: {type: INT, comment: "Months of outflow history (0-3) behind forecast_outflow_usd."}
+checks:
+  - name: interval_brackets_forecast
+    sql: SELECT count_if(forecast_inflow_p10_usd > forecast_inflow_usd + 0.01 OR forecast_inflow_p90_usd < forecast_inflow_usd - 0.01) FROM ${table}
+  - name: forward_horizons_complete
+    sql: >-
+      SELECT count(*) FROM (SELECT golden_client_id FROM ${table} WHERE forecast_type = 'Forward'
+      GROUP BY golden_client_id HAVING count(DISTINCT horizon_days) <> 3)
+reconcile:
+  - name: backtest_rows_vs_silver_clients
+    gold: SELECT count(*) FROM ${table} WHERE forecast_type = 'Backtest'
+    silver: SELECT count(DISTINCT golden_client_id, forecast_run_date, model_version) FROM ${catalog}.silver.cf_forecast
+  - name: backtest_inflows_vs_silver
+    gold: SELECT round(sum(forecast_inflow_usd)) FROM ${table} WHERE forecast_type = 'Backtest'
+    silver: SELECT round(sum(forecast_inflows_usd)) FROM ${catalog}.silver.cf_forecast
+    tolerance: 1
+  - name: forward_30d_inflows_vs_projection   # client allocations add back to the engine's October projection
+    gold: SELECT round(sum(forecast_inflow_usd) / 1e3) FROM ${table} WHERE forecast_type = 'Forward' AND horizon_days = 30
+    silver: >-
+      SELECT round(sum(projected_inflows_usd) / 1e3) FROM ${catalog}.silver.cf_projection
+      WHERE target_month = add_months(trunc(DATE'${as_of_date}', 'MM'), 1)
+    tolerance: 1

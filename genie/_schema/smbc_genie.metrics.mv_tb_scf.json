@@ -1,0 +1,283 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the programme month-end as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the programme month-end, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Anchor of the SCF programme: the buyer (payables finance) or seller (receivables finance) legal entity, e.g. Meridian Agri Holdings (Singapore) Pte Ltd - \"anchor buyer\" means this.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Programme label = anchor short name + programme type (e.g. Meridian Agri Holdings Trading Payables Finance).",
+   "is_measure": false,
+   "name": "Programme",
+   "type": "string"
+  },
+  {
+   "comment": "Payables Finance (buyer-led reverse factoring) or Receivables Finance (seller-led).",
+   "is_measure": false,
+   "name": "Programme Type",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office of the anchor (ISO-2).",
+   "is_measure": false,
+   "name": "Anchor Country",
+   "type": "string"
+  },
+  {
+   "comment": "Programme utilisation band at the month-end - Above 85% (limit review), 40-85% or Below 40% (under-used).",
+   "is_measure": false,
+   "name": "Utilisation Band",
+   "type": "string"
+  },
+  {
+   "comment": "Country of the supplier (ISO-2; supplier rows - null for the programme-level measures).",
+   "is_measure": false,
+   "name": "Supplier Country",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier spend segment within its programme (invoice value Oct-2025 to Sep-2026) - Strategic (top 20%), Core (next 30%), Long tail (bottom 50%).",
+   "is_measure": false,
+   "name": "Supplier Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Supplier name (fictional; suppliers are not bank clients).",
+   "is_measure": false,
+   "name": "Supplier",
+   "type": "string"
+  },
+  {
+   "comment": "True when the supplier was onboarded to the programme (able to finance) by the month-end.",
+   "is_measure": false,
+   "name": "Is Supplier Onboarded",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the supplier's own payments route to another bank - an account-opening opportunity.",
+   "is_measure": false,
+   "name": "Supplier Banks Elsewhere",
+   "type": "boolean"
+  },
+  {
+   "comment": "Programme limit in USD at the month-end (current limit; point-in-time; Programme rows).",
+   "is_measure": true,
+   "name": "Programme Limit USD",
+   "type": "double"
+  },
+  {
+   "comment": "Financed invoices outstanding at the month-end - the programme's drawn amount, USD (point-in-time; Programme rows).",
+   "is_measure": true,
+   "name": "Financed Outstanding USD",
+   "type": "double"
+  },
+  {
+   "comment": "Financed outstanding / programme limit at the month-end (fraction; above 0.85 = limit review, below 0.40 = under-used).",
+   "is_measure": true,
+   "name": "Utilisation %",
+   "type": "double"
+  },
+  {
+   "comment": "Financed invoices outstanding at the month-end by supplier, USD (point-in-time; Supplier rows) - use this when splitting by Supplier Country / Segment; it sums to Financed Outstanding USD.",
+   "is_measure": true,
+   "name": "Supplier Financed Outstanding USD",
+   "type": "double"
+  },
+  {
+   "comment": "SCF programmes live at the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Programmes",
+   "type": "bigint"
+  },
+  {
+   "comment": "Programmes above 85% utilisation at the month-end (dim_threshold SCF_UTILISATION_HIGH) - limit review.",
+   "is_measure": true,
+   "name": "High-Utilisation Programmes",
+   "type": "bigint"
+  },
+  {
+   "comment": "Programmes below 40% utilisation at the month-end (dim_threshold SCF_UTILISATION_LOW) - under-used.",
+   "is_measure": true,
+   "name": "Low-Utilisation Programmes",
+   "type": "bigint"
+  },
+  {
+   "comment": "Suppliers in the programmes' supplier registers at the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Suppliers in Register",
+   "type": "bigint"
+  },
+  {
+   "comment": "Suppliers onboarded (able to finance) by the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Suppliers Onboarded",
+   "type": "bigint"
+  },
+  {
+   "comment": "Suppliers that drew (financed) at least one invoice in the 3 months to the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Suppliers Active",
+   "type": "bigint"
+  },
+  {
+   "comment": "Active suppliers / suppliers in the register at the month-end (fraction) - supplier activation.",
+   "is_measure": true,
+   "name": "Supplier Activation %",
+   "type": "double"
+  },
+  {
+   "comment": "Invoices financed (drawn) by suppliers in the selected months (a flow).",
+   "is_measure": true,
+   "name": "Drawdowns",
+   "type": "bigint"
+  },
+  {
+   "comment": "Amount advanced to suppliers in the selected months, USD (a flow).",
+   "is_measure": true,
+   "name": "Financed in Period USD",
+   "type": "double"
+  },
+  {
+   "comment": "Discount (financing income) on invoices financed in the selected months, USD (a flow).",
+   "is_measure": true,
+   "name": "Discount Income USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average days from drawdown to the invoice due date over the drawdowns of the selection.",
+   "is_measure": true,
+   "name": "Average Days Financed",
+   "type": "double"
+  },
+  {
+   "comment": "Annualised discount yield = discount income / (financed amount x days / 365) x 10,000, in basis points.",
+   "is_measure": true,
+   "name": "Yield bps",
+   "type": "double"
+  }
+ ],
+ "comment": "Supply chain finance programmes of SMBC's APAC anchor buyers / sellers at each month-end, Apr-2024 to Sep-2026 (USD): programme limit, financed outstanding and utilisation (bands above 85% / below 40%), suppliers in the register, onboarded and active (drew in the last 3 months) with the activation rate, and the period's drawdowns, financed amount, discount income, average days financed and annualised yield (bps), by programme, anchor, anchor country, supplier country and supplier spend segment. Point-in-time measures (limit, outstanding, utilisation, supplier counts): filter one Month (Is Latest Month = Sep 2026). Programme limit / utilisation are programme-level - do not split them by supplier country / segment (use Supplier Financed Outstanding USD for that). Grain: one row per SCF programme per month-end per record (the programme, or one of its suppliers) (gold.fact_scf_programme_monthly).",
+ "identifier": "smbc_genie.metrics.mv_tb_scf",
+ "type": "METRIC_VIEW"
+}

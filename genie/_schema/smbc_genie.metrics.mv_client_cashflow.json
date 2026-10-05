@@ -1,0 +1,229 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date of the cash flow. Today is 30-Sep-2026 (never use CURRENT_DATE); \"last N days\" means Date between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date return the last date of any longer period you group by.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the cash flow as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the cash flow, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the cash flow).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Payment purpose of the flow: Supplier, Payroll, Tax, Intercompany, Loan Service, Dividend, Trade Settlement; Closing Balance / Month Total on the balance and monthly-summary rows.",
+   "is_measure": false,
+   "name": "Cashflow Category",
+   "type": "string"
+  },
+  {
+   "comment": "Operating (supplier, payroll, tax, trade settlement), Financing (loan service, dividend), Intercompany, Balance or Month Total.",
+   "is_measure": false,
+   "name": "Cashflow Category Group",
+   "type": "string"
+  },
+  {
+   "comment": "Client's coverage office / booking location (ISO-2).",
+   "is_measure": false,
+   "name": "Booking Country",
+   "type": "string"
+  },
+  {
+   "comment": "Calendar month number 1-12 of the date (3 = March fiscal year-end, 9 = September half-year) - group by it for seasonality.",
+   "is_measure": false,
+   "name": "Calendar Month",
+   "type": "int"
+  },
+  {
+   "comment": "The client's final early-warning band today (30-Sep-2026): Green, Amber or Red; null = not scored. Use it for \"Red / Amber clients\" (EWS Band is the band at each row's month-end).",
+   "is_measure": false,
+   "name": "Current EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Inbound payments received in USD over the selection (a flow; Flow rows).",
+   "is_measure": true,
+   "name": "Inflow USD",
+   "type": "double"
+  },
+  {
+   "comment": "Outbound payments made in USD over the selection (a flow; Flow rows).",
+   "is_measure": true,
+   "name": "Outflow USD",
+   "type": "double"
+  },
+  {
+   "comment": "Inflows - outflows over the selection, USD (negative = net outflow).",
+   "is_measure": true,
+   "name": "Net Cashflow USD",
+   "type": "double"
+  },
+  {
+   "comment": "Client's total end-of-day deposit balance (CASA + TD) in USD at the last date of the selection (point-in-time; Balance rows - daily from Dec-2025, month-ends before; never summed across dates).",
+   "is_measure": true,
+   "name": "Closing Balance USD",
+   "type": "double"
+  },
+  {
+   "comment": "CASA (operating cash) part of the closing balance, USD (point-in-time, last date of the selection).",
+   "is_measure": true,
+   "name": "Closing CASA Balance USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average of the clients' monthly inflows over the selected months (Month Total rows; per client when grouped by Client).",
+   "is_measure": true,
+   "name": "Average Monthly Inflow USD",
+   "type": "double"
+  },
+  {
+   "comment": "Standard deviation of monthly inflows over the selected months (Month Total rows) - group by Client and filter 12 months for a client's inflow volatility.",
+   "is_measure": true,
+   "name": "Inflow Volatility USD",
+   "type": "double"
+  },
+  {
+   "comment": "Standard deviation / average of monthly inflows (fraction; 0.6 = 60%) - volatility comparable across client sizes.",
+   "is_measure": true,
+   "name": "Inflow Volatility CV %",
+   "type": "double"
+  },
+  {
+   "comment": "Actual inflows / the clients' flat average monthly inflow for the selected months (1.0 = average; 1.3 = 30% above a typical month). Group by Industry and Calendar Month to find March / September peaks.",
+   "is_measure": true,
+   "name": "Seasonality Index",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities with at least one payment in the selection.",
+   "is_measure": true,
+   "name": "Clients with Cash Flows",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Client operating cash flows derived from payments, daily from Apr-2024 to Sep-2026 (USD): inflows, outflows and net cash flow by cash-flow category (payment purpose), the closing deposit balance, average monthly inflow, inflow volatility (standard deviation and coefficient of variation of monthly inflows) and the seasonality index (actual / flat-average inflow; above 1 = seasonal peak, e.g. March fiscal year-end or September half-year). Inflows and outflows add up over any period; Closing Balance is POINT-IN-TIME (last date of the selection; daily from Dec-2025, month-ends before). For seasonality group by Calendar Month; for volatility group by Client over 12 months. Grain: one row per client x date x cash-flow category (payment purpose, Closing Balance or Month Total) (gold.fact_client_cashflow_daily).",
+ "identifier": "smbc_genie.metrics.mv_client_cashflow",
+ "type": "METRIC_VIEW"
+}

@@ -1,0 +1,247 @@
+{
+ "columns": [
+  {
+   "comment": "Trade-finance instrument id.",
+   "is_measure": false,
+   "name": "txn_id",
+   "type": "string"
+  },
+  {
+   "comment": "Issue / confirmation / lodgement date of the instrument (issuance date).",
+   "is_measure": false,
+   "name": "txn_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of txn_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Trade-platform party id (source identity record) of the client.",
+   "is_measure": false,
+   "name": "party_id",
+   "type": "string"
+  },
+  {
+   "comment": "Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan or Receivables Purchase.",
+   "is_measure": false,
+   "name": "product_type",
+   "type": "string"
+  },
+  {
+   "comment": "Trade product key (e.g. PRD-IMPORT-LC, PRD-GUARANTEE-SBLC); join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Import (client buys goods from abroad) or Export (client sells).",
+   "is_measure": false,
+   "name": "direction",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor origin country (ISO-2): the counterparty for imports, the client country for exports.",
+   "is_measure": false,
+   "name": "origin_country",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor destination country (ISO-2): the client country for imports, the counterparty for exports.",
+   "is_measure": false,
+   "name": "destination_country",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor origin->destination, e.g. CN->VN (Vietnam importing from China).",
+   "is_measure": false,
+   "name": "corridor",
+   "type": "string"
+  },
+  {
+   "comment": "Country of the trade counterparty (seller for imports, buyer for exports).",
+   "is_measure": false,
+   "name": "counterparty_country",
+   "type": "string"
+  },
+  {
+   "comment": "Country of the counterparty's bank (issuing / advising / confirming bank).",
+   "is_measure": false,
+   "name": "counterparty_bank_country",
+   "type": "string"
+  },
+  {
+   "comment": "Country of the beneficiary of the instrument (e.g. of a guarantee / SBLC).",
+   "is_measure": false,
+   "name": "beneficiary_country",
+   "type": "string"
+  },
+  {
+   "comment": "Goods traded: Electronics, Machinery, Auto Parts, Precision Instruments, Chemicals, Plastics, Iron & Steel, Mineral Fuels, Ores & Metals, Palm Oil & Fats, Food & Agri, Textiles & Apparel.",
+   "is_measure": false,
+   "name": "commodity",
+   "type": "string"
+  },
+  {
+   "comment": "Harmonised System chapter of the goods (e.g. 85 electronics, 87 vehicles / auto parts) - the key to the external trade statistics.",
+   "is_measure": false,
+   "name": "hs_chapter",
+   "type": "string"
+  },
+  {
+   "comment": "HS chapter description.",
+   "is_measure": false,
+   "name": "hs_description",
+   "type": "string"
+  },
+  {
+   "comment": "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats).",
+   "is_measure": false,
+   "name": "is_carbon_intensive_commodity",
+   "type": "boolean"
+  },
+  {
+   "comment": "Instrument currency (ISO 4217).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Instrument amount in its currency (flow at issue).",
+   "is_measure": false,
+   "name": "amount_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Instrument amount in USD at issue - Issuance USD (flow, additive by issue date).",
+   "is_measure": false,
+   "name": "amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Tenor of the instrument in days (issue to maturity / expiry).",
+   "is_measure": false,
+   "name": "tenor_days",
+   "type": "int"
+  },
+  {
+   "comment": "0-30 days, 31-90 days, 91-180 days, 181-365 days or Over 365 days.",
+   "is_measure": false,
+   "name": "tenor_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Maturity / expiry date of the instrument (may be after the as-of date).",
+   "is_measure": false,
+   "name": "maturity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal quarter of maturity_date, e.g. FY2026-Q3 (Oct-Dec 2026); from gold.dim_date, same rule beyond Mar-2027.",
+   "is_measure": false,
+   "name": "expiry_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Status at the as-of date: Issued (live), Negotiated (documents negotiated, awaiting payment), Settled or Expired.",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "Date the instrument was settled / expired (null while live).",
+   "is_measure": false,
+   "name": "closed_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the instrument is still open at 30-Sep-2026 (Issued or Negotiated).",
+   "is_measure": false,
+   "name": "is_live_at_as_of",
+   "type": "boolean"
+  },
+  {
+   "comment": "Outstanding (contingent or funded) exposure at 30-Sep-2026 in USD (point-in-time; 0 when closed).",
+   "is_measure": false,
+   "name": "outstanding_at_as_of_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Commission rate charged in basis points (per annum for trade loans and guarantees, flat otherwise).",
+   "is_measure": false,
+   "name": "fee_bps",
+   "type": "double"
+  },
+  {
+   "comment": "Commission / fee income of the instrument in USD, recognised at issue (flow). Fee yield bps = 10000 x SUM(fee_usd) / SUM(amount_usd).",
+   "is_measure": false,
+   "name": "fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True for instruments financing sustainable / green trade.",
+   "is_measure": false,
+   "name": "is_sustainable_trade",
+   "type": "boolean"
+  },
+  {
+   "comment": "SMBC booking location of the instrument (ISO-2; may differ from the client's coverage office, e.g. Singapore hub bookings).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "True when booked in Singapore (the APAC hub).",
+   "is_measure": false,
+   "name": "is_booked_in_sg_hub",
+   "type": "boolean"
+  },
+  {
+   "comment": "Amendments made to the instrument (lifecycle events).",
+   "is_measure": false,
+   "name": "amendment_count",
+   "type": "int"
+  },
+  {
+   "comment": "Document presentations under the instrument (LCs only).",
+   "is_measure": false,
+   "name": "presentation_count",
+   "type": "int"
+  },
+  {
+   "comment": "Presentations found discrepant.",
+   "is_measure": false,
+   "name": "discrepant_presentation_count",
+   "type": "int"
+  },
+  {
+   "comment": "True for instruments issued before 1-Apr-2024 (FY2023 legacy book: only those still open on 1-Apr-2024 were migrated, so FY2023 issuance is incomplete).",
+   "is_measure": false,
+   "name": "is_legacy_book",
+   "type": "boolean"
+  }
+ ],
+ "comment": "One row per trade-finance instrument issued / confirmed / lodged for a client (import and export LCs, guarantees / SBLCs, documentary collections, trade loans, receivables purchase) from Apr-2023: issue date, product, direction, goods corridor origin -> destination, counterparty / counterparty-bank / beneficiary country, commodity (HS chapter, carbon-intensive flag), currency and USD amount, tenor and expiry (fiscal quarter), booking location, commission (fee USD and bps), sustainable-trade flag, status and outstanding at the as-of date, amendment and document-presentation counts. Issuance amount and fee are flows (additive by issue date); outstanding_at_as_of_usd is point-in-time at 30-Sep-2026 - month-end outstanding history is fact_trade_outstanding_monthly. History is complete from FY2024 (1-Apr-2024); earlier issues are only the legacy book still open then (is_legacy_book). Grain: one row per trade-finance instrument (txn_id).",
+ "identifier": "smbc_genie.gold.fact_trade_finance_transaction",
+ "type": "MANAGED"
+}

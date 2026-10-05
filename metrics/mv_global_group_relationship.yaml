@@ -1,0 +1,148 @@
+# WP9b - space 1, Account Planning. The global relationship of a client group by region: APAC from gold facts, JP /
+# EMEA / AMER from the Delta-Shared tables. Committed / drawn / deposits / revenue 12M are point-in-time (window
+# measures, latest month); APAC share of group revenue is a ratio of two window measures.
+# Must-answer queries: metrics/_answers/account_planning.sql.
+view: mv_global_group_relationship
+space: account_planning
+comment: >-
+  Global relationship of each client group by region at each month-end, Apr-2023 to Sep-2026 (USD): committed
+  limits, drawn exposure, deposits and revenue over the trailing 12 months for SMBC APAC (golden clients), Japan
+  (the Japanese parent and JP-booked group entities, Tokyo HO share) and the EMEA / AMER subsidiaries (regional
+  shares), the APAC share of group revenue and the number of entities. Balances and Revenue 12M are POINT-IN-TIME:
+  filter one Month (Is Latest Month = Sep 2026) - a longer period returns its last month; Revenue in the Period is a
+  flow. Group attributes (segment, tier, lead office, lead RM) come from the group master.
+grain: one row per entity x region x product family x month-end (gold.fact_group_global_exposure_monthly)
+source: ${catalog}.gold.fact_group_global_exposure_monthly
+blocks:
+  calendar: {date: source.month, grain: month, what: the exposure month-end}
+  client_group: {key: source.client_group_id}
+dimensions:
+  - name: Region
+    expr: source.region
+    display_name: Region
+    comment: >-
+      Where the relationship is booked: APAC (SMBC APAC), JP (Tokyo HO / Japan, incl. the Japanese parent), EMEA or
+      AMER (regional subsidiaries). "Including Japan, EMEA and Americas" = all four regions.
+    synonyms: [region, booking region, geography, JP, EMEA, AMER, APAC, global region, home region]
+  - name: Booking Entity
+    expr: source.booking_entity_id
+    display_name: Booking Entity
+    comment: APAC coverage office (ISO-2, e.g. SG, HK) for APAC rows, or the provider region JP / EMEA / AMER.
+    synonyms: [booking entity, booking country, booking location, office, branch, booking centre]
+  - name: Product Family
+    expr: source.product_family
+    display_name: Product Family
+    comment: >-
+      Product family: Corporate Lending, Structured Lending, Sustainable Finance, Trade Finance, Cash, Liquidity,
+      Payments, FX, Rates or Other TB & Advisory.
+    synonyms: [product family, product, product line, business product, footprint]
+  - name: Entity
+    expr: source.entity_name
+    display_name: Entity
+    comment: Legal entity of the group in the region (APAC client, Japanese parent, JP-booked entity or EMEA / AMER subsidiary).
+    synonyms: [entity, legal entity, subsidiary, company, counterparty, affiliate]
+  - name: Entity Type
+    expr: source.entity_type
+    display_name: Entity Type
+    comment: APAC legal entity, JP Parent, Group Entity (JP-booked), EMEA subsidiary or AMER subsidiary.
+    synonyms: [entity type, counterparty type, parent or subsidiary, entity kind]
+measures:
+  - name: Global Committed USD
+    expr: SUM(source.committed_usd)
+    display_name: Committed (USD)
+    comment: Committed limits at the month-end in USD across the selected regions.
+    synonyms: [committed, limits, commitments, global committed, credit lines, approved limits]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Global Drawn USD
+    expr: SUM(source.drawn_usd)
+    display_name: Drawn Exposure (USD)
+    comment: Drawn / outstanding exposure at the month-end in USD (APAC - drawn loans plus live trade instruments).
+    synonyms: [drawn, exposure, outstanding, global exposure, drawn exposure, utilised, loans]
+    format: *usd
+    window: *eom
+  - name: Global Deposits USD
+    expr: SUM(source.deposits_usd)
+    display_name: Deposits (USD)
+    comment: Deposit balances at the month-end in USD across the selected regions.
+    synonyms: [deposits, global deposits, balances, liabilities, funding, cash balances]
+    format: *usd
+    window: *eom
+  - name: Global Revenue 12M USD
+    expr: SUM(source.revenue_12m_usd)
+    display_name: Revenue 12M (USD)
+    comment: Revenue over the 12 months to the month-end in USD (APAC revenue history from Apr-2024).
+    synonyms: [revenue, global revenue, revenue 12M, LTM revenue, annual revenue, relationship revenue]
+    format: *usd
+    window: *eom
+  - name: APAC Revenue 12M USD
+    expr: SUM(CASE WHEN source.region = 'APAC' THEN source.revenue_12m_usd ELSE 0 END)
+    display_name: APAC Revenue 12M (USD)
+    comment: Revenue over the 12 months to the month-end booked in SMBC APAC, USD.
+    synonyms: [APAC revenue, Asia revenue, APAC LTM revenue, regional revenue]
+    format: *usd
+    window: *eom
+  - name: APAC Share of Group Revenue %
+    expr: MEASURE(`APAC Revenue 12M USD`) / NULLIF(MEASURE(`Global Revenue 12M USD`), 0)
+    display_name: APAC Share of Group Revenue
+    comment: APAC revenue 12M / global group revenue 12M (fraction); below 0.20 = APAC earns less than 20% of the group.
+    synonyms: [APAC share, APAC share of revenue, Asia share, regional share, APAC contribution]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Revenue in Period USD
+    expr: SUM(source.revenue_usd)
+    display_name: Revenue in the Period (USD)
+    comment: Revenue earned in the selected months in USD - a flow, adds up over months.
+    synonyms: [period revenue, revenue in period, monthly revenue, revenue flow, earned revenue]
+    format: *usd
+  - name: Entity Count
+    expr: COUNT(DISTINCT CASE WHEN source.has_data THEN CONCAT(source.region, '|', source.entity_id) END)
+    display_name: Entities
+    comment: Legal entities of the group with business in the selected regions at the month-end.
+    synonyms: [entities, entity count, number of entities, subsidiaries, legal entities, footprint size]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *eom
+  - name: Groups
+    expr: COUNT(DISTINCT source.client_group_id)
+    display_name: Client Groups
+    comment: Client groups with business at the month-end.
+    synonyms: [groups, client groups, number of groups, relationships, group count]
+    format: *count
+    window: *eom
+validate:
+  dims: [Month, Region, Product Family]
+reconcile:
+  - name: jp_drawn_sep_2026
+    measure: Global Drawn USD
+    where: "`Is Latest Month` AND `Region` = 'JP'"
+    gold: SELECT sum(drawn_usd) FROM ${catalog}.gold.fact_group_global_exposure_monthly WHERE region = 'JP' AND month = DATE'2026-09-01'
+  - name: deposits_by_region_sep_2026
+    measure: Global Deposits USD
+    by: [Region]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT region, sum(deposits_usd) FROM ${catalog}.gold.fact_group_global_exposure_monthly
+      WHERE month = DATE'2026-09-01' GROUP BY 1
+  - name: apac_share_hayashi_sep_2026
+    measure: APAC Share of Group Revenue %
+    where: "`Is Latest Month` AND `Client Group` = 'Hayashi Marine Logistics'"
+    gold: >-
+      SELECT sum(CASE WHEN x.region = 'APAC' THEN x.revenue_12m_usd ELSE 0 END) / sum(x.revenue_12m_usd)
+      FROM ${catalog}.gold.fact_group_global_exposure_monthly x JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = x.client_group_id
+      WHERE x.month = DATE'2026-09-01' AND g.group_name = 'Hayashi Marine Logistics'
+  - name: entities_by_region_sep_2026
+    measure: Entity Count
+    by: [Region]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT region, count(DISTINCT entity_id) FROM ${catalog}.gold.fact_group_global_exposure_monthly
+      WHERE month = DATE'2026-09-01' AND has_data GROUP BY 1
+  - name: revenue_flow_fy2025
+    measure: Revenue in Period USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT sum(revenue_usd) FROM ${catalog}.gold.fact_group_global_exposure_monthly WHERE fiscal_year = 2025
+glossary:
+  caveats:
+    - >-
+      Point-in-time: filter one Month (Is Latest Month for today). Group attributes are today's (group master);
+      entities without a group (a few APAC clients) have no Client Group.

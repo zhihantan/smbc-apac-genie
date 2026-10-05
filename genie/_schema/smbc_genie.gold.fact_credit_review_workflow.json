@@ -1,0 +1,271 @@
+{
+ "columns": [
+  {
+   "comment": "Workflow item id: credit review id (CRV-nnnnnn) or spreading task id (SPR-nnnnnn-FYyyyy).",
+   "is_measure": false,
+   "name": "workflow_item_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit Review or Financial Spreading.",
+   "is_measure": false,
+   "name": "workflow_type",
+   "type": "string"
+  },
+  {
+   "comment": "Annual (annual credit review), New Money (new facility / increase request), Amendment, Watchlist (watchlist review) or Financial Spreading (spreading of a statement year).",
+   "is_measure": false,
+   "name": "review_type",
+   "type": "string"
+  },
+  {
+   "comment": "Credit-system obligor id (CRD-nnnnnn) under review.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Facility the review relates to (new money / amendment); null for annual, watchlist and spreading items.",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Grain date: due date (annual reviews, spreading tasks) or submission date (new money, amendment, watchlist); use for Month / quarter filters such as reviews due in Q3 FY2026.",
+   "is_measure": false,
+   "name": "workflow_date",
+   "type": "date"
+  },
+  {
+   "comment": "Statement fiscal year reviewed or spread (e.g. 2025 = the FY2025 financials); null for request-driven reviews.",
+   "is_measure": false,
+   "name": "review_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Label of review_fiscal_year, e.g. FY2025.",
+   "is_measure": false,
+   "name": "review_fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Due date (annual reviews and spreading tasks; null for request-driven reviews).",
+   "is_measure": false,
+   "name": "due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Preparation start (reviews) or statements received (spreading); null when not started.",
+   "is_measure": false,
+   "name": "start_date",
+   "type": "date"
+  },
+  {
+   "comment": "Memo submitted for approval (reviews) or statements spread (spreading); null when not yet.",
+   "is_measure": false,
+   "name": "submitted_date",
+   "type": "date"
+  },
+  {
+   "comment": "Approval / decision date (reviews) or spread checked (spreading); null while open.",
+   "is_measure": false,
+   "name": "completed_date",
+   "type": "date"
+  },
+  {
+   "comment": "Status at the as-of date. Reviews: Not Started, In Preparation, Overdue, Submitted - Awaiting Approval, Approved, Declined. Spreading: Received - Not Started, In Progress, Checked.",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "Credit decision: Approved, Approved with Conditions or Declined (null while undecided and for spreading).",
+   "is_measure": false,
+   "name": "outcome",
+   "type": "string"
+  },
+  {
+   "comment": "True when decided (reviews) or checked (spreading).",
+   "is_measure": false,
+   "name": "is_completed",
+   "type": "boolean"
+  },
+  {
+   "comment": "True while the item is still open (not decided / not checked) at the as-of date.",
+   "is_measure": false,
+   "name": "is_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for credit memos submitted but not yet decided at the as-of date (memos awaiting approval).",
+   "is_measure": false,
+   "name": "is_awaiting_approval",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the due date has passed (before 30-Sep-2026) and the memo / spread has not been submitted.",
+   "is_measure": false,
+   "name": "is_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days past due at the as-of date for overdue items (0 otherwise).",
+   "is_measure": false,
+   "name": "days_overdue",
+   "type": "int"
+  },
+  {
+   "comment": "Days the memo / spread was submitted after its due date (0 = on time; null when not submitted or no due date). Sunda's FY2025 annual review = 23.",
+   "is_measure": false,
+   "name": "days_late",
+   "type": "int"
+  },
+  {
+   "comment": "True when submitted after the due date.",
+   "is_measure": false,
+   "name": "was_submitted_late",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days from preparation start to submission (reviews; to the as-of date when still in preparation) or from receipt to spread (spreading).",
+   "is_measure": false,
+   "name": "days_in_preparation",
+   "type": "int"
+  },
+  {
+   "comment": "Days from preparation start (or statements received) to approval / check - end-to-end time to approval; null while open.",
+   "is_measure": false,
+   "name": "days_to_approval",
+   "type": "int"
+  },
+  {
+   "comment": "Days from submission to decision (credit approver turnaround); null while open.",
+   "is_measure": false,
+   "name": "days_submission_to_approval",
+   "type": "int"
+  },
+  {
+   "comment": "Number of times the memo was submitted (1 = approved on the first submission when approved).",
+   "is_measure": false,
+   "name": "submission_count",
+   "type": "int"
+  },
+  {
+   "comment": "True when approved (with or without conditions) on the first submission.",
+   "is_measure": false,
+   "name": "approved_on_first_submission",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for spreading tasks whose statements are not yet spread (e.g. FY2025 financials not yet spread).",
+   "is_measure": false,
+   "name": "is_not_yet_spread",
+   "type": "boolean"
+  },
+  {
+   "comment": "Credit analyst preparing the memo / spreading (employee_id); join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "analyst_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit approver deciding the memo, or the checker of a spread (employee_id); null until assigned.",
+   "is_measure": false,
+   "name": "approver_id",
+   "type": "string"
+  },
+  {
+   "comment": "Short excerpt of the credit memo (synthetic text, <= 40 words).",
+   "is_measure": false,
+   "name": "memo_excerpt",
+   "type": "string"
+  },
+  {
+   "comment": "Tone of the memo: Positive, Neutral or Negative.",
+   "is_measure": false,
+   "name": "memo_tone",
+   "type": "string"
+  },
+  {
+   "comment": "Sentiment of the memo text -1 (negative) .. 1 (positive).",
+   "is_measure": false,
+   "name": "memo_sentiment_score",
+   "type": "double"
+  },
+  {
+   "comment": "Why an overdue / delayed review is stuck (e.g. awaiting audited accounts); null otherwise.",
+   "is_measure": false,
+   "name": "blocker_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Internal grade (1-10) at the start of the review.",
+   "is_measure": false,
+   "name": "current_grade",
+   "type": "int"
+  },
+  {
+   "comment": "Grade recommended by the analyst in the memo.",
+   "is_measure": false,
+   "name": "recommended_grade",
+   "type": "int"
+  },
+  {
+   "comment": "Grade approved by the credit approver.",
+   "is_measure": false,
+   "name": "approved_grade",
+   "type": "int"
+  },
+  {
+   "comment": "Amount requested (new-money reviews), USD.",
+   "is_measure": false,
+   "name": "requested_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Margin proposed in the memo (new money), basis points; weight by requested_amount_usd for averages.",
+   "is_measure": false,
+   "name": "proposed_margin_bps",
+   "type": "int"
+  },
+  {
+   "comment": "True when the new-money pricing was approved as an exception to the pricing grid.",
+   "is_measure": false,
+   "name": "is_pricing_exception",
+   "type": "boolean"
+  },
+  {
+   "comment": "Reason for the pricing exception (e.g. Relationship).",
+   "is_measure": false,
+   "name": "exception_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Spreading tasks: Audited or Unaudited / Management statements.",
+   "is_measure": false,
+   "name": "statement_basis",
+   "type": "string"
+  }
+ ],
+ "comment": "Credit workflow (brief 5.3): one row per credit review (Annual, New Money, Amendment, Watchlist) or financial-spreading task (review_type = Financial Spreading; one per obligor and statement year), with due / start / submitted / completed dates, status and outcome, SLA flags as of 30-Sep-2026 (overdue, days overdue, awaiting approval, not yet spread), days late, days in preparation and to approval, submissions, analyst and approver (checker for spreading), memo excerpt and tone, grades and the new-money amount and margin. workflow_date (grain date) = due date for annual reviews and spreading tasks, submission date for new-money, amendment and watchlist reviews. For spreading tasks: start = statements received, submitted = spread, completed = checked. Reviews due in a future quarter (e.g. Q3 FY2026) are included with their current status.",
+ "identifier": "smbc_genie.gold.fact_credit_review_workflow",
+ "type": "MANAGED"
+}

@@ -1,0 +1,55 @@
+table: fact_golden_record_coverage_monthly
+domain: foundation
+comment: >-
+  Golden-record coverage: for every golden client, month (Apr-2023 .. Sep-2026) and identity source system
+  (core_customer, crm_account, kyc_customer, credit_obligor, trade_party, tsy_counterparty,
+  ext_company_master) whether the client is present in that source, with how many records, when the source
+  last added one, and the source's field completeness; plus whether the client is in all core sources (core
+  banking, CRM, KYC) and - on the latest month only - the golden record's attribute completeness. Dense: 7
+  rows per client-month; count clients with is_client_primary_row. Point-in-time per month: do not add months.
+grain: one row per golden client per month per identity source system
+primary_key: [month, golden_client_id, source_system]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [month], references: dim_date}
+cluster_by: [month, golden_client_sk]
+min_rows: 700000
+columns:
+  month: {type: DATE, comment: First day of the month (the grain date).}
+  golden_client_id: {type: STRING, not_null: true}
+  source_system: STRING
+  month_end_date: {type: DATE, comment: Last day of the month - coverage is as at this date.}
+  golden_client_sk: BIGINT
+  client_group_id: STRING
+  is_present: {type: BOOLEAN, comment: True when the source system holds at least one record of the client available by the month-end.}
+  is_missing: {type: BOOLEAN, comment: "True when the client has no record in this source at the month-end (e.g. source_system = kyc_customer AND is_missing = golden clients missing from KYC)."}
+  n_records: {type: INT, comment: Records of the client in the source at the month-end (within-source duplicates included).}
+  first_available_date: {type: DATE, comment: Date the client's first record in this source became available.}
+  last_record_added_date: {type: DATE, comment: Date the source last added a record of the client (last updated) up to the month-end.}
+  source_field_completeness: {type: DOUBLE, comment: "Share of the source's key identity fields populated on the client's records (fraction 0-1; 0 when absent)."}
+  is_core_source: {type: BOOLEAN, comment: "True for the core sources core_customer, crm_account and kyc_customer."}
+  n_sources_present: {type: INT, comment: Source systems (of 7) holding the client at the month-end (client attribute; same on its 7 rows).}
+  in_all_core_sources: {type: BOOLEAN, comment: True when the client is present in all three core sources at the month-end (client attribute).}
+  months_present: {type: INT, comment: Months (of the 42) the client has been present in this source up to this month.}
+  is_client_primary_row: {type: BOOLEAN, comment: True on exactly one row per client-month (the first source system alphabetically) - use it to count golden clients and client attributes without multiplying by 7.}
+  is_latest_month: {type: BOOLEAN, comment: True for Sep-2026 rows (coverage at the as-of date).}
+  attribute_completeness_pct: {type: DOUBLE, comment: "Golden-record attribute completeness at 30-Sep-2026 = populated / 10 key attributes (legal name, LEI, tax id, country, group, segment, tier, RM, rating, KYC risk), fraction 0-1; latest month only (null earlier). Average over primary rows."}
+  n_attributes_populated: {type: INT, comment: Key attributes populated on the golden record at 30-Sep-2026 (of n_attributes); latest month only.}
+  n_attributes: {type: INT, comment: Key attributes assessed (10); latest month only.}
+  missing_attributes_text: {type: STRING, comment: "Key attributes missing on the golden record at 30-Sep-2026, comma-separated (e.g. lei_like_id, tax_id); latest month only."}
+checks:
+  - name: one_primary_row_per_client_month
+    sql: >-
+      SELECT count(*) FROM (SELECT month, golden_client_id FROM ${table} GROUP BY ALL HAVING count_if(is_client_primary_row) <> 1)
+  - name: latest_month_presence_matches_er_run   # Sep-2026 presence = the latest ER run's golden records per source
+    sql: >-
+      SELECT count(*) FROM (SELECT source_system, count_if(is_present) AS n FROM ${table} WHERE is_latest_month GROUP BY 1) c
+      JOIN ${catalog}.ops.entity_resolution_runs r ON r.source_system = c.source_system AND r.run_id = 'ER-20260930'
+      WHERE c.n <> r.golden_records
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.golden_record_coverage_monthly
+  - name: present_rows_vs_silver
+    gold: SELECT count_if(is_present) FROM ${table}
+    silver: SELECT count_if(is_present) FROM ${catalog}.silver.golden_record_coverage_monthly

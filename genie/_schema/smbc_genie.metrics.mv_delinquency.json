@@ -1,0 +1,277 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the exposure month-end as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the exposure month-end, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Booking country of the exposure = the client's coverage office (ISO-2: SG Singapore, HK Hong Kong, CN, TH, ID, IN, AU, VN, MY, KR, TW, PH, NZ) - \"booking country\" and \"country\" in delinquency questions mean this.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Days-past-due bucket at the month-end: Current, 1-29, 30-59, 60-89 or 90+ (90+ = default territory).",
+   "is_measure": false,
+   "name": "DPD Bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Term Loan, Revolving Credit Facility, Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan.",
+   "is_measure": false,
+   "name": "Facility Type",
+   "type": "string"
+  },
+  {
+   "comment": "Credit facility id (FAC-nnnnnn).",
+   "is_measure": false,
+   "name": "Facility",
+   "type": "string"
+  },
+  {
+   "comment": "True when the facility is 30 or more days past due at the month-end.",
+   "is_measure": false,
+   "name": "Is 30 Plus DPD",
+   "type": "boolean"
+  },
+  {
+   "comment": "True from Apr-2024, when EAD, RWA and ECL are available; earlier months carry balances and DPD only.",
+   "is_measure": false,
+   "name": "Has Capital Measures",
+   "type": "boolean"
+  },
+  {
+   "comment": "Drawn (outstanding) lending at the month-end, USD (point-in-time).",
+   "is_measure": true,
+   "name": "Drawn USD",
+   "type": "double"
+  },
+  {
+   "comment": "Committed facility limits at the month-end, USD (point-in-time).",
+   "is_measure": true,
+   "name": "Limit USD",
+   "type": "double"
+  },
+  {
+   "comment": "Facilities with a balance record at the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Facilities",
+   "type": "bigint"
+  },
+  {
+   "comment": "Facilities past due (DPD > 0) at the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Facilities Overdue",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients with at least one facility past due at the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Clients Overdue",
+   "type": "bigint"
+  },
+  {
+   "comment": "Amount past due on the month-end day, USD (point-in-time).",
+   "is_measure": true,
+   "name": "Overdue Amount USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn exposure of facilities 30 or more days past due at the month-end, USD (point-in-time).",
+   "is_measure": true,
+   "name": "Drawn 30 Plus DPD USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn exposure 30+ days past due / total drawn exposure at the month-end (fraction) - the 30+ DPD rate.",
+   "is_measure": true,
+   "name": "30+ DPD Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Facilities 30 or more days past due at the month-end (point-in-time).",
+   "is_measure": true,
+   "name": "Facilities 30 Plus DPD",
+   "type": "bigint"
+  },
+  {
+   "comment": "Facilities 30+ days past due / facilities at the month-end (fraction).",
+   "is_measure": true,
+   "name": "30+ DPD Rate by Count %",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn exposure more than 90 days past due (default) / total drawn at the month-end (fraction).",
+   "is_measure": true,
+   "name": "90+ DPD Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Facility-months in which an arrears episode was cured (arrears cleared) - a flow over months.",
+   "is_measure": true,
+   "name": "Facilities Cured",
+   "type": "bigint"
+  },
+  {
+   "comment": "Facility-months with any day past due - the denominator of the cure rate (a flow).",
+   "is_measure": true,
+   "name": "Facilities in Arrears",
+   "type": "bigint"
+  },
+  {
+   "comment": "Facilities cured in the month / facilities in arrears during the month (fraction); over several months a pooled rate.",
+   "is_measure": true,
+   "name": "Cure Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Exposure at default at the month-end, USD (from Apr-2024; point-in-time).",
+   "is_measure": true,
+   "name": "EAD USD",
+   "type": "double"
+  },
+  {
+   "comment": "Risk-weighted assets at the month-end, USD (from Apr-2024; point-in-time).",
+   "is_measure": true,
+   "name": "RWA USD",
+   "type": "double"
+  },
+  {
+   "comment": "IFRS 9 expected credit loss provision held at the month-end, USD (12-month in Stage 1, lifetime in Stages 2-3; from Apr-2024).",
+   "is_measure": true,
+   "name": "ECL USD",
+   "type": "double"
+  },
+  {
+   "comment": "Change in the ECL provision over the selected months, USD (positive = provision build) - a flow.",
+   "is_measure": true,
+   "name": "ECL Change USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn exposure of Stage 3 (credit-impaired) obligors at the month-end, USD (from Apr-2024).",
+   "is_measure": true,
+   "name": "Stage 3 Exposure USD",
+   "type": "double"
+  }
+ ],
+ "comment": "Credit exposure and delinquency of SMBC APAC lending at each month-end, Apr-2023 to Sep-2026: drawn and limit, facilities and clients overdue, overdue amount, 30+ and 90+ DPD rates (drawn-weighted and by facility count), DPD bucket, cures and the cure rate, EAD, RWA, IFRS 9 ECL and Stage 3 exposure (capital measures from Apr-2024). Booking country = the client's Coverage Office. Balances and DPD positions are POINT-IN-TIME: filter or group by Month (Is Latest Month = Sep 2026); a quarter or year returns its last month-end. Cures and ECL change are flows. Grain: one row per facility per month-end (gold.fact_credit_exposure_monthly).",
+ "identifier": "smbc_genie.metrics.mv_delinquency",
+ "type": "METRIC_VIEW"
+}

@@ -1,0 +1,57 @@
+table: fact_watchlist_event
+domain: ews
+comment: >-
+  Credit watchlist register events (brief 5.4), Apr-2024 to Sep-2026: one row per event - Added (final EWS
+  band left Green), Escalated (to Red), De-escalated (Red to Amber), Removed (back to Green) - with the band
+  move, composite score, lead reason, owner RM, the review action plan (watchlist credit review, recovery /
+  exit plan, monitoring update) with its due / completed dates and status as of 30-Sep-2026 (Completed, Open,
+  Overdue), and the client's drawn exposure, EAD and ECL at the event month-end. is_on_watchlist_as_of marks
+  each listed client's latest event (count those for watchlist clients today).
+grain: one row per watchlist event
+primary_key: [event_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [event_date], references: dim_date}
+  - {columns: [owner_employee_id], references: dim_employee}
+cluster_by: [event_date, golden_client_sk]
+min_rows: 500
+columns:
+  event_id: {type: STRING, comment: "Watchlist event id (WLE-nnnnnn)."}
+  obligor_id: {type: STRING, comment: "Credit obligor record the event belongs to."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  event_date: {type: DATE, comment: "Date of the watchlist event."}
+  event_type: {type: STRING, comment: "Added, Escalated, De-escalated or Removed."}
+  band_from: {type: STRING, comment: "Final EWS band before the event (Green, Amber, Red)."}
+  band_to: {type: STRING, comment: "Final EWS band after the event."}
+  composite_score: {type: DOUBLE, comment: "Composite EWS score (0-100) of the month that triggered the event."}
+  lead_category: {type: STRING, comment: "Dominant EWS driver: Credit, Liquidity, Behavioural or External."}
+  lead_reason: {type: STRING, comment: "Watchlist reason, e.g. Credit deterioration (health / utilisation / covenant), Deposit outflow."}
+  owner_rm_code: {type: STRING, comment: "CRM code of the RM owning the watchlist action (RM001-RM120)."}
+  owner_employee_id: {type: STRING, comment: "Owner RM as employee_id; join to gold.dim_employee."}
+  owner_name: {type: STRING, comment: "Owner RM name (fictional)."}
+  action_type: {type: STRING, comment: "Action plan required by the event: Watchlist credit review (Added), Recovery / exit plan (Escalated), Monitoring update (De-escalated); null for Removed."}
+  action_due_date: {type: DATE, comment: "Due date of the action plan (30 days after an addition, 21 after an escalation)."}
+  action_completed_date: {type: DATE, comment: "Date the action was completed; null while open."}
+  action_status: {type: STRING, comment: "Action status at the as-of date: Completed, Open (not yet due) or Overdue; null for removals."}
+  action_days_overdue: {type: INT, comment: "Days the open action is past due at the as-of date (0 otherwise)."}
+  is_action_overdue: {type: BOOLEAN, comment: "True when the action plan is overdue at the as-of date (watchlist actions overdue)."}
+  is_action_open: {type: BOOLEAN, comment: "True when the action plan is not yet completed (Open or Overdue)."}
+  is_latest_event: {type: BOOLEAN, comment: "True for the obligor's latest watchlist event to the as-of date."}
+  is_on_watchlist_as_of: {type: BOOLEAN, comment: "True on the latest event of obligors still on the watchlist at 30-Sep-2026 (latest event is not a removal)."}
+  next_review_date: {type: DATE, comment: "Next scheduled watchlist review of names still on the list (on their latest event)."}
+  exposure_drawn_usd: {type: DOUBLE, comment: "Client's drawn lending exposure at the event month-end, USD."}
+  ead_usd: {type: DOUBLE, comment: "Client's exposure at default in the event month, USD."}
+  ecl_usd: {type: DOUBLE, comment: "Client's IFRS 9 expected credit loss in the event month, USD."}
+checks:
+  - name: on_watchlist_matches_register   # silver.ews_watchlist = names on the list at the as-of date
+    sql: >-
+      SELECT abs(count(DISTINCT CASE WHEN is_on_watchlist_as_of THEN golden_client_id END)
+      - (SELECT count(DISTINCT golden_client_id) FROM ${catalog}.silver.ews_watchlist)) FROM ${table}
+  - name: overdue_actions_have_due_date
+    sql: SELECT count_if(is_action_overdue AND (action_due_date IS NULL OR action_due_date >= DATE'${as_of_date}')) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ews_watchlist_event WHERE event_date <= DATE'${as_of_date}'

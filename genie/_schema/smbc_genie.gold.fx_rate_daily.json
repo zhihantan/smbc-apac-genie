@@ -1,0 +1,49 @@
+{
+ "columns": [
+  {
+   "comment": "Rate date.",
+   "is_measure": false,
+   "name": "date",
+   "type": "date"
+  },
+  {
+   "comment": "ISO 4217 currency code.",
+   "is_measure": false,
+   "name": "currency_code",
+   "type": "string"
+  },
+  {
+   "comment": "Currency units per 1 USD on the date (USD = 1).",
+   "is_measure": false,
+   "name": "rate_per_usd",
+   "type": "double"
+  },
+  {
+   "comment": "USD value of one currency unit on the date (1 / rate_per_usd).",
+   "is_measure": false,
+   "name": "usd_per_unit",
+   "type": "double"
+  },
+  {
+   "comment": "Average usd_per_unit over the calendar month (for converting monthly flows such as revenue).",
+   "is_measure": false,
+   "name": "month_avg_usd_per_unit",
+   "type": "double"
+  },
+  {
+   "comment": "True on the last calendar day of the month (month-end revaluation rate).",
+   "is_measure": false,
+   "name": "is_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when no rate was published that day and the previous published rate is carried forward.",
+   "is_measure": false,
+   "name": "is_carried_forward",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Daily FX rates to USD for every gold currency over the dim_date window (1-Apr-2023 to 31-Mar-2027), dense: a day without a published rate carries the last published rate forward (is_carried_forward). USD value = amount_lcy x usd_per_unit (or amount_lcy / rate_per_usd); gold.fn_usd(amount, currency, date) wraps the lookup. Month-end rates: filter is_month_end. Grain: one row per currency per calendar day.",
+ "identifier": "smbc_genie.gold.fx_rate_daily",
+ "type": "MANAGED"
+}

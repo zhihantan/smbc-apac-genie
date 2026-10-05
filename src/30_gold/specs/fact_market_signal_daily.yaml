@@ -1,0 +1,81 @@
+table: fact_market_signal_daily
+domain: signals
+comment: >-
+  External quantitative signal on listed parents (fictional market-data vendor): one row per listed parent
+  and trading day (Apr-2025 .. Sep-2026) with close price, 1-day and 30-day share-price change, 30-day
+  volatility, CDS-like spread and its 1-day / 30-day change, the 52-week high / low and an at-52-week-low
+  flag, the external rating and outlook in force (primary agency first), agency actions since the previous
+  trading day, the market-signal entry events of the unified feed, and the group's APAC credit exposure (drawn
+  lending + trade finance outstanding at the latest month-end, USD). Prices, spreads and exposure are
+  point-in-time: never sum them across days - use the latest trading day (is_latest_trade_date).
+grain: one row per listed parent issuer per trading day
+primary_key: [issuer_id, trade_date]
+foreign_keys:
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [lead_golden_client_sk], references: dim_client}
+  - {columns: [trade_date], references: dim_date}
+  - {columns: [currency], references: dim_currency}
+cluster_by: [trade_date, client_group_id]
+min_rows: 10000
+columns:
+  issuer_id: {type: STRING, comment: "Listed-parent issuer id of the market-data vendor (ISS-...); one listed parent per client group."}
+  trade_date: {type: DATE, comment: Trading day of the close (the grain date).}
+  month: {type: DATE, comment: First day of the calendar month of the trading day.}
+  ticker: {type: STRING, comment: "Fictional exchange ticker of the listed parent."}
+  issuer_name: {type: STRING, comment: Name of the listed parent (fictional).}
+  listing_venue: {type: STRING, comment: "Exchange the parent is listed on (fictional venue name or code)."}
+  client_group_id: STRING
+  lead_golden_client_sk: BIGINT
+  currency: {type: STRING, comment: ISO 4217 listing currency of close_price and market_cap_lcy.}
+  close_price: {type: DOUBLE, comment: Closing share price in the listing currency.}
+  price_change_1d_pct: {type: DOUBLE, comment: "1-day share-price return as a fraction (-0.05 = -5%)."}
+  price_change_30d_pct: {type: DOUBLE, comment: "Share-price change vs the last close at least 30 calendar days earlier, as a fraction (-0.20 = -20%); null in the first 30 days of the series."}
+  volatility_30d: {type: DOUBLE, comment: 30-day volatility of daily returns as reported by the vendor (fraction).}
+  volume: {type: BIGINT, comment: Shares traded on the day.}
+  market_cap_lcy: {type: DOUBLE, comment: Market capitalisation in the listing currency.}
+  market_cap_usd: {type: DOUBLE, comment: Market capitalisation in USD.}
+  cds_spread_bps: {type: DOUBLE, comment: CDS-like credit spread of the parent in basis points (higher = riskier).}
+  cds_change_1d_bps: {type: DOUBLE, comment: Change of the CDS spread vs the previous trading day in bps (positive = widening).}
+  cds_change_30d_bps: {type: DOUBLE, comment: "Change of the CDS spread vs the last value at least 30 calendar days earlier, in bps (positive = widening)."}
+  high_52w: {type: DOUBLE, comment: 52-week high close in the listing currency (vendor).}
+  low_52w: {type: DOUBLE, comment: 52-week low close in the listing currency (vendor).}
+  pct_above_52w_low: {type: DOUBLE, comment: "How far the close is above the 52-week low, as a fraction (0 = at the low)."}
+  is_52w_low: {type: BOOLEAN, comment: True when the close is at (or below) the 52-week low - a parent at its 52-week low.}
+  is_price_drop_30d: {type: BOOLEAN, comment: True when the 30-day share-price change is -20% or worse.}
+  is_cds_widening_30d: {type: BOOLEAN, comment: True when the CDS spread widened by 50 bps or more over 30 days.}
+  is_52w_low_event: {type: BOOLEAN, comment: True on the first day at the 52-week low after 30 days without one - raises MARKET_52W_LOW in fact_signal_event.}
+  is_price_drop_event: {type: BOOLEAN, comment: True on the first day of a -20% 30-day drop after 30 days without one - raises MARKET_PRICE_DROP_30D.}
+  is_cds_widening_event: {type: BOOLEAN, comment: True on the first day of a +50 bps 30-day widening after 30 days without one - raises MARKET_CDS_WIDENING.}
+  external_rating: {type: STRING, comment: "Agency rating of the listed parent in force on the day (primary agency first, then its latest action; fictional agencies)."}
+  external_rating_agency: {type: STRING, comment: Agency of external_rating.}
+  external_outlook: {type: STRING, comment: "Outlook attached to the rating in force: Stable, Positive or Negative."}
+  external_rating_date: {type: DATE, comment: Date of the rating action in force.}
+  rating_downgrades: {type: INT, comment: Agency downgrades of the parent (any agency) dated after the previous trading day up to this day - sum for Rating Downgrades.}
+  rating_upgrades: {type: INT, comment: Agency upgrades of the parent (any agency) dated after the previous trading day up to this day.}
+  outlook_negative_changes: {type: INT, comment: Agency outlook revisions to Negative dated after the previous trading day up to this day - sum for Outlook Changes to Negative.}
+  apac_lending_drawn_usd: {type: DOUBLE, comment: "Group APAC drawn lending in USD at apac_exposure_date (silver.core_facility_balance_monthly, all the group's golden clients)."}
+  apac_trade_outstanding_usd: {type: DOUBLE, comment: "Group APAC trade finance live at apac_exposure_date in USD (silver.trade_finance_txn issued on or before and maturing after that date)."}
+  apac_exposure_usd: {type: DOUBLE, comment: "Group APAC credit exposure in USD = drawn lending + trade finance outstanding at the latest month-end on or before the trading day (same definition as the ER exposure); point-in-time, 0 = no credit exposure."}
+  apac_exposure_date: {type: DATE, comment: Month-end snapshot date of the APAC exposure (the trading day itself when it is a month-end).}
+  is_apac_exposure_above_100m: {type: BOOLEAN, comment: "True when the group APAC exposure is above USD 100m (dim_threshold MARKET_APAC_EXPOSURE_USD) - for listed parents at 52-week lows with exposure above USD 100m."}
+  is_latest_trade_date: {type: BOOLEAN, comment: True on the issuer's latest trading day to the as-of date (30-Sep-2026) - the current snapshot.}
+  is_last_trade_day_of_month: {type: BOOLEAN, comment: True on the issuer's last trading day of each calendar month (month-end snapshot).}
+  days_before_as_of: {type: INT, comment: "Days between the trading day and the as-of date 30-Sep-2026; last N days = days_before_as_of < N."}
+checks:
+  - name: one_latest_day_per_issuer
+    sql: SELECT count(*) FROM (SELECT issuer_id FROM ${table} GROUP BY issuer_id HAVING count_if(is_latest_trade_date) <> 1)
+  - name: exposure_matches_silver_er_definition   # at the ER run dates the group exposure equals silver's
+    sql: >-
+      SELECT count(*) FROM (SELECT DISTINCT client_group_id, apac_exposure_date, apac_exposure_usd FROM ${table}
+      WHERE apac_exposure_date IN (DATE'2025-06-30', DATE'2025-09-30', DATE'2025-12-31', DATE'2026-03-31', DATE'2026-06-30', DATE'2026-09-30')) f
+      JOIN ${catalog}.silver.group_exposure_by_er_run s ON s.client_group_id = f.client_group_id AND s.run_date = f.apac_exposure_date
+      WHERE s.run_id = 'ER-20260930' AND abs(f.apac_exposure_usd - s.total_exposure_usd) > 1
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ext_market_daily WHERE trade_date <= DATE'${as_of_date}'
+  - name: downgrades_vs_silver
+    gold: SELECT sum(rating_downgrades) FROM ${table} WHERE trade_date > DATE'2025-04-01'
+    silver: >-
+      SELECT count(*) FROM ${catalog}.silver.ext_rating r WHERE r.action = 'Downgrade'
+      AND r.action_date > DATE'2025-04-01' AND r.action_date <= DATE'${as_of_date}'
+      AND r.issuer_id IN (SELECT DISTINCT issuer_id FROM ${catalog}.silver.ext_market_daily)

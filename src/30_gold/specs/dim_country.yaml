@@ -1,0 +1,31 @@
+table: dim_country
+domain: hub
+comment: >-
+  Countries referenced anywhere in the Customer 360 (client incorporation, booking locations, payment and
+  trade counterparties, trade corridors, EMEA / AMER subsidiaries) with region (APAC, JP, EMEA, AMER),
+  sub-region and, for the 13 APAC booking locations, city, regulator and local currency.
+grain: one row per ISO-2 country code
+primary_key: [country_code]
+cluster_by: [country_code]
+min_rows: 14
+columns:
+  country_code: {type: STRING}
+  country_name: {type: STRING, comment: Country name in English (e.g. Vietnam).}
+  region: {type: STRING, comment: "Region: APAC, JP (Japan head-office region), EMEA or AMER."}
+  sub_region: {type: STRING, comment: "Sub-region, e.g. Southeast Asia, Greater China, North Asia, South Asia, Oceania, Europe, Middle East, Africa, North America, Latin America."}
+  is_apac: {type: BOOLEAN, comment: True for APAC countries outside Japan (Japan is the separate JP region).}
+  is_asean: {type: BOOLEAN, comment: True for ASEAN member states.}
+  is_booking_location: {type: BOOLEAN, comment: True for the 13 APAC countries where SMBC books business (Singapore hub plus 12 locations).}
+  is_hub: {type: BOOLEAN, comment: "True for Singapore, the APAC hub."}
+  booking_city: {type: STRING, comment: City of the SMBC booking entity (booking locations and Tokyo HO only).}
+  regulator: {type: STRING, comment: "Banking regulator of the booking location (illustrative: MAS, HKMA, ...); null elsewhere."}
+  local_currency: {type: STRING, comment: ISO 4217 local currency of the booking location; null elsewhere.}
+checks:
+  - name: covers_reference_countries
+    sql: SELECT count(*) FROM ${catalog}.silver.ref_country r LEFT ANTI JOIN ${table} d ON d.country_code = r.country_code
+  - name: covers_golden_client_countries
+    sql: >-
+      SELECT count(*) FROM (SELECT DISTINCT country_of_incorporation AS c FROM ${catalog}.silver.client_golden_identity
+      WHERE country_of_incorporation IS NOT NULL) g LEFT ANTI JOIN ${table} d ON d.country_code = g.c
+  - name: thirteen_booking_locations
+    sql: SELECT abs(count_if(is_booking_location) - 13) FROM ${table}

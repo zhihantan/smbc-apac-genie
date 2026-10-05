@@ -1,0 +1,151 @@
+{
+ "columns": [
+  {
+   "comment": "Treasury FX deal id.",
+   "is_measure": false,
+   "name": "deal_id",
+   "type": "string"
+  },
+  {
+   "comment": "Trade date of the deal.",
+   "is_measure": false,
+   "name": "deal_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of deal_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Treasury counterparty id (source identity record) of the client.",
+   "is_measure": false,
+   "name": "cpty_id",
+   "type": "string"
+  },
+  {
+   "comment": "FX Spot, FX Forward or FX Swap.",
+   "is_measure": false,
+   "name": "product_type",
+   "type": "string"
+  },
+  {
+   "comment": "PRD-FX-SPOT, PRD-FX-FORWARD or PRD-FX-SWAP; join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Currency pair in market convention, e.g. USD/SGD, AUD/USD.",
+   "is_measure": false,
+   "name": "ccy_pair",
+   "type": "string"
+  },
+  {
+   "comment": "Base (first) currency of the pair.",
+   "is_measure": false,
+   "name": "base_currency",
+   "type": "string"
+  },
+  {
+   "comment": "Quote (second) currency of the pair.",
+   "is_measure": false,
+   "name": "quote_currency",
+   "type": "string"
+  },
+  {
+   "comment": "The non-USD leg of the pair (every pair is against USD), e.g. SGD for USD/SGD.",
+   "is_measure": false,
+   "name": "non_usd_currency",
+   "type": "string"
+  },
+  {
+   "comment": "Client Buys USD or Client Sells USD.",
+   "is_measure": false,
+   "name": "direction",
+   "type": "string"
+  },
+  {
+   "comment": "Deal notional in USD (flow).",
+   "is_measure": false,
+   "name": "notional_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client margin over the market rate in basis points of notional.",
+   "is_measure": false,
+   "name": "margin_bps",
+   "type": "double"
+  },
+  {
+   "comment": "FX revenue (margin income) of the deal in USD (flow) - the FX line of client revenue.",
+   "is_measure": false,
+   "name": "revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Hedge (hedging a commercial exposure) or Trading.",
+   "is_measure": false,
+   "name": "hedge_type",
+   "type": "string"
+  },
+  {
+   "comment": "True for hedging deals.",
+   "is_measure": false,
+   "name": "is_hedge",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days from trade date to value date (2 for spot).",
+   "is_measure": false,
+   "name": "tenor_days",
+   "type": "int"
+  },
+  {
+   "comment": "Spot (T+2), Up to 1 month, 1-3 months, 3-6 months or Over 6 months.",
+   "is_measure": false,
+   "name": "tenor_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Settlement (value) date of the deal (forwards may settle after the as-of date).",
+   "is_measure": false,
+   "name": "value_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the value date is after 30-Sep-2026 (open forward / swap position).",
+   "is_measure": false,
+   "name": "is_unsettled_at_as_of",
+   "type": "boolean"
+  },
+  {
+   "comment": "APAC treasury booking location of the deal (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  }
+ ],
+ "comment": "One row per client FX deal booked with SMBC APAC treasury from 1-Apr-2024 to 30-Sep-2026: product (FX spot, forward, swap), currency pair, direction, USD notional, margin and revenue, hedge vs trading purpose, tenor and value date, booking location. Notional and revenue are flows (additive). FX flows that clients route through other banks are visible in fact_payment_transaction (FX_FLOW_VIA_OTHER_BANK signals). Grain: one row per FX deal (deal_id).",
+ "identifier": "smbc_genie.gold.fact_fx_deal",
+ "type": "MANAGED"
+}

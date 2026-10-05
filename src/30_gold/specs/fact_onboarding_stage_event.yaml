@@ -1,0 +1,60 @@
+table: fact_onboarding_stage_event
+domain: onboarding
+comment: >-
+  Onboarding funnel stage events (brief 5.6): one row per onboarding case x stage entered (1 Request, 2 KYC
+  Docs, 3 Screening, 4 Risk Assessment, 5 Credit/Product Approval, 6 Account Open, 7 First Transaction) with
+  entered / exited dates, days in stage (to 30-Sep-2026 for the stage a case is in), the stage SLA and SLA met
+  / over-SLA flags, the actor, and the case attributes used to slice cycle time (request date / month,
+  booking country, segment, status, days to live, KYC-migration period). is_case_primary_row (the stage-1
+  row) is true once per case: compute case-level measures (cases, median / P90 days to live) on it; stage
+  measures (average days in stage, SLA met %) use every row of the stage.
+grain: one row per onboarding case x stage
+primary_key: [case_id, stage_no]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [entered_date], references: dim_date}
+  - {columns: [stage_no], references: dim_onboarding_stage}
+  - {columns: [actor_id], references: dim_employee}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [entered_date, golden_client_sk]
+min_rows: 1500
+columns:
+  case_id: {type: STRING, comment: "Onboarding case id (ONB-nnnnn); join to fact_onboarding_case."}
+  stage_no: {type: INT, comment: "Stage number 1-7 in funnel order; join to gold.dim_onboarding_stage."}
+  stage_name: {type: STRING, comment: "Stage: Request, KYC Docs, Screening, Risk Assessment, Credit/Product Approval, Account Open, First Transaction."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the onboarded client valid on the stage entry date (null for applicants that never went live)."}
+  golden_client_id: {type: STRING, comment: "Golden client of the onboarded entity (null for applicants that never went live)."}
+  client_group_id: {type: STRING, comment: "Client group of the case (ER group of the client, else the intake group link)."}
+  entered_date: {type: DATE, comment: "Date the case entered the stage."}
+  exited_date: {type: DATE, comment: "Date the case left the stage; null while still in it (or abandoned there)."}
+  days_in_stage: {type: INT, comment: "Calendar days in the stage (to the as-of date when not exited); First Transaction = days from go-live to the first transaction."}
+  sla_days: {type: INT, comment: "SLA for the stage in calendar days."}
+  is_sla_met: {type: BOOLEAN, comment: "True when days_in_stage <= sla_days."}
+  is_over_sla: {type: BOOLEAN, comment: "True when the stage ran (or is running) over its SLA."}
+  days_over_sla: {type: INT, comment: "Days beyond the stage SLA (0 when within SLA)."}
+  is_current_stage: {type: BOOLEAN, comment: "True for the stage a case is currently in (not exited)."}
+  is_stage_completed: {type: BOOLEAN, comment: "True when the stage was exited."}
+  actor_id: {type: STRING, comment: "Onboarding officer handling the stage (employee_id)."}
+  is_case_primary_row: {type: BOOLEAN, comment: "True on exactly one row per case (stage 1): use for case counts and median / P90 days to live."}
+  request_date: {type: DATE, comment: "Request date of the case."}
+  request_month: {type: DATE, comment: "First day of the request month (Request Month)."}
+  booking_country: {type: STRING, comment: "Booking location of the case (ISO-2); join to gold.dim_booking_entity."}
+  segment: {type: STRING}
+  primary_product: {type: STRING, comment: "Anchor product requested (Current Account / Correspondent Account)."}
+  case_status: {type: STRING, comment: "Case status at the as-of date: Open, Live, Withdrawn or Rejected."}
+  case_days_to_live: {type: INT, comment: "Days from request to go-live of the case (live cases; repeated on each stage row - aggregate on is_case_primary_row)."}
+  kyc_migration_period: {type: STRING, comment: "Request period vs the Feb-2026 KYC workflow migration: Pre-migration, Migration (Feb-2026), Backlog peak (Mar-May 2026), Recovery (from Jun-2026)."}
+  is_after_kyc_migration: {type: BOOLEAN, comment: "True for cases requested on or after 1-Feb-2026."}
+checks:
+  - name: one_primary_row_per_case
+    sql: >-
+      SELECT count(*) FROM (SELECT case_id FROM ${table} GROUP BY case_id HAVING count_if(is_case_primary_row) <> 1)
+  - name: storyline7_fi_kyc_docs_delta_10_14
+    sql: >-
+      SELECT CASE WHEN avg(CASE WHEN request_date BETWEEN DATE'2026-03-01' AND DATE'2026-05-31' THEN days_in_stage END)
+                     - avg(CASE WHEN request_date < DATE'2026-02-01' THEN days_in_stage END) BETWEEN 10 AND 14 THEN 0 ELSE 1 END
+      FROM ${table} WHERE segment = 'Financial Institution' AND stage_name = 'KYC Docs' AND is_stage_completed
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_case_stage

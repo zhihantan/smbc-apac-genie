@@ -1,0 +1,279 @@
+# Space 3, Credit Memo & Financial Spreading (WP9b / WP8d). Facilities, covenant tests and collateral in one view over
+# the record_type union gold.mvb_facility_risk (D13): Facility rows (snapshot 30-Sep-2026, is_primary_row), Covenant
+# Test rows (FY2023 on) and Collateral rows. Each amount / flag lives only on its own row type (null elsewhere), so
+# measures never double count; facility descriptors repeat on every row for slicing. Facility balances are a single
+# as-of snapshot (point-in-time window over Date returns the 30-Sep-2026 rows).
+view: mv_facilities_covenants_collateral
+space: credit_memo_financial_spreading
+comment: >-
+  Credit facilities, covenants and collateral of SMBC's APAC clients as of 30-Sep-2026: committed limit, drawn,
+  undrawn, utilisation and limit-weighted margin per facility; covenant tests (Net Debt/EBITDA leverage, ICR)
+  with headroom %, breaches, tight headroom (< 10%) and waivers, at the latest test (Is Latest Test) or over a
+  test period; collateral value, LTV and stale valuations; plus security type, guarantor type and the Japanese
+  parent's rating from the JP share. Date = record date: 30-Sep-2026 on facility rows, the test date on
+  covenant rows, the last valuation date on collateral rows. Balances are point-in-time (latest snapshot).
+grain: one row per facility, covenant test or collateral item (gold.mvb_facility_risk, record_type union)
+source: ${catalog}.gold.mvb_facility_risk
+blocks:
+  calendar: {date: source.record_date, grain: day, what: "the record (facility snapshot / covenant test / collateral valuation)"}
+  client: {key: source.golden_client_sk}
+overrides:
+  Date:
+    comment: >-
+      Record date: 30-Sep-2026 (snapshot) on facility rows, the covenant test date on covenant rows and the last
+      valuation date on collateral rows. For covenant questions prefer Is Latest Test; this fiscal year's tests =
+      Fiscal Year FY2026. Today is 30-Sep-2026 (never CURRENT_DATE).
+    synonyms: [test date, record date, valuation date, snapshot date, as of date, covenant test date]
+dimensions:
+  - name: Record Type
+    expr: source.record_type
+    display_name: Record Type
+    comment: "Row type: Facility, Covenant Test or Collateral (each measure reads its own row type)."
+    synonyms: [record type, row type, data type, facility or covenant or collateral]
+  - name: Facility
+    expr: source.facility_id
+    display_name: Facility ID
+    comment: Credit facility id (FAC-nnnnnn) - the facility a covenant test or collateral item belongs to.
+    synonyms: [facility, facility id, loan, credit line, line, deal, loan id]
+  - name: Facility Type
+    expr: source.facility_type
+    display_name: Facility Type
+    comment: Term Loan, Revolving Credit Facility (RCF), Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan.
+    synonyms: [facility type, loan type, product, credit product, RCF, term loan, lending product]
+  - name: Facility Status
+    expr: source.facility_status
+    display_name: Facility Status
+    comment: "Facility status at 30-Sep-2026: Active (the live book), Matured or Prepaid."
+    synonyms: [facility status, status, active, matured, live facilities, loan status]
+  - name: Security Type
+    expr: source.security_type
+    display_name: Security Type
+    comment: "Security of the facility: Unsecured, Cash, Receivables, Inventory, Fixed Assets or Real Estate."
+    synonyms: [security, security type, secured, unsecured, collateral type of facility, charge]
+  - name: Guarantor Type
+    expr: source.guarantor_type
+    display_name: Guarantor Type
+    comment: >-
+      Credit support: Parent Guarantee, Keepwell (parent keepwell / comfort letter), Corporate Guarantee, Sponsor
+      Support or None. "Parent support" = Parent Guarantee or Keepwell.
+    synonyms: [guarantor, guarantee, support type, keepwell, parent guarantee, credit support, comfort letter]
+  - name: Parent Rating
+    expr: source.parent_rating_equivalent
+    display_name: Parent External Rating (JP share)
+    comment: >-
+      Rating of the Japanese parent behind a parent guarantee / keepwell at 30-Sep-2026, on the external scale
+      (e.g. AA, A+), from the Tokyo HO rating share; null for facilities without parent support.
+    synonyms: [parent rating, parent external rating, JP parent rating, guarantor rating, parent credit rating, HO rating]
+  - name: Covenant Type
+    expr: source.covenant_type
+    display_name: Covenant Type
+    comment: "Covenant Test rows: Net Debt/EBITDA (leverage covenant, a maximum) or ICR (interest cover, a minimum)."
+    synonyms: [covenant, covenant type, financial covenant, leverage covenant, ICR covenant, maintenance covenant]
+  - name: Headroom Bucket
+    expr: source.headroom_bucket
+    display_name: Covenant Headroom Bucket
+    comment: "Covenant Test rows: Breached, 0-10% (tight), 10-20%, 20-30% or 30%+."
+    synonyms: [headroom bucket, headroom band, covenant cushion, headroom range, tight headroom]
+  - name: Is Latest Test
+    expr: source.is_latest_test
+    display_name: Is Latest Test
+    comment: >-
+      Covenant Test rows: the latest test of each facility covenant on or before 30-Sep-2026 - set true for "at the
+      latest test" questions.
+    synonyms: [latest test, most recent test, current test, last test, latest covenant test]
+  - name: Collateral Type
+    expr: source.collateral_type
+    display_name: Collateral Type
+    comment: "Collateral rows: Cash, Receivables, Inventory, Fixed Assets or Real Estate."
+    synonyms: [collateral type, security asset, pledged asset, collateral, asset type]
+measures:
+  - name: Facilities
+    expr: COUNT(DISTINCT CASE WHEN source.is_primary_row THEN source.facility_id END)
+    display_name: Facilities
+    comment: Credit facilities (one Facility row each) in the selection; add Facility Status = Active for the live book.
+    synonyms: [facilities, number of facilities, loans, credit lines, facility count, deals]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Limit USD
+    expr: SUM(source.limit_usd)
+    display_name: Committed Limit (USD)
+    comment: Committed facility limit in USD (Facility rows; snapshot 30-Sep-2026, point-in-time).
+    synonyms: [limit, commitment, committed amount, facility amount, credit limit, approved limit]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: &asof
+      - {order: Date, range: current, semiadditive: last}
+  - name: Drawn USD
+    expr: SUM(source.drawn_usd)
+    display_name: Drawn / Outstanding (USD)
+    comment: Drawn balance at 30-Sep-2026 in USD - the current funded exposure (Facility rows; point-in-time).
+    synonyms: [drawn, outstanding, exposure, utilised amount, funded exposure, balance, current exposure]
+    format: *usd
+    window: *asof
+  - name: Undrawn USD
+    expr: SUM(source.undrawn_usd)
+    display_name: Undrawn Commitment (USD)
+    comment: Undrawn commitment of active facilities at 30-Sep-2026 in USD (Facility rows; point-in-time).
+    synonyms: [undrawn, headroom on facility, available, unutilised, spare commitment, unused limit]
+    format: *usd
+    window: *asof
+  - name: Utilisation %
+    expr: MEASURE(`Drawn USD`) / NULLIF(MEASURE(`Limit USD`), 0)
+    display_name: Utilisation
+    comment: Drawn / committed limit (fraction, 0.95 = 95%) at 30-Sep-2026.
+    synonyms: [utilisation, utilization, usage, drawn ratio, facility usage, line usage]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Weighted Margin bps
+    expr: SUM(source.margin_x_limit_usd) / NULLIF(SUM(source.limit_usd), 0)
+    display_name: Weighted Margin (bps)
+    comment: Limit-weighted average lending margin over the base rate in basis points (Facility rows).
+    synonyms: [margin, weighted margin, spread, pricing, margin bps, lending margin]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Covenant Tests
+    expr: COUNT(1) FILTER (WHERE source.record_type = 'Covenant Test')
+    display_name: Covenant Tests
+    comment: Covenant tests in the selection (filter Is Latest Test for one per facility covenant).
+    synonyms: [covenant tests, tests, number of tests, compliance tests, covenant checks]
+    format: *count
+  - name: Covenant Actual
+    expr: AVG(source.covenant_actual)
+    display_name: Covenant Actual (x)
+    comment: Tested covenant value (x), e.g. Net Debt/EBITDA 4.6 = 4.6x - for one test its value, for several their average.
+    synonyms: [actual, covenant actual, tested value, leverage actual, ICR actual, covenant level]
+    format: &x2 {type: number, decimal_places: {type: max, places: 2}}
+  - name: Covenant Threshold
+    expr: AVG(source.covenant_threshold)
+    display_name: Covenant Threshold (x)
+    comment: Covenant level (x) - the maximum for Net Debt/EBITDA (e.g. 4.0x) or the minimum for ICR.
+    synonyms: [threshold, covenant threshold, covenant level, trigger level, limit level, required ratio]
+    format: *x2
+  - name: Min Covenant Headroom %
+    expr: MIN(source.headroom_pct)
+    display_name: Covenant Headroom (minimum)
+    comment: >-
+      Tightest covenant headroom in the selection as a fraction of the threshold (0.08 = 8%; negative = breached).
+      With Is Latest Test = true it is the headroom at the latest test.
+    synonyms: [headroom, covenant headroom, minimum headroom, cushion, tightest headroom, covenant buffer]
+    format: *pct
+  - name: Breaches
+    expr: COUNT(1) FILTER (WHERE source.is_breached)
+    display_name: Covenant Breaches
+    comment: Covenant tests that breached (Covenant Test rows; with Is Latest Test = true, breaches at the latest test).
+    synonyms: [breaches, covenant breaches, defaults, covenant failures, breached tests, trips]
+    format: *count
+  - name: Clients Breaching Covenant
+    expr: COUNT(DISTINCT CASE WHEN source.is_breached THEN source.golden_client_id END)
+    display_name: Clients Breaching a Covenant
+    comment: Clients with at least one breached covenant test in the selection (use with Is Latest Test).
+    synonyms: [clients in breach, breaching clients, borrowers in breach, covenant breach clients]
+    format: *count
+  - name: Clients with Tight Headroom
+    expr: COUNT(DISTINCT CASE WHEN source.is_tight_headroom THEN source.golden_client_id END)
+    display_name: Clients with Headroom Below 10%
+    comment: >-
+      Clients with a covenant test not breached but with headroom below 10% (dim_threshold COVENANT_HEADROOM_WARN)
+      - use with Is Latest Test and Covenant Type = Net Debt/EBITDA for the leverage blind spot.
+    synonyms: [tight headroom, headroom below 10%, low headroom clients, near breach, covenant blind spot]
+    format: *count
+  - name: Waivers
+    expr: COUNT(1) FILTER (WHERE source.is_waived)
+    display_name: Covenant Waivers
+    comment: Covenant tests with a waiver granted (this fiscal year = Fiscal Year FY2026 on the test date).
+    synonyms: [waivers, covenant waivers, waived tests, amendments and waivers, consents]
+    format: *count
+  - name: Exposure with Waivers USD
+    expr: SUM(CASE WHEN source.is_waived THEN source.exposure_at_test_usd END)
+    display_name: Exposure with Waivers (USD)
+    comment: Facility drawn balance at the month-end of tests that were waived, USD.
+    synonyms: [waiver exposure, exposure with waivers, waived exposure, exposure under waiver]
+    format: *usd
+  - name: Collateral Items
+    expr: COUNT(1) FILTER (WHERE source.record_type = 'Collateral')
+    display_name: Collateral Items
+    comment: Collateral items pledged in the selection (Collateral rows).
+    synonyms: [collateral items, collateral count, pledges, security items, securities held]
+    format: *count
+  - name: Collateral Value USD
+    expr: SUM(source.collateral_value_usd)
+    display_name: Collateral Value (USD)
+    comment: Appraised value of the collateral at its last valuation, USD (Collateral rows).
+    synonyms: [collateral value, security value, appraised value, collateral coverage, market value of collateral]
+    format: *usd
+  - name: Average LTV %
+    expr: AVG(source.ltv_pct)
+    display_name: Average LTV
+    comment: Average loan-to-value of the selected collateral items (fraction, 0.72 = 72%).
+    synonyms: [LTV, loan to value, average LTV, LTV ratio, collateral coverage ratio]
+    format: *pct
+  - name: Max LTV %
+    expr: MAX(source.ltv_pct)
+    display_name: Highest LTV
+    comment: Highest loan-to-value among the selected collateral items (fraction).
+    synonyms: [max LTV, highest LTV, peak LTV, worst LTV]
+    format: *pct
+  - name: Max Valuation Age Months
+    expr: MAX(source.valuation_age_months)
+    display_name: Oldest Valuation (months)
+    comment: Months since the oldest last valuation among the selected collateral items at 30-Sep-2026 (over 24 = stale).
+    synonyms: [valuation age, months since valuation, oldest valuation, stale valuation months, appraisal age]
+    format: {type: number, decimal_places: {type: exact, places: 0}}
+  - name: High LTV Items
+    expr: COUNT(1) FILTER (WHERE source.is_high_ltv)
+    display_name: Collateral Items with LTV Above 70%
+    comment: Collateral items with loan-to-value above 70% (dim_threshold LTV_HIGH).
+    synonyms: [high LTV, LTV above 70, thin collateral, LTV breaches, over-leveraged collateral]
+    format: *count
+  - name: Stale Valuations
+    expr: COUNT(1) FILTER (WHERE source.is_valuation_stale)
+    display_name: Valuations Older Than 24 Months
+    comment: Collateral items whose last valuation is older than 24 months at 30-Sep-2026.
+    synonyms: [stale valuations, old valuations, revaluation due, outdated appraisals, valuation older than 24 months]
+    format: *count
+  - name: Collateral Needing Review
+    expr: COUNT(1) FILTER (WHERE source.is_high_ltv OR source.is_valuation_stale)
+    display_name: Collateral Needing Review
+    comment: Collateral items with LTV above 70% or a valuation older than 24 months.
+    synonyms: [collateral review, collateral exceptions, revaluation needed, collateral issues, weak collateral]
+    format: *count
+validate:
+  dims: [Record Type, Facility Type]
+reconcile:
+  - name: drawn_active_book
+    measure: Drawn USD
+    where: "`Facility Status` = 'Active'"
+    gold: SELECT sum(drawn_usd) FROM ${catalog}.gold.fact_facility_terms WHERE is_active
+  - name: limit_by_guarantor_type
+    measure: Limit USD
+    by: [Guarantor Type]
+    gold: SELECT guarantor_type, sum(limit_usd) FROM ${catalog}.gold.fact_facility_terms GROUP BY 1
+  - name: utilisation_by_facility_type_active
+    measure: Utilisation %
+    by: [Facility Type]
+    where: "`Facility Status` = 'Active'"
+    gold: >-
+      SELECT facility_type, sum(drawn_usd) / sum(limit_usd) FROM ${catalog}.gold.fact_facility_terms WHERE is_active GROUP BY 1
+  - name: leverage_breach_clients_latest_test
+    measure: Clients Breaching Covenant
+    where: "`Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_covenant_test
+      WHERE is_latest_test AND covenant_type = 'Net Debt/EBITDA' AND is_breached
+  - name: tight_leverage_clients_latest_test
+    measure: Clients with Tight Headroom
+    where: "`Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_covenant_test
+      WHERE is_latest_test AND covenant_type = 'Net Debt/EBITDA' AND is_tight_headroom
+  - name: collateral_value_by_type
+    measure: Collateral Value USD
+    by: [Collateral Type]
+    gold: SELECT collateral_type, sum(appraised_value_usd) FROM ${catalog}.gold.fact_collateral GROUP BY 1
+  - name: weighted_margin_active
+    measure: Weighted Margin bps
+    where: "`Facility Status` = 'Active'"
+    gold: SELECT sum(margin_bps * limit_usd) / sum(limit_usd) FROM ${catalog}.gold.fact_facility_terms WHERE is_active
+glossary:
+  caveats:
+    - >-
+      Facility amounts are the 30-Sep-2026 snapshot (Facility rows); covenant and collateral measures read their
+      own rows. A Fiscal Year / Month filter applies to every row type by its own date (facility rows are dated
+      30-Sep-2026) - for covenant periods use Is Latest Test or Fiscal Year on the test date. There are no covenant
+      waivers in the source data (Waivers = 0).

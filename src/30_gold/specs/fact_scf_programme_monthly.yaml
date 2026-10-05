@@ -1,0 +1,94 @@
+table: fact_scf_programme_monthly
+domain: trade
+comment: >-
+  Supply-chain-finance programme health at each month-end from Apr-2024 (SCF invoice history start, or the launch
+  month if later) to Sep-2026, as a record_type union (D13). Programme rows (record_key PROGRAMME): programme limit,
+  financed outstanding (invoices drawn and not yet due), utilisation with the 85% / 40% bands and the supplier counts
+  (register, invoicing in 12 months, onboarded, active in 3 months). Supplier rows (record_key = supplier id): one per
+  supplier of the programme's register with its country, spend segment, onboarded / active state, its financed
+  outstanding and the month's flows (invoices approved, drawdowns, financed amount, discount income, USD-days for the
+  yield). Programme amounts sit on Programme rows only and supplier amounts / flows on Supplier rows only, so no
+  measure double counts; the utilisation band repeats on Supplier rows as an attribute. POINT-IN-TIME columns (limit,
+  outstanding, utilisation, supplier counts / states) - take one month-end, never sum across months; the *_in_month
+  columns are monthly flows. The limit is the current programme limit (no limit history), so historical utilisation
+  is measured against today's limit.
+grain: one row per SCF programme per month-end per record (the programme itself, or one of its suppliers)
+primary_key: [programme_id, month_end_date, record_key]
+foreign_keys:
+  - {columns: [programme_id], references: dim_scf_programme}
+  - {columns: [month_end_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [anchor_country], references: dim_booking_entity}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [supplier_country], references: dim_country}
+cluster_by: [month_end_date, golden_client_sk]
+min_rows: 1000
+columns:
+  programme_id: {type: STRING, comment: "SCF programme id; join gold.dim_scf_programme."}
+  month_end_date: {type: DATE, comment: "Month-end of the snapshot."}
+  record_key: {type: STRING, comment: "PROGRAMME on the programme row, else the supplier id (part of the key)."}
+  record_type: {type: STRING, comment: "Programme (programme-level limit, outstanding, utilisation, supplier counts) or Supplier (one programme supplier: state, outstanding, monthly flows)."}
+  month: {type: DATE, comment: "First day of the month of month_end_date."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the anchor valid at the month-end (as-was, D11)."}
+  golden_client_id: {type: STRING, not_null: true, comment: "Golden client id of the programme anchor (buyer for payables finance)."}
+  client_group_id: {type: STRING}
+  programme_name: {type: STRING, comment: "Programme label = anchor short name + programme type."}
+  programme_type: {type: STRING, comment: "Payables Finance or Receivables Finance."}
+  product_id: {type: STRING, comment: "PRD-PAYABLES-FINANCE or PRD-RECEIVABLES-FINANCE."}
+  anchor_country: {type: STRING, comment: "Coverage office of the anchor (ISO-2)."}
+  currency: {type: STRING, comment: "Programme currency."}
+  limit_usd: {type: DOUBLE, comment: "Programme limit in USD (current limit; point-in-time; Programme rows only, null on Supplier rows)."}
+  financed_outstanding_usd: {type: DOUBLE, comment: "Financed invoices outstanding at the month-end (drawn on / before it, due after it), USD - the programme's drawn amount (point-in-time; Programme rows only)."}
+  utilisation: {type: DOUBLE, comment: "financed_outstanding_usd / limit_usd at the month-end (0-1; Programme rows only; across programmes use SUM(outstanding) / SUM(limit))."}
+  utilisation_band: {type: STRING, comment: "Programme utilisation band at the month-end: Above 85%, 40-85% or Below 40% (dim_threshold SCF_UTILISATION_HIGH / LOW); repeated on the programme's Supplier rows."}
+  is_above_85pct: {type: BOOLEAN, comment: "True when the programme's utilisation is above 85% at the month-end (limit review); repeated on Supplier rows."}
+  is_below_40pct: {type: BOOLEAN, comment: "True when the programme's utilisation is below 40% at the month-end (under-used programme); repeated on Supplier rows."}
+  suppliers_in_register: {type: INT, comment: "Suppliers in the programme's supplier register (Programme rows; the platform header count n_suppliers_total in dim_scf_programme is not reconciled to it)."}
+  suppliers_invoicing_12m: {type: INT, comment: "Suppliers with invoices approved by the anchor in the 12 months to the month-end (Programme rows)."}
+  suppliers_onboarded: {type: INT, comment: "Suppliers onboarded (able to finance) by the month-end (Programme rows)."}
+  suppliers_active_3m: {type: INT, comment: "Suppliers that drew at least one invoice in the 3 months to the month-end (Programme rows)."}
+  supplier_activation_rate: {type: DOUBLE, comment: "suppliers_active_3m / suppliers_in_register (0-1, Programme rows): share of the programme's suppliers actively financing."}
+  supplier_id: {type: STRING, comment: "SCF supplier id (Supplier rows; suppliers are not bank clients)."}
+  supplier_name: {type: STRING, comment: "Supplier name (fictional; Supplier rows)."}
+  supplier_country: {type: STRING, comment: "Supplier country (ISO-2; Supplier rows)."}
+  supplier_segment: {type: STRING, comment: "Supplier spend segment within its programme (invoice value Oct-2025 to Sep-2026): Strategic (top 20%), Core (next 30%) or Long tail (bottom 50%) - Supplier rows."}
+  is_supplier_onboarded: {type: BOOLEAN, comment: "True when the supplier was onboarded by the month-end (Supplier rows)."}
+  is_supplier_active_3m: {type: BOOLEAN, comment: "True when the supplier drew at least one invoice in the 3 months to the month-end (Supplier rows)."}
+  supplier_routes_to_other_bank: {type: BOOLEAN, comment: "True when the supplier's own payments route to another bank - an account-opening opportunity (Supplier rows)."}
+  supplier_financed_outstanding_usd: {type: DOUBLE, comment: "The supplier's financed invoices outstanding at the month-end, USD (Supplier rows; sums to the programme's financed_outstanding_usd)."}
+  invoices_approved_in_month: {type: INT, comment: "Invoices approved by the anchor during the month (flow; Supplier rows, 0 on Programme rows)."}
+  invoice_value_approved_in_month_usd: {type: DOUBLE, comment: "USD value of invoices approved during the month (flow; Supplier rows)."}
+  drawdowns_in_month: {type: INT, comment: "Invoices financed (drawn) during the month (flow; Supplier rows)."}
+  financed_in_month_usd: {type: DOUBLE, comment: "USD advanced to suppliers during the month (flow; Supplier rows)."}
+  discount_income_in_month_usd: {type: DOUBLE, comment: "Discount income on invoices financed during the month, USD (flow; Supplier rows)."}
+  days_financed_in_month: {type: BIGINT, comment: "Sum of days financed over the month's drawdowns (Average Days Financed = SUM / SUM(drawdowns_in_month); Supplier rows)."}
+  financed_usd_days_in_month: {type: DOUBLE, comment: "Sum of financed amount x days over the month's drawdowns (yield bps = 10000 x SUM(discount_income_in_month_usd) / SUM(financed_usd_days_in_month / 365); Supplier rows)."}
+  is_latest_month_end: {type: BOOLEAN, comment: "True for the as-of month-end 30-Sep-2026."}
+checks:
+  - name: as_of_outstanding_equals_programme_drawn   # invoices replay to the SCF platform's drawn amount
+    sql: >-
+      SELECT count(*) FROM ${table} m JOIN ${catalog}.silver.scf_programme p ON p.programme_id = m.programme_id
+      WHERE m.record_type = 'Programme' AND m.is_latest_month_end AND abs(m.financed_outstanding_usd - p.drawn_usd) > 1
+  - name: supplier_outstanding_sums_to_programme
+    sql: >-
+      SELECT count(*) FROM (SELECT programme_id, month_end_date,
+      sum(CASE WHEN record_type = 'Programme' THEN financed_outstanding_usd END) AS p,
+      sum(CASE WHEN record_type = 'Supplier' THEN supplier_financed_outstanding_usd END) AS s
+      FROM ${table} GROUP BY ALL) WHERE abs(p - coalesce(s, 0)) > 0.01
+  - name: amounts_on_their_record_type
+    sql: >-
+      SELECT count_if(record_type = 'Programme' AND (supplier_financed_outstanding_usd IS NOT NULL OR financed_in_month_usd <> 0))
+      + count_if(record_type = 'Supplier' AND (limit_usd IS NOT NULL OR financed_outstanding_usd IS NOT NULL)) FROM ${table}
+reconcile:
+  - name: drawdowns_vs_silver
+    gold: SELECT sum(drawdowns_in_month) FROM ${table}
+    silver: >-
+      SELECT count(*) FROM ${catalog}.silver.trade_scf_invoice WHERE is_financed AND financing_date <= DATE'${as_of_date}'
+  - name: programmes_at_as_of
+    gold: SELECT count(*) FROM ${table} WHERE record_type = 'Programme' AND is_latest_month_end
+    silver: SELECT count(*) FROM ${catalog}.silver.scf_programme
+  - name: suppliers_at_as_of
+    gold: SELECT count(*) FROM ${table} WHERE record_type = 'Supplier' AND is_latest_month_end
+    silver: SELECT count(*) FROM ${catalog}.silver.scf_supplier

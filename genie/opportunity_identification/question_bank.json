@@ -1,0 +1,989 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 25,
+      "columns": [
+        "Client",
+        "Signal Type",
+        "Primary RM",
+        "detected_date",
+        "estimated_revenue_usd",
+        "days_open"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DATE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Akatsuki Motor Trading (Seoul) Co Ltd",
+          "CAPEX_NEWS",
+          "Sofia Zhang",
+          "2026-09-29",
+          "4800000.0",
+          "1.0"
+        ],
+        [
+          "Kinokawa Precision (Singapore) Pte Ltd",
+          "LOAN_SERVICE_TO_OTHER_BANK",
+          "Ken Goh",
+          "2026-02-05",
+          "4400000.0",
+          "237.0"
+        ],
+        [
+          "KONABE PRECISION GROUP (SHANGHtI)",
+          "FACILITY_MATURING_12M",
+          "Hana Reddy",
+          "2026-06-26",
+          "3675773.72",
+          "96.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1afcce1dc90005a9",
+      "sorted_by": null
+    },
+    "Q1-casual": {
+      "rows": 25,
+      "columns": [
+        "Client",
+        "Signal Type",
+        "estimated_revenue_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Akatsuki Motor Trading (Seoul) Co Ltd",
+          "CAPEX_NEWS",
+          "4800000.0"
+        ],
+        [
+          "Kinokawa Precision (Singapore) Pte Ltd",
+          "LOAN_SERVICE_TO_OTHER_BANK",
+          "4400000.0"
+        ],
+        [
+          "KONABE PRECISION GROUP (SHANGHtI)",
+          "FACILITY_MATURING_12M",
+          "3675773.72"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "96273ac097dd760c",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 145,
+      "columns": [
+        "Client",
+        "Currency Pair",
+        "fx_flow_via_other_banks_12m_usd",
+        "signals"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Sakaida Prime Semiconductor (Hong Kong) Ltd",
+          "USD/JPY",
+          "3.773213886E7",
+          "5"
+        ],
+        [
+          "Kinokawa Precision (Ho Chi Minh City) Co Ltd",
+          "USD/VND",
+          "3.6E7",
+          "1"
+        ],
+        [
+          "Sakaida Prime Semiconductor (Hong Kong) Ltd",
+          "USD/VND",
+          "2.650919664E7",
+          "4"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d9feeca72889faa3",
+      "sorted_by": null
+    },
+    "Q2-typo": {
+      "rows": 145,
+      "columns": [
+        "Client",
+        "Currency Pair",
+        "fx_flow_via_other_banks_12m_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Sakaida Prime Semiconductor (Hong Kong) Ltd",
+          "USD/JPY",
+          "3.773213886E7"
+        ],
+        [
+          "Kinokawa Precision (Ho Chi Minh City) Co Ltd",
+          "USD/VND",
+          "3.6E7"
+        ],
+        [
+          "Sakaida Prime Semiconductor (Hong Kong) Ltd",
+          "USD/VND",
+          "2.650919664E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "73bb6433f49fad46",
+      "sorted_by": "fx_flow_via_other_banks_12m_usd"
+    },
+    "Q3": {
+      "rows": 2,
+      "columns": [
+        "Client",
+        "detected_date",
+        "Status",
+        "surplus_usd"
+      ],
+      "types": [
+        "STRING",
+        "DATE",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Konabe Steel (Shanghai) Co Ltd",
+          "2026-09-07",
+          "Open",
+          "4503398.45"
+        ],
+        [
+          "Suvarna Credit (Jakarta) PT",
+          "2026-09-10",
+          "Open",
+          "1028260.52"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "3da910674bb7876c",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 27,
+      "columns": [
+        "Client Group",
+        "maturing_facility_signals",
+        "maturing_amount_usd"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Konabe Precision Group",
+          "1",
+          "1.4247184948E8"
+        ],
+        [
+          "Akatsuki Motor",
+          "1",
+          "5.698679123E7"
+        ],
+        [
+          "Suvarna Asset Management",
+          "1",
+          "2.600855278E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "06b1fea4b45d15f4",
+      "sorted_by": null
+    },
+    "Q4-jargon": {
+      "rows": 27,
+      "columns": [
+        "Client Group",
+        "maturing_facility_signals",
+        "maturing_amount_usd"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Konabe Precision Group",
+          "1",
+          "1.4247184948E8"
+        ],
+        [
+          "Akatsuki Motor",
+          "1",
+          "5.698679123E7"
+        ],
+        [
+          "Suvarna Asset Management",
+          "1",
+          "2.600855278E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "06b1fea4b45d15f4",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 11,
+      "columns": [
+        "Product",
+        "clients",
+        "penetration",
+        "peer_penetration",
+        "clients_with_gap_vs_peers",
+        "all_apac_penetration",
+        "gap_vs_all_apac_pts"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Term Loan",
+          "44",
+          "0.022727272727272728",
+          "0.022727272727272714",
+          "0",
+          "0.10441767068273095",
+          "0.08169039795545821"
+        ],
+        [
+          "Guarantee / SBLC",
+          "44",
+          "0.18181818181818182",
+          "0.1818181818181817",
+          "0",
+          "0.24587237840249895",
+          "0.06405419658431713"
+        ],
+        [
+          "Export LC",
+          "44",
+          "0.18181818181818182",
+          "0.1818181818181817",
+          "0",
+          "0.24587237840249895",
+          "0.06405419658431713"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1d035fd21096fab0",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 20,
+      "columns": [
+        "Client",
+        "Product",
+        "Propensity Rank",
+        "Top Drivers",
+        "propensity"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "INT",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kinokawa Precision (Ho Chi Minh City) Co Ltd",
+          "Supply Chain Finance",
+          "1",
+          "Trade corridor CN->VN up 50% YoY | SCF anchor candidate (Jul-2026) | Supplier spend about USD 240m a year",
+          "0.8928"
+        ],
+        [
+          "Kinokawa Precision (Singapore) Pte Ltd",
+          "Supply Chain Finance",
+          "1",
+          "Trade corridor CN->VN up 50% YoY | SCF anchor candidate (Jul-2026) | Supplier spend about USD 240m a year",
+          "0.7056"
+        ],
+        [
+          "KONABE PRECISION GROUP (SHANGHtI)",
+          "Supply Chain Finance",
+          "3",
+          "SCF anchor candidate (Jul-2026) | Industrials importer-exporter profile | Group size",
+          "0.488"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "71552ecb0de59cc2",
+      "sorted_by": null
+    },
+    "Q6-jargon": {
+      "rows": 20,
+      "columns": [
+        "Client",
+        "Propensity Rank",
+        "Top Drivers",
+        "propensity"
+      ],
+      "types": [
+        "STRING",
+        "INT",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kinokawa Precision (Ho Chi Minh City) Co Ltd",
+          "1",
+          "Trade corridor CN->VN up 50% YoY | SCF anchor candidate (Jul-2026) | Supplier spend about USD 240m a year",
+          "0.8928"
+        ],
+        [
+          "Kinokawa Precision (Singapore) Pte Ltd",
+          "1",
+          "Trade corridor CN->VN up 50% YoY | SCF anchor candidate (Jul-2026) | Supplier spend about USD 240m a year",
+          "0.7056"
+        ],
+        [
+          "KONABE PRECISION GROUP (SHANGHtI)",
+          "3",
+          "SCF anchor candidate (Jul-2026) | Industrials importer-exporter profile | Group size",
+          "0.488"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "82523dc6698c3312",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 2,
+      "columns": [
+        "Corridor Destination",
+        "created",
+        "closed",
+        "won",
+        "win_rate"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "IN",
+          "8",
+          "5",
+          "4",
+          "0.8"
+        ],
+        [
+          "VN",
+          "6",
+          "5",
+          "2",
+          "0.4"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "fa48887888d157ad",
+      "sorted_by": null
+    },
+    "Q7b": {
+      "rows": 1,
+      "columns": [
+        "created",
+        "closed",
+        "won",
+        "win_rate"
+      ],
+      "types": [
+        "LONG",
+        "LONG",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "14",
+          "10",
+          "6",
+          "0.6"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "cfc8019033c267cb",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 7,
+      "columns": [
+        "Client",
+        "detected_date",
+        "Status",
+        "signals",
+        "estimated_revenue_usd"
+      ],
+      "types": [
+        "STRING",
+        "DATE",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Banksia Renewables Partners (Sydney) Ltd",
+          "2026-07-30",
+          "Open",
+          "1",
+          "112233.6"
+        ],
+        [
+          "Banksia Renewables Partners (Sydney) Ltd",
+          "2026-06-19",
+          "Open",
+          "1",
+          "112233.6"
+        ],
+        [
+          "Banksia Renewables Partners (Sydney) Ltd",
+          "2026-05-06",
+          "Open",
+          "1",
+          "112233.6"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "17da921756b95f3e",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 62,
+      "columns": [
+        "Expected Close Quarter",
+        "Stage",
+        "Product",
+        "open_opportunities",
+        "pipeline_amount_usd",
+        "weighted_pipeline_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "FY2026-Q3",
+          "Negotiation",
+          "Term Loan",
+          "9",
+          "2.0651965925E8",
+          "1.44563761475E8"
+        ],
+        [
+          "FY2026-Q3",
+          "Negotiation",
+          "Sustainability-Linked Loan",
+          "6",
+          "1.1156566531E8",
+          "7.8095965717E7"
+        ],
+        [
+          "FY2026-Q3",
+          "Negotiation",
+          "Cash Management Mandate",
+          "7",
+          "6.46238454E7",
+          "4.523669178E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d93648d2d4ced4f7",
+      "sorted_by": null
+    },
+    "Q9-abbrev": {
+      "rows": 62,
+      "columns": [
+        "Expected Close Quarter",
+        "Stage",
+        "Product",
+        "open_opportunities",
+        "pipeline_amount_usd",
+        "weighted_pipeline_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "FY2026-Q3",
+          "Negotiation",
+          "Term Loan",
+          "9",
+          "2.0651965925E8",
+          "1.44563761475E8"
+        ],
+        [
+          "FY2026-Q3",
+          "Negotiation",
+          "Sustainability-Linked Loan",
+          "6",
+          "1.1156566531E8",
+          "7.8095965717E7"
+        ],
+        [
+          "FY2026-Q3",
+          "Negotiation",
+          "Cash Management Mandate",
+          "7",
+          "6.46238454E7",
+          "4.523669178E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d93648d2d4ced4f7",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 13,
+      "columns": [
+        "Source Type",
+        "Source Signal Type",
+        "closed",
+        "won",
+        "win_rate"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Signal",
+          "DEPOSIT_SURPLUS",
+          "53",
+          "36",
+          "0.6792452830188679"
+        ],
+        [
+          "Signal",
+          "SLL_ELIGIBLE",
+          "3",
+          "2",
+          "0.6666666666666666"
+        ],
+        [
+          "Signal",
+          "TRADE_CORRIDOR_GROWTH",
+          "10",
+          "6",
+          "0.6"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f9f5c75a5e0ab5a7",
+      "sorted_by": null
+    },
+    "X1": {
+      "rows": 1,
+      "columns": [
+        "Client",
+        "created_date",
+        "Product",
+        "Stage",
+        "Source Signal Type",
+        "opportunities",
+        "open_amount_usd"
+      ],
+      "types": [
+        "STRING",
+        "DATE",
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Kinokawa Precision (Singapore) Pte Ltd",
+          "2026-08-12",
+          "Supply Chain Finance",
+          "Proposal",
+          "SCF_ANCHOR_CANDIDATE",
+          "1",
+          "1.2E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4e16d45598e64be4",
+      "sorted_by": null
+    },
+    "X2": {
+      "rows": 1,
+      "columns": [
+        "open_green_loans",
+        "sll_signals"
+      ],
+      "types": [
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "2",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4951df8da3eb2654",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_opportunity_signals",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-04-08",
+      "last": "2026-09-29",
+      "periods": 366
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_next_best_product",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2026-04-01",
+      "last": "2026-09-01",
+      "periods": 6
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_pipeline",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-04-15",
+      "last": "2026-09-30",
+      "periods": 508
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_product_penetration",
+      "type": "METRIC_VIEW",
+      "field": "Fiscal Year",
+      "first": "FY2024",
+      "last": "FY2026",
+      "periods": 3
+    },
+    {
+      "asset": "smbc_genie.gold.dim_signal_type",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:27:00+00:00",
+  "questions_captured_at": "2026-10-04T15:36:35+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "Top 25 open opportunities by estimated revenue across APAC, with signal type, RM and days open.",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_opportunity_top_open_signals`(top_n => '25')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Signal Type",
+        "Primary RM",
+        "detected_date",
+        "estimated_revenue_usd",
+        "days_open"
+      ],
+      "genie_rows": 25,
+      "seconds": 16.8,
+      "asked_at": "2026-10-04T14:27:00+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Only show the ones covered from Singapore.",
+      "after": "S1",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (25 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Client`,\n  `Client Group`,\n  `Signal Type`,\n  `Primary RM Office` AS `RM`,\n  MEASURE(`Open Estimated Revenue USD`) AS `open_estimated_revenue_usd`,\n  MEASURE(`Open Signals`) AS `open_signals`\nFROM `smbc_genie`.`metrics`.`mv_opportunity_signals`\nWHERE `Coverage Office` = 'SG'\n  AND `Status` = 'Open'\nGROUP BY ALL\nORDER BY `open_estimated_revenue_usd` DESC\nLIMIT 25",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Client Group",
+        "Signal Type",
+        "RM",
+        "open_estimated_revenue_usd",
+        "open_signals"
+      ],
+      "genie_rows": 25,
+      "seconds": 30.6,
+      "asked_at": "2026-10-04T15:36:03+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which clients are paying USD/JPY or USD/VND through other banks, and how much flow?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_opportunity_fx_leakage`(currency_pairs => 'USD/JPY,USD/VND')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Currency Pair",
+        "fx_flow_via_other_banks_12m_usd",
+        "signals"
+      ],
+      "genie_rows": 145,
+      "seconds": 14.5,
+      "asked_at": "2026-10-04T14:27:19+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "Clients with a deposit surplus signal in the last 60 days that have no time-deposit or investment product with us.",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows; Genie shows 2 of the benchmark's 4 columns (not shown: detected date, Status); adds 4 columns",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Client Group`, `Coverage Office`, MEASURE(`Signals`) AS `signals`, MEASURE(`Latest Observed Amount USD`) AS `latest_observed_amount_usd`, MEASURE(`Estimated Revenue USD`) AS `estimated_revenue_usd`\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Date` BETWEEN DATE'2026-08-02' AND DATE'2026-09-30'\n  AND `Signal Type` = 'DEPOSIT_SURPLUS'\n  AND NOT `Holds TD or Investment`\nGROUP BY ALL\nORDER BY `latest_observed_amount_usd` DESC\nLIMIT 20",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Client Group",
+        "Coverage Office",
+        "signals",
+        "latest_observed_amount_usd",
+        "estimated_revenue_usd"
+      ],
+      "genie_rows": 2,
+      "seconds": 24.4,
+      "asked_at": "2026-10-04T14:27:34+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "Which groups have facilities maturing in the next 12 months with no refinancing opportunity in the pipeline?",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": "Q4",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client Group`,\n       MEASURE(`Open Signals`)        AS maturing_facility_signals,\n       MEASURE(`Observed Amount USD`) AS maturing_amount_usd\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Signal Type` = :signal_type AND `Status` = 'Open' AND NOT `Has Open Lending Opportunity`\nGROUP BY ALL\nORDER BY maturing_amount_usd DESC",
+      "genie_parameters": [
+        {
+          "keyword": "signal_type",
+          "value": "FACILITY_MATURING_12M",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client Group",
+        "maturing_facility_signals",
+        "maturing_amount_usd"
+      ],
+      "genie_rows": 27,
+      "seconds": 16.8,
+      "asked_at": "2026-10-04T14:27:59+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Product penetration gap vs peers for Japanese automotive-parts subsidiaries - which products are under-penetrated?",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": "Q5",
+      "verdict": "match",
+      "note": "same rows as the benchmark; Genie adds 4 columns",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Product Family`, `Product`, MEASURE(`Clients`) AS `clients`, MEASURE(`Holdings`) AS `holdings`, MEASURE(`Penetration %`) AS `penetration_pct`, MEASURE(`Peer Penetration %`) AS `peer_penetration_pct`, MEASURE(`Penetration Gap pts`) AS `penetration_gap_pts`, MEASURE(`Clients With Gap`) AS `clients_with_gap`, MEASURE(`All-Client Penetration %`) AS `all_client_penetration_pct`, MEASURE(`Gap vs All Clients pts`) AS `gap_vs_all_clients_pts`, MEASURE(`Clients With Gap vs All Clients`) AS `clients_with_gap_vs_all_clients` FROM `smbc_genie`.`metrics`.`mv_product_penetration` WHERE `Fiscal Year` = 'FY2026' AND `Is Japanese Corporate` = true AND `Subsector` = 'Auto Parts' AND `Product Family` IS NOT NULL AND `Product` IS NOT NULL GROUP BY ALL HAVING MEASURE(`Clients With Gap`) > 0 OR MEASURE(`Gap vs All Clients pts`) > 0.05 ORDER BY `clients_with_gap` DESC, `gap_vs_all_clients_pts` DESC, `penetration_gap_pts` DESC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Product Family",
+        "Product",
+        "clients",
+        "holdings",
+        "penetration_pct",
+        "peer_penetration_pct",
+        "penetration_gap_pts",
+        "clients_with_gap",
+        "all_client_penetration_pct",
+        "gap_vs_all_clients_pts",
+        "clients_with_gap_vs_all_clients"
+      ],
+      "genie_rows": 11,
+      "seconds": 29.9,
+      "asked_at": "2026-10-04T14:28:16+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Next-best-product: top 20 clients by propensity for supply chain finance and the main drivers.",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Product`, `Propensity Rank`, `Top Drivers`,\n       MEASURE(`Max Propensity`) AS propensity\nFROM smbc_genie.metrics.mv_next_best_product\nWHERE `Is Latest Month` AND `Product Family` = :product_family\nGROUP BY ALL\nORDER BY propensity DESC\nLIMIT 20",
+      "genie_parameters": [
+        {
+          "keyword": "product_family",
+          "value": "Supply Chain Finance",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Client",
+        "Product",
+        "Propensity Rank",
+        "Top Drivers",
+        "propensity"
+      ],
+      "genie_rows": 20,
+      "seconds": 20.8,
+      "asked_at": "2026-10-04T14:28:46+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Opportunities created from trade-corridor-growth signals into Vietnam and India this fiscal year, and their conversion rate.",
+      "after": null,
+      "benchmark": "Q7",
+      "matched": "Q7",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Corridor Destination`,\n       MEASURE(`Opportunities`)        AS created,\n       MEASURE(`Opportunities Closed`) AS closed,\n       MEASURE(`Opportunities Won`)    AS won,\n       MEASURE(`Win Rate %`)           AS win_rate\nFROM smbc_genie.metrics.mv_pipeline\nWHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN')\n  AND `Fiscal Year` = :fiscal_year\nGROUP BY ALL\nORDER BY `Corridor Destination`",
+      "genie_parameters": [
+        {
+          "keyword": "fiscal_year",
+          "value": "FY2026",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Corridor Destination",
+        "created",
+        "closed",
+        "won",
+        "win_rate"
+      ],
+      "genie_rows": 2,
+      "seconds": 18.4,
+      "asked_at": "2026-10-04T14:29:07+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "Pipeline by expected close quarter and stage for H2 FY2026, weighted value by product.",
+      "after": null,
+      "benchmark": "Q9",
+      "matched": "Q9",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Expected Close Quarter`, `Stage`, `Product`,\n       MEASURE(`Open Opportunities`)    AS open_opportunities,\n       MEASURE(`Pipeline Amount USD`)   AS pipeline_amount_usd,\n       MEASURE(`Weighted Pipeline USD`) AS weighted_pipeline_usd\nFROM smbc_genie.metrics.mv_pipeline\nWHERE `Expected Close Half` = :expected_close_half AND `Is Open`\nGROUP BY ALL\nORDER BY `Expected Close Quarter`, `Stage`, weighted_pipeline_usd DESC",
+      "genie_parameters": [
+        {
+          "keyword": "expected_close_half",
+          "value": "FY2026-H2",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Expected Close Quarter",
+        "Stage",
+        "Product",
+        "open_opportunities",
+        "pipeline_amount_usd",
+        "weighted_pipeline_usd"
+      ],
+      "genie_rows": 62,
+      "seconds": 17.3,
+      "asked_at": "2026-10-04T14:29:26+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "opportunity_identification",
+  "space_id": "my-agent-id"
+}

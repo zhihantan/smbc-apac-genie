@@ -1,0 +1,167 @@
+# WP9b - space 2, Opportunity Identification. CRM pipeline: one row per opportunity, dated by creation. Pipeline
+# amounts are open opportunities; win rate = won / (won + lost) (D21). Must-answer queries:
+# metrics/_answers/opportunity_identification.sql.
+view: mv_pipeline
+space: opportunity_identification
+comment: >-
+  SMBC APAC sales pipeline, opportunities created Apr-2024 to Sep-2026 (USD): open pipeline amount and probability-
+  weighted value, expected revenue, opportunities won / lost and win rate, cycle time - by stage, product, expected
+  close quarter, owner RM and source (opportunities created from signals carry the signal type and trade corridor).
+  Calendar fields (Fiscal Year, Quarter...) are those of the CREATION date ("created this fiscal year" = Fiscal Year
+  FY2026); Expected Close Quarter / Half are separate fields. Win Rate % = won / (won + lost) (D21).
+grain: one row per pipeline opportunity (gold.fact_pipeline_opportunity)
+source: ${catalog}.gold.fact_pipeline_opportunity
+blocks:
+  calendar: {date: source.created_date, grain: day, what: the opportunity creation}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Stage
+    expr: source.stage
+    display_name: Stage
+    comment: Pipeline stage - Prospecting, Qualification, Proposal, Negotiation (open), Won or Lost (closed).
+    synonyms: [stage, pipeline stage, sales stage, deal stage, status, phase]
+  - name: Is Open
+    expr: source.is_open
+    display_name: Is Open
+    comment: True while the opportunity is open (not won or lost) at 30-Sep-2026.
+    synonyms: [open, open deals, live opportunities, in pipeline, active deals]
+  - name: Product
+    expr: source.product
+    display_name: Product
+    comment: Product pitched (CRM sales product), e.g. Supply Chain Finance, Term Loan, Green Loan, Trade Finance Line, Cash Management Mandate.
+    synonyms: [product, product pitched, offering, solution, deal product]
+  - name: Product Family
+    expr: source.product_family
+    display_name: Product Family
+    comment: Product family of the opportunity - Corporate Lending, Supply Chain Finance, Trade Finance, Cash, Liquidity, FX, Rates or Sustainable Finance.
+    synonyms: [product family, product line, family, business product]
+  - name: Expected Close Quarter
+    expr: source.expected_close_fiscal_quarter_label
+    display_name: Expected Close Quarter
+    comment: Japanese fiscal quarter of the expected close, e.g. FY2026-Q3 (Oct-Dec 2026), FY2026-Q4 (Jan-Mar 2027).
+    synonyms: [expected close quarter, close quarter, closing quarter, forecast quarter, target close]
+  - name: Expected Close Half
+    expr: source.expected_close_fiscal_half_label
+    display_name: Expected Close Half
+    comment: Japanese fiscal half of the expected close, e.g. FY2026-H2 (Oct-2026 to Mar-2027).
+    synonyms: [expected close half, close half, H2 pipeline, closing half, second half]
+  - name: Source Type
+    expr: source.source_type
+    display_name: Source Type
+    comment: Origin of the opportunity - Signal, RM Originated, Client Request or Referral.
+    synonyms: [source type, origin, lead source, deal source, originated by]
+  - name: Source Signal Type
+    expr: source.source_signal_code
+    display_name: Source Signal Type
+    comment: Signal type of the source signal for signal-sourced opportunities (e.g. TRADE_CORRIDOR_GROWTH, DEPOSIT_SURPLUS); blank otherwise.
+    synonyms: [source signal, signal type, originating signal, trigger, lead signal]
+  - name: Corridor Destination
+    expr: source.source_corridor_destination
+    display_name: Source Corridor Destination
+    comment: Destination country (ISO-2) of the trade corridor behind a corridor-growth source signal, e.g. VN Vietnam, IN India.
+    synonyms: [corridor destination, destination country, corridor, import country, trade corridor]
+measures:
+  - name: Opportunities
+    expr: COUNT(1)
+    display_name: Opportunities
+    comment: Opportunities created in the selected period (any stage).
+    synonyms: [opportunities, deals, number of deals, opportunity count, opps, pipeline count]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Open Opportunities
+    expr: COUNT(1) FILTER (WHERE source.is_open)
+    display_name: Open Opportunities
+    comment: Opportunities still open at 30-Sep-2026.
+    synonyms: [open opportunities, open deals, live pipeline, active opportunities, open opps]
+    format: *count
+  - name: Pipeline Amount USD
+    expr: SUM(CASE WHEN source.is_open THEN source.amount_usd END)
+    display_name: Pipeline Amount (open, USD)
+    comment: Amount of the open opportunities in USD (limits / volumes pitched).
+    synonyms: [pipeline, pipeline amount, pipeline value, open pipeline, deal value, gross pipeline]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Weighted Pipeline USD
+    expr: SUM(CASE WHEN source.is_open THEN source.weighted_amount_usd END)
+    display_name: Weighted Pipeline (open, USD)
+    comment: Open amount x stage win probability in USD (0.10 Prospecting, 0.25 Qualification, 0.45 Proposal, 0.70 Negotiation).
+    synonyms: [weighted pipeline, probability-weighted pipeline, weighted value, risk-adjusted pipeline, expected pipeline]
+    format: *usd
+  - name: Expected Revenue USD
+    expr: SUM(CASE WHEN source.is_open THEN source.expected_revenue_usd END)
+    display_name: Expected Revenue of Open Pipeline (USD)
+    comment: Expected annual revenue in USD of the open opportunities if won.
+    synonyms: [expected revenue, revenue potential, pipeline revenue, forecast revenue]
+    format: *usd
+  - name: Won Amount USD
+    expr: SUM(CASE WHEN source.is_won THEN source.amount_usd END)
+    display_name: Won Amount (USD)
+    comment: Amount of the opportunities won, USD.
+    synonyms: [won amount, closed won, booked, won value, wins value]
+    format: *usd
+  - name: Opportunities Won
+    expr: COUNT(1) FILTER (WHERE source.is_won)
+    display_name: Opportunities Won
+    comment: Opportunities won.
+    synonyms: [won, wins, deals won, closed won, successful deals]
+    format: *count
+  - name: Opportunities Closed
+    expr: COUNT(1) FILTER (WHERE source.is_closed)
+    display_name: Opportunities Closed (won or lost)
+    comment: Opportunities won or lost.
+    synonyms: [closed, closed deals, decided, won or lost, closed opportunities]
+    format: *count
+  - name: Win Rate %
+    expr: MEASURE(`Opportunities Won`) / NULLIF(MEASURE(`Opportunities Closed`), 0)
+    display_name: Win Rate
+    comment: Won / (won + lost) (fraction, D21) - which sources and products actually convert.
+    synonyms: [win rate, hit rate, conversion, success rate, close rate, strike rate]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Average Cycle Days
+    expr: AVG(source.cycle_days)
+    display_name: Average Cycle Time (days)
+    comment: Average days from creation to close for won or lost opportunities.
+    synonyms: [cycle time, sales cycle, days to close, time to close, deal cycle]
+    format: &dec1 {type: number, decimal_places: {type: max, places: 1}}
+  - name: Average Open Age Days
+    expr: AVG(source.open_age_days)
+    display_name: Average Age of Open Opportunities (days)
+    comment: Average days open to 30-Sep-2026 for open opportunities.
+    synonyms: [pipeline age, open age, days open, aging, stale pipeline]
+    format: *dec1
+  - name: Slipped Opportunities
+    expr: COUNT(1) FILTER (WHERE source.is_past_expected_close)
+    display_name: Slipped Opportunities
+    comment: Open opportunities whose expected close date has already passed.
+    synonyms: [slipped deals, overdue opportunities, past due pipeline, slippage, late deals]
+    format: *count
+validate:
+  dims: [Fiscal Year, Stage, Product Family]
+reconcile:
+  - name: vn_in_corridor_created_fy2026
+    measure: Opportunities
+    where: "`Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN') AND `Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_pipeline_opportunity WHERE source_signal_code = 'TRADE_CORRIDOR_GROWTH'
+      AND source_corridor_destination IN ('VN', 'IN') AND created_fiscal_year = 2026
+  - name: win_rate_by_source_signal_type
+    measure: Win Rate %
+    by: [Source Signal Type]
+    where: "`Source Signal Type` IS NOT NULL"
+    gold: >-
+      SELECT source_signal_code, count_if(is_won) / count_if(is_closed) FROM ${catalog}.gold.fact_pipeline_opportunity
+      WHERE source_signal_code IS NOT NULL GROUP BY 1 HAVING count_if(is_closed) > 0
+  - name: weighted_pipeline_h2_fy2026
+    measure: Weighted Pipeline USD
+    where: "`Expected Close Half` = 'FY2026-H2'"
+    gold: >-
+      SELECT sum(weighted_amount_usd) FROM ${catalog}.gold.fact_pipeline_opportunity
+      WHERE is_open AND expected_close_fiscal_half_label = 'FY2026-H2'
+  - name: pipeline_amount_by_stage
+    measure: Pipeline Amount USD
+    by: [Stage]
+    where: "`Is Open`"
+    gold: SELECT stage, sum(amount_usd) FROM ${catalog}.gold.fact_pipeline_opportunity WHERE is_open GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Calendar fields are of the creation date; use Expected Close Quarter / Half for the forecast view. Pipeline Amount
+      and Weighted Pipeline count open opportunities only.

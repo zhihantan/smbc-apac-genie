@@ -1,0 +1,232 @@
+# Space 11, Customer 360 Data Foundation (WP8f). Source = the record_type union gold.mvb_entity_resolution (D13):
+# record counts, matches and golden records are per-run SNAPSHOTS (window last over Month = the latest run of the
+# selection); precision / recall come from the run_source rows and are computed within one source system or on the
+# ALL row (never summed across sources); steward measures count steward items (flows). Answers:
+# metrics/_answers/customer360_data_foundation.sql.
+view: mv_entity_resolution
+space: customer360_data_foundation
+comment: >-
+  Entity-resolution quality of the six quarterly ER runs (Jun-2025 .. Sep-2026; rule set v1 to Dec-2025, v2
+  from Mar-2026) by source system: source identity records in, matched (deterministic / fuzzy / steward),
+  match rate, fuzzy share, unmatched, within-source duplicates merged, golden records, records per golden
+  record, pairwise precision and recall against the synthetic truth, and the data-steward queue (decisions,
+  items open at 30-Sep-2026, aging). Record and golden counts are per-run snapshots: a quarter or year returns
+  its latest run (filter Month = DATE'2026-09-01' or Is Latest Month for the latest run ER-20260930).
+grain: >-
+  one row per ER run x source record, per ER run x source system (incl. ALL) and per steward item
+  (gold.mvb_entity_resolution, record_type union)
+source: ${catalog}.gold.mvb_entity_resolution
+blocks:
+  calendar: {date: source.run_date, grain: month, what: the ER run (quarter-end)}
+  client: {key: source.golden_client_sk}
+overrides:
+  Client:
+    comment: >-
+      Current golden client (legal entity) of the source record / steward candidate, e.g. Meridian Agri
+      Holdings (Singapore) Pte Ltd - records of earlier runs are attached to today's golden client.
+dimensions:
+  - name: Run
+    expr: source.run_id
+    display_name: ER Run
+    comment: >-
+      Entity-resolution run ER-yyyymmdd: ER-20250630, ER-20250930, ER-20251231 (rule set v1), ER-20260331 (first
+      v2 run - the March 2026 resolution), ER-20260630, ER-20260930 (latest).
+    synonyms: [run, ER run, resolution run, matching run, run id, entity resolution run, batch]
+  - name: Rule Version
+    expr: source.rule_version
+    display_name: ER Rule Set
+    comment: "Rule set of the run: v1 (2025 runs) or v2 (from Mar-2026: abbreviation expansion, name + country match, cross-country blocking)."
+    synonyms: [rule version, rule set, matching rules, ruleset, v1 or v2, model version]
+  - name: Source System
+    expr: source.source_system
+    display_name: Source System
+    comment: >-
+      Identity source system: core_customer (core banking), crm_account (CRM), kyc_customer (KYC),
+      credit_obligor (credit), trade_party (trade finance), tsy_counterparty (treasury), ext_company_master
+      (external company master). The extra value ALL is a technical row that only carries the whole-run precision /
+      recall and holds no records (Records In = 0): exclude it when listing sources, and leave Source System out of
+      whole-run questions (records in, match rate, golden records, precision and recall of the run).
+    synonyms: [source system, source, system, feed, application, master, data source]
+  - name: Match Method
+    expr: source.match_method
+    display_name: Match Method
+    comment: "How the record was resolved in the run: deterministic, fuzzy, steward or unmatched."
+    synonyms: [match method, match type, resolution method, matching method, how matched]
+  - name: Steward Decision
+    expr: source.steward_decision
+    display_name: Steward Decision
+    comment: "Decision on a steward review item: Match or No Match; null while open."
+    synonyms: [steward decision, review decision, data steward outcome, manual decision, steward outcome]
+  - name: Aging Bucket
+    expr: source.aging_bucket
+    display_name: Steward Queue Aging Bucket
+    comment: "Days a steward item has been / was open: 0-7 days, 8-30 days, 31-90 days, 91-180 days or Over 180 days."
+    synonyms: [aging bucket, ageing, queue age, days open bucket, aging, steward queue aging]
+measures:
+  - name: Records In
+    expr: SUM(source.record_count)
+    display_name: Source Records In
+    comment: Source identity records in the run (latest run of the selection; per source system when grouped).
+    synonyms: [records in, source records, input records, records processed, identity records, client records]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &run
+      - {order: Month, range: current, semiadditive: last}
+  - name: Matched Records
+    expr: SUM(source.matched_count)
+    display_name: Matched Records
+    comment: Records linked to at least one other record (deterministic + fuzzy + steward) in the latest run of the selection.
+    synonyms: [matched, matched records, resolved records, linked records, records matched]
+    format: *count
+    window: *run
+  - name: Match Rate %
+    expr: MEASURE(`Matched Records`) / NULLIF(MEASURE(`Records In`), 0)
+    display_name: Match Rate
+    comment: Matched records / records in (fraction; 0.987 = 98.7% at the latest run).
+    synonyms: [match rate, resolution rate, matching rate, linkage rate, hit rate, match percentage]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Deterministic Matches
+    expr: SUM(source.deterministic_count)
+    display_name: Deterministic Matches
+    comment: Records matched by a deterministic rule (LEI-like id, tax id + country, v2 name + country).
+    synonyms: [deterministic matches, exact matches, rule-based matches, id matches, deterministic]
+    format: *count
+    window: *run
+  - name: Fuzzy Matches
+    expr: SUM(source.fuzzy_count)
+    display_name: Fuzzy Matches
+    comment: Records matched automatically by the fuzzy score (>= 0.90).
+    synonyms: [fuzzy matches, probabilistic matches, auto matches, name matches, fuzzy]
+    format: *count
+    window: *run
+  - name: Fuzzy Share %
+    expr: MEASURE(`Fuzzy Matches`) / NULLIF(MEASURE(`Matched Records`), 0)
+    display_name: Fuzzy Share of Matches
+    comment: Fuzzy matches / matched records (fraction).
+    synonyms: [fuzzy share, share of fuzzy matches, fuzzy rate, probabilistic share]
+    format: *pct
+  - name: Steward-Resolved Matches
+    expr: SUM(source.steward_resolved_count)
+    display_name: Steward-Resolved Matches
+    comment: Records matched through a data-steward decision (score 0.75-0.90).
+    synonyms: [steward matches, manually resolved, steward resolved, manual matches, clerical review matches]
+    format: *count
+    window: *run
+  - name: Unmatched Records
+    expr: SUM(source.unmatched_count)
+    display_name: Unmatched Records
+    comment: Records left as singleton golden records in the run.
+    synonyms: [unmatched, unmatched records, singletons, unresolved records, orphans]
+    format: *count
+    window: *run
+  - name: Duplicates Merged
+    expr: SUM(source.duplicate_merged_count)
+    display_name: Within-Source Duplicates Merged
+    comment: Records merged into a golden record that already holds a record of the same source system (duplicates).
+    synonyms: [duplicates merged, duplicates, dedup, de-duplicated records, merged duplicates, duplicate records]
+    format: *count
+    window: *run
+  - name: Golden Records
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'source_record' THEN source.run_golden_client_id END)
+    display_name: Golden Records
+    comment: >-
+      Golden records (resolved legal entities) of the run holding the selected records; by source system = golden
+      records holding that source.
+    synonyms: [golden records, golden clients, resolved entities, golden ids, master records, unique clients]
+    format: *count
+    window: *run
+  - name: Records per Golden Record
+    expr: MEASURE(`Records In`) / NULLIF(MEASURE(`Golden Records`), 0)
+    display_name: Records per Golden Record
+    comment: Average source records collapsed into one golden record.
+    synonyms: [records per golden record, compression, collapse ratio, fragmentation, records per entity]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+  - name: Precision %
+    expr: >-
+      CASE WHEN COUNT(DISTINCT CASE WHEN source.record_type = 'run_source' AND NOT source.is_all_sources_row
+                                    THEN source.source_system END) = 1
+           THEN SUM(CASE WHEN NOT source.is_all_sources_row THEN source.tp_pairs END)
+                / NULLIF(SUM(CASE WHEN NOT source.is_all_sources_row THEN source.predicted_pairs END), 0)
+           ELSE SUM(CASE WHEN source.is_all_sources_row THEN source.tp_pairs END)
+                / NULLIF(SUM(CASE WHEN source.is_all_sources_row THEN source.predicted_pairs END), 0) END
+    display_name: Pairwise Precision
+    comment: >-
+      Share of record pairs put in one golden record that truly belong together (vs the synthetic truth;
+      gate >= 97%). Within one source system it is that source's precision, otherwise the whole run's (ALL row) -
+      never summed across sources. Latest run of the selection.
+    synonyms: [precision, match precision, accuracy, false match rate, pairwise precision, correctness]
+    format: *pct
+    window: *run
+  - name: Recall %
+    expr: >-
+      CASE WHEN COUNT(DISTINCT CASE WHEN source.record_type = 'run_source' AND NOT source.is_all_sources_row
+                                    THEN source.source_system END) = 1
+           THEN SUM(CASE WHEN NOT source.is_all_sources_row THEN source.tp_pairs END)
+                / NULLIF(SUM(CASE WHEN NOT source.is_all_sources_row THEN source.true_pairs END), 0)
+           ELSE SUM(CASE WHEN source.is_all_sources_row THEN source.tp_pairs END)
+                / NULLIF(SUM(CASE WHEN source.is_all_sources_row THEN source.true_pairs END), 0) END
+    display_name: Pairwise Recall
+    comment: >-
+      Share of true same-entity record pairs that the run put together (gate >= 95%; v1 runs ~93%, v2 ~98%).
+      Within one source system it is that source's recall, otherwise the whole run's. Latest run of the selection.
+    synonyms: [recall, match recall, coverage, missed matches, pairwise recall, completeness of matching]
+    format: *pct
+    window: *run
+  - name: Steward Decisions
+    expr: SUM(source.steward_decided_count)
+    display_name: Steward Decisions
+    comment: Steward review items decided (Match or No Match) among the items raised by the selected runs.
+    synonyms: [steward decisions, review decisions, manual reviews done, decided items, clerical decisions]
+    format: *count
+  - name: Steward Queue Open
+    expr: SUM(source.steward_open_count)
+    display_name: Steward Items Open (30-Sep-2026)
+    comment: Steward review items still open at 30-Sep-2026 (by the run that raised them; 13 in total).
+    synonyms: [steward queue open, open steward items, review backlog, open reviews, pending reviews, queue size]
+    format: *count
+  - name: Average Days Open
+    expr: AVG(CASE WHEN source.steward_open_count = 1 THEN source.days_open END)
+    display_name: Average Age of Open Steward Items (days)
+    comment: Average days the open steward items have been waiting at 30-Sep-2026.
+    synonyms: [average age, queue aging, days open, average days open, backlog age, how long open]
+    format: {type: number, decimal_places: {type: max, places: 0}}
+validate:
+  dims: [Month, Source System]
+reconcile:
+  - name: records_in_latest_run_by_source
+    measure: Records In
+    by: [Source System]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT source_system, records_in FROM ${catalog}.gold.fact_entity_resolution_run
+      WHERE is_latest_run AND source_system <> 'ALL'
+  - name: golden_records_by_run
+    measure: Golden Records
+    by: [Run]
+    gold: SELECT run_id, golden_records FROM ${catalog}.gold.fact_entity_resolution_run WHERE source_system = 'ALL'
+  - name: precision_latest_run_by_source_incl_all
+    measure: Precision %
+    by: [Source System]
+    where: "`Is Latest Month`"
+    gold: SELECT source_system, precision FROM ${catalog}.gold.fact_entity_resolution_run WHERE is_latest_run
+  - name: recall_whole_run_by_run
+    measure: Recall %
+    by: [Run]
+    gold: SELECT run_id, recall FROM ${catalog}.gold.fact_entity_resolution_run WHERE source_system = 'ALL'
+  - name: match_rate_latest_run
+    measure: Match Rate %
+    where: "`Is Latest Month`"
+    gold: SELECT match_rate FROM ${catalog}.gold.fact_entity_resolution_run WHERE is_latest_run AND source_system = 'ALL'
+  - name: duplicates_merged_fy2025_is_last_run
+    measure: Duplicates Merged
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT duplicates_merged FROM ${catalog}.gold.fact_entity_resolution_run WHERE run_id = 'ER-20260331' AND source_system = 'ALL'
+  - name: steward_queue_open
+    measure: Steward Queue Open
+    gold: SELECT count(*) FROM ${catalog}.gold.fact_steward_queue WHERE is_open_at_as_of
+glossary:
+  caveats:
+    - >-
+      Each run re-resolves all records, so record / match / golden counts are per-run snapshots (window last):
+      compare runs by grouping by Run. Records of earlier runs carry today's golden client (segment, office);
+      golden ids retired by merges are counted in their own run. Precision / recall exist per source system and
+      for ALL only. Exposure effects of a run are in mv_er_exposure_impact.

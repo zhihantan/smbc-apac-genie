@@ -1,0 +1,1790 @@
+{
+  "title": "APAC Genie - Opportunity Identification",
+  "description": "Ask about opportunity signals, next-best-product recommendations, the sales pipeline and product penetration vs peers for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000000",
+          "question": [
+            "Top 25 open opportunities by estimated revenue across APAC, with signal type, RM and days open."
+          ]
+        },
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000001",
+          "question": [
+            "Which clients are paying USD/JPY or USD/VND through other banks, and how much flow?"
+          ]
+        },
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000002",
+          "question": [
+            "Clients with a deposit surplus signal in the last 60 days that have no time-deposit or investment product with us."
+          ]
+        },
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000003",
+          "question": [
+            "Which groups have facilities maturing in the next 12 months with no refinancing opportunity in the pipeline?"
+          ]
+        },
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000004",
+          "question": [
+            "Product penetration gap vs peers for Japanese automotive-parts subsidiaries - which products are under-penetrated?"
+          ]
+        },
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000005",
+          "question": [
+            "Next-best-product: top 20 clients by propensity for supply chain finance and the main drivers."
+          ]
+        },
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000006",
+          "question": [
+            "Opportunities created from trade-corridor-growth signals into Vietnam and India this fiscal year, and their conversion rate."
+          ]
+        },
+        {
+          "id": "551cd2b0b0ae1e01b4ecef0400000007",
+          "question": [
+            "Pipeline by expected close quarter and stage for H2 FY2026, weighted value by product."
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "n_apac_countries",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_amer",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_emea",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_global",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.dim_signal_type",
+          "column_configs": [
+            {
+              "column_name": "consumed_by",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "default_weight",
+              "exclude": true
+            },
+            {
+              "column_name": "description",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "is_derived_in_gold",
+              "exclude": true
+            },
+            {
+              "column_name": "polarity",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signal_category",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signal_code",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signal_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signals_recorded",
+              "exclude": true
+            },
+            {
+              "column_name": "source_quadrant",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "source_system",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_carbon_intensive",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_group_lead",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "revenue_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_prior_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_yoy_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "exclude": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_next_best_product",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Propensity Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Top Drivers",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_opportunity_signals",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor Destination",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "description": [
+                "APAC booking country as an ISO-2 code - filter with the code: AU Australia, SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. 'Signals in Australia' = `Coverage Office` = 'AU'."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Currency Pair",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Recommended Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Signal Category",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Signal Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_pipeline",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Corridor Destination",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "description": [
+                "APAC booking country as an ISO-2 code - filter with the code: AU Australia, SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. 'Signals in Australia' = `Coverage Office` = 'AU'."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Expected Close Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Expected Close Quarter",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Source Signal Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Source Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Stage",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_product_penetration",
+          "column_configs": [
+            {
+              "column_name": "Business Line",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Peer Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "94d4a31ff89a06dac2e6e60b00000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- 'Open opportunities' = open SIGNALS in mv_opportunity_signals (`Status` = 'Open'; `Open Signals`, `Open Estimated Revenue USD`) unless the user says pipeline, deals or CRM opportunities (mv_pipeline).\n",
+            "- Signals are entity-level events dated by detection (`Date`); 'last 60 days' = `Date` BETWEEN DATE'2026-08-02' AND DATE'2026-09-30'. `Signal Type` codes: FX_FLOW_VIA_OTHER_BANK, DEPOSIT_SURPLUS, FACILITY_MATURING_12M, TRADE_CORRIDOR_GROWTH, CAPEX_NEWS (capex / expansion news), MA_NEWS, SLL_ELIGIBLE, SCF_ANCHOR_CANDIDATE, LOAN_SERVICE_TO_OTHER_BANK, PRODUCT_GAP_VS_PEERS.\n",
+            "- FX flow via other banks = `Latest Observed Amount USD` (the current 12-month flow; never sum `Observed Amount USD` for it). 'Not actioned by an RM' = NOT `Is Actioned`; 'no time-deposit or investment product' = NOT `Holds TD or Investment`; 'no refinancing in the pipeline' = NOT `Has Open Lending Opportunity` on `Status` = 'Open' signals.\n",
+            "- mv_pipeline calendar fields (`Fiscal Year`, `Month`, `Date`) are the CREATION date ('created this fiscal year' = `Fiscal Year` = 'FY2026'); forecasts use `Expected Close Quarter` / `Expected Close Half` (e.g. 'FY2026-H2') with `Is Open`. `Win Rate %` = won / (won + lost).\n",
+            "- Next-best-product scores are monthly snapshots: filter `Is Latest Month`; 'top N clients for product X' = filter `Product Family` (e.g. 'Supply Chain Finance') and order by `Max Propensity`, showing `Propensity Rank` and `Top Drivers`.\n",
+            "- Penetration is per `Fiscal Year` (FY2026 to date); 'automotive parts' = `Subsector` 'Auto Parts' (all Japanese Corporate, so the peer gap nets to 0). 'Under-penetrated products' = HAVING MEASURE(`Clients With Gap`) > 0 OR MEASURE(`Gap vs All Clients pts`) > 0.05.\n",
+            "- Countries are ISO-2 codes in `Coverage Office` ('in Australia' = 'AU', Vietnam = 'VN', India = 'IN'); never search `Client` names for a country. `Client Group` has a value dictionary (= on the exact name); match entity names (`Client`) with LIKE. Questions about clients list `Client` (legal entity) rows unless the user asks for groups.\n",
+            "- Keep NULL groups: a blank `Source Signal Type` (RM-originated, referral or client-request deals) is a real row, so never add IS NOT NULL filters the user did not ask for; 'win rate by source' groups by `Source Type` and `Source Signal Type`.\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "8ba6a47b3bf66d5e082d8b3b00000000",
+          "question": [
+            "Which groups have open :signal_type signals with no refinancing (lending) opportunity in the pipeline?"
+          ],
+          "sql": [
+            "SELECT `Client Group`,\n",
+            "       MEASURE(`Open Signals`)        AS maturing_facility_signals,\n",
+            "       MEASURE(`Observed Amount USD`) AS maturing_amount_usd\n",
+            "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+            "WHERE `Signal Type` = :signal_type AND `Status` = 'Open' AND NOT `Has Open Lending Opportunity`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY maturing_amount_usd DESC"
+          ],
+          "parameters": [
+            {
+              "name": "signal_type",
+              "type_hint": "STRING",
+              "description": [
+                "Signal code, e.g. FACILITY_MATURING_12M"
+              ],
+              "default_value": {
+                "values": [
+                  "FACILITY_MATURING_12M"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"facilities maturing in the next 12 months with no refinancing opportunity\", \"refi gap\", \"maturities not covered by the pipeline\"."
+          ]
+        },
+        {
+          "id": "8ba6a47b3bf66d5e082d8b3b00000001",
+          "question": [
+            "Next-best-product - top 20 clients by propensity for :product_family and the main drivers"
+          ],
+          "sql": [
+            "SELECT `Client`, `Product`, `Propensity Rank`, `Top Drivers`,\n",
+            "       MEASURE(`Max Propensity`) AS propensity\n",
+            "FROM smbc_genie.metrics.mv_next_best_product\n",
+            "WHERE `Is Latest Month` AND `Product Family` = :product_family\n",
+            "GROUP BY ALL\n",
+            "ORDER BY propensity DESC\n",
+            "LIMIT 20"
+          ],
+          "parameters": [
+            {
+              "name": "product_family",
+              "type_hint": "STRING",
+              "description": [
+                "Product family, e.g. Supply Chain Finance, Corporate Lending, Liquidity"
+              ],
+              "default_value": {
+                "values": [
+                  "Supply Chain Finance"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"top N clients by propensity for <product>\", \"NBP / next best product for SCF\", \"who should we pitch <product> to\", \"propensity ranking\"."
+          ]
+        },
+        {
+          "id": "8ba6a47b3bf66d5e082d8b3b00000002",
+          "question": [
+            "Opportunities created from trade-corridor-growth signals into Vietnam and India in :fiscal_year, split by destination country (one row per country), and their conversion rate"
+          ],
+          "sql": [
+            "SELECT `Corridor Destination`,\n",
+            "       MEASURE(`Opportunities`)        AS created,\n",
+            "       MEASURE(`Opportunities Closed`) AS closed,\n",
+            "       MEASURE(`Opportunities Won`)    AS won,\n",
+            "       MEASURE(`Win Rate %`)           AS win_rate\n",
+            "FROM smbc_genie.metrics.mv_pipeline\n",
+            "WHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN')\n",
+            "  AND `Fiscal Year` = :fiscal_year\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Corridor Destination`"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal year of creation, e.g. FY2026 (this fiscal year)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use when the user wants corridor-growth opportunities per destination / by country (VN and IN rows); for one combined total use the 'in total' query instead."
+          ]
+        },
+        {
+          "id": "8ba6a47b3bf66d5e082d8b3b00000003",
+          "question": [
+            "In total (Vietnam and India together), how many opportunities were created from trade-corridor-growth signals in :fiscal_year, how many closed and won, and what is the win rate?"
+          ],
+          "sql": [
+            "SELECT MEASURE(`Opportunities`)        AS created,\n",
+            "       MEASURE(`Opportunities Closed`) AS closed,\n",
+            "       MEASURE(`Opportunities Won`)    AS won,\n",
+            "       MEASURE(`Win Rate %`)           AS win_rate\n",
+            "FROM smbc_genie.metrics.mv_pipeline\n",
+            "WHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN')\n",
+            "  AND `Fiscal Year` = :fiscal_year"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal year of creation, e.g. FY2026 (this fiscal year)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for the combined conversion of corridor-growth opportunities into VN and IN (one row, no destination column), e.g. \"in total\", \"overall\", \"combined\"."
+          ]
+        },
+        {
+          "id": "8ba6a47b3bf66d5e082d8b3b00000004",
+          "question": [
+            "Pipeline by expected close quarter and stage for :expected_close_half, weighted value by product"
+          ],
+          "sql": [
+            "SELECT `Expected Close Quarter`, `Stage`, `Product`,\n",
+            "       MEASURE(`Open Opportunities`)    AS open_opportunities,\n",
+            "       MEASURE(`Pipeline Amount USD`)   AS pipeline_amount_usd,\n",
+            "       MEASURE(`Weighted Pipeline USD`) AS weighted_pipeline_usd\n",
+            "FROM smbc_genie.metrics.mv_pipeline\n",
+            "WHERE `Expected Close Half` = :expected_close_half AND `Is Open`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Expected Close Quarter`, `Stage`, weighted_pipeline_usd DESC"
+          ],
+          "parameters": [
+            {
+              "name": "expected_close_half",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal half of the expected close, e.g. FY2026-H2 (Oct-2026 to Mar-2027)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-H2"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"pipeline for H2 FY2026\", \"weighted pipeline by stage / product / close quarter\", \"what is expected to close next half\"."
+          ]
+        },
+        {
+          "id": "8ba6a47b3bf66d5e082d8b3b00000005",
+          "question": [
+            "For :client_group, how many :product opportunities are open in the pipeline and how many :signal_type signals were raised?"
+          ],
+          "sql": [
+            "WITH p AS (\n",
+            "  SELECT MEASURE(`Open Opportunities`) AS open_green_loans\n",
+            "  FROM smbc_genie.metrics.mv_pipeline\n",
+            "  WHERE `Client Group` = :client_group AND `Product` = :product\n",
+            "), s AS (\n",
+            "  SELECT MEASURE(`Signals`) AS sll_signals\n",
+            "  FROM smbc_genie.metrics.mv_opportunity_signals\n",
+            "  WHERE `Client Group` = :client_group AND `Signal Type` = :signal_type\n",
+            ")\n",
+            "SELECT p.open_green_loans, s.sll_signals FROM p CROSS JOIN s"
+          ],
+          "parameters": [
+            {
+              "name": "client_group",
+              "type_hint": "STRING",
+              "description": [
+                "Exact client group name (value dictionary), e.g. Banksia Renewables Partners"
+              ],
+              "default_value": {
+                "values": [
+                  "Banksia Renewables Partners"
+                ]
+              }
+            },
+            {
+              "name": "product",
+              "type_hint": "STRING",
+              "description": [
+                "Pipeline product, e.g. Green Loan, Supply Chain Finance"
+              ],
+              "default_value": {
+                "values": [
+                  "Green Loan"
+                ]
+              }
+            },
+            {
+              "name": "signal_type",
+              "type_hint": "STRING",
+              "description": [
+                "Signal code, e.g. SLL_ELIGIBLE"
+              ],
+              "default_value": {
+                "values": [
+                  "SLL_ELIGIBLE"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for questions that combine the pipeline with signals for one group (e.g. open green loans and SLL-eligible signals for Banksia Renewables Partners); one CTE per metric view, then join."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "07eb9ec36871423e37ed7dfe00000000",
+          "identifier": "smbc_genie.gold.fn_opportunity_top_open_signals"
+        },
+        {
+          "id": "07eb9ec36871423e37ed7dfe00000001",
+          "identifier": "smbc_genie.gold.fn_opportunity_fx_leakage"
+        },
+        {
+          "id": "07eb9ec36871423e37ed7dfe00000002",
+          "identifier": "smbc_genie.gold.fn_opportunity_penetration_gaps"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "e320dc1576a38b8948d3d5a500000000",
+          "question": [
+            "Top 25 open opportunities by estimated revenue across APAC, with signal type, RM, detection date and days open."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Signal Type`, `Primary RM`, `Date` AS detected_date,\n",
+                "       MEASURE(`Open Estimated Revenue USD`) AS estimated_revenue_usd,\n",
+                "       MEASURE(`Days Open Average`)          AS days_open\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Status` = 'Open'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY estimated_revenue_usd DESC\n",
+                "LIMIT 25"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000001",
+          "question": [
+            "what are the biggest open opportunities right now? top 25 by estimated revenue"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Signal Type`, MEASURE(`Open Estimated Revenue USD`) AS estimated_revenue_usd\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Status` = 'Open'\n",
+                "GROUP BY `Client`, `Signal Type`, `Primary RM`, `Date`\n",
+                "ORDER BY estimated_revenue_usd DESC\n",
+                "LIMIT 25"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000002",
+          "question": [
+            "Which clients are paying USD/JPY or USD/VND through other banks (FX flow we do not capture), and how much flow? Show client, currency pair, the latest 12-month flow and the number of signals."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Currency Pair`,\n",
+                "       MEASURE(`Latest Observed Amount USD`) AS fx_flow_via_other_banks_12m_usd,\n",
+                "       MEASURE(`Signals`)                    AS signals\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Signal Type` = 'FX_FLOW_VIA_OTHER_BANK' AND `Currency Pair` IN ('USD/JPY', 'USD/VND')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY fx_flow_via_other_banks_12m_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000003",
+          "question": [
+            "clients paying USD/JPY or USD/VND thru other banks - how much fx flow are we mising?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Currency Pair`, MEASURE(`Latest Observed Amount USD`) AS fx_flow_via_other_banks_12m_usd\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Signal Type` = 'FX_FLOW_VIA_OTHER_BANK' AND `Currency Pair` IN ('USD/JPY', 'USD/VND')\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000004",
+          "question": [
+            "Clients with a deposit surplus signal in the last 60 days that have no time-deposit or investment product with us - show the detection date, status and surplus amount."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Date` AS detected_date, `Status`,\n",
+                "       MEASURE(`Observed Amount USD`) AS surplus_usd\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Signal Type` = 'DEPOSIT_SURPLUS' AND `Date` BETWEEN DATE'2026-08-02' AND DATE'2026-09-30' AND NOT `Holds TD or Investment`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY surplus_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000005",
+          "question": [
+            "Which groups have open facility-maturing signals (facilities maturing in the next 12 months) with no refinancing opportunity in the pipeline? Show the number of signals and the maturing amount per group."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`,\n",
+                "       MEASURE(`Open Signals`)        AS maturing_facility_signals,\n",
+                "       MEASURE(`Observed Amount USD`) AS maturing_amount_usd\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Signal Type` = 'FACILITY_MATURING_12M' AND `Status` = 'Open' AND NOT `Has Open Lending Opportunity`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY maturing_amount_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000006",
+          "question": [
+            "Refi gap: groups with maturities in the next 12 months and no refi in the pipe - open signal count and maturing amount"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client Group`,\n",
+                "       MEASURE(`Open Signals`)        AS maturing_facility_signals,\n",
+                "       MEASURE(`Observed Amount USD`) AS maturing_amount_usd\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Signal Type` = 'FACILITY_MATURING_12M' AND `Status` = 'Open' AND NOT `Has Open Lending Opportunity`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY maturing_amount_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000007",
+          "question": [
+            "Product penetration gap vs peers for Japanese automotive-parts subsidiaries in FY2026 - which products are under-penetrated? Show clients, penetration, peer penetration, clients with a gap, all-APAC penetration and the gap vs all APAC clients."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Product`,\n",
+                "       MEASURE(`Clients`)                         AS clients,\n",
+                "       MEASURE(`Penetration %`)                   AS penetration,\n",
+                "       MEASURE(`Peer Penetration %`)              AS peer_penetration,\n",
+                "       MEASURE(`Clients With Gap`)                AS clients_with_gap_vs_peers,\n",
+                "       MEASURE(`All-Client Penetration %`)        AS all_apac_penetration,\n",
+                "       MEASURE(`Gap vs All Clients pts`)          AS gap_vs_all_apac_pts\n",
+                "FROM smbc_genie.metrics.mv_product_penetration\n",
+                "WHERE `Fiscal Year` = 'FY2026' AND `Segment` = 'Japanese Corporate' AND `Subsector` = 'Auto Parts'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Clients With Gap`) > 0 OR MEASURE(`Gap vs All Clients pts`) > 0.05\n",
+                "ORDER BY gap_vs_all_apac_pts DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000008",
+          "question": [
+            "Next-best-product: top 20 clients by propensity for supply chain finance, with the product, rank and main drivers."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Product`, `Propensity Rank`, `Top Drivers`,\n",
+                "       MEASURE(`Max Propensity`) AS propensity\n",
+                "FROM smbc_genie.metrics.mv_next_best_product\n",
+                "WHERE `Is Latest Month` AND `Product Family` = 'Supply Chain Finance'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY propensity DESC\n",
+                "LIMIT 20"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000009",
+          "question": [
+            "top 20 NBP names for SCF - propensity, rank and drivers"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Propensity Rank`, `Top Drivers`, MEASURE(`Max Propensity`) AS propensity\n",
+                "FROM smbc_genie.metrics.mv_next_best_product\n",
+                "WHERE `Is Latest Month` AND `Product Family` = 'Supply Chain Finance'\n",
+                "GROUP BY `Client`, `Product`, `Propensity Rank`, `Top Drivers`\n",
+                "ORDER BY propensity DESC\n",
+                "LIMIT 20"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a50000000a",
+          "question": [
+            "Opportunities created from trade-corridor-growth signals into Vietnam and India this fiscal year, and their conversion rate - created, closed, won and win rate by destination."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Corridor Destination`,\n",
+                "       MEASURE(`Opportunities`)        AS created,\n",
+                "       MEASURE(`Opportunities Closed`) AS closed,\n",
+                "       MEASURE(`Opportunities Won`)    AS won,\n",
+                "       MEASURE(`Win Rate %`)           AS win_rate\n",
+                "FROM smbc_genie.metrics.mv_pipeline\n",
+                "WHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN') AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Corridor Destination`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a50000000b",
+          "question": [
+            "In total, how many opportunities were created from trade-corridor-growth signals into Vietnam and India in FY2026, how many closed and won, and what is the win rate?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Opportunities`)        AS created,\n",
+                "       MEASURE(`Opportunities Closed`) AS closed,\n",
+                "       MEASURE(`Opportunities Won`)    AS won,\n",
+                "       MEASURE(`Win Rate %`)           AS win_rate\n",
+                "FROM smbc_genie.metrics.mv_pipeline\n",
+                "WHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN') AND `Fiscal Year` = 'FY2026'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a50000000c",
+          "question": [
+            "Which capex / expansion news signals in Australia have not been actioned by an RM? List client, detection date, status, number of signals and estimated revenue."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Date` AS detected_date, `Status`,\n",
+                "       MEASURE(`Signals`)               AS signals,\n",
+                "       MEASURE(`Estimated Revenue USD`) AS estimated_revenue_usd\n",
+                "FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "WHERE `Signal Type` = 'CAPEX_NEWS' AND `Coverage Office` = 'AU' AND NOT `Is Actioned`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY detected_date DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a50000000d",
+          "question": [
+            "Pipeline by expected close quarter and stage for H2 FY2026, weighted value by product - with open opportunities, pipeline amount and weighted pipeline."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Expected Close Quarter`, `Stage`, `Product`,\n",
+                "       MEASURE(`Open Opportunities`)    AS open_opportunities,\n",
+                "       MEASURE(`Pipeline Amount USD`)   AS pipeline_amount_usd,\n",
+                "       MEASURE(`Weighted Pipeline USD`) AS weighted_pipeline_usd\n",
+                "FROM smbc_genie.metrics.mv_pipeline\n",
+                "WHERE `Expected Close Half` = 'FY2026-H2' AND `Is Open`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Expected Close Quarter`, `Stage`, weighted_pipeline_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a50000000e",
+          "question": [
+            "H2 FY26 pipe by close qtr, stage and product - open count, amount, weighted"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Expected Close Quarter`, `Stage`, `Product`,\n",
+                "       MEASURE(`Open Opportunities`)    AS open_opportunities,\n",
+                "       MEASURE(`Pipeline Amount USD`)   AS pipeline_amount_usd,\n",
+                "       MEASURE(`Weighted Pipeline USD`) AS weighted_pipeline_usd\n",
+                "FROM smbc_genie.metrics.mv_pipeline\n",
+                "WHERE `Expected Close Half` = 'FY2026-H2' AND `Is Open`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Expected Close Quarter`, `Stage`, weighted_pipeline_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a50000000f",
+          "question": [
+            "Win rate by source type and source signal type - which signals actually convert? Show closed, won and win rate."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Source Type`, `Source Signal Type`,\n",
+                "       MEASURE(`Opportunities Closed`) AS closed,\n",
+                "       MEASURE(`Opportunities Won`)    AS won,\n",
+                "       MEASURE(`Win Rate %`)           AS win_rate\n",
+                "FROM smbc_genie.metrics.mv_pipeline\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Opportunities Closed`) > 0\n",
+                "ORDER BY win_rate DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000010",
+          "question": [
+            "Show the supply chain finance opportunity created for the Kinokawa Precision group in August 2026 from a signal - client, created date, product, stage, source signal type, opportunities and open amount."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Date` AS created_date, `Product`, `Stage`, `Source Signal Type`,\n",
+                "       MEASURE(`Opportunities`) AS opportunities, MEASURE(`Pipeline Amount USD`) AS open_amount_usd\n",
+                "FROM smbc_genie.metrics.mv_pipeline\n",
+                "WHERE `Client Group` = 'Kinokawa Precision' AND `Month` = DATE'2026-08-01' AND `Product` = 'Supply Chain Finance'\n",
+                "  AND `Source Type` = 'Signal'\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e320dc1576a38b8948d3d5a500000011",
+          "question": [
+            "For Banksia Renewables Partners, how many green-loan opportunities are open in the pipeline and how many SLL_ELIGIBLE signals were raised?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH p AS (\n",
+                "  SELECT MEASURE(`Open Opportunities`) AS open_green_loans\n",
+                "  FROM smbc_genie.metrics.mv_pipeline\n",
+                "  WHERE `Client Group` = 'Banksia Renewables Partners' AND `Product` = 'Green Loan'\n",
+                "), s AS (\n",
+                "  SELECT MEASURE(`Signals`) AS sll_signals\n",
+                "  FROM smbc_genie.metrics.mv_opportunity_signals\n",
+                "  WHERE `Client Group` = 'Banksia Renewables Partners' AND `Signal Type` = 'SLL_ELIGIBLE'\n",
+                ")\n",
+                "SELECT p.open_green_loans, s.sll_signals FROM p CROSS JOIN s"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

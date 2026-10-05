@@ -1,0 +1,124 @@
+# Standard calendar block (PLAN §8, DECISIONS D16 / D17 / D33). Expanded into every view by
+# src/smbc_genie_lib/metrics.py; `grains:` (runner-only) picks the fields for the view's grain.
+# Every hierarchy field is derived from the WINDOW ORDER FIELD BY NAME (`Date` or `Month`), never from the
+# source column: the docs warn that a hierarchy defined on the source column breaks the link to the order
+# field and window measures grouped by it return wrong results. Labels match gold.dim_date
+# (FY2026, FY2026-Q2, FY2026-H1). As-of 30-Sep-2026 comes from config (never CURRENT_DATE).
+block: calendar
+comment: >-
+  Calendar fields derived from the view's grain date: Date (daily views), Month, Fiscal Year, Fiscal Quarter,
+  Fiscal Half, Is Month End and Is Latest Month (annual views: Fiscal Year, Fiscal Year Number, Is Latest
+  Fiscal Year). Japanese fiscal year April-March: FY2026 = Apr 2026 - Mar 2027, Q1 Apr-Jun, Q2 Jul-Sep,
+  Q3 Oct-Dec, Q4 Jan-Mar, H1 Apr-Sep, H2 Oct-Mar. Today = 30-Sep-2026 (the latest month is September 2026).
+params:
+  date: {comment: "SQL expression of the fact's grain date, e.g. source.balance_date (day / month grains)"}
+  grain: {required: true, allowed: [day, month, fiscal_year], comment: "day | month | fiscal_year"}
+  what: {default: "the row", comment: "phrase used in the field comments, e.g. the balance month-end"}
+  fy: {comment: "fiscal_year grain only: INT expression of the fiscal year (e.g. source.fiscal_year); derived from date if absent"}
+dimensions:
+  # ---------------- day grain: order field = Date ----------------
+  - name: Date
+    grains: [day]
+    expr: ${date}
+    display_name: Date
+    comment: >-
+      Calendar date of ${what}. Today is 30-Sep-2026 (never use CURRENT_DATE); "last N days" means Date
+      between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date
+      return the last date of any longer period you group by.
+    synonyms: [day, as of date, business date, value date, snapshot date, reporting date]
+    format: {type: date, date_format: year_month_day}
+  - name: Month
+    grains: [day]
+    expr: "TRUNC(`Date`, 'MM')"
+    display_name: Month
+    comment: >-
+      Calendar month of ${what} as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time
+      measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.
+    synonyms: [month end, period, reporting month, calendar month, month-end snapshot, EOM month, mth]
+    format: {type: date, date_format: year_month_day}
+  # ---------------- month grain: order field = Month ----------------
+  - name: Month
+    grains: [month]
+    expr: "TRUNC(${date}, 'MM')"
+    display_name: Month
+    comment: >-
+      Calendar month of ${what} as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end
+      snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period
+      (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.
+    synonyms: [month end, period, reporting month, calendar month, month-end snapshot, EOM month, mth]
+    format: {type: date, date_format: year_month_day}
+  # ---------------- day + month grains: hierarchy from `Month` ----------------
+  - name: Fiscal Year
+    grains: [day, month]
+    expr: "CONCAT('FY', CASE WHEN MONTH(`Month`) >= ${fy_start_month} THEN YEAR(`Month`) ELSE YEAR(`Month`) - 1 END)"
+    display_name: Fiscal Year
+    comment: >-
+      Japanese fiscal year label of ${what}, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 -
+      Mar 2026. "This year" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.
+    synonyms: [FY, financial year, Japanese fiscal year, JFY, fiscal, year, business year]
+  - name: Fiscal Quarter
+    grains: [day, month]
+    expr: >-
+      CONCAT('FY', CASE WHEN MONTH(`Month`) >= ${fy_start_month} THEN YEAR(`Month`) ELSE YEAR(`Month`) - 1 END,
+      '-Q', CAST(FLOOR(PMOD(MONTH(`Month`) - ${fy_start_month}, 12) / 3) + 1 AS INT))
+    display_name: Fiscal Quarter
+    comment: >-
+      Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar
+      (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).
+    synonyms: [quarter, fiscal quarter, FQ, qtr, Q1, Q2, Q3, Q4]
+  - name: Fiscal Half
+    grains: [day, month]
+    expr: >-
+      CONCAT('FY', CASE WHEN MONTH(`Month`) >= ${fy_start_month} THEN YEAR(`Month`) ELSE YEAR(`Month`) - 1 END,
+      '-', CASE WHEN PMOD(MONTH(`Month`) - ${fy_start_month}, 12) < 6 THEN 'H1' ELSE 'H2' END)
+    display_name: Fiscal Half
+    comment: >-
+      Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed
+      on 30-Sep-2026; compare with FY2025-H1 for year-on-year.
+    synonyms: [half, half year, H1, H2, first half, second half, interim period, semi-annual]
+  - name: Is Month End
+    grains: [day]
+    expr: "`Date` = LAST_DAY(`Date`)"
+    display_name: Is Month End
+    comment: True on the last calendar day of a month (the month-end snapshot date of ${what}).
+    synonyms: [month-end, end of month, EOM, month end flag, month-end date]
+  - name: Is Month End
+    grains: [month]
+    expr: "TRUE"
+    display_name: Is Month End
+    comment: >-
+      Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total
+      (kept so the same filter works in daily and monthly views).
+    synonyms: [month-end, end of month, EOM, month end flag, month-end date]
+  - name: Is Latest Month
+    grains: [day, month]
+    expr: "`Month` = DATE'${as_of_month}'"
+    display_name: Is Latest Month
+    comment: >-
+      True for September 2026, the latest (as-of) month - use it for "today", "current", "latest" or "right
+      now" questions on balances and other point-in-time measures.
+    synonyms: [latest month, current month, this month, as of month, today, right now, latest]
+  # ---------------- fiscal_year grain: order field = Fiscal Year Number ----------------
+  - name: Fiscal Year Number
+    grains: [fiscal_year]
+    expr: "${fy}"
+    display_name: Fiscal Year Number
+    comment: >-
+      Japanese fiscal year as a number (2026 = FY2026 = Apr 2026 - Mar 2027); the order field for prior-year
+      comparisons (offset -1).
+    synonyms: [fiscal year number, FY number, year number]
+    format: {type: number, decimal_places: {type: exact, places: 0}, hide_group_separator: true}
+  - name: Fiscal Year
+    grains: [fiscal_year]
+    expr: "CONCAT('FY', `Fiscal Year Number`)"
+    display_name: Fiscal Year
+    comment: >-
+      Japanese fiscal year label of ${what}, April to March: FY2026 = Apr 2026 - Mar 2027 (in progress, H1
+      closed 30-Sep-2026), FY2025 = Apr 2025 - Mar 2026 (the latest complete year).
+    synonyms: [FY, financial year, Japanese fiscal year, JFY, fiscal, year, business year]
+  - name: Is Latest Fiscal Year
+    grains: [fiscal_year]
+    expr: "`Fiscal Year Number` = ${as_of_fiscal_year_no}"
+    display_name: Is Latest Fiscal Year
+    comment: True for FY2026, the fiscal year containing the as-of date 30-Sep-2026 ("this fiscal year").
+    synonyms: [current fiscal year, this fiscal year, this year, current FY, latest FY]

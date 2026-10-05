@@ -1,0 +1,86 @@
+table: dim_client_group
+domain: hub
+comment: >-
+  Client groups (global parent groups) as of 30-Sep-2026: the Tokyo HO group master (group name, HQ,
+  Japanese parent, global tier / RM) plus the APAC view rolled up from the current dim_client versions -
+  group segment, tier, industry, lead entity, lead office and lead RM, worst internal rating, worst EWS
+  band, watchlist count - with the group's external rating, the JP parent's rating from the Japan share
+  and the entity counts in APAC, EMEA and AMER. Group-grain facts use client_group_id (+ lead_golden_client_sk, D12).
+grain: one row per client group
+primary_key: [client_group_id]
+foreign_keys:
+  - {columns: [lead_golden_client_sk], references: dim_client}
+  - {columns: [hq_country], references: dim_country}
+  - {columns: [lead_office], references: dim_booking_entity}
+  - {columns: [lead_rm_id], references: dim_employee}
+cluster_by: [client_group_id]
+min_rows: 300
+columns:
+  client_group_id: {type: STRING}
+  group_name: {type: STRING, comment: "Group short brand, e.g. Kinokawa Precision, Hayashi Marine Logistics - match with LIKE '%...%'."}
+  hq_country: {type: STRING, comment: ISO-2 country of the group headquarters (JP for Japanese groups).}
+  hq_country_name: {type: STRING, comment: Country name of the group headquarters.}
+  hq_region: {type: STRING, comment: "Headquarters region: JP, APAC, EMEA or AMER."}
+  is_japanese_group: {type: BOOLEAN, comment: True for groups headquartered in Japan (Japanese corporate groups with a JP parent).}
+  jp_parent_id: {type: STRING, comment: Tokyo HO id of the Japanese parent company (Japan share); null for non-Japanese groups without one.}
+  jp_parent_legal_name: {type: STRING, comment: "Legal name of the Japanese parent (e.g. Kinokawa Precision KK) from the Japan share."}
+  group_segment: {type: STRING, comment: Group segment (most common segment of its APAC clients).}
+  group_relationship_tier: {type: STRING, comment: "Group relationship tier (Strategic, Core or Transactional), most common tier of its APAC clients."}
+  is_strategic_group: {type: BOOLEAN, comment: True when the group relationship tier is Strategic.}
+  group_industry_sector: {type: STRING, comment: Group industry sector (most common sector of its APAC clients).}
+  group_industry_subsector: {type: STRING, comment: Group industry subsector (most common subsector of its APAC clients).}
+  global_segment: {type: STRING, comment: "Segment label of the Tokyo HO group master (e.g. Non-Japanese Corporate, Sponsor Coverage)."}
+  global_tier: {type: STRING, comment: "Global tier of the Tokyo HO group master (Global Strategic, Global Core, Global Standard)."}
+  global_industry: {type: STRING, comment: Industry label of the Tokyo HO group master.}
+  global_relationship_owner_region: {type: STRING, comment: "Region owning the global relationship: JP, APAC, EMEA or AMER."}
+  global_rm_code: {type: STRING, comment: Global relationship manager code in the Tokyo HO master.}
+  global_rm_name: {type: STRING, comment: Global relationship manager name (fictional) in the Tokyo HO master.}
+  global_coverage_unit: {type: STRING, comment: Tokyo HO coverage unit of the group.}
+  relationship_since: {type: DATE, comment: Start of the group relationship per the Tokyo HO master.}
+  lead_golden_client_id: {type: STRING}
+  lead_golden_client_sk: {type: BIGINT, comment: dim_client surrogate key of the lead entity's current version.}
+  lead_client_name: {type: STRING, comment: Display name of the group's lead (relationship) entity.}
+  lead_basis: {type: STRING, comment: "How the lead entity was chosen: account_plan (entity the group plan is held on) or largest_footprint (most source records, Singapore hub first)."}
+  lead_office: {type: STRING, comment: Coverage office (APAC booking location) of the lead entity - the group lead office.}
+  lead_rm_id: {type: STRING, comment: Current primary RM (employee_id) of the lead entity - the group lead RM.}
+  lead_rm_code: {type: STRING, comment: CRM code of the group lead RM.}
+  lead_rm_name: {type: STRING, comment: Name of the group lead RM (fictional).}
+  worst_internal_rating_grade: {type: INT, comment: "Worst (highest) internal grade 1-10 among the group's rated APAC clients today; null = no rated client."}
+  worst_rating_equivalent: {type: STRING, comment: Rating equivalent of the worst-rated APAC client.}
+  worst_ifrs9_stage: {type: INT, comment: Highest IFRS 9 stage among the group's APAC clients today.}
+  worst_ews_band: {type: STRING, comment: "Worst current EWS band among the group's APAC clients (Red > Amber > Green); null = none scored."}
+  clients_red: {type: BIGINT, comment: APAC clients of the group in the Red EWS band today.}
+  clients_amber: {type: BIGINT, comment: APAC clients of the group in the Amber EWS band today.}
+  clients_on_watchlist: {type: BIGINT, comment: APAC clients of the group on the credit watchlist today.}
+  group_external_rating: {type: STRING, comment: "Latest agency rating of the group issuer by the primary agency (fictional agencies); null = unrated."}
+  group_external_rating_agency: {type: STRING, comment: Agency of group_external_rating.}
+  group_external_outlook: {type: STRING, comment: "Outlook attached to the latest group rating (Stable, Positive, Negative, ...)."}
+  group_external_rating_date: {type: DATE, comment: Date of the latest group rating action.}
+  jp_parent_grade: {type: INT, comment: "Tokyo HO internal grade of the Japanese parent (1-10, latest to the as-of date) from the Japan share."}
+  jp_parent_rating_equivalent: {type: STRING, comment: "External-scale equivalent of the JP parent grade (Japan share) - the parent's external rating for keepwell / guarantee analysis."}
+  jp_parent_outlook: {type: STRING, comment: Outlook on the JP parent rating (Japan share).}
+  jp_parent_rating_date: {type: DATE, comment: Date of the latest JP parent rating action (Japan share).}
+  is_listed_group: {type: BOOLEAN, comment: True when the group parent is listed (market data available).}
+  n_entities_apac: {type: BIGINT, comment: APAC legal entities (golden clients) in the group.}
+  n_apac_countries: {type: BIGINT, comment: Distinct APAC booking locations covering the group's entities.}
+  apac_countries_text: {type: STRING, comment: "APAC booking locations of the group, comma-separated (e.g. CN, SG, TH)."}
+  n_entities_emea: {type: BIGINT, comment: EMEA subsidiaries of the group (EMEA share).}
+  n_entities_amer: {type: BIGINT, comment: AMER subsidiaries of the group (AMER share).}
+  n_entities_global: {type: BIGINT, comment: "Entities worldwide: APAC + EMEA + AMER subsidiaries plus the JP parent when there is one."}
+  has_account_plan_current_fy: {type: BOOLEAN, comment: True when the group has an account plan for FY2026 (the as-of fiscal year).}
+  master_status: {type: STRING, comment: Status of the group in the Tokyo HO master.}
+checks:
+  - name: every_client_group_present
+    sql: >-
+      SELECT count(*) FROM (SELECT DISTINCT client_group_id FROM ${catalog}.gold.dim_client WHERE client_group_id IS NOT NULL) c
+      LEFT ANTI JOIN ${table} g ON g.client_group_id = c.client_group_id
+  - name: lead_is_current_version
+    sql: >-
+      SELECT count(*) FROM ${table} g LEFT ANTI JOIN ${catalog}.gold.dim_client c
+      ON c.golden_client_sk = g.lead_golden_client_sk AND c.is_current AND c.client_group_id = g.client_group_id
+      WHERE g.lead_golden_client_sk IS NOT NULL
+  - name: groups_with_clients_have_lead
+    sql: SELECT count_if(n_entities_apac > 0 AND lead_golden_client_id IS NULL) FROM ${table}
+reconcile:
+  - name: groups_vs_group_master
+    silver: SELECT count(*) FROM ${catalog}.silver.share_jp_group_master

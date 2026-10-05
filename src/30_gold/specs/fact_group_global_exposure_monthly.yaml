@@ -1,0 +1,79 @@
+table: fact_group_global_exposure_monthly
+domain: rm
+comment: >-
+  Global relationship of each client group by region (Account Planning, mv_global_group_relationship): one row per
+  entity x region x product family x month-end, Apr-2023 to Sep-2026. APAC rows are SMBC APAC golden clients
+  (committed = facility limits, drawn = drawn balances + trade instruments live at the month-end, deposits =
+  month-end balances, revenue = gold revenue fact); JP rows are the Japanese parent and JP-booked group entities
+  from the Tokyo HO Delta Share; EMEA / AMER rows are the regional subsidiaries from the EMEA and AMER shares. All
+  amounts in USD (shared rows also in their booking currency). Committed, drawn and deposits are month-end
+  balances (point-in-time: take one month, never sum across months); revenue_usd is the month's revenue
+  (additive); revenue_12m_usd is a trailing 12-month window (point-in-time). APAC Share of Group Revenue % =
+  SUM(revenue_12m_usd) for region APAC / SUM(revenue_12m_usd) all regions, at one month.
+grain: one row per entity x region x product family x month-end
+primary_key: [region, entity_id, product_family, month]
+foreign_keys:
+  - {columns: [month], references: dim_date}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [lead_golden_client_sk], references: dim_client}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [booking_entity_id], references: dim_booking_entity}
+cluster_by: [month, client_group_id]
+min_rows: 100000
+columns:
+  month: {type: DATE, comment: "First day of the month of the month-end snapshot (Apr-2023 to Sep-2026)."}
+  month_end_date: {type: DATE}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_quarter_label: {type: STRING}
+  is_latest_month: {type: BOOLEAN, comment: "True for Sep-2026, the month of the as-of date."}
+  region: {type: STRING, comment: "Region of the booking: APAC (SMBC APAC), JP (Tokyo HO / Japan), EMEA or AMER."}
+  entity_id: {type: STRING, comment: "Entity key within the region: golden_client_id (APAC), JP counterparty id (JPP-nnnn, JP), provider entity id (EMEA / AMER)."}
+  entity_name: {type: STRING, comment: "Entity name: APAC display name, JP parent / JP-booked entity name, or EMEA / AMER subsidiary legal name."}
+  entity_type: {type: STRING, comment: "APAC legal entity, JP Parent, Group Entity (JP-booked), EMEA subsidiary or AMER subsidiary."}
+  entity_country: {type: STRING, comment: "ISO-2 country of the entity (country of incorporation for APAC, JP for Japan rows)."}
+  booking_entity_id: {type: STRING, comment: "Booking entity: the APAC coverage office (ISO-2, e.g. SG) or the provider region JP / EMEA / AMER; join to gold.dim_booking_entity."}
+  booking_office: {type: STRING, comment: "Booking office: APAC coverage office code, or the provider's office city (e.g. Tokyo, London, New York)."}
+  client_group_id: {type: STRING}
+  lead_golden_client_sk: {type: BIGINT}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the APAC entity at the month-end (APAC rows only; null for JP / EMEA / AMER)."}
+  golden_client_id: {type: STRING, comment: "Golden client id of the APAC entity (APAC rows only; null otherwise)."}
+  is_apac: {type: BOOLEAN, comment: "True for SMBC APAC rows (region APAC)."}
+  product_family: {type: STRING, comment: "Product family: Corporate Lending, Structured Lending, Sustainable Finance, Cash, Liquidity, Payments, Trade Finance, FX, Rates or Other TB & Advisory."}
+  currency: {type: STRING, comment: "Booking currency of the local-currency amounts (shared rows); null for APAC rows (aggregated across currencies)."}
+  committed_usd: {type: DOUBLE, comment: "Committed limits at the month-end in USD. Point-in-time."}
+  drawn_usd: {type: DOUBLE, comment: "Drawn / outstanding exposure at the month-end in USD (APAC: drawn facilities + live trade instruments). Point-in-time."}
+  deposits_usd: {type: DOUBLE, comment: "Deposit balances at the month-end in USD. Point-in-time."}
+  revenue_usd: {type: DOUBLE, comment: "Revenue earned in the month in USD. Additive across months."}
+  revenue_12m_usd: {type: DOUBLE, comment: "Revenue over the trailing 12 months to the month-end in USD (APAC revenue history starts Apr-2024). Point-in-time window - Global Revenue 12M USD."}
+  committed_lcy: {type: DOUBLE, comment: "Committed limits in the booking currency (shared rows only)."}
+  drawn_lcy: {type: DOUBLE, comment: "Drawn exposure in the booking currency (shared rows only)."}
+  deposits_lcy: {type: DOUBLE, comment: "Deposits in the booking currency (shared rows only)."}
+  revenue_lcy: {type: DOUBLE, comment: "Month revenue in the booking currency (shared rows only)."}
+  source_table: {type: STRING, comment: "Where the row comes from: gold APAC facts, share_jp_parent_exposure_monthly, or the EMEA / AMER exposure and revenue shares."}
+  share_provider_version: {type: INT, comment: "Provider table version of the shared row (Delta Sharing lineage); null for APAC."}
+  share_shared_at: {type: TIMESTAMP, comment: "Time the provider published the shared row; null for APAC."}
+  has_data: {type: BOOLEAN, comment: "False for filler months after the entity-family stopped (all balances 0, kept so revenue_12m_usd stays complete)."}
+checks:
+  - name: apac_rows_have_golden_key
+    sql: SELECT count_if(region = 'APAC' AND golden_client_sk IS NULL) FROM ${table}
+  - name: tanaka_jp_parent_present
+    sql: SELECT 1 - least(count(*), 1) FROM ${table} WHERE region = 'JP' AND client_group_id = 'SYN-G-0003' AND is_latest_month
+  - name: apac_deposits_tie_to_silver
+    sql: >-
+      SELECT abs((SELECT sum(deposits_usd) FROM ${table} WHERE region = 'APAC' AND month_end_date = DATE'${as_of_date}')
+      - (SELECT sum(balance_usd) FROM ${catalog}.silver.core_deposit_balance_monthly WHERE balance_date = DATE'${as_of_date}'))
+    max: 1
+reconcile:
+  - name: jp_revenue_vs_share
+    gold: SELECT sum(revenue_usd) FROM ${table} WHERE region = 'JP'
+    silver: SELECT sum(revenue_usd) FROM ${catalog}.silver.share_jp_parent_exposure_monthly
+    tolerance: 1
+  - name: emea_revenue_vs_share
+    gold: SELECT sum(revenue_usd) FROM ${table} WHERE region = 'EMEA'
+    silver: SELECT sum(revenue_usd) FROM ${catalog}.silver.share_emea_revenue_monthly
+    tolerance: 1
+  - name: amer_drawn_latest_vs_share
+    gold: SELECT sum(drawn_usd) FROM ${table} WHERE region = 'AMER' AND is_latest_month
+    silver: SELECT sum(drawn_usd) FROM ${catalog}.silver.share_amer_exposure_monthly WHERE month_end_date = DATE'${as_of_date}'
+    tolerance: 1

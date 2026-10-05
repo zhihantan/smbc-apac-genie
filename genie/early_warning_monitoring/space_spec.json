@@ -1,0 +1,179 @@
+{
+  "slug": "early_warning_monitoring",
+  "title": "APAC Genie - Early Warning Monitoring",
+  "description": "Ask about early-warning scores and bands, the signals behind them, watchlist actions and delinquency for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_ews_scores",
+    "smbc_genie.metrics.mv_ews_signals",
+    "smbc_genie.metrics.mv_watchlist",
+    "smbc_genie.metrics.mv_delinquency",
+    "smbc_genie.gold.dim_ews_trigger",
+    "smbc_genie.gold.vw_client_360",
+    "smbc_genie.gold.dim_client_group"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_ews_scores.Client Group",
+    "smbc_genie.metrics.mv_ews_scores.Segment",
+    "smbc_genie.metrics.mv_ews_scores.Relationship Tier",
+    "smbc_genie.metrics.mv_ews_scores.Industry",
+    "smbc_genie.metrics.mv_ews_scores.Subsector",
+    "smbc_genie.metrics.mv_ews_scores.Coverage Office",
+    "smbc_genie.metrics.mv_ews_scores.Primary RM",
+    "smbc_genie.metrics.mv_ews_scores.Daily EWS Band",
+    "smbc_genie.metrics.mv_ews_scores.Model Band",
+    "smbc_genie.metrics.mv_ews_scores.Band Change",
+    "smbc_genie.metrics.mv_ews_scores.Override Reason",
+    "smbc_genie.metrics.mv_ews_scores.Override Direction",
+    "smbc_genie.metrics.mv_ews_scores.Credit Analyst",
+    "smbc_genie.metrics.mv_ews_signals.Client Group",
+    "smbc_genie.metrics.mv_ews_signals.Segment",
+    "smbc_genie.metrics.mv_ews_signals.Industry",
+    "smbc_genie.metrics.mv_ews_signals.Subsector",
+    "smbc_genie.metrics.mv_ews_signals.Coverage Office",
+    "smbc_genie.metrics.mv_ews_signals.Primary RM",
+    "smbc_genie.metrics.mv_ews_signals.Trigger",
+    "smbc_genie.metrics.mv_ews_signals.Trigger Family",
+    "smbc_genie.metrics.mv_ews_signals.Severity",
+    "smbc_genie.metrics.mv_ews_signals.Source Quadrant",
+    "smbc_genie.metrics.mv_watchlist.Client Group",
+    "smbc_genie.metrics.mv_watchlist.Segment",
+    "smbc_genie.metrics.mv_watchlist.Industry",
+    "smbc_genie.metrics.mv_watchlist.Coverage Office",
+    "smbc_genie.metrics.mv_watchlist.Primary RM",
+    "smbc_genie.metrics.mv_watchlist.Record Type",
+    "smbc_genie.metrics.mv_watchlist.Event Type",
+    "smbc_genie.metrics.mv_watchlist.Reason",
+    "smbc_genie.metrics.mv_watchlist.Lead Category",
+    "smbc_genie.metrics.mv_watchlist.Owner",
+    "smbc_genie.metrics.mv_watchlist.Action Type",
+    "smbc_genie.metrics.mv_watchlist.Action Status",
+    "smbc_genie.metrics.mv_watchlist.Watchlist Band",
+    "smbc_genie.metrics.mv_delinquency.Client Group",
+    "smbc_genie.metrics.mv_delinquency.Segment",
+    "smbc_genie.metrics.mv_delinquency.Industry",
+    "smbc_genie.metrics.mv_delinquency.Subsector",
+    "smbc_genie.metrics.mv_delinquency.Coverage Office",
+    "smbc_genie.metrics.mv_delinquency.Primary RM",
+    "smbc_genie.metrics.mv_delinquency.DPD Bucket",
+    "smbc_genie.metrics.mv_delinquency.Facility Type",
+    "smbc_genie.gold.dim_ews_trigger.trigger_code",
+    "smbc_genie.gold.dim_ews_trigger.trigger_name",
+    "smbc_genie.gold.dim_ews_trigger.category",
+    "smbc_genie.gold.dim_ews_trigger.severity",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.segment",
+    "smbc_genie.gold.vw_client_360.industry_sector",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.vw_client_360.primary_rm_name",
+    "smbc_genie.gold.vw_client_360.ews_band",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_client_group.group_segment",
+    "smbc_genie.gold.dim_client_group.lead_office",
+    "smbc_genie.gold.dim_client_group.worst_ews_band"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- In this space 'clients' are legal entities: list Client (one row per entity), not Client Group, and add Coverage Office or Client Group only when asked.\n- Scores, bands and their exposure (mv_ews_scores) are daily: today = `Date` = DATE'2026-09-30'; a band or score at a month-end needs `Is Month End`. Bands: Red >= 70, Amber 40-69, Green < 40 (`Daily EWS Band` = final band after overrides).\n- 'Moved from Green to Amber in the last 30 days' = MEASURE(`Moved Green to Amber 30D`) on `Date` = DATE'2026-09-30'; 'entered Red' = MEASURE(`Entered Red`); overrides this year = MEASURE(`Override Events`) with `Fiscal Year` = 'FY2026'.\n- Signals (mv_ews_signals) are monthly, dated at the month-end; 'this fiscal year' = `Is Current FYTD`. Trigger aliases: UTIL_HIGH = utilisation >= 90% (utilisation spike), COV_HEADROOM_LOW = covenant headroom < 10%, COV_BREACH = covenant breach, NEWS_NEGATIVE = negative news.\n- Signals that precede a downgrade: MEASURE(`Signals Preceding Downgrade`) per Trigger (trigger -> downgrade pairs), ranked by MEASURE(`Downgrade Hit Rate %`). Use Exposure Affected USD only for one Trigger and one Month.\n- Watchlist (mv_watchlist): clients and exposure are month-end snapshots (`Is Latest Month` = today). Action plans overdue / open = MEASURE(`Actions Overdue`) / MEASURE(`Open Actions`) by Owner over all months (never filter Month for them). 'Not on the watchlist' = NOT `Watchlist`.\n- Delinquency (mv_delinquency): booking country = `Coverage Office`; the 30+ DPD rate = MEASURE(`30+ DPD Rate %`), a fraction; a trend groups by `Month`.\n- For counts per group (movers, overdue actions, overrides, signals) return only groups with a count above zero: HAVING MEASURE(...) > 0.\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "Which clients are Red today, what exposure do they carry, and what are the top three triggers for each?",
+    "Walk me through Sunda Energi Nusantara's EWS score month by month since January 2026 and which signals fired when.",
+    "Which clients moved from Green to Amber in the last 30 days, by coverage office and industry?",
+    "Show exposure in Amber and Red by industry at each month-end since April 2025.",
+    "Which signals most often precede a downgrade within 90 days?",
+    "Which watchlist actions are overdue, by owner?",
+    "What is the 30+ DPD rate by booking country and segment, by month?",
+    "Which clients have covenant headroom below 10% but are not on the watchlist?"
+  ],
+  "trusted_queries": [
+    {
+      "name": "Which clients are in the :band band today, with their score, exposure and top three triggers?",
+      "usage_guidance": "Use for \"which clients are Red / Amber today\", \"Red names and why\", \"exposure of Red clients and their drivers\".",
+      "parameters": [
+        {
+          "name": "band",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Client`, `Top Triggers`,\n       MEASURE(`Latest Score`)        AS ews_score,\n       MEASURE(`Exposure Scored USD`) AS exposure_usd\nFROM smbc_genie.metrics.mv_ews_scores\nWHERE `Date` = DATE'2026-09-30' AND `Daily EWS Band` = :band\nGROUP BY ALL\nORDER BY exposure_usd DESC"
+    },
+    {
+      "name": "Walk me through the EWS score of :client_name month by month since :from_month and which signals fired when",
+      "usage_guidance": "Use for an EWS timeline / history of one client or client group, month by month, with the signals of each month.",
+      "parameters": [
+        {
+          "name": "client_name",
+          "type": "STRING"
+        },
+        {
+          "name": "from_month",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT * FROM smbc_genie.gold.fn_ews_timeline(:client_name, :from_month)"
+    },
+    {
+      "name": "What was the EWS band and score of :client_name at each month-end since :from_month?",
+      "usage_guidance": "Use for the band or score of a named client at month-ends; match the client name with LIKE and filter Is Month End.",
+      "parameters": [
+        {
+          "name": "client_name",
+          "type": "STRING"
+        },
+        {
+          "name": "from_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Client`, `Month`, `Daily EWS Band`, MEASURE(`Latest Score`) AS month_end_score\nFROM smbc_genie.metrics.mv_ews_scores\nWHERE `Client` LIKE CONCAT('%', :client_name, '%') AND `Month` >= :from_month AND `Is Month End`\nGROUP BY ALL\nORDER BY `Client`, `Month`"
+    },
+    {
+      "name": "How many clients moved from Green to Amber in the 30 days to :as_of_date, by coverage office and industry?",
+      "usage_guidance": "Use for Green-to-Amber migrations / newly Amber clients; count per group and keep groups above zero.",
+      "parameters": [
+        {
+          "name": "as_of_date",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Coverage Office`, `Industry`, MEASURE(`Moved Green to Amber 30D`) AS clients_green_to_amber\nFROM smbc_genie.metrics.mv_ews_scores\nWHERE `Date` = :as_of_date\nGROUP BY ALL\nHAVING MEASURE(`Moved Green to Amber 30D`) > 0\nORDER BY clients_green_to_amber DESC"
+    },
+    {
+      "name": "Which clients have a :trigger signal in the latest month and are not on the watchlist?",
+      "usage_guidance": "Use for clients flagged by one trigger (e.g. covenant headroom below 10% = COV_HEADROOM_LOW, utilisation spike = UTIL_HIGH) who are not on the watchlist.",
+      "parameters": [
+        {
+          "name": "trigger",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Client`, MEASURE(`Signals Fired`) AS signals\nFROM smbc_genie.metrics.mv_ews_signals\nWHERE `Trigger` = :trigger AND `Is Latest Month` AND NOT `Watchlist`\nGROUP BY ALL\nORDER BY `Client`"
+    },
+    {
+      "name": "Break down the EWS overrides in :fiscal_year by direction and reason",
+      "usage_guidance": "Use only for an override breakdown by direction / reason. Not for a single count - \"how many overrides cite JP parent support\" is SELECT MEASURE(`Parent Support Overrides`) with the fiscal-year filter and no GROUP BY.",
+      "parameters": [
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Override Direction`, `Override Reason`,\n       MEASURE(`Override Events`)          AS override_events,\n       MEASURE(`Parent Support Overrides`) AS citing_parent_support_jp\nFROM smbc_genie.metrics.mv_ews_scores\nWHERE `Fiscal Year` = :fiscal_year\nGROUP BY ALL\nHAVING MEASURE(`Override Events`) > 0\nORDER BY override_events DESC"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_ews_timeline",
+    "smbc_genie.gold.fn_ews_client_snapshot",
+    "smbc_genie.gold.fn_watchlist_overdue_actions"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 7,
+    "example_sqls": 6,
+    "sql_functions": 3,
+    "text_instructions": 1,
+    "instruction_lines": 20,
+    "instructions_total": 10,
+    "sample_questions": 8,
+    "benchmarks": 20,
+    "entity_matching_columns": 58
+  }
+}

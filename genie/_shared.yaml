@@ -1,0 +1,61 @@
+# Shared Genie settings for all 11 spaces (read by smbc_genie_lib.genie; format: genie/README.md).
+# Per-space content lives in genie/<slug>/space.yaml - do not copy these lines there: the builder
+# prepends `instructions.base` + `instructions.as_of` and appends `instructions.response` to every space.
+catalog: smbc_genie
+warehouse_id: ""
+as_of_date: "2026-09-30"
+
+# Brief §8 description template (fill {domain}); each space writes its own `description:`.
+description_template: >-
+  Ask about {domain} for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods
+  follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and
+  as of 30 Sep 2026.
+
+instructions:
+  # Brief §8 base block (10 lines, verbatim).
+  base:
+    - "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar."
+    - "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month."
+    - "- Default currency is USD. Use local currency only when asked."
+    - "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office."
+    - "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension."
+    - "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic."
+    - "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\"."
+    - "- Year-on-year compares the same fiscal period in the prior fiscal year."
+    - "- Prefer measures from the metric views; use MEASURE() syntax."
+    - "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing."
+  # PLAN §9 as-of line (1 line).
+  as_of: "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'."
+  # Closing response-format line (1 line). Keep numbers raw in SQL so answers stay comparable.
+  response: "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+
+# Shared helper functions (Phase 2, smbc_genie.gold) a space may list under sql_functions without defining them.
+shared_functions:
+  - smbc_genie.gold.fn_as_of_date
+  - smbc_genie.gold.fn_fiscal_half
+  - smbc_genie.gold.fn_fiscal_month_no
+  - smbc_genie.gold.fn_fiscal_quarter
+  - smbc_genie.gold.fn_fiscal_year
+  - smbc_genie.gold.fn_fiscal_year_label
+  - smbc_genie.gold.fn_latest_closed_month
+  - smbc_genie.gold.fn_usd
+
+# Limits the builder / gate enforce. api_* are hard Genie limits (PLAN §2.1); the rest is the brief's standard
+# (§3.4, §8) - "min" values warn, everything else fails the build.
+limits:
+  assets_max: 12                     # brief §3.4 (API: 50 tables + views + metric views)
+  instruction_lines_max: 20          # the one text block, base + as-of + domain + response
+  domain_lines_max: 8                # 10 base + 1 as-of + 8 domain + 1 response = 20
+  example_sqls: [4, 6]
+  space_functions: [2, 3]            # functions defined in this space's functions.sql
+  sample_questions: [6, 8]
+  benchmarks: [12, 20]
+  api_instructions_max: 100          # example SQLs + SQL functions + the 1 text block
+  api_text_instructions: 1
+  api_benchmarks_max: 500
+  api_snippets_max: 200
+  api_entity_matching_columns_max: 120
+  api_entity_matching_values_max: 1024
+  api_entity_matching_value_chars_max: 127
+  synonyms_per_column_max: 10
+  param_type_hints: [STRING, DATE, INTEGER, DECIMAL, DOUBLE, BOOLEAN]   # accepted by the API (probed 2026-10-04)

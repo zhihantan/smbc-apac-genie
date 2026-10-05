@@ -1,0 +1,236 @@
+# Space 7, Transactional Banking: Cash, Payments & Liquidity (WP9b / WP8e). One row per client payment (inbound and
+# outbound, after the silver de-duplication of the 17-Jun-2026 replay file). Every measure is a flow (SUM / COUNT) or a
+# ratio of flows, so any period adds up; there are no point-in-time measures. Corridor = money flow payer -> payee.
+# Must-answer queries: metrics/_answers/tb_cash_payments_liquidity.sql (Q4, Q5, Q8) and tb_trade_scf.sql (Q9).
+view: mv_tb_payments
+space: tb_cash_payments_liquidity
+also_in: [tb_trade_scf]
+comment: >-
+  Client payments through SMBC APAC, Apr-2024 to Sep-2026 (USD): volume, count, average ticket, STP and repair
+  rates, cross-border share, the share paid to accounts at other (competitor) banks, distinct suppliers paid and
+  the tariff fee income, by channel (SWIFT MT, ISO 20022, host-to-host, payments API, portal, RTGS, FAST),
+  direction, purpose (supplier, payroll, tax, intercompany, loan service, dividend, trade settlement), account
+  currency, money corridor (payer->payee country) and counterparty bank. All measures are flows: they add up over
+  any months. For "supplier payments to other banks" filter Direction = Outbound and Payment Purpose = Supplier.
+grain: one row per payment message (gold.fact_payment_transaction)
+source: ${catalog}.gold.fact_payment_transaction
+blocks:
+  calendar: {date: source.payment_date, grain: month, what: the payment}
+  client: {key: source.golden_client_sk}
+overrides:
+  Coverage Office:
+    comment: >-
+      Coverage office of the paying / receiving client (ISO-2). For payments it equals Booking Country (the client
+      account's booking location) - prefer Booking Country.
+    synonyms: [coverage office, office, coverage country, client office, branch]
+dimensions:
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: >-
+      APAC booking location of the client account the payment is booked to (ISO-2: SG, HK, CN, TH, ID, IN, AU, VN,
+      MY, KR, TW, PH, NZ). "Country" in payment questions means this unless the user says counterparty country.
+    synonyms: [booking country, country, booking location, booking entity, market, location, branch country]
+  - name: Channel
+    expr: source.channel
+    display_name: Payment Channel
+    comment: >-
+      Channel / rail of the payment: SWIFT MT, ISO 20022, Host-to-Host, Payments API, Portal (e-banking), RTGS or
+      FAST. Digital channels = Portal, Payments API, Host-to-Host.
+    synonyms: [channel, payment channel, rail, payment rail, message type, SWIFT, ISO 20022, H2H, API, portal]
+  - name: Direction
+    expr: source.direction
+    display_name: Direction
+    comment: Inbound (the client receives money) or Outbound (the client pays).
+    synonyms: [direction, inbound or outbound, incoming, outgoing, receipts, payments out, credits, debits]
+  - name: Payment Purpose
+    expr: source.payment_purpose
+    display_name: Payment Purpose
+    comment: >-
+      Purpose of the payment: Supplier, Payroll, Tax, Intercompany, Loan Service (debt service to a lender),
+      Dividend or Trade Settlement.
+    synonyms: [purpose, payment type, payment purpose, payment category, use of funds, reason, flow type]
+  - name: Currency
+    expr: source.currency
+    display_name: Account Currency
+    comment: ISO 4217 currency of the client account the payment is booked to (amounts are reported in USD).
+    synonyms: [currency, account currency, ccy, payment currency, denomination]
+  - name: Is Cross-Border
+    expr: source.is_cross_border
+    display_name: Is Cross-Border
+    comment: True for cross-border payments (payer and payee in different countries, as flagged by the payments hub).
+    synonyms: [cross-border, cross border, international, foreign payment, overseas, XB]
+  - name: Corridor
+    expr: source.corridor
+    display_name: Payment Corridor (payer to payee)
+    comment: >-
+      Money-flow corridor payer country->payee country, e.g. CN->VN = money paid from China to Vietnam (Kinokawa's
+      China entity paying Vietnam). Domestic payments show the same country twice (SG->SG).
+    synonyms: [corridor, payment corridor, route, country pair, from to, payment lane, money flow]
+  - name: Counterparty Country
+    expr: source.counterparty_country
+    display_name: Counterparty Country
+    comment: Country of the counterparty (beneficiary of an outbound payment, remitter of an inbound one), ISO-2.
+    synonyms: [counterparty country, beneficiary country, remitter country, destination country, partner country]
+  - name: Counterparty Bank Type
+    expr: source.counterparty_bank_type
+    display_name: Counterparty Bank Type
+    comment: >-
+      Where the counterparty banks: SMBC (on-us), Other Bank (a competitor bank - wallet leakage) or Intercompany
+      (a transfer within the client group).
+    synonyms: [counterparty bank type, bank type, other bank, on-us, competitor bank, beneficiary bank type]
+  - name: Counterparty Bank
+    expr: source.counterparty_bank_name
+    display_name: Counterparty Bank
+    comment: >-
+      Counterparty bank name: SMBC, Intercompany or a fictional competitor (e.g. Nordlys Bank, Garuda Commercial
+      Bank, Meridian Pacific Bank).
+    synonyms: [counterparty bank, beneficiary bank, competitor, other bank name, receiving bank, paying bank]
+  - name: Repair Reason
+    expr: source.repair_reason
+    display_name: Repair Reason
+    comment: >-
+      Why a payment needed manual repair: FX cover missing, Invalid BIC, Missing beneficiary, Sanctions hold,
+      Format error or Duplicate instruction; null for straight-through (STP) payments.
+    synonyms: [repair reason, exception reason, failure reason, repair, break reason, non-STP reason]
+measures:
+  - name: Payment Volume USD
+    expr: SUM(source.amount_usd)
+    display_name: Payment Volume (USD)
+    comment: Value of the selected payments in USD (a flow - adds up over months).
+    synonyms: [volume, payment volume, value, flows, payment value, throughput, turnover, payments USD]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Payments
+    expr: COUNT(1)
+    display_name: Number of Payments
+    comment: Number of payment messages (one per payment; the June-2026 replay duplicates are removed).
+    synonyms: [count, payments, number of payments, transactions, payment count, messages, volume count]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Average Ticket USD
+    expr: SUM(source.amount_usd) / NULLIF(COUNT(1), 0)
+    display_name: Average Ticket (USD)
+    comment: Average payment size in USD = volume / number of payments.
+    synonyms: [average ticket, average payment, ticket size, average value, mean payment, avg ticket]
+    format: *usd
+  - name: STP Rate %
+    expr: COUNT(1) FILTER (WHERE source.stp_flag) / NULLIF(COUNT(1), 0)
+    display_name: STP Rate
+    comment: Share of payments processed straight through without manual repair (fraction; 0.92 = 92%).
+    synonyms: [STP, STP rate, straight through, straight-through processing, auto-processed, first-time-right]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Repair Rate %
+    expr: COUNT(1) FILTER (WHERE source.is_repaired) / NULLIF(COUNT(1), 0)
+    display_name: Repair Rate
+    comment: Share of payments that needed a manual repair (fraction) = 1 - STP Rate.
+    synonyms: [repair rate, exception rate, break rate, manual repair rate, non-STP rate, failure rate]
+    format: *pct
+  - name: Repairs
+    expr: COUNT(1) FILTER (WHERE source.is_repaired)
+    display_name: Repaired Payments
+    comment: Number of payments that needed a manual repair - group by Repair Reason / Channel to see where they concentrate.
+    synonyms: [repairs, exceptions, breaks, repaired payments, manual repairs, non-STP payments]
+    format: *count
+  - name: Average Processing Hours
+    expr: AVG(source.processing_seconds) / 3600.0
+    display_name: Average Processing Time (hours)
+    comment: Average end-to-end processing time in hours (repaired payments take about half a day).
+    synonyms: [processing time, turnaround, processing hours, average processing time, speed, latency]
+    format: {type: number, decimal_places: {type: max, places: 2}}
+  - name: Cross-Border Share %
+    expr: SUM(CASE WHEN source.is_cross_border THEN source.amount_usd ELSE 0 END) / NULLIF(SUM(source.amount_usd), 0)
+    display_name: Cross-Border Share
+    comment: Share of payment value that is cross-border (fraction).
+    synonyms: [cross-border share, international share, XB share, cross border percentage, foreign share]
+    format: *pct
+  - name: Volume via Other Banks USD
+    expr: SUM(CASE WHEN source.is_other_bank_counterparty THEN source.amount_usd ELSE 0 END)
+    display_name: Volume with Other-Bank Counterparties (USD)
+    comment: Value of payments whose counterparty banks with a competitor (Other Bank), USD - wallet leakage.
+    synonyms: [volume via other banks, leakage, paid to other banks, competitor bank flows, off-us volume]
+    format: *usd
+  - name: Share Paid via Other Banks %
+    expr: SUM(CASE WHEN source.is_other_bank_counterparty THEN source.amount_usd ELSE 0 END) / NULLIF(SUM(source.amount_usd), 0)
+    display_name: Share Paid via Other Banks
+    comment: >-
+      Share of payment value whose counterparty banks with a competitor (fraction). With Direction = Outbound and
+      Payment Purpose = Supplier: how much of clients' supplier payments go to accounts at other banks.
+    synonyms: [share paid via other banks, other bank share, leakage share, off-us share, competitor share, wallet leakage]
+    format: *pct
+  - name: Fee Income USD
+    expr: SUM(source.fee_usd)
+    display_name: Payment Fee Income (USD)
+    comment: >-
+      Payment fee income in USD from the TB tariff: USD 3 per payment message plus 10 bps of cross-border value (a
+      flow). Account-level TB fees (maintenance, channels, pooling) are in gold.fact_tb_fee_income_monthly.
+    synonyms: [fees, fee income, payment fees, transaction fees, commission, TB fees, payments revenue]
+    format: *usd
+  - name: Distinct Suppliers Paid
+    expr: COUNT(DISTINCT CASE WHEN source.direction = 'Outbound' AND source.payment_purpose = 'Supplier' THEN source.counterparty_ref END)
+    display_name: Distinct Suppliers Paid
+    comment: >-
+      Distinct suppliers the selected clients paid through SMBC (outbound supplier payments, by pseudonymous
+      counterparty id) - buyers paying >= 50 suppliers are SCF anchor candidates (dim_threshold SCF_ANCHOR_MIN_SUPPLIERS).
+    synonyms: [suppliers paid, distinct suppliers, supplier count, number of suppliers, supplier base, SCF anchor candidates]
+    format: *count
+  - name: Paying Clients
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients with Payments
+    comment: Legal entities (golden clients) with at least one payment in the selection.
+    synonyms: [clients, active payment clients, paying clients, transacting clients, number of clients]
+    format: *count
+validate:
+  dims: [Month, Channel]
+reconcile:
+  - name: volume_fy2026_ytd
+    measure: Payment Volume USD
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT sum(amount_usd) FROM ${catalog}.gold.fact_payment_transaction
+      WHERE payment_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30'
+  - name: payments_by_purpose_all_history
+    measure: Payments
+    by: [Payment Purpose]
+    gold: SELECT payment_purpose, count(*) FROM ${catalog}.gold.fact_payment_transaction GROUP BY 1
+  - name: stp_rate_by_channel_fy2026
+    measure: STP Rate %
+    by: [Channel]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT channel, avg(CASE WHEN stp_flag THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_payment_transaction
+      WHERE payment_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' GROUP BY 1
+  - name: supplier_share_to_other_banks_fy2026
+    measure: Share Paid via Other Banks %
+    where: "`Fiscal Year` = 'FY2026' AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'"
+    gold: >-
+      SELECT sum(CASE WHEN is_other_bank_counterparty THEN amount_usd ELSE 0 END) / sum(amount_usd)
+      FROM ${catalog}.gold.fact_payment_transaction
+      WHERE payment_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' AND direction = 'Outbound' AND payment_purpose = 'Supplier'
+  - name: fee_income_all_history
+    measure: Fee Income USD
+    gold: SELECT sum(fee_usd) FROM ${catalog}.gold.fact_payment_transaction
+  - name: kinokawa_cn_vn_trade_settlements_h1_fy2026
+    measure: Payment Volume USD
+    where: >-
+      `Fiscal Half` = 'FY2026-H1' AND `Payment Purpose` = 'Trade Settlement' AND `Counterparty Country` = 'VN'
+      AND `Client Group` = 'Kinokawa Precision' AND `Coverage Office` = 'CN'
+    gold: >-
+      SELECT sum(p.amount_usd) FROM ${catalog}.gold.fact_payment_transaction p
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = p.golden_client_sk
+      JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = c.client_group_id
+      WHERE p.payment_date BETWEEN DATE'2026-04-01' AND DATE'2026-09-30' AND p.payment_purpose = 'Trade Settlement'
+        AND p.counterparty_country = 'VN' AND g.group_name = 'Kinokawa Precision' AND c.coverage_office = 'CN'
+  - name: distinct_suppliers_last_12_months
+    measure: Distinct Suppliers Paid
+    where: "`Month` >= DATE'2025-10-01'"
+    gold: >-
+      SELECT count(DISTINCT counterparty_ref) FROM ${catalog}.gold.fact_payment_transaction
+      WHERE direction = 'Outbound' AND payment_purpose = 'Supplier' AND payment_date >= DATE'2025-10-01'
+glossary:
+  caveats:
+    - >-
+      All measures are flows over the selected months. Corridor is the money flow (payer->payee); trade-goods
+      corridors (origin->destination) are in mv_trade_corridors. Payment amounts are reported in USD by the hub.
+notes: >-
+  Booking Country = the holder's Coverage Office for every payment (dim_account.booking_country). The fee tariff
+  (USD 3 per message + 10 bps cross-border) is the finance engine's (profitability.py) and reconciles with the
+  Payments line of client revenue.

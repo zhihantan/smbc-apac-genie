@@ -1,0 +1,145 @@
+{
+ "columns": [
+  {
+   "comment": "CRM wallet estimate id.",
+   "is_measure": false,
+   "name": "wallet_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version of the group's lead entity at the fiscal year end (as-of date for FY2026).",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Last day of the fiscal year (31-Mar).",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Product family of the wallet: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance or FX.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "True for FY2026, the fiscal year of the as-of date.",
+   "is_measure": false,
+   "name": "is_current_fiscal_year",
+   "type": "boolean"
+  },
+  {
+   "comment": "CRM account the estimate is recorded on (the group's lead account).",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Estimated full-year bankable wallet in USD (revenue the group pays all banks for the family).",
+   "is_measure": false,
+   "name": "estimated_wallet_usd",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC revenue from the group for the family in USD (full year, or H1 YTD for FY2026).",
+   "is_measure": false,
+   "name": "smbc_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Period of smbc_revenue_usd: Full Year or H1 YTD.",
+   "is_measure": false,
+   "name": "smbc_revenue_basis",
+   "type": "string"
+  },
+  {
+   "comment": "SMBC revenue annualised in USD (H1 YTD x 2) - Share of Wallet numerator.",
+   "is_measure": false,
+   "name": "smbc_revenue_annualised_usd",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC share of wallet as estimated (fraction); aggregate with SUM/SUM, not AVG.",
+   "is_measure": false,
+   "name": "share_of_wallet",
+   "type": "double"
+  },
+  {
+   "comment": "Untapped wallet in USD = estimated wallet - SMBC annualised revenue (floored at 0).",
+   "is_measure": false,
+   "name": "wallet_gap_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Bank id of the competitor with the largest share; join to gold.dim_competitor_bank.",
+   "is_measure": false,
+   "name": "top_competitor_bank_id",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the top competitor bank (fictional).",
+   "is_measure": false,
+   "name": "top_competitor_bank",
+   "type": "string"
+  },
+  {
+   "comment": "Share of the wallet held by the top competitor (fraction).",
+   "is_measure": false,
+   "name": "top_competitor_share",
+   "type": "double"
+  },
+  {
+   "comment": "estimated_wallet_usd x top_competitor_share in USD.",
+   "is_measure": false,
+   "name": "top_competitor_wallet_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when the top competitor's share exceeds SMBC's.",
+   "is_measure": false,
+   "name": "is_competitor_ahead",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when SMBC earns nothing from the group in the family (pure wallet gap).",
+   "is_measure": false,
+   "name": "is_untapped",
+   "type": "boolean"
+  },
+  {
+   "comment": "Bottom-up from client flows, Treasury FX wallet estimate or Peer benchmark.",
+   "is_measure": false,
+   "name": "estimation_method",
+   "type": "string"
+  },
+  {
+   "comment": "Date the estimate was made.",
+   "is_measure": false,
+   "name": "estimate_date",
+   "type": "date"
+  }
+ ],
+ "comment": "Bankable wallet of each client group by fiscal year and product family (Account Planning; FY2024-FY2026): the estimated total revenue pool the group pays all banks, SMBC's revenue and share of wallet, the top competitor bank (fictional) and its share, and the untapped gap. FY2026 SMBC revenue is H1 year to date (smbc_revenue_basis = H1 YTD) and is annualised in smbc_revenue_annualised_usd. Share of Wallet % = SUM(smbc_revenue_annualised_usd) / SUM(estimated_wallet_usd); amounts add across groups and families within a fiscal year (never across years). Grain: one row per client group x fiscal year x product family.",
+ "identifier": "smbc_genie.gold.fact_wallet_estimate_annual",
+ "type": "MANAGED"
+}

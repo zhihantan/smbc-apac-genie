@@ -1,0 +1,277 @@
+{
+ "columns": [
+  {
+   "comment": "Note id = the CRM activity id (ACT-nnnnnnn) the note was written on.",
+   "is_measure": false,
+   "name": "note_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the RM activity (meeting / call / e-mail / visit) the note records - the grain date.",
+   "is_measure": false,
+   "name": "note_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the calendar month of the note.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account id (source record of the CRM platform) the row was recorded against.",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code (RM001-RM120) of the RM who wrote the note.",
+   "is_measure": false,
+   "name": "rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Employee id of the RM who wrote the note; join gold.dim_employee for name and office.",
+   "is_measure": false,
+   "name": "employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client contact met (CRM contact id); join gold.dim_contact.",
+   "is_measure": false,
+   "name": "contact_id",
+   "type": "string"
+  },
+  {
+   "comment": "Activity type: Meeting, Call, Video Call, Email or Site Visit.",
+   "is_measure": false,
+   "name": "activity_type",
+   "type": "string"
+  },
+  {
+   "comment": "Purpose of the activity: Signal Follow-up, Deal Progress, Relationship Review, Product Discussion, Service Review, Market Update, Account Planning, Courtesy Visit or Credit Review.",
+   "is_measure": false,
+   "name": "purpose",
+   "type": "string"
+  },
+  {
+   "comment": "Activity subject line as recorded in CRM.",
+   "is_measure": false,
+   "name": "subject",
+   "type": "string"
+  },
+  {
+   "comment": "Product discussed, e.g. Cash Pooling, FX Forward Programme (null when none).",
+   "is_measure": false,
+   "name": "product_discussed",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Synthetic RM note text (at most 40 words; fictional entities only).",
+   "is_measure": false,
+   "name": "note_text",
+   "type": "string"
+  },
+  {
+   "comment": "Tone tag the CRM stored with the note: Positive, Neutral or Negative.",
+   "is_measure": false,
+   "name": "raw_tone",
+   "type": "string"
+  },
+  {
+   "comment": "Note sentiment score -1 (very negative) .. +1 (very positive): template tone plus noise, deterministic (D18). Average it, never sum.",
+   "is_measure": false,
+   "name": "sentiment_score",
+   "type": "double"
+  },
+  {
+   "comment": "Label from the score: Negative (<= -0.2), Positive (>= 0.2) or Neutral - the label used by the flags and signals.",
+   "is_measure": false,
+   "name": "sentiment_label",
+   "type": "string"
+  },
+  {
+   "comment": "Label returned by Databricks ai_analyze_sentiment(note_text) at build time: Positive, Negative, Neutral or Mixed (null if the function returned none). Stored alongside the score (D18 / D36); not used for storyline numbers.",
+   "is_measure": false,
+   "name": "ai_sentiment_label",
+   "type": "string"
+  },
+  {
+   "comment": "Where ai_sentiment_label came from: ai_analyze_sentiment, or not returned (the function gave no label for this note).",
+   "is_measure": false,
+   "name": "ai_label_source",
+   "type": "string"
+  },
+  {
+   "comment": "True when the AI label equals the score label (Mixed never agrees); null when no AI label - use for the AI vs synthetic agreement rate.",
+   "is_measure": false,
+   "name": "ai_agrees_with_score",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the note sentiment score is <= -0.2.",
+   "is_measure": false,
+   "name": "is_negative",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the note sentiment score is >= 0.2.",
+   "is_measure": false,
+   "name": "is_positive",
+   "type": "boolean"
+  },
+  {
+   "comment": "Primary topic extracted from the note text by keyword rules (first match): Credit & Liquidity, Pricing, Competition, Service Quality, Market & FX, Relationship, New Business, else General.",
+   "is_measure": false,
+   "name": "note_topic",
+   "type": "string"
+  },
+  {
+   "comment": "All topics extracted from the note text, comma-separated in the same order (e.g. Competition, New Business).",
+   "is_measure": false,
+   "name": "topics_text",
+   "type": "string"
+  },
+  {
+   "comment": "True when the note records a follow-up action for the RM.",
+   "is_measure": false,
+   "name": "action_required",
+   "type": "boolean"
+  },
+  {
+   "comment": "Follow-up action agreed, e.g. Send indicative term sheet (null when none).",
+   "is_measure": false,
+   "name": "next_action",
+   "type": "string"
+  },
+  {
+   "comment": "Due date of the follow-up action.",
+   "is_measure": false,
+   "name": "next_action_due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Status of the follow-up action at the as-of date: Completed, Open or Overdue (null when no action).",
+   "is_measure": false,
+   "name": "next_action_status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the follow-up action is still Open or Overdue at 30-Sep-2026 (Actions Open).",
+   "is_measure": false,
+   "name": "is_action_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the follow-up action is Overdue at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_action_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "CRM opportunity signal the activity followed up (fact_signal_event.signal_event_id), when any.",
+   "is_measure": false,
+   "name": "related_signal_id",
+   "type": "string"
+  },
+  {
+   "comment": "Pipeline opportunity the activity relates to (CRM opportunity id), when any.",
+   "is_measure": false,
+   "name": "related_opportunity_id",
+   "type": "string"
+  },
+  {
+   "comment": "Duration of the activity in minutes.",
+   "is_measure": false,
+   "name": "duration_minutes",
+   "type": "int"
+  },
+  {
+   "comment": "Days between the note date and the as-of date 30-Sep-2026; last N days = days_before_as_of < N.",
+   "is_measure": false,
+   "name": "days_before_as_of",
+   "type": "int"
+  },
+  {
+   "comment": "True for notes dated in the 90 days to 30-Sep-2026 (3-Jul-2026 .. 30-Sep-2026).",
+   "is_measure": false,
+   "name": "is_last_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "External context: average sentiment of the client group's news in the 90 days up to the note date (null = no news).",
+   "is_measure": false,
+   "name": "group_news_sentiment_90d",
+   "type": "double"
+  },
+  {
+   "comment": "News items on the client group in the 90 days up to the note date.",
+   "is_measure": false,
+   "name": "group_news_items_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Internal minus external sentiment = note sentiment - group news sentiment of the 90 days to the note (positive = the RM is more upbeat than the news); null when no news. Average it.",
+   "is_measure": false,
+   "name": "sentiment_divergence",
+   "type": "double"
+  },
+  {
+   "comment": "True when the note is Positive (>= 0.2) while the group's news sentiment over the 90 days to the note is Negative (<= -0.2).",
+   "is_measure": false,
+   "name": "is_blind_spot_note",
+   "type": "boolean"
+  },
+  {
+   "comment": "Group attribute as of 30-Sep-2026 (same on every row of the group): average news sentiment of the group in the last 90 days (3-Jul .. 30-Sep-2026).",
+   "is_measure": false,
+   "name": "group_news_sentiment_last_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Group attribute as of 30-Sep-2026: average news sentiment of the group in the prior 90 days (4-Apr .. 2-Jul-2026).",
+   "is_measure": false,
+   "name": "group_news_sentiment_prior_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Group attribute as of 30-Sep-2026: average RM-note sentiment of the group in the last 90 days.",
+   "is_measure": false,
+   "name": "group_note_sentiment_last_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Blind spot as of 30-Sep-2026: the group's external sentiment turned negative (last-90-day news average <= -0.2 and the prior 90 days not <= -0.2) while its RM notes stayed positive (last-90-day note average >= 0.2). Same on every row of the group; count distinct groups.",
+   "is_measure": false,
+   "name": "is_blind_spot_group",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Internal qualitative signal: every RM call note (CRM activity note text, synthetic, at most 40 words) with its sentiment score -1..1 (synthetic, D18), the score label (Negative <= -0.2, Positive >= 0.2), the ai_analyze_sentiment label stored alongside (D36) and their agreement, keyword-extracted topics, the follow-up action status, and the client group's external news sentiment around the note - for the internal-vs-external divergence and blind-spot questions. Flow fact: count notes, average the sentiment (never sum it). Grain: one row per RM call note (CRM activity).",
+ "identifier": "smbc_genie.gold.fact_rm_note_sentiment",
+ "type": "MANAGED"
+}

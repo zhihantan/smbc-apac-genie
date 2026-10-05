@@ -1,0 +1,265 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the ER run (quarter-end) as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the ER run (quarter-end), April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Current golden client (legal entity) of the source record / steward candidate, e.g. Meridian Agri Holdings (Singapore) Pte Ltd - records of earlier runs are attached to today's golden client.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Entity-resolution run ER-yyyymmdd: ER-20250630, ER-20250930, ER-20251231 (rule set v1), ER-20260331 (first v2 run - the March 2026 resolution), ER-20260630, ER-20260930 (latest).",
+   "is_measure": false,
+   "name": "Run",
+   "type": "string"
+  },
+  {
+   "comment": "Rule set of the run: v1 (2025 runs) or v2 (from Mar-2026: abbreviation expansion, name + country match, cross-country blocking).",
+   "is_measure": false,
+   "name": "Rule Version",
+   "type": "string"
+  },
+  {
+   "comment": "Identity source system: core_customer (core banking), crm_account (CRM), kyc_customer (KYC), credit_obligor (credit), trade_party (trade finance), tsy_counterparty (treasury), ext_company_master (external company master). The extra value ALL is a technical row that only carries the whole-run precision / recall and holds no records (Records In = 0): exclude it when listing sources, and leave Source System out of whole-run questions (records in, match rate, golden records, precision and recall of the run).",
+   "is_measure": false,
+   "name": "Source System",
+   "type": "string"
+  },
+  {
+   "comment": "How the record was resolved in the run: deterministic, fuzzy, steward or unmatched.",
+   "is_measure": false,
+   "name": "Match Method",
+   "type": "string"
+  },
+  {
+   "comment": "Decision on a steward review item: Match or No Match; null while open.",
+   "is_measure": false,
+   "name": "Steward Decision",
+   "type": "string"
+  },
+  {
+   "comment": "Days a steward item has been / was open: 0-7 days, 8-30 days, 31-90 days, 91-180 days or Over 180 days.",
+   "is_measure": false,
+   "name": "Aging Bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Source identity records in the run (latest run of the selection; per source system when grouped).",
+   "is_measure": true,
+   "name": "Records In",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records linked to at least one other record (deterministic + fuzzy + steward) in the latest run of the selection.",
+   "is_measure": true,
+   "name": "Matched Records",
+   "type": "bigint"
+  },
+  {
+   "comment": "Matched records / records in (fraction; 0.987 = 98.7% at the latest run).",
+   "is_measure": true,
+   "name": "Match Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Records matched by a deterministic rule (LEI-like id, tax id + country, v2 name + country).",
+   "is_measure": true,
+   "name": "Deterministic Matches",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records matched automatically by the fuzzy score (>= 0.90).",
+   "is_measure": true,
+   "name": "Fuzzy Matches",
+   "type": "bigint"
+  },
+  {
+   "comment": "Fuzzy matches / matched records (fraction).",
+   "is_measure": true,
+   "name": "Fuzzy Share %",
+   "type": "double"
+  },
+  {
+   "comment": "Records matched through a data-steward decision (score 0.75-0.90).",
+   "is_measure": true,
+   "name": "Steward-Resolved Matches",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records left as singleton golden records in the run.",
+   "is_measure": true,
+   "name": "Unmatched Records",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records merged into a golden record that already holds a record of the same source system (duplicates).",
+   "is_measure": true,
+   "name": "Duplicates Merged",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden records (resolved legal entities) of the run holding the selected records - 9,270 records collapse into 2,550 golden records at the latest run; by source system = golden records holding that source.",
+   "is_measure": true,
+   "name": "Golden Records",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average source records collapsed into one golden record.",
+   "is_measure": true,
+   "name": "Records per Golden Record",
+   "type": "double"
+  },
+  {
+   "comment": "Share of record pairs put in one golden record that truly belong together (vs the synthetic truth; gate >= 97%). Within one source system it is that source's precision, otherwise the whole run's (ALL row) - never summed across sources. Latest run of the selection.",
+   "is_measure": true,
+   "name": "Precision %",
+   "type": "double"
+  },
+  {
+   "comment": "Share of true same-entity record pairs that the run put together (gate >= 95%; v1 runs ~93%, v2 ~98%). Within one source system it is that source's recall, otherwise the whole run's. Latest run of the selection.",
+   "is_measure": true,
+   "name": "Recall %",
+   "type": "double"
+  },
+  {
+   "comment": "Steward review items decided (Match or No Match) among the items raised by the selected runs.",
+   "is_measure": true,
+   "name": "Steward Decisions",
+   "type": "bigint"
+  },
+  {
+   "comment": "Steward review items still open at 30-Sep-2026 (by the run that raised them; 13 in total).",
+   "is_measure": true,
+   "name": "Steward Queue Open",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average days the open steward items have been waiting at 30-Sep-2026.",
+   "is_measure": true,
+   "name": "Average Days Open",
+   "type": "double"
+  }
+ ],
+ "comment": "Entity-resolution quality of the six quarterly ER runs (Jun-2025 .. Sep-2026; rule set v1 to Dec-2025, v2 from Mar-2026) by source system: source identity records in, matched (deterministic / fuzzy / steward), match rate, fuzzy share, unmatched, within-source duplicates merged, golden records, records per golden record, pairwise precision and recall against the synthetic truth, and the data-steward queue (decisions, items open at 30-Sep-2026, aging). Record and golden counts are per-run snapshots: a quarter or year returns its latest run (filter Month = DATE'2026-09-01' or Is Latest Month for the latest run ER-20260930). Grain: one row per ER run x source record, per ER run x source system (incl. ALL) and per steward item (gold.mvb_entity_resolution, record_type union).",
+ "identifier": "smbc_genie.metrics.mv_entity_resolution",
+ "type": "METRIC_VIEW"
+}

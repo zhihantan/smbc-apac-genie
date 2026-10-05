@@ -1,0 +1,181 @@
+# Space 9, Cashflow Forecasting (WP9b / WP8e). One row per liquidity-need event flagged by the forecasts (predicted
+# shortfall / surplus) with the action that followed (RCF drawdown linked in the loan schedule, TD placed, none). All
+# measures are counts / sums / averages over events (flows by event month). Storyline 9: 23 predicted shortfalls in
+# Jun-Sep 2026, 15 followed by an RCF drawdown within 10 days.
+view: mv_liquidity_events
+space: cashflow_forecasting
+comment: >-
+  Liquidity-need events flagged by the cash-flow forecasts, Jul-2024 to Sep-2026: predicted shortfalls (forecast
+  inflows below the expected outflows) and predicted surpluses, their predicted amount (USD), the action that followed
+  - RCF drawdown (linked to the loan schedule), time deposit placed or none - the share actioned, days to action, the
+  amount drawn / placed and the estimated annual revenue of the actions; plus the shortfalls covered by an RCF
+  drawdown within 10 days and the large surpluses (> USD 20m) not yet placed. Counts and amounts add up over events
+  and months; the client's primary RM (client block) is the RM of the event.
+grain: one row per liquidity-need event (gold.fact_liquidity_need_event)
+source: ${catalog}.gold.fact_liquidity_need_event
+blocks:
+  calendar: {date: source.event_date, grain: month, what: the liquidity event}
+  client: {key: source.golden_client_sk}
+overrides:
+  Month:
+    display_name: Event Month
+    comment: >-
+      Month of the event date as its first day (DATE): September 2026 = DATE'2026-09-01'. Jun-Sep 2026 = Month
+      between DATE'2026-06-01' and DATE'2026-09-01'.
+    synonyms: [event month, month, period, month of event, reporting month, mth]
+dimensions:
+  - name: Event Type
+    expr: source.event_type
+    display_name: Event Type
+    comment: Predicted Shortfall (forecast net outflow - a funding need) or Predicted Surplus (excess cash - a deposit / investment opportunity).
+    synonyms: [event type, shortfall, surplus, liquidity event, predicted shortfall, predicted surplus]
+  - name: Horizon
+    expr: source.horizon_label
+    display_name: Forecast Horizon
+    comment: Horizon of the forecast that flagged the event (30D = one month ahead).
+    synonyms: [horizon, forecast horizon, 30 days, lookahead]
+  - name: Action Taken
+    expr: source.action_taken
+    display_name: Action Taken
+    comment: RCF Drawdown (the client drew its revolving credit facility), TD Placed (a time deposit was placed) or None.
+    synonyms: [action, action taken, response, outcome, RCF drawdown, TD placed, follow-up]
+  - name: Event Status
+    expr: source.event_status
+    display_name: Event Status
+    comment: Actioned, Open (still inside the 30-day action window at 30-Sep-2026) or Closed - No Action.
+    synonyms: [status, event status, open, actioned, closed, missed]
+  - name: Model Version
+    expr: source.model_version
+    display_name: Model Version
+    comment: Forecast model that flagged the event (v1 or v2).
+    synonyms: [model version, model, v1, v2, forecast model]
+  - name: Is RCF Drawdown Within 10D
+    expr: source.is_rcf_drawdown_within_10d
+    display_name: Followed by an RCF Drawdown Within 10 Days
+    comment: True for shortfalls followed by an RCF drawdown within 10 days (dim_threshold RCF_FOLLOW_UP_DAYS), linked in the loan schedule.
+    synonyms: [RCF within 10 days, drew RCF, RCF drawdown, covered by RCF, funded by revolver]
+  - name: Is Large Surplus
+    expr: source.is_large_surplus
+    display_name: Is Large Surplus (over USD 20m)
+    comment: True for predicted surpluses above USD 20m (dim_threshold SURPLUS_ATTENTION_USD).
+    synonyms: [large surplus, surplus over 20m, big surplus, excess cash, material surplus]
+  - name: Is Surplus Not Placed
+    expr: source.is_surplus_not_placed
+    display_name: Is Surplus Not Placed
+    comment: True for predicted surpluses where no time deposit was placed - a deposit / investment opportunity.
+    synonyms: [not placed, unplaced surplus, surplus not placed, missed deposit, idle cash, opportunity]
+  - name: Has RCF
+    expr: source.has_rcf
+    display_name: Has Revolving Credit Facility
+    comment: True when the client has a committed revolving credit facility.
+    synonyms: [has RCF, revolver, revolving credit, committed facility, credit line]
+measures:
+  - name: Events
+    expr: COUNT(1)
+    display_name: Liquidity Events
+    comment: Liquidity-need events in the selection (a flow by event month).
+    synonyms: [events, liquidity events, number of events, alerts, predictions, flags]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Shortfall Events
+    expr: COUNT(1) FILTER (WHERE source.event_type = 'Predicted Shortfall')
+    display_name: Predicted Shortfalls
+    comment: Predicted shortfall events.
+    synonyms: [shortfalls, predicted shortfalls, funding needs, cash shortfalls, liquidity gaps]
+    format: *count
+  - name: Surplus Events
+    expr: COUNT(1) FILTER (WHERE source.event_type = 'Predicted Surplus')
+    display_name: Predicted Surpluses
+    comment: Predicted surplus events.
+    synonyms: [surpluses, predicted surpluses, excess cash events, surplus alerts]
+    format: *count
+  - name: Predicted Amount USD
+    expr: SUM(source.predicted_amount_usd)
+    display_name: Predicted Amount (USD)
+    comment: Size of the predicted shortfalls / surpluses, USD (absolute value of the predicted net cash flow).
+    synonyms: [predicted amount, shortfall amount, surplus amount, size, gap, excess]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Actioned Events
+    expr: COUNT(1) FILTER (WHERE source.is_actioned)
+    display_name: Actioned Events
+    comment: Events followed by an action (RCF drawdown or TD placement).
+    synonyms: [actioned, actioned events, converted events, events with action, followed up]
+    format: *count
+  - name: Actioned %
+    expr: COUNT(1) FILTER (WHERE source.is_actioned) / NULLIF(COUNT(1), 0)
+    display_name: Share Actioned
+    comment: Share of events followed by an action (fraction).
+    synonyms: [actioned rate, conversion rate, action rate, follow-up rate, hit rate]
+    format: {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Average Days to Action
+    expr: AVG(source.days_to_action)
+    display_name: Average Days to Action
+    comment: Average days from the event to the RCF drawdown / TD placement, over actioned events.
+    synonyms: [days to action, time to action, response time, lag, days to drawdown, reaction time]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+  - name: Action Amount USD
+    expr: SUM(source.action_amount_usd)
+    display_name: Amount Drawn / Placed (USD)
+    comment: RCF amount drawn or TD amount placed after the events, USD.
+    synonyms: [action amount, amount drawn, amount placed, RCF drawn, TD placed amount]
+    format: *usd
+  - name: Revenue from Actions USD
+    expr: SUM(source.est_action_revenue_usd)
+    display_name: Revenue from Actions (annual, USD)
+    comment: Estimated annual revenue of the actions (RCF margin or TD spread on the amount), USD.
+    synonyms: [revenue from actions, action revenue, captured revenue, revenue opportunity realised, income from actions]
+    format: *usd
+  - name: Shortfalls Covered by RCF Within 10D
+    expr: COUNT(1) FILTER (WHERE source.is_rcf_drawdown_within_10d)
+    display_name: Shortfalls Followed by an RCF Drawdown Within 10 Days
+    comment: Predicted shortfalls followed by an RCF drawdown within 10 days (storyline 9 - 15 of the 23 shortfalls in Jun-Sep 2026).
+    synonyms: [RCF within 10 days, shortfalls with RCF, covered shortfalls, drawdowns after shortfall, RCF follow-up]
+    format: *count
+  - name: Large Surpluses Not Placed
+    expr: COUNT(1) FILTER (WHERE source.is_large_surplus AND source.is_surplus_not_placed)
+    display_name: Large Surpluses Not Placed
+    comment: Predicted surpluses above USD 20m where no time deposit was placed - deposit opportunities.
+    synonyms: [unplaced surpluses, surpluses not placed, idle cash opportunities, missed deposits, large surplus opportunity]
+    format: *count
+  - name: Average Undrawn RCF USD
+    expr: AVG(source.undrawn_rcf_usd) FILTER (WHERE source.has_rcf)
+    display_name: Average Undrawn RCF at Event (USD)
+    comment: Average undrawn RCF headroom of the clients with an RCF at the time of their events, USD.
+    synonyms: [undrawn RCF, RCF headroom, available RCF, headroom at event]
+    format: *usd
+validate:
+  dims: [Month, Event Type]
+reconcile:
+  - name: shortfalls_jun_sep_2026
+    measure: Shortfall Events
+    where: "`Month` BETWEEN DATE'2026-06-01' AND DATE'2026-09-01'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_liquidity_need_event
+      WHERE event_type = 'Predicted Shortfall' AND event_date BETWEEN DATE'2026-06-01' AND DATE'2026-09-30'
+  - name: rcf_within_10d_jun_sep_2026
+    measure: Shortfalls Covered by RCF Within 10D
+    where: "`Month` BETWEEN DATE'2026-06-01' AND DATE'2026-09-01'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_liquidity_need_event
+      WHERE is_rcf_drawdown_within_10d AND event_date BETWEEN DATE'2026-06-01' AND DATE'2026-09-30'
+  - name: actioned_share_by_event_type
+    measure: Actioned %
+    by: [Event Type]
+    gold: >-
+      SELECT event_type, avg(CASE WHEN is_actioned THEN 1.0 ELSE 0.0 END) FROM ${catalog}.gold.fact_liquidity_need_event GROUP BY 1
+  - name: predicted_amount_fy2025
+    measure: Predicted Amount USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sum(predicted_amount_usd) FROM ${catalog}.gold.fact_liquidity_need_event
+      WHERE event_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31'
+  - name: revenue_from_actions
+    measure: Revenue from Actions USD
+    gold: SELECT sum(est_action_revenue_usd) FROM ${catalog}.gold.fact_liquidity_need_event
+  - name: large_surpluses_not_placed
+    measure: Large Surpluses Not Placed
+    gold: SELECT count_if(is_large_surplus AND is_surplus_not_placed) FROM ${catalog}.gold.fact_liquidity_need_event
+glossary:
+  caveats:
+    - >-
+      Events are flows by event month. RCF drawdowns are linked to the loan schedule (linked_schedule_event_id);
+      thresholds (10 days, USD 20m) come from gold.dim_threshold.

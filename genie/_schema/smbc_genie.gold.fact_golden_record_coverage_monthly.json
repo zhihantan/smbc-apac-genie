@@ -1,0 +1,139 @@
+{
+ "columns": [
+  {
+   "comment": "First day of the month (the grain date).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Identity source system (bronze identity master): core_customer, crm_account, kyc_customer, credit_obligor, trade_party, tsy_counterparty or ext_company_master.",
+   "is_measure": false,
+   "name": "source_system",
+   "type": "string"
+  },
+  {
+   "comment": "Last day of the month - coverage is as at this date.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when the source system holds at least one record of the client available by the month-end.",
+   "is_measure": false,
+   "name": "is_present",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has no record in this source at the month-end (e.g. source_system = kyc_customer AND is_missing = golden clients missing from KYC).",
+   "is_measure": false,
+   "name": "is_missing",
+   "type": "boolean"
+  },
+  {
+   "comment": "Records of the client in the source at the month-end (within-source duplicates included).",
+   "is_measure": false,
+   "name": "n_records",
+   "type": "int"
+  },
+  {
+   "comment": "Date the client's first record in this source became available.",
+   "is_measure": false,
+   "name": "first_available_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the source last added a record of the client (last updated) up to the month-end.",
+   "is_measure": false,
+   "name": "last_record_added_date",
+   "type": "date"
+  },
+  {
+   "comment": "Share of the source's key identity fields populated on the client's records (fraction 0-1; 0 when absent).",
+   "is_measure": false,
+   "name": "source_field_completeness",
+   "type": "double"
+  },
+  {
+   "comment": "True for the core sources core_customer, crm_account and kyc_customer.",
+   "is_measure": false,
+   "name": "is_core_source",
+   "type": "boolean"
+  },
+  {
+   "comment": "Source systems (of 7) holding the client at the month-end (client attribute; same on its 7 rows).",
+   "is_measure": false,
+   "name": "n_sources_present",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is present in all three core sources at the month-end (client attribute).",
+   "is_measure": false,
+   "name": "in_all_core_sources",
+   "type": "boolean"
+  },
+  {
+   "comment": "Months (of the 42) the client has been present in this source up to this month.",
+   "is_measure": false,
+   "name": "months_present",
+   "type": "int"
+  },
+  {
+   "comment": "True on exactly one row per client-month (the first source system alphabetically) - use it to count golden clients and client attributes without multiplying by 7.",
+   "is_measure": false,
+   "name": "is_client_primary_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for Sep-2026 rows (coverage at the as-of date).",
+   "is_measure": false,
+   "name": "is_latest_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Golden-record attribute completeness at 30-Sep-2026 = populated / 10 key attributes (legal name, LEI, tax id, country, group, segment, tier, RM, rating, KYC risk), fraction 0-1; latest month only (null earlier). Average over primary rows.",
+   "is_measure": false,
+   "name": "attribute_completeness_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Key attributes populated on the golden record at 30-Sep-2026 (of n_attributes); latest month only.",
+   "is_measure": false,
+   "name": "n_attributes_populated",
+   "type": "int"
+  },
+  {
+   "comment": "Key attributes assessed (10); latest month only.",
+   "is_measure": false,
+   "name": "n_attributes",
+   "type": "int"
+  },
+  {
+   "comment": "Key attributes missing on the golden record at 30-Sep-2026, comma-separated (e.g. lei_like_id, tax_id); latest month only.",
+   "is_measure": false,
+   "name": "missing_attributes_text",
+   "type": "string"
+  }
+ ],
+ "comment": "Golden-record coverage: for every golden client, month (Apr-2023 .. Sep-2026) and identity source system (core_customer, crm_account, kyc_customer, credit_obligor, trade_party, tsy_counterparty, ext_company_master) whether the client is present in that source, with how many records, when the source last added one, and the source's field completeness; plus whether the client is in all core sources (core banking, CRM, KYC) and - on the latest month only - the golden record's attribute completeness. Dense: 7 rows per client-month; count clients with is_client_primary_row. Point-in-time per month: do not add months. Grain: one row per golden client per month per identity source system.",
+ "identifier": "smbc_genie.gold.fact_golden_record_coverage_monthly",
+ "type": "MANAGED"
+}

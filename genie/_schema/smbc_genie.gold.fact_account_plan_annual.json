@@ -1,0 +1,289 @@
+{
+ "columns": [
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version of the group's lead entity valid at the fiscal year end (or the as-of date for FY2026) - client attributes for group-grain rows (D12).",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Last day of the fiscal year (31-Mar), e.g. 2027-03-31 for FY2026.",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Plan product family: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "True for FY2026, the fiscal year of the as-of date.",
+   "is_measure": false,
+   "name": "is_current_fiscal_year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Months of the fiscal year elapsed at the as-of date (12 for past years, 6 for FY2026) - run-rate factor 12 / months.",
+   "is_measure": false,
+   "name": "months_elapsed",
+   "type": "bigint"
+  },
+  {
+   "comment": "True when the group has an account plan for the fiscal year (any family).",
+   "is_measure": false,
+   "name": "group_has_plan",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the plan has a target line for this product family.",
+   "is_measure": false,
+   "name": "has_plan_line",
+   "type": "boolean"
+  },
+  {
+   "comment": "CRM account plan id of the group for the fiscal year (AP-<FY>-CRM-nnnnnn); null without a plan.",
+   "is_measure": false,
+   "name": "plan_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM plan line id (plan x product family); null without a line.",
+   "is_measure": false,
+   "name": "plan_line_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account the group plan is held on (normally the lead entity).",
+   "is_measure": false,
+   "name": "plan_crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Plan status: Active (current year), Revised (reset mid-year) or Closed (past years).",
+   "is_measure": false,
+   "name": "plan_status",
+   "type": "string"
+  },
+  {
+   "comment": "Date the plan was approved.",
+   "is_measure": false,
+   "name": "plan_approved_date",
+   "type": "date"
+  },
+  {
+   "comment": "Plan priority of the group: High, Medium or Low.",
+   "is_measure": false,
+   "name": "strategic_priority",
+   "type": "string"
+  },
+  {
+   "comment": "Plan narrative / objectives (short text), e.g. deepen cash-management coverage.",
+   "is_measure": false,
+   "name": "plan_objective",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the RM owning the plan (RM001-RM120).",
+   "is_measure": false,
+   "name": "owner_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Employee id of the plan owner RM; join to gold.dim_employee (name, coverage office) for RM book questions.",
+   "is_measure": false,
+   "name": "owner_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when the group's plan for the year was revised mid-year (any line), e.g. Kinokawa FY2026.",
+   "is_measure": false,
+   "name": "plan_revised_mid_year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Original full-year revenue target of the plan line in USD (null without a plan line).",
+   "is_measure": false,
+   "name": "revenue_target_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Mid-year revised full-year target in USD; null when the line was not revised.",
+   "is_measure": false,
+   "name": "revised_target_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Target in force = revised target when revised, else the original target, in USD - the attainment denominator.",
+   "is_measure": false,
+   "name": "effective_target_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when this plan line was revised mid-year.",
+   "is_measure": false,
+   "name": "mid_year_revision",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date of the mid-year revision.",
+   "is_measure": false,
+   "name": "revision_date",
+   "type": "date"
+  },
+  {
+   "comment": "Reason recorded for the mid-year revision (short text).",
+   "is_measure": false,
+   "name": "revision_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Uplift of the original target over the prior-year actual (fraction, e.g. 0.10 = +10%).",
+   "is_measure": false,
+   "name": "plan_optimism",
+   "type": "double"
+  },
+  {
+   "comment": "Share-of-wallet target set in the plan (fraction).",
+   "is_measure": false,
+   "name": "wallet_share_target",
+   "type": "double"
+  },
+  {
+   "comment": "Actual revenue in USD for the fiscal year to the as-of date (FY2026 = Apr-Sep 2026; past years = full year); Finance revenue from the product feeds, or the CRM-recorded actual for Supply Chain Finance and FY2023 (see actual_basis).",
+   "is_measure": false,
+   "name": "revenue_actual_ytd_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Source of revenue_actual_ytd_usd: Finance revenue (gold revenue fact) or CRM recorded actual.",
+   "is_measure": false,
+   "name": "actual_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Actual revenue recorded on the CRM plan line in USD (for comparison).",
+   "is_measure": false,
+   "name": "crm_actual_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue for the same months one year earlier in USD (FY2026: Apr-Sep 2025; past years: the prior full year) - Revenue YoY % denominator.",
+   "is_measure": false,
+   "name": "revenue_prior_ytd_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Prior full-year actual revenue recorded in the CRM plan in USD.",
+   "is_measure": false,
+   "name": "prior_year_actual_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Estimated bankable full-year wallet of the group for the family in USD (all banks).",
+   "is_measure": false,
+   "name": "estimated_wallet_usd",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC revenue used by the wallet estimate in USD (full year, or H1 YTD for FY2026 - see smbc_revenue_basis).",
+   "is_measure": false,
+   "name": "wallet_smbc_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Period of wallet_smbc_revenue_usd: Full Year or H1 YTD.",
+   "is_measure": false,
+   "name": "smbc_revenue_basis",
+   "type": "string"
+  },
+  {
+   "comment": "wallet_smbc_revenue_usd annualised (x 12 / months_elapsed) - Share of Wallet numerator.",
+   "is_measure": false,
+   "name": "wallet_smbc_revenue_annualised_usd",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC share of the group's wallet for the family (fraction) as estimated; aggregate with SUM(wallet_smbc_revenue_annualised_usd) / SUM(estimated_wallet_usd).",
+   "is_measure": false,
+   "name": "share_of_wallet",
+   "type": "double"
+  },
+  {
+   "comment": "Bank id of the competitor with the largest share of the wallet; join to gold.dim_competitor_bank.",
+   "is_measure": false,
+   "name": "top_competitor_bank_id",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the top competitor bank (fictional).",
+   "is_measure": false,
+   "name": "top_competitor_bank",
+   "type": "string"
+  },
+  {
+   "comment": "Share of the wallet held by the top competitor (fraction).",
+   "is_measure": false,
+   "name": "top_competitor_share",
+   "type": "double"
+  },
+  {
+   "comment": "Wallet estimation method: Bottom-up from client flows, Treasury FX wallet estimate or Peer benchmark.",
+   "is_measure": false,
+   "name": "estimation_method",
+   "type": "string"
+  },
+  {
+   "comment": "Account-plan initiatives for the group, year and family (detail in gold.dim_account_plan_initiative).",
+   "is_measure": false,
+   "name": "initiatives_planned",
+   "type": "bigint"
+  },
+  {
+   "comment": "Initiatives with status Completed.",
+   "is_measure": false,
+   "name": "initiatives_completed",
+   "type": "bigint"
+  },
+  {
+   "comment": "Initiatives still open at the as-of date (Not Started, In Progress, At Risk, Delayed).",
+   "is_measure": false,
+   "name": "initiatives_open",
+   "type": "bigint"
+  },
+  {
+   "comment": "Open initiatives past their due date at the as-of date.",
+   "is_measure": false,
+   "name": "initiatives_overdue",
+   "type": "bigint"
+  },
+  {
+   "comment": "Target revenue of the initiatives in USD.",
+   "is_measure": false,
+   "name": "initiatives_target_revenue_usd",
+   "type": "double"
+  }
+ ],
+ "comment": "Account plan progress per client group, fiscal year and product family (Account Planning, mv_account_plan_progress; FY2023-FY2026): the CRM plan's original revenue target and mid-year revised target, plan status and owner RM, actual revenue year to date (FY2026 = Apr-Sep 2026; past years = full year) from the gold revenue fact (summed over the group's APAC clients), the same period one year earlier, the full-year run-rate, the bankable wallet estimate with SMBC share of wallet and the top competitor, and the plan's initiative counts. Every group with revenue or a wallet estimate has rows, with or without a plan (group_has_plan). Attainment % = SUM(revenue_actual_ytd_usd) / SUM(effective_target_usd); Revenue YoY % = SUM(revenue_actual_ytd_usd) / SUM(revenue_prior_ytd_usd) - 1; Share of Wallet % = SUM(wallet_smbc_revenue_annualised_usd) / SUM(estimated_wallet_usd). Amounts add across families and groups within one fiscal year. Grain: one row per client group x fiscal year x product family.",
+ "identifier": "smbc_genie.gold.fact_account_plan_annual",
+ "type": "MANAGED"
+}

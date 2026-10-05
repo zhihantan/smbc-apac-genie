@@ -1,0 +1,133 @@
+{
+ "columns": [
+  {
+   "comment": "Collateral item id (COL-nnnnnn).",
+   "is_measure": false,
+   "name": "collateral_id",
+   "type": "string"
+  },
+  {
+   "comment": "Facility the collateral secures (FAC-nnnnnn); join to fact_facility_terms.",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit-system obligor id of the borrower.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Current dim_client version of the borrower (current snapshot).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Snapshot date the valuation age and flags are measured at (30-Sep-2026).",
+   "is_measure": false,
+   "name": "as_of_date",
+   "type": "date"
+  },
+  {
+   "comment": "Collateral type: Cash, Receivables, Inventory, Fixed Assets or Real Estate.",
+   "is_measure": false,
+   "name": "collateral_type",
+   "type": "string"
+  },
+  {
+   "comment": "Appraised (market) value of the collateral at the last valuation, USD.",
+   "is_measure": false,
+   "name": "appraised_value_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Loan-to-value as a fraction (0.72 = 72%): facility exposure / collateral value at the last valuation.",
+   "is_measure": false,
+   "name": "ltv_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Date of the last collateral valuation.",
+   "is_measure": false,
+   "name": "last_valuation_date",
+   "type": "date"
+  },
+  {
+   "comment": "Whole months between the last valuation and the as-of date.",
+   "is_measure": false,
+   "name": "valuation_age_months",
+   "type": "int"
+  },
+  {
+   "comment": "True when the last valuation is older than 24 months at the as-of date (dim_threshold VALUATION_STALE_MONTHS).",
+   "is_measure": false,
+   "name": "is_valuation_stale",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when LTV is above 70% (dim_threshold LTV_HIGH).",
+   "is_measure": false,
+   "name": "is_high_ltv",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when LTV is above 70% or the valuation is older than 24 months.",
+   "is_measure": false,
+   "name": "needs_collateral_review",
+   "type": "boolean"
+  },
+  {
+   "comment": "Type of the secured facility (e.g. Term Loan, Revolving Credit Facility).",
+   "is_measure": false,
+   "name": "facility_type",
+   "type": "string"
+  },
+  {
+   "comment": "Status of the secured facility: Active, Matured or Prepaid.",
+   "is_measure": false,
+   "name": "facility_status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the secured facility is active at the as-of date.",
+   "is_measure": false,
+   "name": "is_facility_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "Security type recorded on the facility terms (Cash, Receivables, Inventory, Fixed Assets, Real Estate).",
+   "is_measure": false,
+   "name": "security_type",
+   "type": "string"
+  },
+  {
+   "comment": "Committed limit of the secured facility, USD (repeats per collateral item; do not sum across items of one facility).",
+   "is_measure": false,
+   "name": "facility_limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn balance of the secured facility at the as-of month-end, USD (repeats per collateral item).",
+   "is_measure": false,
+   "name": "facility_drawn_usd",
+   "type": "double"
+  }
+ ],
+ "comment": "Collateral held against credit facilities (credit memo pack, brief 5.3): one row per collateral item with type, appraised value (USD), loan-to-value, last valuation date and its age at 30-Sep-2026, and the review flags LTV above 70% and valuation older than 24 months (dim_threshold LTV_HIGH / VALUATION_STALE_MONTHS), plus the secured facility's type, status, limit and current drawn balance. Current snapshot (valuations as last recorded). Grain: one row per collateral item.",
+ "identifier": "smbc_genie.gold.fact_collateral",
+ "type": "MANAGED"
+}

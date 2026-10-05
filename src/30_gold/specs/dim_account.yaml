@@ -1,0 +1,34 @@
+table: dim_account
+domain: hub
+comment: >-
+  Core-banking deposit accounts (current, savings, time deposit, money market) with their golden client,
+  product, CASA / TD class, currency, booking country and open date. Deposit balance, time-deposit,
+  payment and liquidity-structure facts reference account_id.
+grain: one row per core-banking account
+primary_key: [account_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [golden_client_id]
+columns:
+  account_id: {type: STRING}
+  cust_no: {type: STRING, comment: Core-banking customer number (source identity record) holding the account.}
+  golden_client_id: {type: STRING, not_null: true}
+  golden_client_sk: {type: BIGINT, comment: dim_client surrogate key of the account holder's current version.}
+  client_group_id: {type: STRING}
+  account_type: {type: STRING, comment: "Account type: Current Account, Savings Account, Time Deposit or Money Market Deposit."}
+  product_id: {type: STRING}
+  deposit_class: {type: STRING, comment: "CASA (current and savings accounts) or TD (time and money-market deposits)."}
+  is_casa: {type: BOOLEAN, comment: True for current / savings accounts (CASA).}
+  currency: {type: STRING, comment: ISO 4217 currency of the account.}
+  booking_country: {type: STRING, comment: "APAC booking location of the account = the holder's coverage office (ISO-2)."}
+  open_date: {type: DATE, comment: Date the account was opened.}
+  account_status: {type: STRING, comment: "Account status in core banking: ACTIVE, DORMANT or CLOSED."}
+  is_active: {type: BOOLEAN, comment: True when the account status is ACTIVE.}
+  account_age_months: {type: INT, comment: Whole months from opening to the as-of date 30-Sep-2026.}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.core_account

@@ -1,0 +1,283 @@
+{
+ "columns": [
+  {
+   "comment": "Row key: REC|<run>|<source system>|<source id>, RUN|<run>|<source system> or STW|<steward item id>.",
+   "is_measure": false,
+   "name": "mvb_row_id",
+   "type": "string"
+  },
+  {
+   "comment": "source_record (ER run x source record), run_source (ER run x source system incl. ALL) or steward_item (steward review item).",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "ER run id ER-yyyymmdd (steward items: the run that raised them).",
+   "is_measure": false,
+   "name": "run_id",
+   "type": "string"
+  },
+  {
+   "comment": "As-of date of the ER run (the grain date; 30-Jun-2025 .. 30-Sep-2026 quarterly).",
+   "is_measure": false,
+   "name": "run_date",
+   "type": "date"
+  },
+  {
+   "comment": "Rule set of the run (v1 or v2).",
+   "is_measure": false,
+   "name": "rule_version",
+   "type": "string"
+  },
+  {
+   "comment": "Run sequence 1-6 in date order.",
+   "is_measure": false,
+   "name": "run_seq",
+   "type": "int"
+  },
+  {
+   "comment": "True for rows of the latest run (ER-20260930).",
+   "is_measure": false,
+   "name": "is_latest_run",
+   "type": "boolean"
+  },
+  {
+   "comment": "Identity source system of the record (steward items: of the left candidate); ALL on the run_source row for the whole run.",
+   "is_measure": false,
+   "name": "source_system",
+   "type": "string"
+  },
+  {
+   "comment": "True only on run_source rows with source_system = ALL (run totals).",
+   "is_measure": false,
+   "name": "is_all_sources_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Current golden client of the record (latest run; steward items: of the left candidate); null on run_source rows.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Golden id the record had in that run (source_record rows; may since have been merged into another id).",
+   "is_measure": false,
+   "name": "run_golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Record id in its source system (steward items: the left candidate).",
+   "is_measure": false,
+   "name": "source_id",
+   "type": "string"
+  },
+  {
+   "comment": "How the record was resolved in the run (source_record rows): deterministic, fuzzy, steward or unmatched.",
+   "is_measure": false,
+   "name": "match_method",
+   "type": "string"
+  },
+  {
+   "comment": "Rule that linked the record, e.g. deterministic_lei, deterministic_tax_country, deterministic_name_country, fuzzy_auto, steward_match, unmatched.",
+   "is_measure": false,
+   "name": "match_rule",
+   "type": "string"
+  },
+  {
+   "comment": "Score of the accepted link 0-1 (steward items: the pair score).",
+   "is_measure": false,
+   "name": "match_score",
+   "type": "double"
+  },
+  {
+   "comment": "Records in the record's golden cluster in that run.",
+   "is_measure": false,
+   "name": "cluster_size",
+   "type": "int"
+  },
+  {
+   "comment": "1 on source_record rows (Records In = SUM).",
+   "is_measure": false,
+   "name": "record_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 when the record was matched (deterministic / fuzzy / steward) - Matched = SUM; Match Rate = SUM(matched_count) / SUM(record_count).",
+   "is_measure": false,
+   "name": "matched_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 when matched deterministically.",
+   "is_measure": false,
+   "name": "deterministic_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 when matched by automatic fuzzy matching - Fuzzy Share = SUM(fuzzy_count) / SUM(matched_count).",
+   "is_measure": false,
+   "name": "fuzzy_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 when matched through a steward decision.",
+   "is_measure": false,
+   "name": "steward_resolved_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 when the record stayed unmatched (a singleton golden record).",
+   "is_measure": false,
+   "name": "unmatched_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 for a within-source duplicate merged into a golden record that already holds a record of the same source (Duplicates Merged = SUM).",
+   "is_measure": false,
+   "name": "duplicate_merged_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 when the record was new in that run.",
+   "is_measure": false,
+   "name": "new_record_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 on exactly one record per run x golden id - Golden Records = SUM (9,270 records -> 2,550 golden records at the latest run).",
+   "is_measure": false,
+   "name": "golden_record_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 on steward_item rows.",
+   "is_measure": false,
+   "name": "steward_item_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 for decided steward items (Steward Decisions = SUM).",
+   "is_measure": false,
+   "name": "steward_decided_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 for steward items open at 30-Sep-2026 (Steward Queue Open = SUM).",
+   "is_measure": false,
+   "name": "steward_open_count",
+   "type": "int"
+  },
+  {
+   "comment": "1 for steward items decided as Match.",
+   "is_measure": false,
+   "name": "steward_match_count",
+   "type": "int"
+  },
+  {
+   "comment": "Steward review item id (steward_item rows).",
+   "is_measure": false,
+   "name": "steward_item_id",
+   "type": "string"
+  },
+  {
+   "comment": "Steward decision Match / No Match (null while open).",
+   "is_measure": false,
+   "name": "steward_decision",
+   "type": "string"
+  },
+  {
+   "comment": "Steward item status Open / Decided.",
+   "is_measure": false,
+   "name": "steward_status",
+   "type": "string"
+  },
+  {
+   "comment": "Days the steward item has been / was open.",
+   "is_measure": false,
+   "name": "days_open",
+   "type": "int"
+  },
+  {
+   "comment": "Steward queue aging bucket: 0-7 days, 8-30 days, 31-90 days, 91-180 days or Over 180 days.",
+   "is_measure": false,
+   "name": "aging_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Sort order 1-5 of aging_bucket.",
+   "is_measure": false,
+   "name": "aging_bucket_order",
+   "type": "int"
+  },
+  {
+   "comment": "Data steward assigned (steward_item rows); join gold.dim_employee.",
+   "is_measure": false,
+   "name": "assigned_to_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Same-entity pairs per the synthetic truth (run_source rows).",
+   "is_measure": false,
+   "name": "true_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Pairs the run put in one golden record (run_source rows).",
+   "is_measure": false,
+   "name": "predicted_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Predicted pairs that are true (run_source rows) - Precision = SUM(tp_pairs) / SUM(predicted_pairs), Recall = SUM(tp_pairs) / SUM(true_pairs) within one source system or the ALL row.",
+   "is_measure": false,
+   "name": "tp_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Candidate pairs scored by the run (run_source rows).",
+   "is_measure": false,
+   "name": "candidate_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden records holding the source (run_source rows; ALL = golden records of the run).",
+   "is_measure": false,
+   "name": "run_golden_records",
+   "type": "bigint"
+  },
+  {
+   "comment": "Pairwise precision of the run for the source system (run_source rows; fraction).",
+   "is_measure": false,
+   "name": "precision",
+   "type": "double"
+  },
+  {
+   "comment": "Pairwise recall of the run for the source system (run_source rows; fraction).",
+   "is_measure": false,
+   "name": "recall",
+   "type": "double"
+  },
+  {
+   "comment": "Cluster purity of the run (ALL row only; fraction).",
+   "is_measure": false,
+   "name": "purity",
+   "type": "double"
+  }
+ ],
+ "comment": "Metric-view base for entity resolution (D13 record_type union; source of mv_entity_resolution). Three record types share one table: source_record (one row per ER run x source identity record - match method, rule and score, attached to the record's current golden client so segment and coverage office work for every run), run_source (one row per run x source system plus ALL - pairwise precision / recall / purity against the synthetic truth) and steward_item (one row per steward review item - decision, status, aging). Counter columns (record_count, matched_count, ..., steward_open_count) are 1 only on their own record type and 0 elsewhere, so SUM never double counts; pair counts and precision / recall exist only on run_source rows - compute them within one source system or on the ALL row (is_all_sources_row). Grain: one row per record_type row (ER run x source record, ER run x source system, or steward item).",
+ "identifier": "smbc_genie.gold.mvb_entity_resolution",
+ "type": "MANAGED"
+}

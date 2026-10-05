@@ -1,0 +1,173 @@
+{
+  "slug": "customer360_data_foundation",
+  "title": "APAC Genie - Customer 360 Data Foundation",
+  "description": "Ask about entity-resolution quality, golden-record coverage, data quality, Delta Sharing freshness and the exposure impact of entity resolution for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_entity_resolution",
+    "smbc_genie.metrics.mv_golden_record_coverage",
+    "smbc_genie.metrics.mv_data_quality",
+    "smbc_genie.metrics.mv_delta_sharing_freshness",
+    "smbc_genie.metrics.mv_er_exposure_impact",
+    "smbc_genie.gold.xref_client_source",
+    "smbc_genie.gold.vw_client_360",
+    "smbc_genie.gold.dim_client_group"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_entity_resolution.Client Group",
+    "smbc_genie.metrics.mv_entity_resolution.Segment",
+    "smbc_genie.metrics.mv_entity_resolution.Relationship Tier",
+    "smbc_genie.metrics.mv_entity_resolution.Industry",
+    "smbc_genie.metrics.mv_entity_resolution.Coverage Office",
+    "smbc_genie.metrics.mv_entity_resolution.Primary RM",
+    "smbc_genie.metrics.mv_entity_resolution.Run",
+    "smbc_genie.metrics.mv_entity_resolution.Rule Version",
+    "smbc_genie.metrics.mv_entity_resolution.Match Method",
+    "smbc_genie.metrics.mv_entity_resolution.Steward Decision",
+    "smbc_genie.metrics.mv_entity_resolution.Aging Bucket",
+    "smbc_genie.metrics.mv_golden_record_coverage.Client Group",
+    "smbc_genie.metrics.mv_golden_record_coverage.Segment",
+    "smbc_genie.metrics.mv_golden_record_coverage.Relationship Tier",
+    "smbc_genie.metrics.mv_golden_record_coverage.Industry",
+    "smbc_genie.metrics.mv_golden_record_coverage.Coverage Office",
+    "smbc_genie.metrics.mv_golden_record_coverage.Primary RM",
+    "smbc_genie.metrics.mv_golden_record_coverage.KYC Risk Rating",
+    "smbc_genie.metrics.mv_golden_record_coverage.EWS Band",
+    "smbc_genie.metrics.mv_golden_record_coverage.Source System",
+    "smbc_genie.metrics.mv_data_quality.Layer",
+    "smbc_genie.metrics.mv_data_quality.Table",
+    "smbc_genie.metrics.mv_data_quality.DQ Dimension",
+    "smbc_genie.metrics.mv_data_quality.Rule",
+    "smbc_genie.metrics.mv_data_quality.Rule Severity",
+    "smbc_genie.metrics.mv_data_quality.Rule Status",
+    "smbc_genie.metrics.mv_data_quality.Score Basis",
+    "smbc_genie.metrics.mv_data_quality.Incident",
+    "smbc_genie.metrics.mv_delta_sharing_freshness.Provider Region",
+    "smbc_genie.metrics.mv_delta_sharing_freshness.Share",
+    "smbc_genie.metrics.mv_delta_sharing_freshness.Shared Table",
+    "smbc_genie.metrics.mv_delta_sharing_freshness.Refresh Status",
+    "smbc_genie.metrics.mv_er_exposure_impact.Client Group",
+    "smbc_genie.metrics.mv_er_exposure_impact.Segment",
+    "smbc_genie.metrics.mv_er_exposure_impact.Industry",
+    "smbc_genie.metrics.mv_er_exposure_impact.Coverage Office",
+    "smbc_genie.metrics.mv_er_exposure_impact.Primary RM",
+    "smbc_genie.metrics.mv_er_exposure_impact.Run",
+    "smbc_genie.metrics.mv_er_exposure_impact.Rule Version",
+    "smbc_genie.metrics.mv_er_exposure_impact.Attribution Status",
+    "smbc_genie.gold.xref_client_source.source_system",
+    "smbc_genie.gold.xref_client_source.match_method",
+    "smbc_genie.gold.xref_client_source.match_rule",
+    "smbc_genie.gold.xref_client_source.steward_decision",
+    "smbc_genie.gold.xref_client_source.resolved_in_run_id",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.segment",
+    "smbc_genie.gold.vw_client_360.relationship_tier",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_client_group.hq_region"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- Views: mv_entity_resolution = quarterly ER runs (records in, matches, golden records, precision / recall, steward queue); mv_golden_record_coverage = golden clients by source system, missing KYC / credit, attribute completeness; mv_data_quality = DQ scores by layer / table / DQ dimension plus the latest rule results; mv_delta_sharing_freshness = JP / EMEA / AMER share lag and staleness; mv_er_exposure_impact = group exposure before vs after each run's re-resolution.\n- ER runs ER-20250630 .. ER-20260930 are quarter-end snapshots (rule set v1 to Dec-2025, v2 from Mar-2026): latest run = `Is Latest Month`; compare runs by grouping by `Run`, never add runs; \"the March 2026 resolution\" = `Month` = DATE'2026-03-01' (ER-20260331).\n- ER per source system: group by `Source System` and exclude the technical ALL value (or use fn_er_run_summary). Whole-run ER figures (records in, match rate, golden records, precision, recall of a run): put no Source System condition in the query at all. Precision % and Recall % are never summed across sources.\n- Steward queue aging = items open at 30-Sep-2026: MEASURE(`Steward Queue Open`) and MEASURE(`Average Days Open`) by `Aging Bucket` with HAVING MEASURE(`Steward Queue Open`) > 0.\n- Coverage and DQ measures are month-end snapshots: today = `Is Latest Month` (`Month` = DATE'2026-09-01'); \"this month vs last\" = `Month` = DATE'2026-09-01' with DQ Score % and DQ Score Prior Month %. Attribute completeness exists for Sep-2026 only.\n- Delta Share freshness: \"from Japan\" = `Provider Region` = 'JP'; last 30 days = `Date` >= DATE'2026-09-01'; stale = lag > 24h (Stale Table-Days = stale days, Tables Stale = tables); lag and stale counts add up over the selected days.\n- Exposures changed by more than 20% after a resolution (all groups) = `Material Resolution Change` in mv_er_exposure_impact or fn_er_exposure_changes; one named group = the example query (before / after, attention threshold, crossed). Unattributed exposure has no Client Group: show COALESCE(`Client Group`, '(unattributed)') AS client_group with `Attribution Status`.\n- Golden clients missing KYC / credit = Clients Missing KYC Data / Clients Missing Credit Data; \"by tier\" = Relationship Tier, keeping the null tier (clients without a CRM tier). Client = legal entity, matched with LIKE, e.g. `Client` LIKE 'Meridian Agri Holdings (Singapore)%'.\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "What are the entity-resolution match rate and precision by source system for the latest run?",
+    "How many client records collapsed into how many golden records in each ER run?",
+    "How old is the data-steward queue?",
+    "How many golden clients are missing KYC or credit data, by relationship tier?",
+    "How did DQ scores by table and dimension change this month vs last?",
+    "How fresh is the Delta Share from Japan over the last 30 days, and are any tables stale?",
+    "Which exposures changed by more than 20% after the March 2026 resolution of Meridian Agri Holdings?",
+    "What is the attribute completeness of Strategic clients' golden records?"
+  ],
+  "trusted_queries": [
+    {
+      "name": "Steward queue aging - open steward items and their average age by aging bucket",
+      "usage_guidance": "Use for \"steward queue aging\", \"how old is the steward backlog\", \"open data-steward reviews\"; only buckets with open items (HAVING), as of 30-Sep-2026.",
+      "parameters": [],
+      "sql": "SELECT `Aging Bucket`,\n       MEASURE(`Steward Queue Open`) AS open_items,\n       MEASURE(`Average Days Open`)  AS average_days_open\nFROM smbc_genie.metrics.mv_entity_resolution\nGROUP BY ALL\nHAVING MEASURE(`Steward Queue Open`) > 0\nORDER BY average_days_open"
+    },
+    {
+      "name": "Golden clients missing KYC or credit data by relationship tier at :month",
+      "usage_guidance": "Use for \"golden clients missing from KYC / credit\", \"coverage gaps by tier\"; month-end snapshot (today = 2026-09-01), keeps the null-tier row.",
+      "parameters": [
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Relationship Tier`,\n       MEASURE(`Golden Clients`)              AS golden_clients,\n       MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,\n       MEASURE(`Clients Missing Credit Data`) AS missing_credit\nFROM smbc_genie.metrics.mv_golden_record_coverage\nWHERE `Month` = :month\nGROUP BY ALL\nORDER BY `Relationship Tier`"
+    },
+    {
+      "name": "DQ score by layer and DQ dimension for :month vs the month before",
+      "usage_guidance": "Use for \"DQ score this month vs last\" by layer and dimension, \"data quality scorecard\", \"tables below 95%\"; Month = 2026-09-01 is this month (the prior-month measure gives August).",
+      "parameters": [
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Layer`, `DQ Dimension`,\n       MEASURE(`DQ Score %`)             AS dq_score,\n       MEASURE(`DQ Score Prior Month %`) AS dq_score_prior_month,\n       MEASURE(`Row Pass Rate %`)        AS row_pass_rate,\n       MEASURE(`Tables Below Target`)    AS tables_below_95\nFROM smbc_genie.metrics.mv_data_quality\nWHERE `Month` = :month\nGROUP BY ALL\nORDER BY `Layer`, `DQ Dimension`"
+    },
+    {
+      "name": "What did the :month entity resolution do to the exposure of :client_group, and did it cross the USD 500m threshold",
+      "usage_guidance": "Use for one named group: \"what did the March 2026 resolution do to <group> exposure\", \"did <group> cross the 500m attention threshold after ER\" (month = the run month, March 2026 = 2026-03-01). For every group changed by more than 20% in a run use fn_er_exposure_changes instead.",
+      "parameters": [
+        {
+          "name": "client_group",
+          "type": "STRING"
+        },
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Client Group`,\n       MEASURE(`Exposure Before Resolution USD`) AS exposure_before_usd,\n       MEASURE(`Exposure After Resolution USD`)  AS exposure_after_usd,\n       MEASURE(`Resolution Change %`)            AS resolution_change,\n       MEASURE(`Attention Threshold USD`)        AS attention_threshold_usd,\n       MEASURE(`Groups Crossing Threshold`)      AS crossed_threshold\nFROM smbc_genie.metrics.mv_er_exposure_impact\nWHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Month` = :month\nGROUP BY ALL"
+    },
+    {
+      "name": "Source records and golden records per ER run for the client :client from :from_month to :to_month",
+      "usage_guidance": "Use for \"how many golden records did <entity>'s records sit in, run by run\", \"when did <entity> merge\"; Client is the legal entity (LIKE match). Runs are quarter-end months: December 2025 and March 2026 runs = from_month 2025-12-01 to to_month 2026-03-01; all runs = 2025-06-01 to 2026-09-01.",
+      "parameters": [
+        {
+          "name": "client",
+          "type": "STRING"
+        },
+        {
+          "name": "from_month",
+          "type": "DATE"
+        },
+        {
+          "name": "to_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Run`,\n       MEASURE(`Records In`)     AS records,\n       MEASURE(`Golden Records`) AS golden_records\nFROM smbc_genie.metrics.mv_entity_resolution\nWHERE lower(`Client`) LIKE lower(CONCAT(:client, '%')) AND `Month` BETWEEN :from_month AND :to_month\nGROUP BY ALL\nORDER BY `Run`"
+    },
+    {
+      "name": "ER records and match rate by source system at :month vs golden clients present in each source",
+      "usage_guidance": "Use to compare entity resolution with source coverage per source system - the cross-view CTE pattern (one CTE per metric view, joined on Source System); :month = a quarter-end run month, 2026-09-01 = latest run.",
+      "parameters": [
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "WITH er AS (\n  SELECT `Source System`, MEASURE(`Records In`) AS records_in, MEASURE(`Match Rate %`) AS match_rate\n  FROM smbc_genie.metrics.mv_entity_resolution\n  WHERE `Month` = :month AND `Source System` <> 'ALL'\n  GROUP BY ALL\n), cov AS (\n  SELECT `Source System`,\n         MEASURE(`Clients Present in Source`)   AS golden_clients_present,\n         MEASURE(`Clients Present in Source %`) AS share_of_golden_clients\n  FROM smbc_genie.metrics.mv_golden_record_coverage\n  WHERE `Month` = :month\n  GROUP BY ALL\n)\nSELECT e.`Source System`, e.records_in, e.match_rate, c.golden_clients_present, c.share_of_golden_clients\nFROM er e\nLEFT JOIN cov c ON c.`Source System` = e.`Source System`\nORDER BY e.`Source System`"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_er_run_summary",
+    "smbc_genie.gold.fn_er_exposure_changes",
+    "smbc_genie.gold.fn_dq_score_changes",
+    "smbc_genie.gold.fn_as_of_date"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 8,
+    "example_sqls": 6,
+    "sql_functions": 4,
+    "text_instructions": 1,
+    "instruction_lines": 20,
+    "instructions_total": 11,
+    "sample_questions": 8,
+    "benchmarks": 20,
+    "entity_matching_columns": 51
+  }
+}

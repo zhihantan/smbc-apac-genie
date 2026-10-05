@@ -1,0 +1,55 @@
+{
+ "columns": [
+  {
+   "comment": "Stage number 1-7 in funnel order.",
+   "is_measure": false,
+   "name": "stage_no",
+   "type": "int"
+  },
+  {
+   "comment": "Stage name: Request, KYC Docs, Screening, Risk Assessment, Credit/Product Approval, Account Open, First Transaction.",
+   "is_measure": false,
+   "name": "stage_name",
+   "type": "string"
+  },
+  {
+   "comment": "SLA in calendar days for completing the stage.",
+   "is_measure": false,
+   "name": "sla_days",
+   "type": "int"
+  },
+  {
+   "comment": "Sum of the SLA days of stages 1..stage_no (target elapsed days at the end of the stage).",
+   "is_measure": false,
+   "name": "cumulative_sla_days",
+   "type": "int"
+  },
+  {
+   "comment": "True for Account Open - the client is live when this stage ends.",
+   "is_measure": false,
+   "name": "is_go_live_stage",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the last funnel stage (First Transaction).",
+   "is_measure": false,
+   "name": "is_final_stage",
+   "type": "boolean"
+  },
+  {
+   "comment": "What happens in the stage.",
+   "is_measure": false,
+   "name": "stage_description",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding cases that have entered the stage (all history to the as-of date).",
+   "is_measure": false,
+   "name": "cases_entered",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Onboarding funnel stages in order - 1 Request, 2 KYC Docs, 3 Screening, 4 Risk Assessment, 5 Credit/Product Approval, 6 Account Open, 7 First Transaction - with the SLA days per stage and the cumulative SLA to that stage. Go-live is the end of Account Open; First Transaction measures activation. Grain: one row per onboarding stage.",
+ "identifier": "smbc_genie.gold.dim_onboarding_stage",
+ "type": "MANAGED"
+}

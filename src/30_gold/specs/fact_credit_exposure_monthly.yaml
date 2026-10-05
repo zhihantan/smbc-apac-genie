@@ -1,0 +1,97 @@
+table: fact_credit_exposure_monthly
+domain: ews
+comment: >-
+  Month-end credit exposure and delinquency per facility (brief 5.4 delinquency, PLAN 7), Apr-2023 to Sep-2026:
+  limit, drawn, undrawn and utilisation; EAD, RWA, risk weight, PD / LGD and IFRS 9 ECL (12-month, lifetime and
+  the stage-based provision ecl_usd, from Apr-2024; obligor values allocated to facilities pro rata to facility
+  EAD so client and group totals are exact); IFRS 9 stage and internal grade; days past due and DPD bucket at
+  the month-end (Current, 1-29, 30-59, 60-89, 90+), overdue amount, 30+ / 90+ DPD flags and the cure flags.
+  Point-in-time snapshot: sum balances across facilities / clients for one month-end, never across months.
+  30+ DPD rate = SUM(drawn_usd where is_30_plus_dpd) / SUM(drawn_usd) (or facility counts); cure rate =
+  facilities with is_cured_in_month / facilities with in_arrears_during_month.
+grain: one row per facility x month-end
+primary_key: [facility_id, month_end_date]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [month_end_date], references: dim_date}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [currency], references: dim_currency}
+cluster_by: [month_end_date, golden_client_sk]
+min_rows: 25000
+columns:
+  facility_id: {type: STRING, comment: "Credit facility (FAC-nnnnnn); join to fact_facility_terms for its terms."}
+  month_end_date: {type: DATE, comment: "Month-end snapshot date (30-Sep-2026 = latest)."}
+  month: {type: DATE}
+  obligor_id: {type: STRING, comment: "Credit obligor record of the borrower."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  facility_type: {type: STRING, comment: "Facility type, e.g. Term Loan, Revolving Credit Facility, Overdraft."}
+  product_id: {type: STRING, comment: "Product key of the facility type; join to gold.dim_product."}
+  currency: {type: STRING, comment: "Facility currency (ISO 4217) of drawn_lcy."}
+  limit_usd: {type: DOUBLE, comment: "Committed limit at the month-end, USD."}
+  drawn_usd: {type: DOUBLE, comment: "Drawn (outstanding) balance at the month-end, USD - funded exposure."}
+  drawn_lcy: {type: DOUBLE, comment: "Drawn balance at the month-end in facility currency."}
+  undrawn_usd: {type: DOUBLE, comment: "Undrawn commitment (limit - drawn, floored at 0), USD."}
+  utilisation_pct: {type: DOUBLE, comment: "Drawn / limit at the month-end as a fraction (0.95 = 95%)."}
+  ead_usd: {type: DOUBLE, comment: "Exposure at default, USD (allocated from the obligor's EAD; null before Apr-2024)."}
+  rwa_usd: {type: DOUBLE, comment: "Risk-weighted assets, USD (EAD x risk weight; allocated; null before Apr-2024)."}
+  risk_weight: {type: DOUBLE, comment: "Obligor risk weight applied to EAD (fraction, e.g. 0.75)."}
+  ccf: {type: DOUBLE, comment: "Credit conversion factor applied to undrawn commitments (fraction)."}
+  pd_12m: {type: DOUBLE, comment: "Obligor 12-month probability of default (fraction)."}
+  pd_lifetime: {type: DOUBLE, comment: "Obligor lifetime probability of default (fraction)."}
+  lgd: {type: DOUBLE, comment: "Loss given default (fraction)."}
+  ecl_12m_usd: {type: DOUBLE, comment: "12-month expected credit loss, USD (allocated)."}
+  ecl_lifetime_usd: {type: DOUBLE, comment: "Lifetime expected credit loss, USD (allocated)."}
+  ecl_usd: {type: DOUBLE, comment: "IFRS 9 ECL provision held, USD: 12-month ECL in Stage 1, lifetime ECL in Stages 2 and 3 (allocated)."}
+  ecl_change_usd: {type: DOUBLE, comment: "Change in the ECL provision vs the previous month, USD (positive = provision build)."}
+  allocation_share: {type: DOUBLE, comment: "Share of the obligor's EAD / RWA / ECL allocated to this facility (0-1; shares of an obligor's facilities sum to 1 per month)."}
+  ifrs9_stage: {type: INT, comment: "IFRS 9 stage of the obligor at the month-end: 1, 2 or 3 (null before Apr-2024)."}
+  internal_grade: {type: INT, comment: "Internal rating grade of the obligor at the month-end (1 best .. 10 default)."}
+  rating_equivalent: {type: STRING, comment: "External-scale equivalent of the internal grade."}
+  days_past_due: {type: INT, comment: "Days past due on the month-end day (0 = current)."}
+  dpd_max_in_month: {type: INT, comment: "Highest days past due seen during the month."}
+  dpd_bucket: {type: STRING, comment: "DPD bucket at the month-end: Current, 1-29, 30-59, 60-89 or 90+."}
+  overdue_amount_usd: {type: DOUBLE, comment: "Amount overdue on the month-end day, USD (0 when current)."}
+  is_overdue: {type: BOOLEAN, comment: "True when past due at the month-end (facilities overdue)."}
+  is_30_plus_dpd: {type: BOOLEAN, comment: "True when 30 or more days past due at the month-end (numerator of the 30+ DPD rate)."}
+  is_90_plus_dpd: {type: BOOLEAN, comment: "True when more than 90 days past due at the month-end (default)."}
+  was_overdue_prior_month_end: {type: BOOLEAN, comment: "True when the facility was past due at the previous month-end."}
+  in_arrears_during_month: {type: BOOLEAN, comment: "True when the facility was past due on any day of the month (denominator of the cure rate)."}
+  is_cured_in_month: {type: BOOLEAN, comment: "True when an arrears episode of the facility was cured (arrears cleared) during the month."}
+  has_capital_measures: {type: BOOLEAN, comment: "True when EAD / RWA / ECL are available for the month (from Apr-2024)."}
+checks:
+  - name: storyline1_sunda_ecl_increase_45_51m   # ECL June-2026 minus December-2025
+    sql: >-
+      SELECT CASE WHEN sum(CASE WHEN e.month_end_date = DATE'2026-06-30' THEN e.ecl_usd END)
+                     - sum(CASE WHEN e.month_end_date = DATE'2025-12-31' THEN e.ecl_usd END) BETWEEN 45e6 AND 51e6 THEN 0 ELSE 1 END
+      FROM ${table} e JOIN ${catalog}.gold.dim_client d ON d.golden_client_sk = e.golden_client_sk
+      WHERE d.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%'
+  - name: storyline1_sunda_stage3_june
+    sql: >-
+      SELECT count_if(e.ifrs9_stage <> 3) + 1 - least(count(*), 1) FROM ${table} e
+      JOIN ${catalog}.gold.dim_client d ON d.golden_client_sk = e.golden_client_sk
+      WHERE d.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%' AND e.month_end_date = DATE'2026-06-30'
+  - name: allocation_shares_sum_to_one
+    sql: >-
+      SELECT count(*) FROM (SELECT obligor_id, month_end_date, sum(allocation_share) s FROM ${table}
+      GROUP BY obligor_id, month_end_date) WHERE abs(s - 1) > 1e-9
+reconcile:
+  - name: rows_vs_silver
+    silver: >-
+      SELECT count(*) FROM ${catalog}.silver.core_facility_balance_monthly
+      WHERE balance_date BETWEEN DATE'${history_start}' AND DATE'${as_of_date}'
+  - name: ead_total_vs_silver
+    gold: SELECT round(sum(ead_usd) / 1e6) FROM ${table}
+    silver: SELECT round(sum(ead_usd) / 1e6) FROM ${catalog}.silver.fin_capital_allocation
+    tolerance: 1
+  - name: ecl_total_vs_silver
+    gold: SELECT round(sum(ecl_usd) / 1e3) FROM ${table}
+    silver: SELECT round(sum(ecl_usd) / 1e3) FROM ${catalog}.silver.fin_capital_allocation
+    tolerance: 1
+  - name: drawn_total_vs_silver
+    gold: SELECT round(sum(drawn_usd) / 1e6) FROM ${table}
+    silver: >-
+      SELECT round(sum(drawn_usd) / 1e6) FROM ${catalog}.silver.core_facility_balance_monthly
+      WHERE balance_date BETWEEN DATE'${history_start}' AND DATE'${as_of_date}'

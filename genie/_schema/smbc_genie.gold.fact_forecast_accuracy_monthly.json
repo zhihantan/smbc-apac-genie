@@ -1,0 +1,127 @@
+{
+ "columns": [
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the month whose inflows were forecast and scored.",
+   "is_measure": false,
+   "name": "target_month",
+   "type": "date"
+  },
+  {
+   "comment": "Forecast horizon in days (30 = one month ahead).",
+   "is_measure": false,
+   "name": "horizon_days",
+   "type": "int"
+  },
+  {
+   "comment": "Horizon label (30D).",
+   "is_measure": false,
+   "name": "horizon_label",
+   "type": "string"
+  },
+  {
+   "comment": "v1 (targets Apr-2024 to May-2026) or v2 (upgraded model, targets from Jun-2026).",
+   "is_measure": false,
+   "name": "model_version",
+   "type": "string"
+  },
+  {
+   "comment": "True for target months from Jun-2026 (after the model upgrade).",
+   "is_measure": false,
+   "name": "is_after_v2_upgrade",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date the forecast was run (1st of the month before the target month).",
+   "is_measure": false,
+   "name": "forecast_date",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version valid in the target month (as-was, D11).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client's coverage office / booking location (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Forecast inflows of the target month, USD.",
+   "is_measure": false,
+   "name": "forecast_inflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Actual inflows of the target month (from payments), USD.",
+   "is_measure": false,
+   "name": "actual_inflow_usd",
+   "type": "double"
+  },
+  {
+   "comment": "forecast - actual inflows, USD (positive = over-forecast). Bias % = SUM(forecast_error_usd) / SUM(actual_inflow_usd).",
+   "is_measure": false,
+   "name": "forecast_error_usd",
+   "type": "double"
+  },
+  {
+   "comment": "|forecast - actual| inflows, USD.",
+   "is_measure": false,
+   "name": "abs_error_usd",
+   "type": "double"
+  },
+  {
+   "comment": "|forecast - actual| / actual (0-1; 0.11 = 11%). MAPE = average of this column.",
+   "is_measure": false,
+   "name": "abs_pct_error",
+   "type": "double"
+  },
+  {
+   "comment": "(forecast - actual) / actual (per-row bias).",
+   "is_measure": false,
+   "name": "signed_pct_error",
+   "type": "double"
+  },
+  {
+   "comment": "P10 inflows of the forecast (empirical interval).",
+   "is_measure": false,
+   "name": "forecast_inflow_p10_usd",
+   "type": "double"
+  },
+  {
+   "comment": "P90 inflows of the forecast (empirical interval).",
+   "is_measure": false,
+   "name": "forecast_inflow_p90_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when the actual fell inside the P10-P90 interval (target 80% coverage).",
+   "is_measure": false,
+   "name": "is_within_p10_p90",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when abs_pct_error <= 10% (dim_threshold MAPE_GOOD) - well-forecast client-month.",
+   "is_measure": false,
+   "name": "is_within_10pct",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Cash-flow forecast accuracy per client and target month (Apr-2024 to Sep-2026) for every scored horizon and model version: forecast vs actual inflows, absolute and signed error, absolute % error, P10-P90 interval hit and the within-10% flag. Model v1 scores the targets to May-2026 (MAPE ~18%), v2 from Jun-2026 (~11%) - the model-upgrade storyline. Only the 30D (one-month-ahead) horizon is backtested by the cash-flow engine; the 7D / 90D forward forecasts have no actuals yet. MAPE = AVG(abs_pct_error); Bias % = SUM(forecast_error_usd) / SUM(actual_inflow_usd); Interval Coverage = share of rows with is_within_p10_p90; Clients Within 10% MAPE = count distinct golden_client_id with is_within_10pct (per month) - errors are not additive, use these ratios. Grain: one row per golden client x target month x horizon x model version.",
+ "identifier": "smbc_genie.gold.fact_forecast_accuracy_monthly",
+ "type": "MANAGED"
+}

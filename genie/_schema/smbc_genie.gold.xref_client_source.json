@@ -1,0 +1,115 @@
+{
+ "columns": [
+  {
+   "comment": "Identity source system (bronze identity master): core_customer, crm_account, kyc_customer, credit_obligor, trade_party, tsy_counterparty or ext_company_master.",
+   "is_measure": false,
+   "name": "source_system",
+   "type": "string"
+  },
+  {
+   "comment": "Record id in its source system.",
+   "is_measure": false,
+   "name": "source_id",
+   "type": "string"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the golden client (current version).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client name exactly as the source system records it (typos and truncations included).",
+   "is_measure": false,
+   "name": "source_name_as_recorded",
+   "type": "string"
+  },
+  {
+   "comment": "Country as the source system records it (may be wrong - see the golden country).",
+   "is_measure": false,
+   "name": "country_as_recorded",
+   "type": "string"
+  },
+  {
+   "comment": "LEI-like id as recorded by the source, if any.",
+   "is_measure": false,
+   "name": "lei_as_recorded",
+   "type": "string"
+  },
+  {
+   "comment": "deterministic (LEI-like / tax id / v2 name+country key), fuzzy (score >= 0.90), steward (0.75-0.90, steward decision) or unmatched (no link; its own golden record).",
+   "is_measure": false,
+   "name": "match_method",
+   "type": "string"
+  },
+  {
+   "comment": "Rule of the record's strongest link (e.g. lei_exact).",
+   "is_measure": false,
+   "name": "match_rule",
+   "type": "string"
+  },
+  {
+   "comment": "Score 0-1 of that link (1.0 deterministic); null when unmatched.",
+   "is_measure": false,
+   "name": "match_score",
+   "type": "double"
+  },
+  {
+   "comment": "Latest steward decision on the record: match, no_match or pending; null when none was needed.",
+   "is_measure": false,
+   "name": "steward_decision",
+   "type": "string"
+  },
+  {
+   "comment": "True when another record of the same source system resolved to the same golden client (a duplicate collapsed by ER).",
+   "is_measure": false,
+   "name": "is_within_source_duplicate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date the record existed in its source (used to replay the quarterly ER runs).",
+   "is_measure": false,
+   "name": "record_available_from",
+   "type": "date"
+  },
+  {
+   "comment": "ER run in which the record joined its golden client.",
+   "is_measure": false,
+   "name": "resolved_in_run_id",
+   "type": "string"
+  },
+  {
+   "comment": "Run date of resolved_in_run_id.",
+   "is_measure": false,
+   "name": "resolved_at",
+   "type": "date"
+  },
+  {
+   "comment": "Latest ER run id the crosswalk comes from.",
+   "is_measure": false,
+   "name": "er_run_id",
+   "type": "string"
+  },
+  {
+   "comment": "Run date of the latest ER run.",
+   "is_measure": false,
+   "name": "er_run_date",
+   "type": "date"
+  }
+ ],
+ "comment": "Golden client <-> source identity crosswalk from the latest entity-resolution run (30-Sep-2026, rule set v2): every source record of core banking, CRM, KYC, credit, trade, treasury and the external company master with the golden client it resolved to, how (deterministic id match, fuzzy name match, steward decision, unmatched = its own golden record), the match score and the name / country as the source recorded them. Use it to explain why records collapsed into one golden client. Grain: one row per source identity record.",
+ "identifier": "smbc_genie.gold.xref_client_source",
+ "type": "MANAGED"
+}

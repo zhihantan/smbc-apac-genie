@@ -1,0 +1,271 @@
+{
+ "columns": [
+  {
+   "comment": "ER run id ER-yyyymmdd (the as-of date of the source snapshot it resolved).",
+   "is_measure": false,
+   "name": "run_id",
+   "type": "string"
+  },
+  {
+   "comment": "As-of date of the source-record snapshot the run resolved (the grain date).",
+   "is_measure": false,
+   "name": "run_date",
+   "type": "date"
+  },
+  {
+   "comment": "Rule set: v1 (2025 runs) or v2 (from the Mar-2026 run: abbreviation expansion, name + country exact match, cross-country blocking).",
+   "is_measure": false,
+   "name": "rule_version",
+   "type": "string"
+  },
+  {
+   "comment": "Short description of the rule set used by the run.",
+   "is_measure": false,
+   "name": "rule_set_note",
+   "type": "string"
+  },
+  {
+   "comment": "Run sequence 1-6 in date order.",
+   "is_measure": false,
+   "name": "run_seq",
+   "type": "int"
+  },
+  {
+   "comment": "True for the latest run (ER-20260930) - the current resolution.",
+   "is_measure": false,
+   "name": "is_latest_run",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the first run of a new rule set (ER-20260331 = first v2 run).",
+   "is_measure": false,
+   "name": "is_rule_version_change",
+   "type": "boolean"
+  },
+  {
+   "comment": "Identity source system (core_customer, crm_account, kyc_customer, credit_obligor, trade_party, tsy_counterparty, ext_company_master) or ALL for the whole run.",
+   "is_measure": false,
+   "name": "source_system",
+   "type": "string"
+  },
+  {
+   "comment": "True for the ALL row (run totals across all source systems).",
+   "is_measure": false,
+   "name": "is_all_sources",
+   "type": "boolean"
+  },
+  {
+   "comment": "Source identity records in the run snapshot (for ALL = all systems).",
+   "is_measure": false,
+   "name": "records_in",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records that were new since the previous run (all records for the first run).",
+   "is_measure": false,
+   "name": "records_new",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records linked by a deterministic rule (LEI-like id, tax id + country, v2: name + legal form + country).",
+   "is_measure": false,
+   "name": "matched_deterministic",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records linked by an automatic fuzzy match (score >= 0.90).",
+   "is_measure": false,
+   "name": "matched_fuzzy",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records linked through a data-steward decision (score 0.75-0.90; simulated review).",
+   "is_measure": false,
+   "name": "steward_resolved",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records matched to at least one other record = deterministic + fuzzy + steward.",
+   "is_measure": false,
+   "name": "matched_total",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records left as singleton golden records (no link accepted).",
+   "is_measure": false,
+   "name": "unmatched",
+   "type": "bigint"
+  },
+  {
+   "comment": "Match rate = matched_total / records_in (fraction; 0.987 = 98.7%). For other grains recompute as SUM(matched_total) / SUM(records_in).",
+   "is_measure": false,
+   "name": "match_rate",
+   "type": "double"
+  },
+  {
+   "comment": "Share of matched records linked by fuzzy matching = matched_fuzzy / matched_total (fraction).",
+   "is_measure": false,
+   "name": "fuzzy_share",
+   "type": "double"
+  },
+  {
+   "comment": "Share of matched records linked by a steward decision = steward_resolved / matched_total (fraction).",
+   "is_measure": false,
+   "name": "steward_share",
+   "type": "double"
+  },
+  {
+   "comment": "Within-source duplicates merged = records beyond the first of the same source system in a golden record.",
+   "is_measure": false,
+   "name": "duplicates_merged",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden records holding at least one record of the source (ALL = golden records issued by the run; 9,270 records collapse into 2,550 golden records at the latest run).",
+   "is_measure": false,
+   "name": "golden_records",
+   "type": "bigint"
+  },
+  {
+   "comment": "Records minus golden records - how many source records collapsed through resolution.",
+   "is_measure": false,
+   "name": "records_collapsed",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average source records per golden record.",
+   "is_measure": false,
+   "name": "records_per_golden",
+   "type": "double"
+  },
+  {
+   "comment": "Golden ids newly issued in the run (ALL row only; null on source rows).",
+   "is_measure": false,
+   "name": "golden_new",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden records merged into an older golden id in the run (ALL row only).",
+   "is_measure": false,
+   "name": "golden_merged",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden records split in the run (ALL row only; 0 in every run so far).",
+   "is_measure": false,
+   "name": "golden_split",
+   "type": "bigint"
+  },
+  {
+   "comment": "Candidate record pairs produced by blocking and scored.",
+   "is_measure": false,
+   "name": "candidate_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Candidate pairs linked deterministically.",
+   "is_measure": false,
+   "name": "deterministic_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Candidate pairs auto-matched by the fuzzy score (>= 0.90).",
+   "is_measure": false,
+   "name": "auto_match_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Candidate pairs in the steward band (0.75-0.90).",
+   "is_measure": false,
+   "name": "steward_band_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Steward queue items raised by the run (see fact_steward_queue).",
+   "is_measure": false,
+   "name": "steward_items",
+   "type": "bigint"
+  },
+  {
+   "comment": "Steward items of the run still open at the as-of date.",
+   "is_measure": false,
+   "name": "steward_items_open",
+   "type": "bigint"
+  },
+  {
+   "comment": "Record links accepted (deterministic + fuzzy + steward match).",
+   "is_measure": false,
+   "name": "links_accepted",
+   "type": "bigint"
+  },
+  {
+   "comment": "Same-entity record pairs according to the synthetic truth (evaluation only).",
+   "is_measure": false,
+   "name": "true_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Record pairs the run put in the same golden record.",
+   "is_measure": false,
+   "name": "predicted_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Predicted pairs that are true pairs (true positives).",
+   "is_measure": false,
+   "name": "tp_pairs",
+   "type": "bigint"
+  },
+  {
+   "comment": "Pairwise precision = tp_pairs / predicted_pairs vs the synthetic truth (fraction; gate >= 0.97 at the latest run). Recompute SUM(tp_pairs) / SUM(predicted_pairs) within one source system or the ALL row.",
+   "is_measure": false,
+   "name": "precision",
+   "type": "double"
+  },
+  {
+   "comment": "Pairwise recall = tp_pairs / true_pairs vs the synthetic truth (fraction; gate >= 0.95; v1 runs lower - that is the story).",
+   "is_measure": false,
+   "name": "recall",
+   "type": "double"
+  },
+  {
+   "comment": "Cluster purity vs the synthetic truth (ALL row only; fraction).",
+   "is_measure": false,
+   "name": "purity",
+   "type": "double"
+  },
+  {
+   "comment": "Change of precision vs the previous run of the same source system (fraction points).",
+   "is_measure": false,
+   "name": "precision_change_vs_prev_run",
+   "type": "double"
+  },
+  {
+   "comment": "Change of recall vs the previous run of the same source system (fraction points; jumps at the first v2 run).",
+   "is_measure": false,
+   "name": "recall_change_vs_prev_run",
+   "type": "double"
+  },
+  {
+   "comment": "Simulated start of the run (UTC).",
+   "is_measure": false,
+   "name": "started_at",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "Simulated end of the run (UTC).",
+   "is_measure": false,
+   "name": "finished_at",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "Run duration in minutes.",
+   "is_measure": false,
+   "name": "duration_minutes",
+   "type": "double"
+  }
+ ],
+ "comment": "Entity-resolution run quality: the six quarterly ER runs (30-Jun-2025, 30-Sep-2025 and 31-Dec-2025 with rule set v1; 31-Mar-2026, 30-Jun-2026 and 30-Sep-2026 with v2) per identity source system, plus one ALL row per run for the run as a whole. Records in, matched deterministically / fuzzily / by a data steward, unmatched, within-source duplicates merged, golden records, candidate pairs, steward items and the pairwise precision / recall and cluster purity the ER job measured against the synthetic truth. Counts of the ALL row are the run totals; per-source rows count pairs involving that source, so pair counts and golden records of the source rows do not add up to ALL - use the ALL row for run totals. Grain: one row per ER run per source system (plus source_system ALL for the whole run).",
+ "identifier": "smbc_genie.gold.fact_entity_resolution_run",
+ "type": "MANAGED"
+}

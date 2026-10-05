@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "Steward review item id SQ-yymm-nnnnn (yymm of the run that raised it).",
+   "is_measure": false,
+   "name": "steward_item_id",
+   "type": "string"
+  },
+  {
+   "comment": "ER run that raised the item (ER-yyyymmdd).",
+   "is_measure": false,
+   "name": "run_id",
+   "type": "string"
+  },
+  {
+   "comment": "As-of date of the ER run that raised the item.",
+   "is_measure": false,
+   "name": "run_date",
+   "type": "date"
+  },
+  {
+   "comment": "Rule set of the raising run (v1 or v2).",
+   "is_measure": false,
+   "name": "rule_version",
+   "type": "string"
+  },
+  {
+   "comment": "Date the item entered the steward queue (the grain date).",
+   "is_measure": false,
+   "name": "created_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month the item was created.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Current golden client of the left candidate record (latest ER run).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Current golden client of the right candidate record.",
+   "is_measure": false,
+   "name": "right_golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when both candidate records sit in the same golden client after the latest run.",
+   "is_measure": false,
+   "name": "is_same_golden_now",
+   "type": "boolean"
+  },
+  {
+   "comment": "Source system of the left candidate record.",
+   "is_measure": false,
+   "name": "left_source_system",
+   "type": "string"
+  },
+  {
+   "comment": "Record id of the left candidate in its source system.",
+   "is_measure": false,
+   "name": "left_source_id",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the left candidate as recorded in its source.",
+   "is_measure": false,
+   "name": "left_source_name",
+   "type": "string"
+  },
+  {
+   "comment": "Source system of the right candidate record.",
+   "is_measure": false,
+   "name": "right_source_system",
+   "type": "string"
+  },
+  {
+   "comment": "Record id of the right candidate in its source system.",
+   "is_measure": false,
+   "name": "right_source_id",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the right candidate as recorded in its source.",
+   "is_measure": false,
+   "name": "right_source_name",
+   "type": "string"
+  },
+  {
+   "comment": "Fuzzy match score of the pair 0-1 (0.45 token Jaccard + 0.30 Levenshtein + 0.15 location + 0.05 parent + 0.05 country); 0.75-0.90 = steward band.",
+   "is_measure": false,
+   "name": "match_score",
+   "type": "double"
+  },
+  {
+   "comment": "Candidate record pairs between the two clusters behind the item.",
+   "is_measure": false,
+   "name": "candidate_pairs",
+   "type": "int"
+  },
+  {
+   "comment": "Records in the left candidate's cluster at the run.",
+   "is_measure": false,
+   "name": "left_cluster_records",
+   "type": "int"
+  },
+  {
+   "comment": "Records in the right candidate's cluster at the run.",
+   "is_measure": false,
+   "name": "right_cluster_records",
+   "type": "int"
+  },
+  {
+   "comment": "Data steward the item is assigned to (employee id of the onboarding / data-steward team); join gold.dim_employee.",
+   "is_measure": false,
+   "name": "assigned_to_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the steward decision; null while open.",
+   "is_measure": false,
+   "name": "decided_date",
+   "type": "date"
+  },
+  {
+   "comment": "Steward decision: Match (link the records) or No Match; null while open.",
+   "is_measure": false,
+   "name": "decision",
+   "type": "string"
+  },
+  {
+   "comment": "Open or Decided.",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the item is still open (no decision).",
+   "is_measure": false,
+   "name": "is_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the item is open at 30-Sep-2026 - the current steward queue.",
+   "is_measure": false,
+   "name": "is_open_at_as_of",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the steward has decided the item (Steward Decisions).",
+   "is_measure": false,
+   "name": "is_decided",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the decision is Match.",
+   "is_measure": false,
+   "name": "is_match_decision",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days the item has been / was open: as-of date - created date for open items, decided - created for decided items.",
+   "is_measure": false,
+   "name": "days_open",
+   "type": "int"
+  },
+  {
+   "comment": "Aging bucket of days_open: 0-7 days, 8-30 days, 31-90 days, 91-180 days or Over 180 days.",
+   "is_measure": false,
+   "name": "aging_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Sort order 1-5 of aging_bucket.",
+   "is_measure": false,
+   "name": "aging_bucket_order",
+   "type": "int"
+  },
+  {
+   "comment": "Days from creation to decision; null while open.",
+   "is_measure": false,
+   "name": "days_to_decision",
+   "type": "int"
+  },
+  {
+   "comment": "ER run in which the decision was applied (null while open).",
+   "is_measure": false,
+   "name": "applied_in_run_id",
+   "type": "string"
+  },
+  {
+   "comment": "True for items raised by the latest ER run (ER-20260930).",
+   "is_measure": false,
+   "name": "is_latest_run",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Data-steward queue of entity resolution: one row per review item raised by an ER run for a candidate record pair scoring 0.75-0.90 (below the 0.90 auto-match), with both candidate names as recorded, the score, the assigned steward, created / decided dates, the decision (Match / No Match; simulated review with a 2% error rate), status (Open / Decided), days open and an aging bucket. The item is attached to the current golden client of its left record. Use is_open_at_as_of for the open queue at 30-Sep-2026. Grain: one row per steward review item.",
+ "identifier": "smbc_genie.gold.fact_steward_queue",
+ "type": "MANAGED"
+}

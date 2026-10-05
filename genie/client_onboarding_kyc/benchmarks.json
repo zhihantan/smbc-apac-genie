@@ -1,0 +1,262 @@
+[
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000000",
+    "key": "Q1",
+    "question": "Median and P90 days to go live by booking country and request month, for live cases requested since April 2025, with the number of live cases.",
+    "expected_sql": "SELECT `Booking Country`, `Month` AS request_month,\n       MEASURE(`Live Cases`)          AS live_cases,\n       MEASURE(`Median Days to Live`) AS median_days_to_live,\n       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\nFROM smbc_genie.metrics.mv_onboarding_cycle_time\nWHERE `Date` >= DATE'2025-04-01' AND `Case Status` = 'Live'\nGROUP BY ALL\nORDER BY `Booking Country`, request_month",
+    "expected_checks": {
+      "rows": 102
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000001",
+    "key": "Q1b",
+    "question": "Median and P90 days to go live by KYC migration period, with the number of live cases.",
+    "expected_sql": "SELECT `KYC Migration Period`,\n       MEASURE(`Live Cases`)          AS live_cases,\n       MEASURE(`Median Days to Live`) AS median_days_to_live,\n       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\nFROM smbc_genie.metrics.mv_onboarding_cycle_time\nWHERE `Case Status` = 'Live'\nGROUP BY ALL\nORDER BY median_days_to_live",
+    "expected_checks": {
+      "rows": 4
+    },
+    "answer_ref": "Q1b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000002",
+    "key": "Q2",
+    "question": "Which onboarding stage adds the most days for Financial Institution clients, and did it change after February 2026? Show the average days in each stage (stages 1-6) for requests before February 2026 and from February 2026.",
+    "expected_sql": "WITH st AS (\n  SELECT `Stage Number`, `Stage`, `Is After KYC Migration`, MEASURE(`Average Days in Stage`) AS avg_days_in_stage\n  FROM smbc_genie.metrics.mv_onboarding_cycle_time\n  WHERE `Request Segment` = 'Financial Institution' AND `Stage Number` <= 6\n  GROUP BY ALL\n)\nSELECT `Stage Number`, `Stage`,\n       max(CASE WHEN NOT `Is After KYC Migration` THEN avg_days_in_stage END) AS avg_days_before_feb_2026,\n       max(CASE WHEN `Is After KYC Migration` THEN avg_days_in_stage END)     AS avg_days_from_feb_2026\nFROM st\nGROUP BY `Stage Number`, `Stage`\nORDER BY `Stage Number`",
+    "expected_checks": {
+      "rows": 6
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000003",
+    "key": "Q3",
+    "question": "Open onboarding cases over SLA right now, by owner and blocker reason.",
+    "expected_sql": "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Case Status` = 'Open'\nGROUP BY ALL\nHAVING MEASURE(`Cases Over SLA`) > 0\nORDER BY cases_over_sla DESC, `Owner`",
+    "expected_checks": {
+      "rows": 28
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000004",
+    "key": "Q4",
+    "question": "Documents outstanding by document type for cases stuck in KYC Docs more than 15 days.",
+    "expected_sql": "SELECT `Document Type`, MEASURE(`Documents Outstanding`) AS outstanding_documents\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Stuck in KYC Docs 15D`\nGROUP BY ALL\nHAVING MEASURE(`Documents Outstanding`) > 0\nORDER BY outstanding_documents DESC",
+    "expected_checks": {
+      "rows": 11
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000005",
+    "key": "Q5",
+    "question": "What share of new onboarding cases was matched to an existing client group? Break it down by match timing with cases, share of all cases, live cases and share of all live cases (shares as fractions).",
+    "expected_sql": "WITH m AS (\n  SELECT `Match Timing`, MEASURE(`Cases Opened`) AS cases, MEASURE(`Cases Live`) AS live_cases\n  FROM smbc_genie.metrics.mv_onboarding_funnel\n  GROUP BY ALL\n)\nSELECT `Match Timing`, cases, cases / SUM(cases) OVER () AS share_of_cases,\n       live_cases, live_cases / SUM(live_cases) OVER () AS share_of_live_cases\nFROM m\nORDER BY cases DESC",
+    "expected_checks": {
+      "rows": 3
+    },
+    "answer_ref": "Q5",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000006",
+    "key": "Q5b",
+    "question": "Which onboarding cases were matched to their client group only after account opening? Show client, client group, booking country, request date and the number of such cases.",
+    "expected_sql": "SELECT `Client`, `Client Group`, `Booking Country`, `Date` AS request_date,\n       MEASURE(`Matched After Account Opening`) AS cases\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Match Timing` = 'After Account Opening'\nGROUP BY ALL\nHAVING MEASURE(`Matched After Account Opening`) > 0\nORDER BY request_date",
+    "expected_checks": {
+      "rows": 39
+    },
+    "answer_ref": "Q5b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000007",
+    "key": "Q6",
+    "question": "Periodic KYC reviews overdue by client risk rating and booking country at each month-end since January 2026.",
+    "expected_sql": "SELECT `Month`, `Client Risk Rating`, `Booking Country`, MEASURE(`Overdue`) AS overdue_reviews\nFROM smbc_genie.metrics.mv_kyc_health\nWHERE `Review Type` = 'Periodic' AND `Month` >= DATE'2026-01-01'\nGROUP BY ALL\nHAVING MEASURE(`Overdue`) > 0\nORDER BY `Month`, `Client Risk Rating`, `Booking Country`",
+    "expected_checks": {
+      "rows": 138
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000008",
+    "key": "Q6b",
+    "question": "High-risk periodic KYC reviews overdue at each month-end since April 2025, alongside all overdue periodic reviews.",
+    "expected_sql": "SELECT `Month`, MEASURE(`High-Risk Overdue`) AS high_risk_overdue, MEASURE(`Overdue`) AS all_overdue\nFROM smbc_genie.metrics.mv_kyc_health\nWHERE `Review Type` = 'Periodic' AND `Month` >= DATE'2025-04-01'\nGROUP BY ALL\nORDER BY `Month`",
+    "expected_checks": {
+      "rows": 18
+    },
+    "answer_ref": "Q6b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000009",
+    "key": "Q7",
+    "question": "Onboarding requests by request segment and product requested: FY2026 H1 vs FY2025 H1, and full-year FY2025.",
+    "expected_sql": "WITH p AS (\n  SELECT `Request Segment`, `Product Requested`, `Fiscal Half`, MEASURE(`Product Requests`) AS requests\n  FROM smbc_genie.metrics.mv_onboarding_funnel\n  WHERE `Fiscal Year` IN ('FY2025', 'FY2026')\n  GROUP BY ALL\n)\nSELECT `Request Segment`, `Product Requested`,\n       sum(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN requests ELSE 0 END)           AS fy2026_h1_requests,\n       sum(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN requests ELSE 0 END)           AS fy2025_h1_requests,\n       sum(CASE WHEN `Fiscal Half` LIKE 'FY2025-%' THEN requests ELSE 0 END)         AS fy2025_full_year_requests\nFROM p\nWHERE `Product Requested` IS NOT NULL\nGROUP BY ALL\nORDER BY fy2026_h1_requests DESC, fy2025_full_year_requests DESC",
+    "expected_checks": {
+      "rows": 32
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef530000000a",
+    "key": "Q7b",
+    "question": "Onboarding cases opened by request segment, primary product and fiscal half for FY2025-H1 and FY2026-H1 - one row per segment, product and half.",
+    "expected_sql": "SELECT `Request Segment`, `Primary Product`, `Fiscal Half`, MEASURE(`Cases Opened`) AS requests\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Fiscal Half` IN ('FY2025-H1', 'FY2026-H1')\nGROUP BY ALL\nORDER BY `Request Segment`, `Primary Product`, `Fiscal Half`",
+    "expected_checks": {
+      "rows": 12
+    },
+    "answer_ref": "Q7b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef530000000b",
+    "key": "Q8",
+    "question": "Which clients onboarded in FY2026 have not transacted within 60 days of go-live? Show client, booking country, the number of such cases and the average days to first transaction.",
+    "expected_sql": "SELECT `Client`, `Booking Country`,\n       MEASURE(`Not Transacted Within 60D`)          AS not_transacted_within_60d,\n       MEASURE(`Average First Transaction Lag Days`) AS days_to_first_transaction\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Go-Live Fiscal Year` = 'FY2026'\nGROUP BY ALL\nHAVING MEASURE(`Not Transacted Within 60D`) > 0\nORDER BY days_to_first_transaction DESC",
+    "expected_checks": {
+      "rows": 4
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef530000000c",
+    "key": "Q9",
+    "question": "Screening true-match rate and average resolution hours by list, with the number of alerts and true matches.",
+    "expected_sql": "SELECT `List`,\n       MEASURE(`Screening Alerts`)            AS alerts,\n       MEASURE(`True Matches`)                AS true_matches,\n       MEASURE(`Screening True Match Rate %`) AS true_match_rate,\n       MEASURE(`Average Resolution Hours`)    AS avg_resolution_hours\nFROM smbc_genie.metrics.mv_kyc_health\nWHERE `Record Type` = 'Screening'\nGROUP BY ALL\nORDER BY true_match_rate DESC",
+    "expected_checks": {
+      "rows": 8
+    },
+    "answer_ref": "Q9",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef530000000d",
+    "key": "Q10",
+    "question": "Post-onboarding satisfaction by booking country: survey responses, average satisfaction and negative responses.",
+    "expected_sql": "SELECT `Booking Country`,\n       MEASURE(`Survey Responses`)     AS responses,\n       MEASURE(`Average Satisfaction`) AS avg_satisfaction,\n       MEASURE(`Negative Responses`)   AS negative_responses\nFROM smbc_genie.metrics.mv_onboarding_funnel\nGROUP BY ALL\nHAVING MEASURE(`Survey Responses`) > 0\nORDER BY avg_satisfaction",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef530000000e",
+    "key": "Q10b",
+    "question": "What are the most common negative comment themes after onboarding, by number of negative responses?",
+    "expected_sql": "SELECT `Feedback Theme`, MEASURE(`Negative Responses`) AS negative_responses\nFROM smbc_genie.metrics.mv_onboarding_funnel\nGROUP BY ALL\nHAVING MEASURE(`Negative Responses`) > 0\nORDER BY negative_responses DESC",
+    "expected_checks": {
+      "rows": 3
+    },
+    "answer_ref": "Q10b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef530000000f",
+    "key": "Q3-casual",
+    "question": "which onboarding cases are blowing through SLA at the moment? split it by owner and blocker",
+    "expected_sql": "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Case Status` = 'Open'\nGROUP BY ALL\nHAVING MEASURE(`Cases Over SLA`) > 0\nORDER BY cases_over_sla DESC, `Owner`",
+    "expected_checks": {
+      "rows": 28
+    },
+    "answer_ref": "Q3",
+    "variant_of": "Q3",
+    "allow_extra_columns": false,
+    "variant_of_id": "f83e7fb196d7363dd8fcef5300000003"
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000010",
+    "key": "Q9-typo",
+    "question": "screning true match rate and avg resolution hours by list, incl alerts and true matches",
+    "expected_sql": "SELECT `List`,\n       MEASURE(`Screening Alerts`)            AS alerts,\n       MEASURE(`True Matches`)                AS true_matches,\n       MEASURE(`Screening True Match Rate %`) AS true_match_rate,\n       MEASURE(`Average Resolution Hours`)    AS avg_resolution_hours\nFROM smbc_genie.metrics.mv_kyc_health\nWHERE `Record Type` = 'Screening'\nGROUP BY ALL\nORDER BY true_match_rate DESC",
+    "expected_checks": {
+      "rows": 8
+    },
+    "answer_ref": "Q9",
+    "variant_of": "Q9",
+    "allow_extra_columns": false,
+    "variant_of_id": "f83e7fb196d7363dd8fcef530000000c"
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000011",
+    "key": "Q1b-abbrev",
+    "question": "median & P90 days-to-live by KYC migration period + live case count",
+    "expected_sql": "SELECT `KYC Migration Period`,\n       MEASURE(`Live Cases`)          AS live_cases,\n       MEASURE(`Median Days to Live`) AS median_days_to_live,\n       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\nFROM smbc_genie.metrics.mv_onboarding_cycle_time\nWHERE `Case Status` = 'Live'\nGROUP BY ALL\nORDER BY median_days_to_live",
+    "expected_checks": {
+      "rows": 4
+    },
+    "answer_ref": "Q1b",
+    "variant_of": "Q1b",
+    "allow_extra_columns": false,
+    "variant_of_id": "f83e7fb196d7363dd8fcef5300000001"
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000012",
+    "key": "Q6b-jargon",
+    "question": "high-risk CDD backlog: periodic KYC refreshes overdue at each month-end since Apr-25 vs total periodic overdue",
+    "expected_sql": "SELECT `Month`, MEASURE(`High-Risk Overdue`) AS high_risk_overdue, MEASURE(`Overdue`) AS all_overdue\nFROM smbc_genie.metrics.mv_kyc_health\nWHERE `Review Type` = 'Periodic' AND `Month` >= DATE'2025-04-01'\nGROUP BY ALL\nORDER BY `Month`",
+    "expected_checks": {
+      "rows": 18
+    },
+    "answer_ref": "Q6b",
+    "variant_of": "Q6b",
+    "allow_extra_columns": false,
+    "variant_of_id": "f83e7fb196d7363dd8fcef5300000008"
+  },
+  {
+    "id": "f83e7fb196d7363dd8fcef5300000013",
+    "key": "Q10b-casual",
+    "question": "what are clients complaining about after onboarding? rank the negative comment themes",
+    "expected_sql": "SELECT `Feedback Theme`, MEASURE(`Negative Responses`) AS negative_responses\nFROM smbc_genie.metrics.mv_onboarding_funnel\nGROUP BY ALL\nHAVING MEASURE(`Negative Responses`) > 0\nORDER BY negative_responses DESC",
+    "expected_checks": {
+      "rows": 3
+    },
+    "answer_ref": "Q10b",
+    "variant_of": "Q10b",
+    "allow_extra_columns": false,
+    "variant_of_id": "f83e7fb196d7363dd8fcef530000000e"
+  }
+]

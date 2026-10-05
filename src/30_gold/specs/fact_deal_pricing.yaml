@@ -1,0 +1,73 @@
+table: fact_deal_pricing
+domain: profitability
+comment: >-
+  Deal pricing discipline (Client Profitability, mv_deal_pricing): one row per credit deal signed since
+  1-Apr-2023 with the priced margin vs the margin needed for the RoRWA hurdle, the standalone RoRWA, the
+  origination RAROC (incl. the client's ancillary revenue) vs the 12% RAROC hurdle, the approval exception
+  (reason, approver), and the realised RAROC once the deal has seasoned (deals signed up to Mar-2026; later deals
+  are Not yet seasoned) with a caught-up flag (realised RAROC back at or above the hurdle). RAROC values are
+  winsorised to -0.25..1.00; flags come from the unwinsorised ratios. Average RAROC across deals with AVG or
+  amount-weighted SUM(raroc x amount) / SUM(amount).
+grain: one row per deal (credit facility) signed from FY2023
+primary_key: [facility_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [signing_date], references: dim_date}
+  - {columns: [product_id], references: dim_product}
+cluster_by: [signing_date, golden_client_sk]
+min_rows: 500
+columns:
+  facility_id: {type: STRING, comment: "Credit facility id of the deal (FAC-nnnnnn); join to the credit facts."}
+  obligor_id: {type: STRING, comment: "Credit-system obligor id (CRD-nnnnnn) of the borrower."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version valid on the signing date (as-was)."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  signing_date: {type: DATE, comment: "Date the deal was signed / approved."}
+  signing_quarter: {type: STRING, comment: "Japanese fiscal quarter of signing as recorded by finance, e.g. FY2025-Q2."}
+  signing_fiscal_year: {type: INT, comment: "Japanese fiscal year of the signing date (FY2025 = Apr 2025 - Mar 2026)."}
+  signing_fiscal_year_label: {type: STRING, comment: "Signing fiscal year label, e.g. FY2025."}
+  signing_fiscal_quarter_label: {type: STRING, comment: "Signing fiscal quarter label, e.g. FY2025-Q3 - Signing Quarter."}
+  signing_fiscal_half_label: {type: STRING, comment: "Signing fiscal half label, e.g. FY2026-H1."}
+  product: {type: STRING, comment: "Facility type priced: Term Loan, Revolving Credit Facility, Bilateral Loan, Syndicated Loan, Overdraft or Trade Loan."}
+  product_id: {type: STRING}
+  product_family: {type: STRING}
+  facility_status: {type: STRING, comment: "Facility status at the as-of date: Active, Matured or Prepaid."}
+  maturity_date: {type: DATE, comment: "Contractual maturity date of the facility."}
+  amount_usd: {type: DOUBLE, comment: "Deal (facility limit) amount in USD."}
+  internal_grade: {type: INT, comment: "Internal grade 1-10 used to price the deal."}
+  ead_usd: {type: DOUBLE, comment: "Exposure at default assumed at origination in USD."}
+  rwa_usd: {type: DOUBLE, comment: "Risk-weighted assets of the deal at origination in USD."}
+  lgd: {type: DOUBLE, comment: "Loss given default used in pricing (fraction)."}
+  priced_margin_bps: {type: DOUBLE, comment: "Margin priced on the drawn amount in basis points."}
+  hurdle_margin_bps: {type: DOUBLE, comment: "Margin needed for the deal alone to reach the 1.2% RoRWA hurdle, in basis points."}
+  margin_gap_bps: {type: DOUBLE, comment: "priced_margin_bps - hurdle_margin_bps (negative = priced below the standalone hurdle)."}
+  pricing_status: {type: STRING, comment: "Margin vs hurdle margin: Above hurdle (>= +25 bps), At hurdle (within 25 bps) or Below hurdle (< -25 bps)."}
+  standalone_rorwa: {type: DOUBLE, comment: "RoRWA of the deal on its own lending economics (fraction)."}
+  meets_standalone_hurdle: {type: BOOLEAN, comment: "True when the priced margin reaches the hurdle margin."}
+  standalone_below_rorwa_hurdle: {type: BOOLEAN, comment: "True when standalone_rorwa is below the 1.2% RoRWA hurdle (dim_threshold RORWA_HURDLE)."}
+  origination_raroc: {type: DOUBLE, comment: "RAROC at origination incl. the client's ancillary revenue (fraction, winsorised to -0.25..1.00)."}
+  approved_below_hurdle: {type: BOOLEAN, comment: "True when the deal was approved with an origination RAROC below the 12% RAROC hurdle (an approval exception) - the below-hurdle flag of the deal grain."}
+  has_exception: {type: BOOLEAN, comment: "True when the deal carries a pricing exception (approved below hurdle with a reason)."}
+  exception_reason: {type: STRING, comment: "Reason for approving below hurdle: Relationship, Strategic Client, Cross-sell Commitment or Competitive Pricing; null without exception."}
+  exception_approver: {type: STRING, comment: "Authority that approved the exception: Credit Committee, Deputy CCO, Regional CRO or Head of Coverage."}
+  realised_raroc: {type: DOUBLE, comment: "RAROC realised by the relationship after seasoning (fraction, winsorised); null when not yet seasoned (signed after Mar-2026)."}
+  is_seasoned: {type: BOOLEAN, comment: "True when a realised RAROC is available."}
+  caught_up: {type: BOOLEAN, comment: "True when the realised RAROC is at or above the 12% hurdle (for below-hurdle approvals: the exception paid off); null when not yet seasoned."}
+  realised_status: {type: STRING, comment: "Caught up / Still below hurdle (below-hurdle approvals), Held above hurdle / Slipped below hurdle (approvals above hurdle) or Not yet seasoned."}
+  raroc_slippage: {type: DOUBLE, comment: "realised_raroc - origination_raroc (fraction; x 100 = percentage points; negative = slippage)."}
+  realised_below_raroc_hurdle: {type: BOOLEAN, comment: "True when the realised RAROC is below the 12% hurdle; null when not yet seasoned."}
+  months_since_signing: {type: INT, comment: "Whole months from the signing date to the as-of date 30-Sep-2026."}
+  is_last_4_quarters: {type: BOOLEAN, comment: "True for deals signed in the last four fiscal quarters to the as-of date (FY2025-Q3 to FY2026-Q2, Oct-2025 - Sep-2026)."}
+  is_last_4_seasoned_quarters: {type: BOOLEAN, comment: "True for deals signed in the last four fiscal quarters that already have a realised RAROC (FY2025-Q1 to FY2025-Q4, Apr-2025 - Mar-2026) - use for 'did realised RAROC catch up' questions."}
+checks:
+  - name: caught_up_only_when_seasoned
+    sql: SELECT count_if(caught_up IS NOT NULL AND NOT is_seasoned) FROM ${table}
+  - name: exceptions_are_below_hurdle
+    sql: SELECT count_if(has_exception <> approved_below_hurdle) FROM ${table}
+reconcile:
+  - name: rows_vs_silver_from_fy2023
+    silver: SELECT count(*) FROM ${catalog}.silver.fin_deal_pricing WHERE signing_date >= DATE'${history_start}'
+  - name: relationship_exceptions_fy2025
+    gold: SELECT count(*) FROM ${table} WHERE exception_reason = 'Relationship' AND signing_fiscal_year = 2025
+    silver: SELECT count(*) FROM ${catalog}.silver.fin_deal_pricing WHERE exception_reason = 'Relationship' AND signing_date BETWEEN DATE'2025-04-01' AND DATE'2026-03-31'

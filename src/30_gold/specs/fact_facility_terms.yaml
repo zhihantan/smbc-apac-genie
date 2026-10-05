@@ -1,0 +1,89 @@
+table: fact_facility_terms
+domain: credit
+comment: >-
+  Credit facility terms as of 30-Sep-2026 (credit memo pack, brief 5.3): one row per facility (active,
+  matured or prepaid) with type, committed limit, drawn balance at the as-of month-end, undrawn, margin,
+  maturity, security type, guarantor type (parent guarantee, keepwell, corporate guarantee, sponsor support,
+  none), the covenant list with the latest-test headroom, the collateral held and, for parent-supported
+  facilities, the support letter from the JP share and the Japanese parent's current rating (Tokyo HO share).
+  Current snapshot: amounts are as of the as-of date (drawn = 0 for facilities no longer outstanding);
+  use is_active = true for the live book.
+grain: one row per credit facility (terms as of the as-of date)
+primary_key: [facility_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [as_of_date], references: dim_date}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [currency], references: dim_currency}
+cluster_by: [golden_client_sk, facility_id]
+min_rows: 1000
+columns:
+  facility_id: {type: STRING, comment: "Credit facility id (FAC-nnnnnn)."}
+  obligor_id: {type: STRING, comment: "Credit-system obligor id (CRD-nnnnnn) the facility is booked to."}
+  golden_client_sk: {type: BIGINT, comment: "Current dim_client version of the borrower (current snapshot; join to gold.dim_client)."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  as_of_date: {type: DATE, comment: "Snapshot date of the terms and balances (30-Sep-2026)."}
+  facility_type: {type: STRING, comment: "Facility type: Term Loan, Revolving Credit Facility (RCF), Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan."}
+  product_id: {type: STRING, comment: "Product key of the facility type; join to gold.dim_product (business line Lending / Transaction Banking)."}
+  facility_status: {type: STRING, comment: "Facility status: Active, Matured or Prepaid."}
+  is_active: {type: BOOLEAN, comment: "True for facilities active at the as-of date (the live credit book)."}
+  currency: {type: STRING, comment: "Facility currency (ISO 4217)."}
+  limit_usd: {type: DOUBLE, comment: "Committed facility limit in USD (terms)."}
+  drawn_usd: {type: DOUBLE, comment: "Drawn (outstanding) balance at the as-of month-end in USD - the current funded exposure; 0 when no longer outstanding."}
+  drawn_lcy: {type: DOUBLE, comment: "Drawn balance at the as-of month-end in facility currency."}
+  undrawn_usd: {type: DOUBLE, comment: "Undrawn commitment (limit - drawn, floored at 0) for active facilities, USD; 0 otherwise."}
+  utilisation_pct: {type: DOUBLE, comment: "Drawn / limit at the as-of month-end as a fraction (0.95 = 95%)."}
+  last_balance_date: {type: DATE, comment: "Last month-end with a balance record for the facility (shows when a matured facility was last outstanding)."}
+  margin_bps: {type: INT, comment: "Lending margin over the base rate in basis points (weight by limit for a portfolio average: SUM(margin_bps * limit_usd) / SUM(limit_usd))."}
+  origination_date: {type: DATE, comment: "Facility origination / signing date."}
+  maturity_date: {type: DATE, comment: "Contractual final maturity date."}
+  closed_date: {type: DATE, comment: "Date the facility was closed early (prepaid / refinanced); null otherwise."}
+  days_to_maturity: {type: INT, comment: "Days from the as-of date to maturity for active facilities (null otherwise)."}
+  remaining_tenor_years: {type: DOUBLE, comment: "Remaining tenor in years for active facilities."}
+  matures_within_12m: {type: BOOLEAN, comment: "True for active facilities maturing within 12 months of the as-of date (refinancing window)."}
+  security_type: {type: STRING, comment: "Security: Unsecured, Cash, Receivables, Inventory, Fixed Assets or Real Estate."}
+  is_secured: {type: BOOLEAN, comment: "True when the facility is secured (security_type other than Unsecured)."}
+  guarantor_type: {type: STRING, comment: "Credit support: Parent Guarantee, Keepwell (parent keepwell / comfort letter), Corporate Guarantee, Sponsor Support or None."}
+  has_parent_support: {type: BOOLEAN, comment: "True when the facility relies on the parent: guarantor_type Parent Guarantee or Keepwell."}
+  has_covenant: {type: BOOLEAN, comment: "True when the facility carries financial covenants."}
+  covenant_types: {type: STRING, comment: "Comma-separated covenants tested on the facility (e.g. ICR, Net Debt/EBITDA); null = none."}
+  n_covenants: {type: INT, comment: "Number of distinct financial covenants tested."}
+  last_test_date: {type: DATE, comment: "Date of the facility's latest covenant test on or before the as-of date."}
+  min_headroom_latest: {type: DOUBLE, comment: "Lowest covenant headroom at the latest test across the facility's covenants, as a fraction (0.08 = 8%; negative = breached)."}
+  leverage_headroom_latest: {type: DOUBLE, comment: "Headroom of the leverage covenant (Net Debt/EBITDA) at its latest test (fraction; negative = breached)."}
+  leverage_actual_latest: {type: DOUBLE, comment: "Net Debt/EBITDA actual at the latest leverage test (x)."}
+  leverage_threshold_latest: {type: DOUBLE, comment: "Maximum Net Debt/EBITDA allowed by the leverage covenant at the latest test (x)."}
+  covenant_breached_latest: {type: BOOLEAN, comment: "True when any covenant was breached at its latest test."}
+  n_covenant_waivers: {type: INT, comment: "Covenant tests of the facility with a waiver granted (all history)."}
+  has_waiver_current_fy: {type: BOOLEAN, comment: "True when a covenant waiver was granted on a test in the current fiscal year (FY2026, from 1-Apr-2026)."}
+  n_collateral: {type: INT, comment: "Collateral items pledged to the facility."}
+  collateral_value_usd: {type: DOUBLE, comment: "Appraised value of the pledged collateral in USD (latest valuation)."}
+  max_ltv_pct: {type: DOUBLE, comment: "Highest loan-to-value of the facility's collateral items as a fraction (0.72 = 72%)."}
+  oldest_valuation_date: {type: DATE, comment: "Oldest last-valuation date among the facility's collateral items."}
+  jp_support_letter_id: {type: STRING, comment: "Support letter in the JP share (JPSL-...) backing the facility: the parent guarantee covering it, or the subsidiary's keepwell; null when not parent-supported or not found."}
+  jp_support_letter_status: {type: STRING, comment: "Status of that support letter: Active, Expired or Released."}
+  jp_support_last_confirmed_date: {type: DATE, comment: "Date the parent last confirmed the support letter."}
+  jp_support_amount_usd: {type: DOUBLE, comment: "Amount of parent support stated in the letter, USD."}
+  jp_parent_id: {type: STRING, comment: "Japanese parent (JPP-nnnn) providing the guarantee / keepwell (parent-supported facilities only)."}
+  parent_rating_grade: {type: INT, comment: "Japanese parent's internal grade (1 best .. 10) in force at the as-of date, from the Tokyo HO rating share; parent-supported facilities only."}
+  parent_rating_equivalent: {type: STRING, comment: "External-scale equivalent of the parent's rating (e.g. AA, A+) from the JP share - the 'parent external rating'."}
+  parent_rating_outlook: {type: STRING, comment: "Outlook of the parent rating: Positive, Stable or Negative."}
+  parent_rating_last_action: {type: STRING, comment: "Latest parent rating action: Initial, Affirm, Upgrade or Downgrade."}
+  parent_rating_date: {type: DATE, comment: "Date of the latest parent rating action."}
+checks:
+  - name: active_facilities_have_as_of_balance
+    sql: >-
+      SELECT count(*) FROM ${table} f LEFT ANTI JOIN (SELECT facility_id FROM ${catalog}.silver.core_facility_balance_monthly
+      WHERE balance_date = DATE'${as_of_date}') b ON b.facility_id = f.facility_id WHERE f.is_active
+  - name: jp_group_parent_support_has_parent_rating   # non-Japanese groups have no Tokyo HO parent rating
+    sql: >-
+      SELECT count_if(f.has_parent_support AND f.parent_rating_grade IS NULL AND g.is_japanese_group) FROM ${table} f
+      JOIN ${catalog}.gold.dim_client_group g ON g.client_group_id = f.client_group_id
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.credit_facility_terms
+  - name: drawn_as_of_vs_silver
+    gold: SELECT round(sum(drawn_usd) / 1e6) FROM ${table}
+    silver: SELECT round(sum(drawn_usd) / 1e6) FROM ${catalog}.silver.core_facility_balance_monthly WHERE balance_date = DATE'${as_of_date}'

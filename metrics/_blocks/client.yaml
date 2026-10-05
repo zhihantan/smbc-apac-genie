@@ -1,0 +1,121 @@
+# Standard client block (PLAN §8, brief §3.3; DECISIONS D11 / D31): every client-grain view carries these 15
+# fields so the same client vocabulary works in all eleven Genie spaces. Joins the dim_client VERSION valid
+# on the fact's date (golden_client_sk, SCD2 as-was) with dim_client_group nested beneath it. dim_client's
+# ARRAY columns (aliases, source_systems_present) are never exposed (D31) - aliases_text / source_systems_text
+# exist for LIKE searches. Group-grain facts use the client_group block instead.
+# Join aliases: dc = gold.dim_client (version on the row's date), dc.dg = its gold.dim_client_group. Views may
+# use them in their own fields / measures, e.g. dc.dg.is_strategic_group, dc.primary_rm_office.
+block: client
+comment: >-
+  Client attributes as they were on the row's date (SCD2 version of gold.dim_client, nested
+  gold.dim_client_group): Client Group, Client, Segment, Relationship Tier, Is Japanese Corporate, Industry,
+  Subsector, Coverage Office, Primary RM, Primary RM Office, Rating Grade, IFRS 9 Stage, Watchlist, KYC Risk
+  Rating, EWS Band.
+params:
+  key: {default: source.golden_client_sk, comment: "expression of the fact's golden_client_sk (SCD2 version key)"}
+joins:
+  - name: dc        # join aliases must not equal a field name (a field `Client` would shadow `client`)
+    source: ${catalog}.gold.dim_client
+    'on': ${key} = dc.golden_client_sk
+    joins:
+      - name: dg
+        source: ${catalog}.gold.dim_client_group
+        'on': dc.client_group_id = dg.client_group_id
+dimensions:
+  - name: Client Group
+    expr: dc.dg.group_name
+    display_name: Client Group
+    comment: >-
+      Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine
+      Logistics, Sunda Energi Nusantara). "Client" or "group" without qualification means this level. Match
+      names with LIKE '%Kinokawa%'. About 380 groups.
+    synonyms: [group, client group, parent group, global parent, parent, relationship, group name, family, keiretsu, house]
+  - name: Client
+    expr: dc.display_name
+    display_name: Client (legal entity)
+    comment: >-
+      Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - "entity"
+      or "subsidiary" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.
+    synonyms: [entity, legal entity, subsidiary, customer, obligor, counterparty, borrower, client name, account name, company]
+  - name: Segment
+    expr: dc.segment
+    display_name: Segment
+    comment: >-
+      Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor &
+      Structured Finance or Public Sector.
+    synonyms: [client segment, customer segment, business segment, coverage segment, sector segment]
+  - name: Relationship Tier
+    expr: dc.relationship_tier
+    display_name: Relationship Tier
+    comment: Relationship tier - Strategic, Core or Transactional. "Strategic clients" means Relationship Tier = Strategic.
+    synonyms: [tier, client tier, relationship tier, priority, strategic, core, transactional, coverage tier]
+  - name: Is Japanese Corporate
+    expr: dc.is_japanese_corporate
+    display_name: Is Japanese Corporate
+    comment: >-
+      True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - "Japanese corporates",
+      "JC" or "Japanese clients" means true.
+    synonyms: [Japanese corporate, JC, Japanese client, Japanese subsidiary, Nikkei, Japan desk, JCB, Japanese]
+  - name: Industry
+    expr: dc.industry_sector
+    display_name: Industry Sector
+    comment: Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.
+    synonyms: [industry, sector, industry sector, business sector, vertical, GICS sector]
+  - name: Subsector
+    expr: dc.industry_subsector
+    display_name: Industry Subsector
+    comment: Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).
+    synonyms: [subsector, sub-sector, industry subsector, sub industry, niche, sub-segment]
+  - name: Coverage Office
+    expr: dc.coverage_office
+    display_name: Coverage Office (booking country)
+    comment: >-
+      APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH
+      Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan,
+      PH Philippines, NZ New Zealand. "Country" means this unless the user says risk / HQ country.
+    synonyms: [booking country, country, office, booking entity, booking location, coverage country, branch, location]
+  - name: Primary RM
+    expr: dc.primary_rm_name
+    display_name: Primary RM
+    comment: >-
+      Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment,
+      else the group account-plan owner; null = no RM coverage.
+    synonyms: [RM, relationship manager, banker, coverage banker, account manager, coverage officer, owner RM]
+  - name: Primary RM Office
+    expr: dc.primary_rm_office
+    display_name: Primary RM Office
+    comment: >-
+      Office (APAC booking location, ISO-2) where the primary RM sits - "RMs in Singapore / Hong Kong" means this
+      (most RMs also cover clients booked in other countries, so it differs from Coverage Office).
+    synonyms: [RM office, RM location, RM country, banker office, RM based in, RM team office]
+  - name: Rating Grade
+    expr: dc.internal_rating_grade
+    display_name: Internal Rating Grade
+    comment: >-
+      Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is
+      sub-investment watch territory); null = not rated (no credit relationship).
+    synonyms: [rating, grade, internal rating, credit grade, obligor grade, risk grade, ORR, PD grade]
+  - name: IFRS 9 Stage
+    expr: dc.ifrs9_stage
+    display_name: IFRS 9 Stage
+    comment: >-
+      IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3
+      credit-impaired / default; null = not rated.
+    synonyms: [stage, IFRS9 stage, ECL stage, impairment stage, stage 2, stage 3, credit stage]
+  - name: Watchlist
+    expr: dc.watchlist_flag
+    display_name: On Watchlist
+    comment: True when the client is on the credit watchlist at the row's month-end ("not on the watchlist" = false).
+    synonyms: [on watchlist, watch list, watchlisted, credit watchlist, WL, under watch, early warning list]
+  - name: KYC Risk Rating
+    expr: dc.kyc_risk_rating
+    display_name: KYC Risk Rating
+    comment: KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.
+    synonyms: [KYC risk, AML risk, CDD risk, risk rating, KYC rating, high risk, customer risk rating]
+  - name: EWS Band
+    expr: dc.ews_band
+    display_name: EWS Band
+    comment: >-
+      Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70),
+      after overrides; null = not scored (no credit relationship, or before Apr-2025).
+    synonyms: [early warning band, EWS, RAG, RAG status, warning band, red amber green, risk band]

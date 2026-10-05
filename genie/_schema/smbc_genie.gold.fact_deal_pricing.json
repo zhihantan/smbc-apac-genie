@@ -1,0 +1,259 @@
+{
+ "columns": [
+  {
+   "comment": "Credit facility id of the deal (FAC-nnnnnn); join to the credit facts.",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit-system obligor id (CRD-nnnnnn) of the borrower.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version valid on the signing date (as-was).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the deal was signed / approved.",
+   "is_measure": false,
+   "name": "signing_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal quarter of signing as recorded by finance, e.g. FY2025-Q2.",
+   "is_measure": false,
+   "name": "signing_quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal year of the signing date (FY2025 = Apr 2025 - Mar 2026).",
+   "is_measure": false,
+   "name": "signing_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Signing fiscal year label, e.g. FY2025.",
+   "is_measure": false,
+   "name": "signing_fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Signing fiscal quarter label, e.g. FY2025-Q3 - Signing Quarter.",
+   "is_measure": false,
+   "name": "signing_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Signing fiscal half label, e.g. FY2026-H1.",
+   "is_measure": false,
+   "name": "signing_fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Facility type priced: Term Loan, Revolving Credit Facility, Bilateral Loan, Syndicated Loan, Overdraft or Trade Loan.",
+   "is_measure": false,
+   "name": "product",
+   "type": "string"
+  },
+  {
+   "comment": "Product key (PRD-<NAME>); join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Facility status at the as-of date: Active, Matured or Prepaid.",
+   "is_measure": false,
+   "name": "facility_status",
+   "type": "string"
+  },
+  {
+   "comment": "Contractual maturity date of the facility.",
+   "is_measure": false,
+   "name": "maturity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Deal (facility limit) amount in USD.",
+   "is_measure": false,
+   "name": "amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Internal grade 1-10 used to price the deal.",
+   "is_measure": false,
+   "name": "internal_grade",
+   "type": "int"
+  },
+  {
+   "comment": "Exposure at default assumed at origination in USD.",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Risk-weighted assets of the deal at origination in USD.",
+   "is_measure": false,
+   "name": "rwa_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Loss given default used in pricing (fraction).",
+   "is_measure": false,
+   "name": "lgd",
+   "type": "double"
+  },
+  {
+   "comment": "Margin priced on the drawn amount in basis points.",
+   "is_measure": false,
+   "name": "priced_margin_bps",
+   "type": "double"
+  },
+  {
+   "comment": "Margin needed for the deal alone to reach the 1.2% RoRWA hurdle, in basis points.",
+   "is_measure": false,
+   "name": "hurdle_margin_bps",
+   "type": "double"
+  },
+  {
+   "comment": "priced_margin_bps - hurdle_margin_bps (negative = priced below the standalone hurdle).",
+   "is_measure": false,
+   "name": "margin_gap_bps",
+   "type": "double"
+  },
+  {
+   "comment": "Margin vs hurdle margin: Above hurdle (>= +25 bps), At hurdle (within 25 bps) or Below hurdle (< -25 bps).",
+   "is_measure": false,
+   "name": "pricing_status",
+   "type": "string"
+  },
+  {
+   "comment": "RoRWA of the deal on its own lending economics (fraction).",
+   "is_measure": false,
+   "name": "standalone_rorwa",
+   "type": "double"
+  },
+  {
+   "comment": "True when the priced margin reaches the hurdle margin.",
+   "is_measure": false,
+   "name": "meets_standalone_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when standalone_rorwa is below the 1.2% RoRWA hurdle (dim_threshold RORWA_HURDLE).",
+   "is_measure": false,
+   "name": "standalone_below_rorwa_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "RAROC at origination incl. the client's ancillary revenue (fraction, winsorised to -0.25..1.00).",
+   "is_measure": false,
+   "name": "origination_raroc",
+   "type": "double"
+  },
+  {
+   "comment": "True when the deal was approved with an origination RAROC below the 12% RAROC hurdle (an approval exception) - the below-hurdle flag of the deal grain.",
+   "is_measure": false,
+   "name": "approved_below_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the deal carries a pricing exception (approved below hurdle with a reason).",
+   "is_measure": false,
+   "name": "has_exception",
+   "type": "boolean"
+  },
+  {
+   "comment": "Reason for approving below hurdle: Relationship, Strategic Client, Cross-sell Commitment or Competitive Pricing; null without exception.",
+   "is_measure": false,
+   "name": "exception_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Authority that approved the exception: Credit Committee, Deputy CCO, Regional CRO or Head of Coverage.",
+   "is_measure": false,
+   "name": "exception_approver",
+   "type": "string"
+  },
+  {
+   "comment": "RAROC realised by the relationship after seasoning (fraction, winsorised); null when not yet seasoned (signed after Mar-2026).",
+   "is_measure": false,
+   "name": "realised_raroc",
+   "type": "double"
+  },
+  {
+   "comment": "True when a realised RAROC is available.",
+   "is_measure": false,
+   "name": "is_seasoned",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the realised RAROC is at or above the 12% hurdle (for below-hurdle approvals: the exception paid off); null when not yet seasoned.",
+   "is_measure": false,
+   "name": "caught_up",
+   "type": "boolean"
+  },
+  {
+   "comment": "Caught up / Still below hurdle (below-hurdle approvals), Held above hurdle / Slipped below hurdle (approvals above hurdle) or Not yet seasoned.",
+   "is_measure": false,
+   "name": "realised_status",
+   "type": "string"
+  },
+  {
+   "comment": "realised_raroc - origination_raroc (fraction; x 100 = percentage points; negative = slippage).",
+   "is_measure": false,
+   "name": "raroc_slippage",
+   "type": "double"
+  },
+  {
+   "comment": "True when the realised RAROC is below the 12% hurdle; null when not yet seasoned.",
+   "is_measure": false,
+   "name": "realised_below_raroc_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "Whole months from the signing date to the as-of date 30-Sep-2026.",
+   "is_measure": false,
+   "name": "months_since_signing",
+   "type": "int"
+  },
+  {
+   "comment": "True for deals signed in the last four fiscal quarters to the as-of date (FY2025-Q3 to FY2026-Q2, Oct-2025 - Sep-2026).",
+   "is_measure": false,
+   "name": "is_last_4_quarters",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for deals signed in the last four fiscal quarters that already have a realised RAROC (FY2025-Q1 to FY2025-Q4, Apr-2025 - Mar-2026) - use for 'did realised RAROC catch up' questions.",
+   "is_measure": false,
+   "name": "is_last_4_seasoned_quarters",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Deal pricing discipline (Client Profitability, mv_deal_pricing): one row per credit deal signed since 1-Apr-2023 with the priced margin vs the margin needed for the RoRWA hurdle, the standalone RoRWA, the origination RAROC (incl. the client's ancillary revenue) vs the 12% RAROC hurdle, the approval exception (reason, approver), and the realised RAROC once the deal has seasoned (deals signed up to Mar-2026; later deals are Not yet seasoned) with a caught-up flag (realised RAROC back at or above the hurdle). RAROC values are winsorised to -0.25..1.00; flags come from the unwinsorised ratios. Average RAROC across deals with AVG or amount-weighted SUM(raroc x amount) / SUM(amount). Grain: one row per deal (credit facility) signed from FY2023.",
+ "identifier": "smbc_genie.gold.fact_deal_pricing",
+ "type": "MANAGED"
+}

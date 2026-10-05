@@ -1,0 +1,139 @@
+{
+ "columns": [
+  {
+   "comment": "CRM contact id.",
+   "is_measure": false,
+   "name": "contact_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account id (source record of the CRM platform) the row was recorded against.",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the contact's client (current version).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Contact full name (fictional).",
+   "is_measure": false,
+   "name": "full_name",
+   "type": "string"
+  },
+  {
+   "comment": "Contact first name (fictional).",
+   "is_measure": false,
+   "name": "first_name",
+   "type": "string"
+  },
+  {
+   "comment": "Contact last name (fictional).",
+   "is_measure": false,
+   "name": "last_name",
+   "type": "string"
+  },
+  {
+   "comment": "Job title as recorded in CRM.",
+   "is_measure": false,
+   "name": "job_title",
+   "type": "string"
+  },
+  {
+   "comment": "Business function (e.g. Finance, Treasury, Procurement, Executive).",
+   "is_measure": false,
+   "name": "contact_function",
+   "type": "string"
+  },
+  {
+   "comment": "Role in the relationship (e.g. CFO, Treasurer, Procurement Head, CEO).",
+   "is_measure": false,
+   "name": "contact_role",
+   "type": "string"
+  },
+  {
+   "comment": "Seniority level of the contact.",
+   "is_measure": false,
+   "name": "seniority",
+   "type": "string"
+  },
+  {
+   "comment": "True for the primary contact of the client.",
+   "is_measure": false,
+   "name": "is_primary",
+   "type": "boolean"
+  },
+  {
+   "comment": "Synthetic e-mail id (not a real address).",
+   "is_measure": false,
+   "name": "email",
+   "type": "string"
+  },
+  {
+   "comment": "Preferred contact channel.",
+   "is_measure": false,
+   "name": "preferred_channel",
+   "type": "string"
+  },
+  {
+   "comment": "RM-assessed strength of the relationship with this contact.",
+   "is_measure": false,
+   "name": "relationship_strength",
+   "type": "string"
+  },
+  {
+   "comment": "True while the contact is active in CRM.",
+   "is_measure": false,
+   "name": "is_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date the contact was created in CRM.",
+   "is_measure": false,
+   "name": "created_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the contact became inactive; null when active.",
+   "is_measure": false,
+   "name": "inactive_since",
+   "type": "date"
+  },
+  {
+   "comment": "Date of the latest RM activity with this contact up to the as-of date; null = never.",
+   "is_measure": false,
+   "name": "last_interaction_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the last interaction to the as-of date 30-Sep-2026; null = never contacted.",
+   "is_measure": false,
+   "name": "days_since_last_interaction",
+   "type": "int"
+  },
+  {
+   "comment": "RM activities with this contact in the 12 months to the as-of date.",
+   "is_measure": false,
+   "name": "interactions_12m",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Key client contacts recorded in CRM (fictional people): role (e.g. CFO, Treasurer, Procurement Head, CEO), seniority, relationship strength and the last RM interaction, per golden client. RM activity facts reference contact_id. Grain: one row per CRM contact.",
+ "identifier": "smbc_genie.gold.dim_contact",
+ "type": "MANAGED"
+}

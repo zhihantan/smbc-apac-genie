@@ -1,0 +1,63 @@
+table: mvb_rm_engagement
+domain: rm
+comment: >-
+  Metric-view base of mv_rm_engagement (D13 record_type union): record_type = 'activity' rows (one per CRM
+  activity: RM, activity type, contact role, sentiment, follow-up status) and record_type = 'coverage' rows (one
+  per golden client x month-end: primary RM, tier, touched / not touched in the last 90 days). Activity measures
+  read activity rows (activity_count = 1, sentiment_score, is_next_action_open); coverage measures read coverage
+  rows (client_month_count = 1, is_strategic_not_touched_90d) and are point-in-time - take the latest month,
+  never sum across months. Each row belongs to exactly one record type, so no measure double counts.
+grain: one row per CRM activity (record_type activity) or per golden client x month-end (record_type coverage)
+primary_key: [record_type, record_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [month], references: dim_date}
+  - {columns: [rm_employee_id], references: dim_employee}
+cluster_by: [month, golden_client_sk]
+min_rows: 50000
+columns:
+  record_type: {type: STRING, comment: "activity (one CRM activity) or coverage (one client x month-end coverage snapshot)."}
+  record_id: {type: STRING, comment: "activity_id for activity rows; golden_client_id|month for coverage rows."}
+  month: {type: DATE, comment: "First day of the month of the activity / coverage snapshot (window order field for the views)."}
+  activity_date: {type: DATE, comment: "Date of the activity (activity rows; null on coverage rows)."}
+  month_end_date: {type: DATE}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_quarter_label: {type: STRING}
+  fiscal_half_label: {type: STRING}
+  is_latest_month: {type: BOOLEAN, comment: "True for rows of Sep-2026, the month of the as-of date."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  rm_employee_id: {type: STRING, comment: "RM: the RM who logged the activity (activity rows) or the client's primary RM at the month-end (coverage rows); join to gold.dim_employee."}
+  rm_office: {type: STRING, comment: "Office (APAC booking location) of that RM, e.g. SG."}
+  relationship_tier: {type: STRING, comment: "Client relationship tier at the time (Strategic, Core, Transactional)."}
+  is_strategic: {type: BOOLEAN, comment: "True when the client is Strategic tier at the time."}
+  has_crm_account: {type: BOOLEAN, comment: "True when the client has a CRM account (covered in the CRM platform); always true on activity rows. Strategic-tier entities without one are never contacted in CRM - filter it for 'no RM contact' questions."}
+  activity_type: {type: STRING, comment: "Call, Meeting, Email, Video Call or Site Visit (activity rows only)."}
+  contact_role: {type: STRING, comment: "Role of the contact met: CFO, Treasurer, CEO, Procurement Head, Other or Unknown (activity rows only)."}
+  purpose: {type: STRING, comment: "Purpose of the activity (activity rows only)."}
+  product_family: {type: STRING, comment: "Product family discussed (activity rows only)."}
+  is_in_person: {type: BOOLEAN, comment: "True for meetings and site visits (activity rows only)."}
+  activity_count: {type: INT, comment: "1 on activity rows, 0 on coverage rows - Activities = SUM(activity_count)."}
+  sentiment_score: {type: DOUBLE, comment: "Note sentiment -1..1 (activity rows; null on coverage rows) - Average Sentiment = AVG."}
+  is_next_action_open: {type: BOOLEAN, comment: "Follow-up still open at the as-of date (activity rows) - Next Actions Open."}
+  is_next_action_overdue: {type: BOOLEAN, comment: "Follow-up overdue at the as-of date (activity rows)."}
+  client_month_count: {type: INT, comment: "1 on coverage rows, 0 on activity rows - clients covered at a month-end."}
+  is_touched_90d: {type: BOOLEAN, comment: "Coverage rows: client had an RM activity in the 90 days to the month-end."}
+  is_not_touched_90d: {type: BOOLEAN, comment: "Coverage rows: no RM activity in the 90 days to the month-end (incl. never contacted)."}
+  is_strategic_not_touched_90d: {type: BOOLEAN, comment: "Coverage rows: Strategic-tier client not touched in the 90 days to the month-end - Strategic Clients Not Touched 90D (point-in-time; latest month)."}
+  days_since_last_activity: {type: INT, comment: "Coverage rows: days from the last RM activity to the month-end; null when never contacted."}
+  activities_90d: {type: BIGINT, comment: "Coverage rows: RM activities in the 90 days to the month-end (trailing window)."}
+checks:
+  - name: activity_rows_match_fact
+    sql: SELECT abs(count_if(record_type = 'activity') - (SELECT count(*) FROM ${catalog}.gold.fact_rm_activity)) FROM ${table}
+  - name: has_crm_account_never_null
+    sql: SELECT count_if(has_crm_account IS NULL) FROM ${table}
+  - name: coverage_rows_match_fact
+    sql: SELECT abs(count_if(record_type = 'coverage') - (SELECT count(*) FROM ${catalog}.gold.fact_client_coverage_monthly)) FROM ${table}
+reconcile:
+  - name: activities_vs_silver
+    gold: SELECT sum(activity_count) FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_activity

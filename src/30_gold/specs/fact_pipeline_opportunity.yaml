@@ -1,0 +1,89 @@
+table: fact_pipeline_opportunity
+domain: opportunity
+comment: >-
+  CRM sales pipeline (Opportunity Identification, mv_pipeline): one row per opportunity created Apr-2024 to
+  Sep-2026 with its stage (Prospecting, Qualification, Proposal, Negotiation, Won, Lost), product, amount, win
+  probability and probability-weighted value, expected and actual close, cycle time, owner RM and - for
+  opportunities created from a signal - the source signal type, detection date and trade corridor. Win Rate % =
+  won / (won + lost) (D21); Weighted Pipeline USD = SUM(weighted_amount_usd) over open opportunities; amounts in
+  USD, additive across opportunities.
+grain: one row per pipeline opportunity
+primary_key: [opportunity_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [created_date], references: dim_date}
+  - {columns: [owner_rm_id], references: dim_employee}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [created_date, golden_client_sk]
+min_rows: 500
+columns:
+  opportunity_id: {type: STRING, comment: "CRM opportunity id."}
+  created_date: {type: DATE, comment: "Date the opportunity was created."}
+  created_month: {type: DATE, comment: "First day of the month of creation."}
+  created_fiscal_year: {type: INT, comment: "Japanese fiscal year of creation (FY2026 = Apr 2026 - Mar 2027)."}
+  created_fiscal_year_label: {type: STRING, comment: "Fiscal year label of creation, e.g. FY2026."}
+  created_fiscal_quarter_label: {type: STRING, comment: "Fiscal quarter label of creation, e.g. FY2026-Q2."}
+  is_created_current_fiscal_year: {type: BOOLEAN, comment: "True for opportunities created this fiscal year (FY2026, from 1-Apr-2026)."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  crm_account_id: {type: STRING}
+  owner_rm_code: {type: STRING, comment: "CRM code of the owning RM."}
+  owner_rm_id: {type: STRING, comment: "Employee id of the owning RM; join to gold.dim_employee."}
+  product: {type: STRING, comment: "Product pitched (CRM sales product), e.g. Supply Chain Finance, Term Loan, Green Loan, Trade Finance Line."}
+  product_id: {type: STRING}
+  product_family: {type: STRING}
+  stage: {type: STRING, comment: "Pipeline stage: Prospecting, Qualification, Proposal, Negotiation (open) or Won / Lost (closed)."}
+  stage_order: {type: INT, comment: "Stage sort order 1 (Prospecting) .. 4 (Negotiation), 5 Won, 6 Lost."}
+  status: {type: STRING, comment: "Open, Won or Lost."}
+  is_open: {type: BOOLEAN, comment: "True while the opportunity is open (not won or lost)."}
+  is_closed: {type: BOOLEAN, comment: "True when won or lost."}
+  is_won: {type: BOOLEAN, comment: "True when won - Win Rate % = won / closed."}
+  is_lost: {type: BOOLEAN, comment: "True when lost."}
+  win_probability: {type: DOUBLE, comment: "Win probability of the stage (fraction: 0.10 Prospecting, 0.25 Qualification, 0.45 Proposal, 0.70 Negotiation, 1 Won, 0 Lost)."}
+  amount_usd: {type: DOUBLE, comment: "Deal amount in USD (limit / volume pitched). Pipeline Amount USD."}
+  weighted_amount_usd: {type: DOUBLE, comment: "amount_usd x win_probability in USD - Weighted Pipeline USD (sum over open opportunities)."}
+  expected_revenue_usd: {type: DOUBLE, comment: "Expected annual revenue in USD if won."}
+  weighted_expected_revenue_usd: {type: DOUBLE, comment: "expected_revenue_usd x win_probability in USD."}
+  expected_close_date: {type: DATE, comment: "Expected close date (may lie after Mar-2027)."}
+  expected_close_fiscal_year: {type: INT, comment: "Japanese fiscal year of the expected close."}
+  expected_close_fiscal_quarter_label: {type: STRING, comment: "Fiscal quarter of the expected close, e.g. FY2026-Q3 - Expected Close Quarter."}
+  expected_close_fiscal_half_label: {type: STRING, comment: "Fiscal half of the expected close, e.g. FY2026-H2 (Oct-2026 - Mar-2027)."}
+  actual_close_date: {type: DATE, comment: "Date the opportunity was won or lost; null while open."}
+  actual_close_fiscal_quarter_label: {type: STRING, comment: "Fiscal quarter of the actual close."}
+  cycle_days: {type: INT, comment: "Days from creation to close (closed opportunities) - Average Cycle Days."}
+  open_age_days: {type: INT, comment: "Days open to the as-of date (open opportunities only)."}
+  is_past_expected_close: {type: BOOLEAN, comment: "True for open opportunities whose expected close date has passed (slipped)."}
+  lost_reason: {type: STRING, comment: "Reason recorded for a lost opportunity."}
+  source_type: {type: STRING, comment: "Origin of the opportunity: Signal, RM Originated, Client Request or Referral."}
+  is_signal_sourced: {type: BOOLEAN, comment: "True when the opportunity was created from an opportunity signal."}
+  source_signal_id: {type: STRING, comment: "Source signal (fact_opportunity_signal.signal_id) for signal-sourced opportunities."}
+  source_signal_code: {type: STRING, comment: "Signal type of the source signal, e.g. TRADE_CORRIDOR_GROWTH - Source Signal Type; null when not signal-sourced."}
+  source_signal_name: {type: STRING, comment: "Name of the source signal type."}
+  source_signal_detected_date: {type: DATE, comment: "Detection date of the source signal."}
+  source_corridor_origin: {type: STRING, comment: "Trade corridor origin (ISO-2) of a corridor-growth source signal."}
+  source_corridor_destination: {type: STRING, comment: "Trade corridor destination (ISO-2) of a corridor-growth source signal, e.g. VN or IN."}
+  signal_to_opportunity_days: {type: INT, comment: "Days from signal detection to opportunity creation."}
+  crm_segment: {type: STRING, comment: "Segment recorded on the opportunity in CRM."}
+  crm_relationship_tier: {type: STRING, comment: "Relationship tier recorded on the opportunity in CRM."}
+  booking_country: {type: STRING, comment: "APAC booking location of the deal (ISO-2); join to gold.dim_booking_entity."}
+checks:
+  - name: vn_in_corridor_opportunities_14
+    sql: >-
+      SELECT abs(count(*) - 14) FROM ${table} WHERE source_signal_code = 'TRADE_CORRIDOR_GROWTH'
+      AND source_corridor_destination IN ('VN', 'IN') AND is_created_current_fiscal_year
+  - name: vn_in_corridor_won_6_of_10_closed
+    sql: >-
+      SELECT abs(count_if(is_closed) - 10) + abs(count_if(is_won) - 6) FROM ${table} WHERE source_signal_code = 'TRADE_CORRIDOR_GROWTH'
+      AND source_corridor_destination IN ('VN', 'IN') AND is_created_current_fiscal_year
+  - name: weighted_value_rule
+    sql: SELECT count_if(abs(weighted_amount_usd - amount_usd * win_probability) > 0.01) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_opportunity
+  - name: amount_vs_silver
+    gold: SELECT sum(amount_usd) FROM ${table}
+    silver: SELECT sum(amount_usd) FROM ${catalog}.silver.crm_opportunity
+    tolerance: 1

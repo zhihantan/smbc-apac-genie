@@ -1,0 +1,73 @@
+{
+ "columns": [
+  {
+   "comment": "ISO 3166-1 alpha-2 country code.",
+   "is_measure": false,
+   "name": "country_code",
+   "type": "string"
+  },
+  {
+   "comment": "Country name in English (e.g. Vietnam).",
+   "is_measure": false,
+   "name": "country_name",
+   "type": "string"
+  },
+  {
+   "comment": "Region: APAC, JP (Japan head-office region), EMEA or AMER.",
+   "is_measure": false,
+   "name": "region",
+   "type": "string"
+  },
+  {
+   "comment": "Sub-region, e.g. Southeast Asia, Greater China, North Asia, South Asia, Oceania, Europe, Middle East, Africa, North America, Latin America.",
+   "is_measure": false,
+   "name": "sub_region",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC countries outside Japan (Japan is the separate JP region).",
+   "is_measure": false,
+   "name": "is_apac",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for ASEAN member states.",
+   "is_measure": false,
+   "name": "is_asean",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the 13 APAC countries where SMBC books business (Singapore hub plus 12 locations).",
+   "is_measure": false,
+   "name": "is_booking_location",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for Singapore, the APAC hub.",
+   "is_measure": false,
+   "name": "is_hub",
+   "type": "boolean"
+  },
+  {
+   "comment": "City of the SMBC booking entity (booking locations and Tokyo HO only).",
+   "is_measure": false,
+   "name": "booking_city",
+   "type": "string"
+  },
+  {
+   "comment": "Banking regulator of the booking location (illustrative: MAS, HKMA, ...); null elsewhere.",
+   "is_measure": false,
+   "name": "regulator",
+   "type": "string"
+  },
+  {
+   "comment": "ISO 4217 local currency of the booking location; null elsewhere.",
+   "is_measure": false,
+   "name": "local_currency",
+   "type": "string"
+  }
+ ],
+ "comment": "Countries referenced anywhere in the Customer 360 (client incorporation, booking locations, payment and trade counterparties, trade corridors, EMEA / AMER subsidiaries) with region (APAC, JP, EMEA, AMER), sub-region and, for the 13 APAC booking locations, city, regulator and local currency. Grain: one row per ISO-2 country code.",
+ "identifier": "smbc_genie.gold.dim_country",
+ "type": "MANAGED"
+}

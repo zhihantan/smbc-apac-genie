@@ -1,0 +1,87 @@
+table: mvb_entity_resolution
+domain: foundation
+comment: >-
+  Metric-view base for entity resolution (D13 record_type union; source of mv_entity_resolution). Three
+  record types share one table: source_record (one row per ER run x source identity record - match method,
+  rule and score, attached to the record's current golden client so segment and coverage office work for
+  every run), run_source (one row per run x source system plus ALL - pairwise precision / recall / purity
+  against the synthetic truth) and steward_item (one row per steward review item - decision, status, aging).
+  Counter columns (record_count, matched_count, ..., steward_open_count) are 1 only on their own record type
+  and 0 elsewhere, so SUM never double counts; pair counts and precision / recall exist only on run_source
+  rows - compute them within one source system or on the ALL row (is_all_sources_row).
+grain: one row per record_type row (ER run x source record, ER run x source system, or steward item)
+primary_key: [mvb_row_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [run_date], references: dim_date}
+  - {columns: [assigned_to_employee_id], references: dim_employee}
+cluster_by: [run_date, record_type]
+min_rows: 50000
+columns:
+  mvb_row_id: {type: STRING, comment: "Row key: REC|<run>|<source system>|<source id>, RUN|<run>|<source system> or STW|<steward item id>."}
+  record_type: {type: STRING, comment: "source_record (ER run x source record), run_source (ER run x source system incl. ALL) or steward_item (steward review item)."}
+  run_id: {type: STRING, comment: "ER run id ER-yyyymmdd (steward items: the run that raised them)."}
+  run_date: {type: DATE, comment: As-of date of the ER run (the grain date; 30-Jun-2025 .. 30-Sep-2026 quarterly).}
+  rule_version: {type: STRING, comment: Rule set of the run (v1 or v2).}
+  run_seq: {type: INT, comment: Run sequence 1-6 in date order.}
+  is_latest_run: {type: BOOLEAN, comment: True for rows of the latest run (ER-20260930).}
+  source_system: {type: STRING, comment: "Identity source system of the record (steward items: of the left candidate); ALL on the run_source row for the whole run."}
+  is_all_sources_row: {type: BOOLEAN, comment: True only on run_source rows with source_system = ALL (run totals).}
+  golden_client_sk: BIGINT
+  golden_client_id: {type: STRING, comment: "Current golden client of the record (latest run; steward items: of the left candidate); null on run_source rows."}
+  run_golden_client_id: {type: STRING, comment: Golden id the record had in that run (source_record rows; may since have been merged into another id).}
+  client_group_id: STRING
+  source_id: {type: STRING, comment: "Record id in its source system (steward items: the left candidate)."}
+  match_method: {type: STRING, comment: "How the record was resolved in the run (source_record rows): deterministic, fuzzy, steward or unmatched."}
+  match_rule: {type: STRING, comment: "Rule that linked the record, e.g. deterministic_lei, deterministic_tax_country, deterministic_name_country, fuzzy_auto, steward_match, unmatched."}
+  match_score: {type: DOUBLE, comment: "Score of the accepted link 0-1 (steward items: the pair score)."}
+  cluster_size: {type: INT, comment: Records in the record's golden cluster in that run.}
+  record_count: {type: INT, comment: 1 on source_record rows (Records In = SUM).}
+  matched_count: {type: INT, comment: 1 when the record was matched (deterministic / fuzzy / steward) - Matched = SUM; Match Rate = SUM(matched_count) / SUM(record_count).}
+  deterministic_count: {type: INT, comment: 1 when matched deterministically.}
+  fuzzy_count: {type: INT, comment: 1 when matched by automatic fuzzy matching - Fuzzy Share = SUM(fuzzy_count) / SUM(matched_count).}
+  steward_resolved_count: {type: INT, comment: 1 when matched through a steward decision.}
+  unmatched_count: {type: INT, comment: 1 when the record stayed unmatched (a singleton golden record).}
+  duplicate_merged_count: {type: INT, comment: 1 for a within-source duplicate merged into a golden record that already holds a record of the same source (Duplicates Merged = SUM).}
+  new_record_count: {type: INT, comment: 1 when the record was new in that run.}
+  golden_record_count: {type: INT, comment: "1 on exactly one record per run x golden id - Golden Records = SUM."}
+  steward_item_count: {type: INT, comment: 1 on steward_item rows.}
+  steward_decided_count: {type: INT, comment: 1 for decided steward items (Steward Decisions = SUM).}
+  steward_open_count: {type: INT, comment: 1 for steward items open at 30-Sep-2026 (Steward Queue Open = SUM).}
+  steward_match_count: {type: INT, comment: 1 for steward items decided as Match.}
+  steward_item_id: {type: STRING, comment: Steward review item id (steward_item rows).}
+  steward_decision: {type: STRING, comment: "Steward decision Match / No Match (null while open)."}
+  steward_status: {type: STRING, comment: "Steward item status Open / Decided."}
+  days_open: {type: INT, comment: Days the steward item has been / was open.}
+  aging_bucket: {type: STRING, comment: "Steward queue aging bucket: 0-7 days, 8-30 days, 31-90 days, 91-180 days or Over 180 days."}
+  aging_bucket_order: {type: INT, comment: Sort order 1-5 of aging_bucket.}
+  assigned_to_employee_id: {type: STRING, comment: Data steward assigned (steward_item rows); join gold.dim_employee.}
+  true_pairs: {type: BIGINT, comment: Same-entity pairs per the synthetic truth (run_source rows).}
+  predicted_pairs: {type: BIGINT, comment: Pairs the run put in one golden record (run_source rows).}
+  tp_pairs: {type: BIGINT, comment: "Predicted pairs that are true (run_source rows) - Precision = SUM(tp_pairs) / SUM(predicted_pairs), Recall = SUM(tp_pairs) / SUM(true_pairs) within one source system or the ALL row."}
+  candidate_pairs: {type: BIGINT, comment: Candidate pairs scored by the run (run_source rows).}
+  run_golden_records: {type: BIGINT, comment: Golden records holding the source (run_source rows; ALL = golden records of the run).}
+  precision: {type: DOUBLE, comment: Pairwise precision of the run for the source system (run_source rows; fraction).}
+  recall: {type: DOUBLE, comment: Pairwise recall of the run for the source system (run_source rows; fraction).}
+  purity: {type: DOUBLE, comment: Cluster purity of the run (ALL row only; fraction).}
+checks:
+  - name: counters_match_run_log      # every run: SUMs over source_record rows = the ALL row of the run log
+    sql: >-
+      SELECT count(*) FROM (SELECT run_id, sum(record_count) AS rec, sum(matched_count) AS mat, sum(fuzzy_count) AS fz,
+        sum(duplicate_merged_count) AS dup, sum(golden_record_count) AS gold FROM ${table} WHERE record_type = 'source_record'
+        GROUP BY run_id) b
+      JOIN ${catalog}.gold.fact_entity_resolution_run r ON r.run_id = b.run_id AND r.source_system = 'ALL'
+      WHERE b.rec <> r.records_in OR b.mat <> r.matched_total OR b.fz <> r.matched_fuzzy
+         OR b.dup <> r.duplicates_merged OR b.gold <> r.golden_records
+  - name: counters_only_on_own_type
+    sql: >-
+      SELECT count_if(record_type <> 'source_record' AND record_count + matched_count + golden_record_count > 0)
+           + count_if(record_type <> 'steward_item' AND steward_item_count + steward_open_count > 0) FROM ${table}
+  - name: source_records_have_client
+    sql: SELECT count_if(record_type <> 'run_source' AND golden_client_sk IS NULL) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: >-
+      SELECT (SELECT count(*) FROM ${catalog}.silver.er_cluster_membership) + (SELECT count(*) FROM ${catalog}.ops.entity_resolution_runs)
+           + (SELECT count(*) FROM ${catalog}.silver.steward_queue)

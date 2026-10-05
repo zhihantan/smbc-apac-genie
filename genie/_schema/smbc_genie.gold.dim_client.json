@@ -1,0 +1,331 @@
+{
+ "columns": [
+  {
+   "comment": "Surrogate key of this version = numeric part of golden_client_id x 1000 + version_no (e.g. 1003 = GC-000001 version 3). Facts reference it for the client attributes as they were on the fact date.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "SCD2 version number 1..n in valid_from order (1 = from the start of the relationship).",
+   "is_measure": false,
+   "name": "version_no",
+   "type": "int"
+  },
+  {
+   "comment": "First day the version is valid (first day of a calendar month; version 1 starts at relationship_start_date's month or 1-Apr-2023).",
+   "is_measure": false,
+   "name": "valid_from",
+   "type": "date"
+  },
+  {
+   "comment": "Last day the version is valid (month-end); 9999-12-31 for the current version.",
+   "is_measure": false,
+   "name": "valid_to",
+   "type": "date"
+  },
+  {
+   "comment": "True for the version valid at the as-of date (exactly one per golden client) - use it for today's view.",
+   "is_measure": false,
+   "name": "is_current",
+   "type": "boolean"
+  },
+  {
+   "comment": "Survived legal name (priority: external company master > KYC > credit > core > CRM > trade > treasury).",
+   "is_measure": false,
+   "name": "legal_name",
+   "type": "string"
+  },
+  {
+   "comment": "Name without location and legal form, e.g. Kinokawa Precision - use LIKE '%...%' to find a client.",
+   "is_measure": false,
+   "name": "short_name",
+   "type": "string"
+  },
+  {
+   "comment": "Unique display label keeping the location, e.g. Kinokawa Precision (Singapore) Pte Ltd.",
+   "is_measure": false,
+   "name": "display_name",
+   "type": "string"
+  },
+  {
+   "comment": "Other names the source records use for this client (array; see aliases_text).",
+   "is_measure": false,
+   "name": "aliases",
+   "type": "array"
+  },
+  {
+   "comment": "Aliases as one ' | '-separated string (for LIKE searches and metric views).",
+   "is_measure": false,
+   "name": "aliases_text",
+   "type": "string"
+  },
+  {
+   "comment": "Survived fictional LEI-like identifier (SYNLEI...); null when no source holds one.",
+   "is_measure": false,
+   "name": "lei_like_id",
+   "type": "string"
+  },
+  {
+   "comment": "ISO-2 country of incorporation (survived across sources).",
+   "is_measure": false,
+   "name": "country_of_incorporation",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group short brand (e.g. Kinokawa Precision) from the Tokyo HO group master.",
+   "is_measure": false,
+   "name": "group_name",
+   "type": "string"
+  },
+  {
+   "comment": "Immediate parent (group-master key) as recorded by the most authoritative source.",
+   "is_measure": false,
+   "name": "immediate_parent_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  },
+  {
+   "comment": "Where segment came from: crm_account, relationship_pnl, crm_opportunity, kyc_case, group_majority (other clients of the group) or ho_group_master (Tokyo HO segment mapped to APAC).",
+   "is_measure": false,
+   "name": "segment_source",
+   "type": "string"
+  },
+  {
+   "comment": "True when segment = Japanese Corporate (APAC subsidiaries of Japanese groups).",
+   "is_measure": false,
+   "name": "is_japanese_corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional.",
+   "is_measure": false,
+   "name": "relationship_tier",
+   "type": "string"
+  },
+  {
+   "comment": "Where relationship_tier came from: relationship_pnl, crm_opportunity, account_plan (group plan priority High / Medium / Low), group_majority or ho_group_master.",
+   "is_measure": false,
+   "name": "tier_source",
+   "type": "string"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_sector",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Where the industry came from: relationship_pnl, credit_ratio_peer_group, group_majority or ho_group_master (HO industry label mapped to the APAC taxonomy).",
+   "is_measure": false,
+   "name": "industry_source",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client's industry subsector is carbon-intensive.",
+   "is_measure": false,
+   "name": "is_carbon_intensive",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the external company master records the entity as listed.",
+   "is_measure": false,
+   "name": "is_listed",
+   "type": "boolean"
+  },
+  {
+   "comment": "Coverage office = the client's APAC booking location (ISO-2 country code, e.g. SG, HK); join to gold.dim_booking_entity.booking_entity_id.",
+   "is_measure": false,
+   "name": "coverage_office",
+   "type": "string"
+  },
+  {
+   "comment": "Country name of the coverage office (e.g. Hong Kong, Vietnam).",
+   "is_measure": false,
+   "name": "coverage_office_name",
+   "type": "string"
+  },
+  {
+   "comment": "Primary RM (employee_id) at the version's month-ends: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "primary_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code (RM001-RM120) of the primary RM.",
+   "is_measure": false,
+   "name": "primary_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the primary RM (fictional).",
+   "is_measure": false,
+   "name": "primary_rm_name",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location) of the primary RM, e.g. SG - for RM-book questions such as RMs in Singapore.",
+   "is_measure": false,
+   "name": "primary_rm_office",
+   "type": "string"
+  },
+  {
+   "comment": "crm_account_team (client's own CRM coverage), group_account_plan (owner of the group plan) or null.",
+   "is_measure": false,
+   "name": "primary_rm_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Credit analyst (employee_id) on the client's latest credit review to the as-of date, else the CRM team credit analyst (current; not versioned).",
+   "is_measure": false,
+   "name": "credit_analyst_id",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the credit analyst (fictional).",
+   "is_measure": false,
+   "name": "credit_analyst_name",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 (1 best, 10 default) in force at the version's month-ends; null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "internal_rating_grade",
+   "type": "int"
+  },
+  {
+   "comment": "External-scale equivalent of the internal grade (AAA ... D) in force at the month-ends.",
+   "is_measure": false,
+   "name": "rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "IFRS 9 stage 1, 2 (significant deterioration) or 3 (credit-impaired / default) in force at the month-ends; null = not rated.",
+   "is_measure": false,
+   "name": "ifrs9_stage",
+   "type": "int"
+  },
+  {
+   "comment": "Agency rating of the client's group issuer at the month-ends (primary agency first; fictional agencies); null = unrated group.",
+   "is_measure": false,
+   "name": "external_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Fictional agency of external_rating.",
+   "is_measure": false,
+   "name": "external_rating_agency",
+   "type": "string"
+  },
+  {
+   "comment": "Final EWS band (after overrides) on the last scored day of the month: Green (< 40), Amber (40-69) or Red (>= 70); null = not scored (no credit relationship, or before daily scoring started in Apr-2025).",
+   "is_measure": false,
+   "name": "ews_band",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the month-ends (watchlist register; false = not on the watchlist).",
+   "is_measure": false,
+   "name": "watchlist_flag",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High in force at the month-ends (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "kyc_risk_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Due date of the next KYC review (periodic or trigger) not completed at the month-ends; a past date means the review is overdue.",
+   "is_measure": false,
+   "name": "kyc_next_review_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the client's group has an account plan for the fiscal year of the version's months.",
+   "is_measure": false,
+   "name": "has_account_plan",
+   "type": "boolean"
+  },
+  {
+   "comment": "Customer-since date recorded by the KYC platform (earliest across the client's KYC records).",
+   "is_measure": false,
+   "name": "onboarding_date",
+   "type": "date"
+  },
+  {
+   "comment": "Earliest evidence of the banking relationship: KYC customer-since, first account opening, first facility origination or first CRM coverage.",
+   "is_measure": false,
+   "name": "relationship_start_date",
+   "type": "date"
+  },
+  {
+   "comment": "ESG risk derived in gold as of 30-Sep-2026: High = carbon-intensive subsector with an ESG-controversy news item in the last 12 months, Medium = one of the two, Low = neither.",
+   "is_measure": false,
+   "name": "esg_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Identity source systems holding a record of this client (array; see source_systems_text).",
+   "is_measure": false,
+   "name": "source_systems_present",
+   "type": "array"
+  },
+  {
+   "comment": "Source systems as one comma-separated string (e.g. ext_company_master, kyc_customer, core_customer).",
+   "is_measure": false,
+   "name": "source_systems_text",
+   "type": "string"
+  },
+  {
+   "comment": "Source identity records resolved to the client (duplicates within a source included).",
+   "is_measure": false,
+   "name": "n_source_records",
+   "type": "int"
+  },
+  {
+   "comment": "0-1 confidence of the golden record: 0.5 link strength + 0.25 source coverage + 0.25 id agreement.",
+   "is_measure": false,
+   "name": "golden_record_confidence",
+   "type": "double"
+  },
+  {
+   "comment": "Date of the entity-resolution run that issued the golden id.",
+   "is_measure": false,
+   "name": "golden_created_date",
+   "type": "date"
+  }
+ ],
+ "comment": "Customer 360 golden client hub (SCD2, D11): one golden client = one legal entity resolved across core banking, CRM, KYC, credit, trade, treasury and the external company master. Identity comes from entity resolution (silver.client_golden_identity); segment, tier, industry and coverage office are resolved once (best source first, then the client group, then the Tokyo HO group master); month-end states of primary RM, internal rating / IFRS 9 stage, EWS band, watchlist, KYC risk / next review, account plan and external rating are collapsed into versions with valid_from / valid_to / is_current. Facts carry the golden_client_sk of the version valid on their date (as-was); is_current = true gives today's view (as of 30-Sep-2026). Arrays (aliases, source_systems_present) also exist as text copies. Grain: one row per golden client version (calendar-month validity; current version open-ended to 9999-12-31).",
+ "identifier": "smbc_genie.gold.dim_client",
+ "type": "MANAGED"
+}

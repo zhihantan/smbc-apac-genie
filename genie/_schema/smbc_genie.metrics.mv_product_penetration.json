@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "Japanese fiscal year as a number (2026 = FY2026 = Apr 2026 - Mar 2027); the order field for prior-year comparisons (offset -1).",
+   "is_measure": false,
+   "name": "Fiscal Year Number",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label of the penetration year, April to March: FY2026 = Apr 2026 - Mar 2027 (in progress, H1 closed 30-Sep-2026), FY2025 = Apr 2025 - Mar 2026 (the latest complete year).",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "True for FY2026, the fiscal year containing the as-of date 30-Sep-2026 (\"this fiscal year\").",
+   "is_measure": false,
+   "name": "Is Latest Fiscal Year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group of the client = its industry subsector (e.g. Auto Parts, Semiconductors).",
+   "is_measure": false,
+   "name": "Peer Group",
+   "type": "string"
+  },
+  {
+   "comment": "Product family - Corporate Lending, Structured Lending, Trade Finance, Supply Chain Finance, Cash, Liquidity, Payments, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "Product Family",
+   "type": "string"
+  },
+  {
+   "comment": "Core product, e.g. Time Deposit, Notional Pooling, Term Loan, Import LC, FX Forward, Payables Finance.",
+   "is_measure": false,
+   "name": "Product",
+   "type": "string"
+  },
+  {
+   "comment": "Lending, Transaction Banking, Markets or Sustainable Finance.",
+   "is_measure": false,
+   "name": "Business Line",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client held or used the product in the fiscal year.",
+   "is_measure": false,
+   "name": "Holds Product",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client does not hold the product while at least half of its peer group does.",
+   "is_measure": false,
+   "name": "Has Gap vs Peers",
+   "type": "boolean"
+  },
+  {
+   "comment": "Clients with an active relationship in the fiscal year (the penetration base).",
+   "is_measure": true,
+   "name": "Clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client-product pairs held in the fiscal year.",
+   "is_measure": true,
+   "name": "Holdings",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of the selected clients holding the product in the fiscal year (fraction).",
+   "is_measure": true,
+   "name": "Penetration %",
+   "type": "double"
+  },
+  {
+   "comment": "Share of the clients' peer groups holding the product (fraction) - the benchmark.",
+   "is_measure": true,
+   "name": "Peer Penetration %",
+   "type": "double"
+  },
+  {
+   "comment": "Peer penetration minus own penetration (fraction; 0.10 = 10 percentage points under-penetrated).",
+   "is_measure": true,
+   "name": "Penetration Gap pts",
+   "type": "double"
+  },
+  {
+   "comment": "Clients without the product while at least half of their peer group holds it. A product is under-penetrated when Clients With Gap > 0 OR Gap vs All Clients pts > 0.05.",
+   "is_measure": true,
+   "name": "Clients With Gap",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of the clients' industry sector (all subsectors) holding the product (fraction).",
+   "is_measure": true,
+   "name": "Sector Penetration %",
+   "type": "double"
+  },
+  {
+   "comment": "Sector penetration minus own penetration (fraction; positive = under-penetrated vs the sector).",
+   "is_measure": true,
+   "name": "Gap vs Sector pts",
+   "type": "double"
+  },
+  {
+   "comment": "Share of all active SMBC APAC clients holding the product (fraction) - the bank-wide benchmark.",
+   "is_measure": true,
+   "name": "All-Client Penetration %",
+   "type": "double"
+  },
+  {
+   "comment": "Bank-wide penetration minus own penetration (fraction; positive = under-penetrated vs the APAC book). A product is under-penetrated when this is above 0.05 (5 points) OR Clients With Gap > 0.",
+   "is_measure": true,
+   "name": "Gap vs All Clients pts",
+   "type": "double"
+  },
+  {
+   "comment": "Clients without the product while at least half of all APAC clients hold it.",
+   "is_measure": true,
+   "name": "Clients With Gap vs All Clients",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Product penetration of SMBC APAC clients vs peers, FY2024-FY2026 (FY2026 to date): for each client and core product, whether the client holds or used it in the year, and how widely its peer group (same industry subsector), its industry sector and all APAC clients hold it. Penetration % = share of the selected clients holding the product; Peer Penetration % = the peers' rate; Gap pts = peer - own (positive = under-penetrated); Clients With Gap = clients without the product while >= 50% of their peers hold it. Rates are per fiscal year (a multi-year selection returns the latest year). When the selection is a whole peer group (e.g. Japanese automotive-parts subsidiaries - every Auto Parts client is a Japanese corporate) the peer gap nets to 0: read Clients With Gap and the sector / all-client gaps. \"Which products are under-penetrated\" = products with Clients With Gap > 0 OR Gap vs All Clients pts > 0.05 (more than 5 points below the APAC book). Grain: one row per golden client x core product x fiscal year (gold.fact_client_product_penetration_annual).",
+ "identifier": "smbc_genie.metrics.mv_product_penetration",
+ "type": "METRIC_VIEW"
+}

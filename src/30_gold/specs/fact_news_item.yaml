@@ -1,0 +1,71 @@
+table: fact_news_item
+domain: signals
+comment: >-
+  External news items about APAC clients (fictional news vendor, synthetic text): headline, summary, topic
+  (Expansion, M&A, Earnings, Management Change, Rating Action, Regulatory, Litigation, ESG Controversy,
+  Supply-Chain Disruption), vendor sentiment score -1..1 (synthetic, D18) with its label (Negative <= -0.2,
+  Positive >= 0.2), relevance and the signal code it raises in the unified feed (fact_signal_event). Each
+  item is tagged to one golden client (and its group). Flow fact: count items and average the sentiment;
+  window flags (last 30 / 90 days, prior 90 days) are relative to the as-of date 30-Sep-2026.
+grain: one row per news item
+primary_key: [news_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [published_date], references: dim_date}
+  - {columns: [signal_code], references: dim_signal_type}
+cluster_by: [published_date, golden_client_sk]
+min_rows: 1000
+columns:
+  news_id: {type: STRING, comment: "News item id from the news vendor feed (NEWS-...)."}
+  published_date: {type: DATE, comment: Date the item was published (the grain date).}
+  published_ts: {type: TIMESTAMP, comment: Publication timestamp (UTC) as delivered by the vendor.}
+  month: {type: DATE, comment: First day of the calendar month of publication.}
+  golden_client_sk: BIGINT
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: STRING
+  company_id: {type: STRING, comment: External company-master id (ext_company_master) the vendor tagged the item to.}
+  issuer_id: {type: STRING, comment: "Listed-parent / rated-issuer id of the group when the vendor tagged one (joins fact_market_signal_daily.issuer_id); null otherwise."}
+  outlet: {type: STRING, comment: "Fictional news outlet, e.g. Kilowatt Asia Monitor, Bluewater Freight Journal."}
+  source_type: {type: STRING, comment: "News source type: Business Press, Newswire, Trade Press or Company Filing."}
+  headline: {type: STRING, comment: Synthetic headline (at most 20 words; fictional entities only).}
+  summary: {type: STRING, comment: Synthetic one-sentence summary (at most 40 words).}
+  topic: {type: STRING, comment: "News topic: Expansion, M&A, Earnings, Management Change, Rating Action, Regulatory, Litigation, ESG Controversy or Supply-Chain Disruption."}
+  subtopic: {type: STRING, comment: "Finer topic, e.g. Coal Regulation, Market Entry, Results In Line, Data Centre Build-out."}
+  signal_code: {type: STRING, comment: "Unified-feed signal code raised by the item (NEWS_<TOPIC>, e.g. NEWS_EXPANSION, NEWS_REGULATORY); join gold.dim_signal_type."}
+  signal_polarity: {type: STRING, comment: "Polarity of the item as a signal: Opportunity (sentiment >= 0.2), Risk (sentiment <= -0.2), else the signal type's default polarity (Opportunity, Risk or Neutral)."}
+  sentiment_score: {type: DOUBLE, comment: "Vendor sentiment score -1 (very negative) .. +1 (very positive); synthetic, deterministic (D18). Average it, never sum."}
+  sentiment_label: {type: STRING, comment: "Sentiment label from the score: Negative (<= -0.2), Positive (>= 0.2) or Neutral."}
+  is_negative: {type: BOOLEAN, comment: True when the sentiment score is <= -0.2 (a negative item).}
+  is_positive: {type: BOOLEAN, comment: True when the sentiment score is >= 0.2 (a positive item).}
+  relevance: {type: DOUBLE, comment: Vendor relevance of the item to the client 0-1 (1 = the client is the main subject).}
+  region: {type: STRING, comment: "ISO-2 country the item reports from (e.g. SG, ID, AU)."}
+  language: {type: STRING, comment: Language of the item (en).}
+  sector_theme: {type: STRING, comment: "Sector cycle theme of the client's industry: Coal (Oil, Gas & Coal and Mining), Shipping, Renewables (Renewables and Power Generation), Data Centres & Digital, or Other - for coal / shipping / renewables sentiment trends."}
+  days_before_as_of: {type: INT, comment: "Days between the publication date and the as-of date 30-Sep-2026 (0 = as-of day); last N days = days_before_as_of < N."}
+  is_last_30d: {type: BOOLEAN, comment: True for items published in the 30 days to 30-Sep-2026 (1-Sep-2026 .. 30-Sep-2026).}
+  is_last_90d: {type: BOOLEAN, comment: True for items published in the 90 days to 30-Sep-2026 (3-Jul-2026 .. 30-Sep-2026).}
+  is_prior_90d: {type: BOOLEAN, comment: True for items published in the 90 days before that window (4-Apr-2026 .. 2-Jul-2026) - compare with is_last_90d for a sentiment change.}
+  group_sentiment_last_90d: {type: DOUBLE, comment: "Average sentiment of all news on the client's group in the last 90 days to 30-Sep-2026 (group attribute as of today, same on every row of the group; null = no recent news)."}
+  group_sentiment_prior_90d: {type: DOUBLE, comment: "Average sentiment of the group's news in the prior 90 days (4-Apr-2026 .. 2-Jul-2026); null = none."}
+  is_group_negative_trend: {type: BOOLEAN, comment: "True when the group's last-90-day average sentiment is below zero and below its prior-90-day average (or it had no earlier news) - a group with a negative news trend as of 30-Sep-2026."}
+checks:
+  - name: sunda_jan_coal_items        # storyline 1: 8 coal-regulation items in Jan-2026, sentiment -0.7 .. -0.5
+    sql: >-
+      SELECT abs(count(*) - 8) + count_if(sentiment_score NOT BETWEEN -0.7 AND -0.5) FROM ${table}
+      WHERE client_group_id = 'SYN-G-0004' AND subtopic = 'Coal Regulation'
+      AND published_date BETWEEN DATE'2026-01-01' AND DATE'2026-01-31'
+  - name: banksia_expansion_sentiment # storyline 10: average sentiment of the expansion news Apr-Jul 2026 >= 0.6
+    sql: >-
+      SELECT CASE WHEN avg(sentiment_score) >= 0.6 THEN 0 ELSE 1 END FROM ${table}
+      WHERE client_group_id = 'SYN-G-0006' AND topic = 'Expansion'
+      AND published_date BETWEEN DATE'2026-04-01' AND DATE'2026-07-31'
+  - name: every_item_coded
+    sql: SELECT count_if(signal_code IS NULL OR golden_client_sk IS NULL) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.ext_news WHERE published_date <= DATE'${as_of_date}'
+  - name: sentiment_sum_vs_silver
+    gold: SELECT round(sum(sentiment_score), 3) FROM ${table}
+    silver: SELECT round(sum(raw_sentiment), 3) FROM ${catalog}.silver.ext_news WHERE published_date <= DATE'${as_of_date}'
+    tolerance: 0.01

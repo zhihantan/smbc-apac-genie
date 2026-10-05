@@ -1,0 +1,198 @@
+{
+  "slug": "signals_sentiment",
+  "title": "APAC Genie - Signals & Sentiment",
+  "description": "Ask about news sentiment, RM-note sentiment, market signals on listed parents and the unified signal feed for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_news_sentiment",
+    "smbc_genie.metrics.mv_internal_sentiment",
+    "smbc_genie.metrics.mv_market_signals",
+    "smbc_genie.metrics.mv_signal_feed",
+    "smbc_genie.gold.dim_signal_type",
+    "smbc_genie.gold.dim_client_group",
+    "smbc_genie.gold.vw_client_360"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_news_sentiment.Client Group",
+    "smbc_genie.metrics.mv_news_sentiment.Segment",
+    "smbc_genie.metrics.mv_news_sentiment.Relationship Tier",
+    "smbc_genie.metrics.mv_news_sentiment.Industry",
+    "smbc_genie.metrics.mv_news_sentiment.Subsector",
+    "smbc_genie.metrics.mv_news_sentiment.Coverage Office",
+    "smbc_genie.metrics.mv_news_sentiment.Primary RM",
+    "smbc_genie.metrics.mv_news_sentiment.Primary RM Office",
+    "smbc_genie.metrics.mv_news_sentiment.KYC Risk Rating",
+    "smbc_genie.metrics.mv_news_sentiment.EWS Band",
+    "smbc_genie.metrics.mv_news_sentiment.Topic",
+    "smbc_genie.metrics.mv_news_sentiment.Subtopic",
+    "smbc_genie.metrics.mv_news_sentiment.Source Type",
+    "smbc_genie.metrics.mv_news_sentiment.News Region",
+    "smbc_genie.metrics.mv_news_sentiment.Sentiment Polarity",
+    "smbc_genie.metrics.mv_news_sentiment.Sector Theme",
+    "smbc_genie.metrics.mv_internal_sentiment.Client Group",
+    "smbc_genie.metrics.mv_internal_sentiment.Segment",
+    "smbc_genie.metrics.mv_internal_sentiment.Relationship Tier",
+    "smbc_genie.metrics.mv_internal_sentiment.Industry",
+    "smbc_genie.metrics.mv_internal_sentiment.Subsector",
+    "smbc_genie.metrics.mv_internal_sentiment.Coverage Office",
+    "smbc_genie.metrics.mv_internal_sentiment.Primary RM",
+    "smbc_genie.metrics.mv_internal_sentiment.Primary RM Office",
+    "smbc_genie.metrics.mv_internal_sentiment.KYC Risk Rating",
+    "smbc_genie.metrics.mv_internal_sentiment.EWS Band",
+    "smbc_genie.metrics.mv_internal_sentiment.Note RM",
+    "smbc_genie.metrics.mv_internal_sentiment.Note Topic",
+    "smbc_genie.metrics.mv_internal_sentiment.Sentiment Polarity",
+    "smbc_genie.metrics.mv_internal_sentiment.AI Sentiment Label",
+    "smbc_genie.metrics.mv_internal_sentiment.Action Status",
+    "smbc_genie.metrics.mv_market_signals.Client Group",
+    "smbc_genie.metrics.mv_market_signals.Segment",
+    "smbc_genie.metrics.mv_market_signals.Relationship Tier",
+    "smbc_genie.metrics.mv_market_signals.Industry",
+    "smbc_genie.metrics.mv_market_signals.Subsector",
+    "smbc_genie.metrics.mv_market_signals.Coverage Office",
+    "smbc_genie.metrics.mv_market_signals.Primary RM",
+    "smbc_genie.metrics.mv_market_signals.Primary RM Office",
+    "smbc_genie.metrics.mv_market_signals.KYC Risk Rating",
+    "smbc_genie.metrics.mv_market_signals.EWS Band",
+    "smbc_genie.metrics.mv_market_signals.Listed Parent",
+    "smbc_genie.metrics.mv_market_signals.External Rating",
+    "smbc_genie.metrics.mv_market_signals.Outlook",
+    "smbc_genie.metrics.mv_signal_feed.Client Group",
+    "smbc_genie.metrics.mv_signal_feed.Segment",
+    "smbc_genie.metrics.mv_signal_feed.Relationship Tier",
+    "smbc_genie.metrics.mv_signal_feed.Industry",
+    "smbc_genie.metrics.mv_signal_feed.Subsector",
+    "smbc_genie.metrics.mv_signal_feed.Coverage Office",
+    "smbc_genie.metrics.mv_signal_feed.Primary RM",
+    "smbc_genie.metrics.mv_signal_feed.Primary RM Office",
+    "smbc_genie.metrics.mv_signal_feed.KYC Risk Rating",
+    "smbc_genie.metrics.mv_signal_feed.EWS Band",
+    "smbc_genie.metrics.mv_signal_feed.Signal Type",
+    "smbc_genie.metrics.mv_signal_feed.Polarity",
+    "smbc_genie.metrics.mv_signal_feed.Source Quadrant",
+    "smbc_genie.metrics.mv_signal_feed.Consumed By",
+    "smbc_genie.metrics.mv_signal_feed.Source Feed",
+    "smbc_genie.metrics.mv_signal_feed.Source Region",
+    "smbc_genie.gold.dim_signal_type.signal_code",
+    "smbc_genie.gold.dim_signal_type.signal_category",
+    "smbc_genie.gold.dim_signal_type.polarity",
+    "smbc_genie.gold.dim_signal_type.source_system",
+    "smbc_genie.gold.dim_signal_type.consumed_by",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_client_group.group_segment",
+    "smbc_genie.gold.dim_client_group.lead_office",
+    "smbc_genie.gold.dim_client_group.lead_rm_name",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.vw_client_360.primary_rm_name"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- Views: mv_signal_feed = every signal (CRM opportunity, EWS, news, market, agency and JP-parent ratings, RM notes) by Source Feed / Signal Type / Polarity / Acknowledged / Has Pipeline; mv_news_sentiment = news items and sentiment by Topic / Subtopic / Sector Theme; mv_internal_sentiment = RM call notes, divergence and blind spots; mv_market_signals = listed parents (share price, CDS, 52-week lows, ratings, APAC exposure).\n- \"Everything about <group> in the last N days\" = mv_signal_feed by Source Feed and Signal Type (or fn_group_signal_digest); its news, RM-note and market picture = the CTE example or fn_group_sentiment_snapshot. Match the group with `Client Group` LIKE '%<full group name>%'.\n- Sentiment runs -1..+1 (negative <= -0.2, positive >= 0.2) and is always averaged, never summed. Sentiment Last 30D / 90D, Sentiment Change 30D / 90D, Groups With Negative Trend, Blind Spot Groups and Group News / Note Sentiment Last 90D are fixed to 30-Sep-2026: use them without a Date filter (a Date filter that cuts their window returns null).\n- Market measures (share price and CDS changes, Groups at 52-Week Low, APAC Exposure USD, rating and outlook in force) are point-in-time: filter `Date` = DATE'2026-09-30' for today. \"At a 52-week low with APAC exposure above USD 100m\" = `At 52-Week Low` AND `APAC Exposure Above 100m`.\n- Blind spots = groups with MEASURE(`Blind Spot Groups`) > 0 in mv_internal_sentiment (news turned negative while RM notes stayed positive), see fn_sentiment_blind_spots. \"Coal and shipping sectors\" = `Sector Theme` IN ('Coal', 'Shipping').\n- \"Rating actions from JP-shared parent data\" = mv_signal_feed `Source Region` = 'JP' (PARENT_RATING_UPGRADE / _DOWNGRADE). Acknowledgement of non-CRM signals is a proxy: an RM activity with the group within 30 days.\n- Unacknowledged risk signals by RM: filter `Polarity` = 'Risk' AND NOT `Acknowledged`, group by COALESCE(`Primary RM`, '(no RM coverage)') AS rm and `Primary RM Office` (RM names repeat across offices).\n- Expansion signals = `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') with `Polarity` = 'Opportunity'; \"no pipeline\" = NOT `Has Pipeline`; Australia = `Coverage Office` 'AU', India = 'IN'; list them per legal entity (`Client`).\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "What has been happening around Kinokawa Precision in the last 90 days?",
+    "Which groups are sentiment blind spots today - negative news while RM notes stay positive?",
+    "What are the most common topics behind negative news, by industry, over the last 12 months?",
+    "Which listed parents are at a 52-week low with APAC exposure above USD 100m?",
+    "Show unacknowledged risk signals by RM for the last 90 days",
+    "Which entities in Australia and India had positive expansion signals this fiscal year with no pipeline?",
+    "How has news sentiment trended for the coal and shipping sectors by fiscal quarter?",
+    "List the rating actions from the JP-shared parent data this fiscal year"
+  ],
+  "trusted_queries": [
+    {
+      "name": "Signals by source feed and signal type for :client_group since :from_date",
+      "usage_guidance": "Use for \"everything about / what is happening around <group> in the last N days\", \"signal digest\", \"all signals on <group>\"; from_date = DATE'2026-09-30' minus (N-1) days (last 90 days = 2026-07-03).",
+      "parameters": [
+        {
+          "name": "client_group",
+          "type": "STRING"
+        },
+        {
+          "name": "from_date",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Source Feed`, `Signal Type`,\n       MEASURE(`Signals`)                AS signals,\n       MEASURE(`Risk Signals`)           AS risk_signals,\n       MEASURE(`Opportunity Signals`)    AS opportunity_signals,\n       MEASURE(`Unacknowledged Signals`) AS unacknowledged_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date\nGROUP BY ALL\nORDER BY `Source Feed`, signals DESC"
+    },
+    {
+      "name": "News, RM-note and market snapshot of :client_group since :from_date",
+      "usage_guidance": "Use for a group's news sentiment plus RM-note sentiment plus its listed parent today (rating, outlook, share price, CDS, 52-week low, APAC exposure) in one row - the cross-view CTE pattern (one CTE per metric view).",
+      "parameters": [
+        {
+          "name": "client_group",
+          "type": "STRING"
+        },
+        {
+          "name": "from_date",
+          "type": "DATE"
+        }
+      ],
+      "sql": "WITH news AS (\n  SELECT `Client Group`, MEASURE(`News Items`) AS news_items, MEASURE(`Average Sentiment`) AS news_sentiment\n  FROM smbc_genie.metrics.mv_news_sentiment\n  WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date\n  GROUP BY ALL\n), notes AS (\n  SELECT `Client Group`, MEASURE(`Notes`) AS rm_notes, MEASURE(`Average Note Sentiment`) AS rm_note_sentiment\n  FROM smbc_genie.metrics.mv_internal_sentiment\n  WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` >= :from_date\n  GROUP BY ALL\n), mkt AS (\n  SELECT `Client Group`, `External Rating`, `Outlook`,\n         MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d,\n         MEASURE(`Average CDS Change 30D bps`)       AS cds_change_30d_bps,\n         MEASURE(`Groups at 52-Week Low`)            AS at_52_week_low,\n         MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd\n  FROM smbc_genie.metrics.mv_market_signals\n  WHERE lower(`Client Group`) LIKE lower(CONCAT('%', :client_group, '%')) AND `Date` = DATE'2026-09-30'\n  GROUP BY ALL\n)\nSELECT n.`Client Group`, n.news_items, n.news_sentiment, r.rm_notes, r.rm_note_sentiment,\n       m.`External Rating` AS external_rating, m.`Outlook` AS outlook, m.share_price_change_30d,\n       m.cds_change_30d_bps, m.at_52_week_low, m.apac_exposure_usd\nFROM news n\nLEFT JOIN notes r ON r.`Client Group` = n.`Client Group`\nLEFT JOIN mkt m ON m.`Client Group` = n.`Client Group`"
+    },
+    {
+      "name": "Most common negative-news topic in each industry since :from_date",
+      "usage_guidance": "Use for \"topics behind negative sentiment by industry\", \"what drives adverse news per sector\"; one row per industry with its top negative topic (last 12 months = from 2025-10-01).",
+      "parameters": [
+        {
+          "name": "from_date",
+          "type": "DATE"
+        }
+      ],
+      "sql": "WITH t AS (\n  SELECT `Industry`, `Topic`,\n         MEASURE(`Negative Items`)    AS negative_items,\n         MEASURE(`Average Sentiment`) AS avg_sentiment\n  FROM smbc_genie.metrics.mv_news_sentiment\n  WHERE `Date` >= :from_date AND `Sentiment Polarity` = 'Negative'\n  GROUP BY ALL\n)\nSELECT `Industry`, `Topic` AS top_negative_topic, negative_items, avg_sentiment,\n       SUM(negative_items) OVER (PARTITION BY `Industry`) AS industry_negative_items\nFROM t\nQUALIFY ROW_NUMBER() OVER (PARTITION BY `Industry` ORDER BY negative_items DESC, `Topic`) = 1\nORDER BY industry_negative_items DESC"
+    },
+    {
+      "name": "Listed parents at a 52-week low on :as_of_date with APAC exposure above USD 100m",
+      "usage_guidance": "Use for \"listed parents / groups at 52-week lows\", \"stressed listed parents with big exposure\"; market measures are point-in-time, so filter one Date (today = 2026-09-30).",
+      "parameters": [
+        {
+          "name": "as_of_date",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Client Group`, `Listed Parent`, `External Rating`, `Outlook`,\n       MEASURE(`APAC Exposure USD`)                AS apac_exposure_usd,\n       MEASURE(`Average Share Price Change 30D %`) AS share_price_change_30d\nFROM smbc_genie.metrics.mv_market_signals\nWHERE `Date` = :as_of_date AND `At 52-Week Low` AND `APAC Exposure Above 100m`\nGROUP BY ALL\nORDER BY apac_exposure_usd DESC"
+    },
+    {
+      "name": "Unacknowledged risk signals by RM since :from_date, RMs with at least :min_signals",
+      "usage_guidance": "Use for \"unacknowledged / unactioned risk signals (red flags) by RM\", \"which RMs are not following up\", \"RMs with 5 or more unacknowledged risk signals\" (min_signals = 5; 1 = every RM); keeps the RM office (names repeat) and labels clients without RM coverage.",
+      "parameters": [
+        {
+          "name": "from_date",
+          "type": "DATE"
+        },
+        {
+          "name": "min_signals",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT COALESCE(`Primary RM`, '(no RM coverage)') AS rm, `Primary RM Office` AS rm_office,\n       MEASURE(`Unacknowledged Risk Signals`) AS unacknowledged_risk_signals,\n       MEASURE(`Clients Signalled`)           AS clients_with_signals\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Date` >= :from_date AND `Polarity` = 'Risk' AND NOT `Acknowledged`\nGROUP BY ALL\nHAVING MEASURE(`Unacknowledged Risk Signals`) >= CAST(:min_signals AS INT)\nORDER BY unacknowledged_risk_signals DESC"
+    },
+    {
+      "name": "Positive expansion signals with no pipeline in Australia and India for :fiscal_year",
+      "usage_guidance": "Use for \"expansion / capex signals without pipeline\", \"growth signals we have not converted\" in given coverage offices; one row per entity, signal and date.",
+      "parameters": [
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Coverage Office`, `Client`, `Signal Type`, `Date`,\n       MEASURE(`Signals`)          AS signals,\n       MEASURE(`Average Strength`) AS strength\nFROM smbc_genie.metrics.mv_signal_feed\nWHERE `Signal Type` IN ('NEWS_EXPANSION', 'CAPEX_NEWS') AND `Polarity` = 'Opportunity'\n  AND `Coverage Office` IN ('AU', 'IN') AND NOT `Has Pipeline` AND `Fiscal Year` = :fiscal_year\nGROUP BY ALL\nORDER BY `Coverage Office`, `Date`"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_group_signal_digest",
+    "smbc_genie.gold.fn_group_sentiment_snapshot",
+    "smbc_genie.gold.fn_sentiment_blind_spots",
+    "smbc_genie.gold.fn_as_of_date"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 7,
+    "example_sqls": 6,
+    "sql_functions": 4,
+    "text_instructions": 1,
+    "instruction_lines": 20,
+    "instructions_total": 11,
+    "sample_questions": 8,
+    "benchmarks": 20,
+    "entity_matching_columns": 72
+  }
+}

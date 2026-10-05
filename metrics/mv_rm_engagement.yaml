@@ -1,0 +1,168 @@
+# WP9b - space 1, Account Planning. RM engagement from the record_type union base gold.mvb_rm_engagement (D13):
+# activity rows (one per CRM activity) carry the activity measures; coverage rows (one per client x month-end) carry
+# the touched / not-touched-in-90-days measures, which are point-in-time (window, latest month). Each row is one record
+# type, so nothing double counts. Must-answer queries: metrics/_answers/account_planning.sql.
+view: mv_rm_engagement
+space: account_planning
+comment: >-
+  RM engagement with SMBC APAC clients, Apr-2024 to Sep-2026: activities (calls, meetings, emails, video calls, site
+  visits) by RM, activity type and contact role, clients touched, average note sentiment and open follow-up
+  actions, plus the coverage of every client at each month-end - clients and Strategic clients with no RM contact
+  in the last 90 days. Activity measures are flows (add up over months); coverage measures are POINT-IN-TIME:
+  filter one Month (Is Latest Month = Sep 2026 for "today"). "No RM contact in 90 days" counts CRM-covered clients;
+  Strategic-tier entities without any CRM account are counted separately.
+grain: one row per CRM activity or per golden client x month-end (gold.mvb_rm_engagement, record_type activity | coverage)
+source: ${catalog}.gold.mvb_rm_engagement
+blocks:
+  calendar: {date: source.month, grain: month, what: the activity month or coverage month-end}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: emp
+    source: ${catalog}.gold.dim_employee
+    'on': source.rm_employee_id = emp.employee_id
+dimensions:
+  - name: Record Type
+    expr: source.record_type
+    display_name: Record Type
+    comment: activity (one CRM activity) or coverage (one client x month-end coverage snapshot) - measures pick their own type.
+    synonyms: [record type, row type, activity or coverage, base type]
+  - name: RM
+    expr: emp.employee_name
+    display_name: RM
+    comment: >-
+      RM of the record - the RM who logged the activity (activity rows) or the client's primary RM at the month-end
+      (coverage rows); fictional names.
+    synonyms: [RM, relationship manager, banker, coverage banker, account manager, RM name, officer]
+  - name: RM Office
+    expr: source.rm_office
+    display_name: RM Office
+    comment: Office (APAC booking location, ISO-2) of that RM - "RMs in Singapore" means SG.
+    synonyms: [RM office, RM location, RM country, banker office, RM based in, team office]
+  - name: Activity Type
+    expr: source.activity_type
+    display_name: Activity Type
+    comment: Call, Meeting, Email, Video Call or Site Visit (activity rows only).
+    synonyms: [activity type, interaction type, contact type, channel, touchpoint type, engagement type]
+  - name: Contact Role
+    expr: source.contact_role
+    display_name: Contact Role
+    comment: Role of the client contact met - CFO, Treasurer, CEO, Procurement Head, Other or Unknown (activity rows only).
+    synonyms: [contact role, contact, client contact, counterpart, decision maker, CFO, treasurer]
+  - name: Purpose
+    expr: source.purpose
+    display_name: Activity Purpose
+    comment: >-
+      Purpose of the activity - Account Planning, Relationship Review, Product Discussion, Deal Progress, Signal
+      Follow-up, Credit Review, Service Review, Market Update or Courtesy Visit.
+    synonyms: [purpose, reason, topic, meeting purpose, agenda, call purpose]
+  - name: Has CRM Account
+    expr: source.has_crm_account
+    display_name: Has CRM Account
+    comment: True when the client is covered in the CRM platform (has a CRM account); entities without one are never contacted in CRM.
+    synonyms: [CRM covered, in CRM, has CRM account, covered client, CRM coverage]
+measures:
+  - name: Activities
+    expr: SUM(source.activity_count)
+    display_name: Activities
+    comment: RM activities with clients in the selected months (calls, meetings, emails, video calls, site visits).
+    synonyms: [activities, interactions, touchpoints, calls and meetings, engagements, contacts, client contacts]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: In-Person Meetings
+    expr: SUM(CASE WHEN source.is_in_person THEN source.activity_count ELSE 0 END)
+    display_name: In-Person Meetings
+    comment: Meetings and site visits in the selected months.
+    synonyms: [meetings, visits, face to face, in person, site visits, client visits]
+    format: *count
+  - name: Clients Touched
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'activity' THEN source.golden_client_id END)
+    display_name: Clients Touched
+    comment: Distinct clients with at least one RM activity in the selected months.
+    synonyms: [clients touched, clients contacted, clients engaged, clients met, coverage reach]
+    format: *count
+  - name: Average Sentiment
+    expr: AVG(CASE WHEN source.record_type = 'activity' THEN source.sentiment_score END)
+    display_name: Average Note Sentiment
+    comment: Average sentiment of the RM call notes, -1 (very negative) to +1 (very positive).
+    synonyms: [sentiment, average sentiment, note sentiment, tone, client mood, relationship sentiment]
+    format: &dec2 {type: number, decimal_places: {type: max, places: 2}}
+  - name: Next Actions Open
+    expr: COUNT(CASE WHEN source.record_type = 'activity' AND source.is_next_action_open THEN 1 END)
+    display_name: Next Actions Open
+    comment: Follow-up actions from the selected activities still open at 30-Sep-2026 (open or overdue).
+    synonyms: [open actions, next actions, follow-ups open, pending actions, open follow-ups, action items]
+    format: *count
+  - name: Next Actions Overdue
+    expr: COUNT(CASE WHEN source.record_type = 'activity' AND source.is_next_action_overdue THEN 1 END)
+    display_name: Next Actions Overdue
+    comment: Follow-up actions from the selected activities overdue at 30-Sep-2026.
+    synonyms: [overdue actions, late follow-ups, missed actions, overdue follow-ups]
+    format: *count
+  - name: Clients Covered
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'coverage' THEN source.golden_client_id END)
+    display_name: Clients Covered (month-end)
+    comment: Clients with a relationship at the month-end (coverage rows).
+    synonyms: [clients covered, client base, relationships, covered clients, book size]
+    format: *count
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Clients Not Touched 90D
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'coverage' AND source.is_not_touched_90d AND source.has_crm_account THEN source.golden_client_id END)
+    display_name: CRM Clients Not Touched in 90 Days
+    comment: CRM-covered clients with no RM activity in the 90 days to the month-end.
+    synonyms: [not touched, no contact 90 days, untouched clients, neglected clients, no RM contact, dormant coverage]
+    format: *count
+    window: *eom
+  - name: Strategic Clients Not Touched 90D
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'coverage' AND source.is_strategic_not_touched_90d AND source.has_crm_account THEN source.golden_client_id END)
+    display_name: Strategic Clients Not Touched in 90 Days
+    comment: >-
+      CRM-covered Strategic-tier clients with no RM activity in the 90 days to the month-end (dim_threshold
+      NO_RM_CONTACT_DAYS) - filter Is Latest Month for today.
+    synonyms: [strategic not touched, strategic clients without contact, neglected strategic clients, strategic no contact 90 days]
+    format: *count
+    window: *eom
+  - name: Strategic Entities Without CRM
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'coverage' AND source.is_strategic AND NOT source.has_crm_account THEN source.golden_client_id END)
+    display_name: Strategic-Tier Entities Without a CRM Account
+    comment: Strategic-tier entities (mostly subsidiaries of Strategic groups) with no CRM account at all - never contacted in CRM.
+    synonyms: [uncovered strategic entities, strategic without CRM, coverage gap, uncovered subsidiaries]
+    format: *count
+    window: *eom
+  - name: Average Days Since Last Contact
+    expr: AVG(CASE WHEN source.record_type = 'coverage' AND source.has_crm_account THEN source.days_since_last_activity END)
+    display_name: Average Days Since Last Contact
+    comment: Average days from the last RM activity to the month-end, for CRM-covered clients contacted at least once.
+    synonyms: [days since contact, recency, last contact age, days since last activity, contact gap]
+    format: &dec1 {type: number, decimal_places: {type: max, places: 1}}
+    window: *eom
+validate:
+  dims: [Month, Record Type, Activity Type]
+reconcile:
+  - name: activities_fy2025
+    measure: Activities
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: SELECT count(*) FROM ${catalog}.gold.fact_rm_activity WHERE fiscal_year = 2025
+  - name: activities_by_type_fy2026
+    measure: Activities
+    by: [Activity Type]
+    where: "`Fiscal Year` = 'FY2026' AND `Record Type` = 'activity'"
+    gold: SELECT activity_type, count(*) FROM ${catalog}.gold.fact_rm_activity WHERE fiscal_year = 2026 GROUP BY 1
+  - name: strategic_not_touched_sep_2026
+    measure: Strategic Clients Not Touched 90D
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_client_coverage_monthly
+      WHERE is_latest_month AND is_strategic_not_touched_90d AND has_crm_account
+  - name: average_sentiment_fy2026
+    measure: Average Sentiment
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: SELECT avg(sentiment_score) FROM ${catalog}.gold.fact_rm_activity WHERE fiscal_year = 2026
+  - name: clients_covered_sep_2026
+    measure: Clients Covered
+    where: "`Is Latest Month`"
+    gold: SELECT count(*) FROM ${catalog}.gold.fact_client_coverage_monthly WHERE is_latest_month
+glossary:
+  caveats:
+    - >-
+      Coverage measures are point-in-time: filter one Month (Is Latest Month = today). "No RM contact" counts CRM-covered
+      clients; Strategic-tier entities without a CRM account are reported by Strategic Entities Without CRM.

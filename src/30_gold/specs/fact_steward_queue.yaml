@@ -1,0 +1,63 @@
+table: fact_steward_queue
+domain: foundation
+comment: >-
+  Data-steward queue of entity resolution: one row per review item raised by an ER run for a candidate
+  record pair scoring 0.75-0.90 (below the 0.90 auto-match), with both candidate names as recorded, the
+  score, the assigned steward, created / decided dates, the decision (Match / No Match; simulated review
+  with a 2% error rate), status (Open / Decided), days open and an aging bucket. The item is attached to the
+  current golden client of its left record. Use is_open_at_as_of for the open queue at 30-Sep-2026.
+grain: one row per steward review item
+primary_key: [steward_item_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [created_date], references: dim_date}
+  - {columns: [assigned_to_employee_id], references: dim_employee}
+cluster_by: [created_date, golden_client_sk]
+min_rows: 1000
+columns:
+  steward_item_id: {type: STRING, comment: "Steward review item id SQ-yymm-nnnnn (yymm of the run that raised it)."}
+  run_id: {type: STRING, comment: ER run that raised the item (ER-yyyymmdd).}
+  run_date: {type: DATE, comment: As-of date of the ER run that raised the item.}
+  rule_version: {type: STRING, comment: Rule set of the raising run (v1 or v2).}
+  created_date: {type: DATE, comment: Date the item entered the steward queue (the grain date).}
+  month: {type: DATE, comment: First day of the month the item was created.}
+  golden_client_sk: BIGINT
+  golden_client_id: {type: STRING, not_null: true, comment: Current golden client of the left candidate record (latest ER run).}
+  client_group_id: STRING
+  right_golden_client_id: {type: STRING, comment: Current golden client of the right candidate record.}
+  is_same_golden_now: {type: BOOLEAN, comment: True when both candidate records sit in the same golden client after the latest run.}
+  left_source_system: {type: STRING, comment: Source system of the left candidate record.}
+  left_source_id: {type: STRING, comment: Record id of the left candidate in its source system.}
+  left_source_name: {type: STRING, comment: Name of the left candidate as recorded in its source.}
+  right_source_system: {type: STRING, comment: Source system of the right candidate record.}
+  right_source_id: {type: STRING, comment: Record id of the right candidate in its source system.}
+  right_source_name: {type: STRING, comment: Name of the right candidate as recorded in its source.}
+  match_score: {type: DOUBLE, comment: "Fuzzy match score of the pair 0-1 (0.45 token Jaccard + 0.30 Levenshtein + 0.15 location + 0.05 parent + 0.05 country); 0.75-0.90 = steward band."}
+  candidate_pairs: {type: INT, comment: Candidate record pairs between the two clusters behind the item.}
+  left_cluster_records: {type: INT, comment: Records in the left candidate's cluster at the run.}
+  right_cluster_records: {type: INT, comment: Records in the right candidate's cluster at the run.}
+  assigned_to_employee_id: {type: STRING, comment: Data steward the item is assigned to (employee id of the onboarding / data-steward team); join gold.dim_employee.}
+  decided_date: {type: DATE, comment: Date of the steward decision; null while open.}
+  decision: {type: STRING, comment: "Steward decision: Match (link the records) or No Match; null while open."}
+  status: {type: STRING, comment: "Open or Decided."}
+  is_open: {type: BOOLEAN, comment: True when the item is still open (no decision).}
+  is_open_at_as_of: {type: BOOLEAN, comment: True when the item is open at 30-Sep-2026 - the current steward queue.}
+  is_decided: {type: BOOLEAN, comment: True when the steward has decided the item (Steward Decisions).}
+  is_match_decision: {type: BOOLEAN, comment: True when the decision is Match.}
+  days_open: {type: INT, comment: "Days the item has been / was open: as-of date - created date for open items, decided - created for decided items."}
+  aging_bucket: {type: STRING, comment: "Aging bucket of days_open: 0-7 days, 8-30 days, 31-90 days, 91-180 days or Over 180 days."}
+  aging_bucket_order: {type: INT, comment: Sort order 1-5 of aging_bucket.}
+  days_to_decision: {type: INT, comment: Days from creation to decision; null while open.}
+  applied_in_run_id: {type: STRING, comment: ER run in which the decision was applied (null while open).}
+  is_latest_run: {type: BOOLEAN, comment: True for items raised by the latest ER run (ER-20260930).}
+checks:
+  - name: open_items_match_run_log
+    sql: >-
+      SELECT abs(count_if(is_open_at_as_of) - (SELECT sum(steward_items_open) FROM ${catalog}.ops.entity_resolution_runs
+      WHERE source_system = 'ALL')) FROM ${table}
+  - name: decided_have_decision
+    sql: SELECT count_if(is_decided <> (decision IS NOT NULL)) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.steward_queue

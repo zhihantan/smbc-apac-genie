@@ -1,0 +1,95 @@
+table: fact_deposit_balance_monthly
+domain: tb
+comment: >-
+  Month-end deposit balances per core-banking account, Apr-2023 to Sep-2026 (42 month-ends), in local currency
+  and USD with the month's average balance, the CASA / TD split, the previous month-end and same month-end a year
+  earlier (MoM / YoY movement), the time-deposit maturity profile of the placements live at the month-end (next
+  maturity, principal maturing within 90 days, weighted rate), the month's TD placements / maturities (incl. CASA ->
+  TD transfers) and the depositor rank of the client and of its group in the booking country. POINT-IN-TIME:
+  never sum balances across month-ends - pick one balance_date (is_latest_month_end = 30-Sep-2026) or use the
+  semi-additive last value; the placement / maturity / transfer columns are flows and do add up over months.
+  Month-ends from Dec-2025 equal fact_deposit_balance_daily.
+grain: one row per account per month-end
+primary_key: [account_id, balance_date]
+foreign_keys:
+  - {columns: [account_id], references: dim_account}
+  - {columns: [balance_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [product_id], references: dim_product}
+cluster_by: [balance_date, golden_client_sk]
+min_rows: 200000
+columns:
+  account_id: {type: STRING, comment: "Core-banking account id (join gold.dim_account)."}
+  balance_date: {type: DATE, comment: "Month-end date of the snapshot (last calendar day of the month)."}
+  month: {type: DATE, comment: "First day of the month of the snapshot."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  cust_no: {type: STRING, comment: "Core-banking customer number (source identity record) holding the account."}
+  booking_country: {type: STRING, comment: "APAC booking location of the account = the holder's coverage office (ISO-2, e.g. HK); join gold.dim_booking_entity."}
+  account_type: {type: STRING, comment: "Current Account, Savings Account, Time Deposit or Money Market Deposit."}
+  product_id: {type: STRING, comment: "Deposit product (PRD-CURRENT-ACCOUNT, PRD-SAVINGS-ACCOUNT, PRD-TIME-DEPOSIT, PRD-MONEY-MARKET-DEPOSIT); join gold.dim_product."}
+  deposit_class: {type: STRING, comment: "CASA (current and savings accounts) or TD (time and money-market deposits)."}
+  is_casa: {type: BOOLEAN, comment: "True for current / savings accounts (CASA)."}
+  currency: {type: STRING, comment: "ISO 4217 currency of the account (the _lcy amounts are in this currency)."}
+  balance_lcy: {type: DOUBLE, comment: "Month-end balance in the account currency (point-in-time; do not sum across months)."}
+  balance_usd: {type: DOUBLE, comment: "Month-end balance in USD at the month-end FX rate (point-in-time; do not sum across months)."}
+  casa_balance_usd: {type: DOUBLE, comment: "balance_usd when the account is CASA, else 0 (point-in-time). CASA ratio = SUM(casa_balance_usd) / SUM(balance_usd) at one month-end."}
+  td_balance_usd: {type: DOUBLE, comment: "balance_usd when the account is a time / money-market deposit, else 0 (point-in-time)."}
+  avg_balance_usd: {type: DOUBLE, comment: "Average daily balance over the calendar month in USD (point-in-time per month; for the Average Balance measure average or sum within one month only)."}
+  balance_usd_prev_month: {type: DOUBLE, comment: "USD balance of the account at the previous month-end (0 when the account did not exist yet)."}
+  balance_change_mom_usd: {type: DOUBLE, comment: "balance_usd - balance_usd_prev_month (USD; negative = outflow). Adds up across accounts for one month (movement vs last month)."}
+  balance_usd_prior_year: {type: DOUBLE, comment: "USD balance of the account at the same month-end one year earlier (0 when the account did not exist; null before Apr-2024 = no history)."}
+  td_placements_live: {type: INT, comment: "TD / money-market placements live at the month-end (placed on or before it, maturing after it); 0 for CASA."}
+  td_principal_live_usd: {type: DOUBLE, comment: "Principal (USD at placement) of the placements live at the month-end - the contractual TD book behind the balance."}
+  td_next_maturity_date: {type: DATE, comment: "Earliest maturity date among the placements live at the month-end (null = no live placement)."}
+  td_days_to_next_maturity: {type: INT, comment: "Days from the month-end to td_next_maturity_date."}
+  td_maturity_bucket: {type: STRING, comment: "Bucket of td_days_to_next_maturity: 0-30 days, 31-90 days, 91-180 days, 181-365 days, Over 365 days; No live TD for TD accounts without a live placement; null for CASA."}
+  td_principal_maturing_90d_usd: {type: DOUBLE, comment: "Principal (USD) of live placements maturing within 90 days after the month-end (TD maturities in the next 90 days; additive across accounts at one month-end)."}
+  td_principal_maturing_90d_lcy: {type: DOUBLE, comment: "td_principal_maturing_90d_usd in the account currency."}
+  is_td_maturing_next_90d: {type: BOOLEAN, comment: "True when at least one live placement of the account matures within 90 days after the month-end (dim_threshold TD_MATURITY_WINDOW_DAYS)."}
+  td_weighted_rate_pct: {type: DOUBLE, comment: "Principal-weighted interest rate (% p.a.) of the live placements at the month-end; null without a live placement."}
+  td_placed_usd: {type: DOUBLE, comment: "Principal (USD) of time deposits placed into this account during the month (flow)."}
+  td_placed_from_current_account_usd: {type: DOUBLE, comment: "Part of td_placed_usd funded by a transfer from the client's current account (CASA -> TD migration), USD (flow)."}
+  td_placed_new_funds_usd: {type: DOUBLE, comment: "Part of td_placed_usd funded by new money (USD, flow)."}
+  td_rolled_over_usd: {type: DOUBLE, comment: "Part of td_placed_usd that rolled over a maturing placement (USD, flow)."}
+  td_matured_usd: {type: DOUBLE, comment: "Principal (USD) of placements on this account maturing during the month (flow)."}
+  transferred_to_td_usd: {type: DOUBLE, comment: "On current accounts: principal moved out of this account into time deposits during the month (USD, flow) - CASA outflow that stayed with the bank."}
+  depositor_rank_in_country: {type: INT, comment: "Rank (1 = largest) of the account holder (golden client) by total month-end deposits in the booking country; same value on all the client's accounts. Top-10 concentration = SUM(balance_usd WHERE rank <= 10) / SUM(balance_usd)."}
+  is_top10_depositor_in_country: {type: BOOLEAN, comment: "True when depositor_rank_in_country <= 10 (the client is a top-10 depositor of its booking country at the month-end)."}
+  group_depositor_rank_in_country: {type: INT, comment: "Rank (1 = largest) of the client's group by its total month-end deposits in the booking country; null for clients without a group."}
+  is_top10_group_depositor_in_country: {type: BOOLEAN, comment: "True when group_depositor_rank_in_country <= 10."}
+  is_latest_month_end: {type: BOOLEAN, comment: "True for the as-of month-end 30-Sep-2026 (today's balances)."}
+  is_fiscal_quarter_end: {type: BOOLEAN, comment: "True on fiscal quarter-ends (30 Jun, 30 Sep, 31 Dec, 31 Mar)."}
+  is_in_daily_window: {type: BOOLEAN, comment: "True for month-ends from 31-Dec-2025, which also exist in fact_deposit_balance_daily (identical balances)."}
+checks:
+  - name: no_negative_balances
+    sql: SELECT count_if(balance_usd < 0 OR balance_lcy < 0) FROM ${table}
+  - name: casa_td_split_adds_up
+    sql: SELECT count_if(abs(casa_balance_usd + td_balance_usd - balance_usd) > 0.005) FROM ${table}
+  - name: month_end_equals_daily_balance      # in-window month-ends = the silver daily balance that day
+    sql: >-
+      SELECT count(*) FROM ${table} m LEFT JOIN ${catalog}.silver.core_deposit_balance_daily d
+      ON d.account_id = m.account_id AND d.balance_date = m.balance_date
+      WHERE m.is_in_daily_window AND (d.account_id IS NULL OR abs(d.balance_usd - m.balance_usd) > 0.005
+      OR abs(d.balance_lcy - m.balance_lcy) > 0.005)
+  - name: one_rank_one_per_country_month
+    sql: >-
+      SELECT count(*) FROM (SELECT booking_country, balance_date, count(DISTINCT golden_client_id) AS n
+      FROM ${table} WHERE depositor_rank_in_country = 1 GROUP BY ALL HAVING n <> 1)
+  - name: maturing_within_live_book
+    sql: SELECT count_if(td_principal_maturing_90d_usd > td_principal_live_usd + 0.01) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.core_deposit_balance_monthly
+  - name: as_of_balance_vs_silver
+    gold: SELECT round(sum(balance_usd)) FROM ${table} WHERE is_latest_month_end
+    silver: SELECT round(sum(balance_usd)) FROM ${catalog}.silver.core_deposit_balance_monthly WHERE balance_date = DATE'${as_of_date}'
+    tolerance: 1
+  - name: hk_casa_transfers_vs_silver
+    gold: SELECT round(sum(td_placed_from_current_account_usd)) FROM ${table}
+    silver: SELECT round(sum(principal_usd)) FROM ${catalog}.silver.core_time_deposit WHERE funding_source = 'Transfer from Current Account'
+    tolerance: 1

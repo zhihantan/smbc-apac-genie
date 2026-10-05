@@ -1,0 +1,22 @@
+table: dim_peer_group
+domain: hub
+comment: >-
+  Peer groups used to benchmark client financial ratios (P25 / median / P75 per ratio and fiscal year in
+  fact_peer_benchmark_annual): one peer group per industry subsector, with the benchmark coverage.
+grain: one row per peer group
+primary_key: [peer_group_id]
+cluster_by: [peer_group_id]
+min_rows: 40
+columns:
+  peer_group_id: {type: STRING}
+  peer_group_name: {type: STRING, comment: "Peer group label = industry sector - subsector (e.g. Energy - Oil, Gas & Coal)."}
+  industry_sector: {type: STRING}
+  industry_subsector: {type: STRING}
+  is_carbon_intensive: {type: BOOLEAN, comment: True when the peer group's subsector is carbon-intensive.}
+  n_benchmark_ratios: {type: INT, comment: Distinct financial ratios benchmarked for the peer group.}
+  first_benchmark_fiscal_year: {type: INT, comment: Earliest fiscal year with peer benchmarks.}
+  last_benchmark_fiscal_year: {type: INT, comment: Latest fiscal year with peer benchmarks.}
+  n_peers_latest: {type: BIGINT, comment: Clients in the peer sample in the latest benchmarked fiscal year (maximum over ratios).}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(DISTINCT peer_group_id) FROM ${catalog}.silver.ref_industry_peer

@@ -1,0 +1,106 @@
+# Phase jobs + a build_all orchestrator that chains them (DECISIONS D40).
+# All compute is serverless: python tasks run on a serverless environment and drive the
+# SQL warehouse (via the Statement Execution API) for DDL / metric views / Genie.
+# No Genie job (D50): the bundle never creates or updates the Genie Agents; that is done from a laptop
+# with src/50_genie/run_genie.py --create. p08 only evaluates the existing agents.
+
+resources:
+  jobs:
+
+    smbc_genie_p02_setup:
+      name: "[smbc-genie] p02 setup"
+      tasks:
+        - task_key: setup
+          spark_python_task:
+            python_file: ../src/00_setup/run_setup.py
+            parameters: ["--catalog", "${var.catalog}", "--warehouse-id", "${var.warehouse_id}",
+                         "--scale", "${var.scale}", "--as-of", "${var.as_of_date}", "--seed", "${var.random_seed}"]
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies: ["pyyaml>=6.0", "databricks-sdk>=0.145", "numpy>=1.26"]
+
+    smbc_genie_p03_bronze:
+      name: "[smbc-genie] p03 bronze + shared"
+      tasks:
+        - task_key: bronze
+          spark_python_task:
+            python_file: ../src/10_bronze_synth/run_bronze.py
+            parameters: ["--catalog", "${var.catalog}", "--scale", "${var.scale}",
+                         "--as-of", "${var.as_of_date}", "--seed", "${var.random_seed}"]
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec: {environment_version: "5", dependencies: ["pyyaml>=6.0", "databricks-sdk>=0.145", "numpy>=1.26"]}
+
+    smbc_genie_p04_silver:
+      name: "[smbc-genie] p04 silver + entity resolution"
+      tasks:
+        - task_key: silver
+          spark_python_task:
+            python_file: ../src/20_silver/run_silver.py
+            parameters: ["--catalog", "${var.catalog}", "--scale", "${var.scale}",
+                         "--as-of", "${var.as_of_date}", "--seed", "${var.random_seed}"]
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec: {environment_version: "5", dependencies: ["pyyaml>=6.0", "databricks-sdk>=0.145", "numpy>=1.26"]}
+
+    smbc_genie_p05_gold:
+      name: "[smbc-genie] p05 gold"
+      tasks:
+        - task_key: gold
+          spark_python_task:
+            python_file: ../src/30_gold/run_gold.py
+            parameters: ["--catalog", "${var.catalog}", "--warehouse-id", "${var.warehouse_id}", "--as-of", "${var.as_of_date}"]
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec: {environment_version: "5", dependencies: ["pyyaml>=6.0", "databricks-sdk>=0.145", "numpy>=1.26"]}
+
+    smbc_genie_p06_metrics:
+      name: "[smbc-genie] p06 metric views"
+      tasks:
+        - task_key: metrics
+          spark_python_task:
+            python_file: ../src/40_metrics/run_metrics.py
+            parameters: ["--catalog", "${var.catalog}", "--warehouse-id", "${var.warehouse_id}"]
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec: {environment_version: "5", dependencies: ["pyyaml>=6.0", "databricks-sdk>=0.145", "numpy>=1.26"]}
+
+    smbc_genie_p08_validate:
+      name: "[smbc-genie] p08 validate + benchmarks"
+      tasks:
+        - task_key: validate
+          spark_python_task:
+            python_file: ../src/50_genie/run_benchmarks.py
+            parameters: ["--catalog", "${var.catalog}", "--warehouse-id", "${var.warehouse_id}", "--spaces", "${var.spaces_to_build}"]
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec: {environment_version: "5", dependencies: ["pyyaml>=6.0", "databricks-sdk>=0.145", "numpy>=1.26"]}
+
+    smbc_genie_build_all:
+      name: "[smbc-genie] build_all (p02 -> p06, p08)"
+      tasks:
+        - task_key: setup
+          run_job_task: {job_id: "${resources.jobs.smbc_genie_p02_setup.id}"}
+        - task_key: bronze
+          depends_on: [{task_key: setup}]
+          run_job_task: {job_id: "${resources.jobs.smbc_genie_p03_bronze.id}"}
+        - task_key: silver
+          depends_on: [{task_key: bronze}]
+          run_job_task: {job_id: "${resources.jobs.smbc_genie_p04_silver.id}"}
+        - task_key: gold
+          depends_on: [{task_key: silver}]
+          run_job_task: {job_id: "${resources.jobs.smbc_genie_p05_gold.id}"}
+        - task_key: metrics
+          depends_on: [{task_key: gold}]
+          run_job_task: {job_id: "${resources.jobs.smbc_genie_p06_metrics.id}"}
+        - task_key: validate
+          depends_on: [{task_key: metrics}]
+          run_job_task: {job_id: "${resources.jobs.smbc_genie_p08_validate.id}"}

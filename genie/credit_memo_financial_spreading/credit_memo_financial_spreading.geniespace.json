@@ -1,0 +1,1861 @@
+{
+  "title": "APAC Genie - Credit Memo & Financial Spreading",
+  "description": "Ask about spread financials, ratios vs peers, facilities, covenants, collateral and the credit review workflow (the credit memo pack) for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "3766b69323cd681325f9eab300000000",
+          "question": [
+            "Credit memo pack for Sunda Energi Nusantara (Jakarta): show its spread P&L and balance sheet for the last 3 fiscal years."
+          ]
+        },
+        {
+          "id": "3766b69323cd681325f9eab300000001",
+          "question": [
+            "Which clients breached or have less than 10% headroom on a leverage covenant at the latest test?"
+          ]
+        },
+        {
+          "id": "3766b69323cd681325f9eab300000002",
+          "question": [
+            "Net Debt/EBITDA and ICR for all Indonesian mining clients vs their peer median, FY2023-FY2025"
+          ]
+        },
+        {
+          "id": "3766b69323cd681325f9eab300000003",
+          "question": [
+            "Which clients' FY2025 financials are not yet spread, by analyst and days overdue?"
+          ]
+        },
+        {
+          "id": "3766b69323cd681325f9eab300000004",
+          "question": [
+            "Annual reviews due in Q3 FY2026 by analyst, with the current status and days in preparation"
+          ]
+        },
+        {
+          "id": "3766b69323cd681325f9eab300000005",
+          "question": [
+            "Which collateral on active facilities has an LTV above 70% or a valuation older than 24 months?"
+          ]
+        },
+        {
+          "id": "3766b69323cd681325f9eab300000006",
+          "question": [
+            "Which Japanese-corporate subsidiaries rely on a parent guarantee or keepwell on their active facilities, and what is the parent's external rating?"
+          ]
+        },
+        {
+          "id": "3766b69323cd681325f9eab300000007",
+          "question": [
+            "New-money requests approved in H1 FY2026: amount, margin and time to approval by coverage office"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_strategic_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "n_apac_countries",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_amer",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_emea",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_global",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.dim_peer_group",
+          "column_configs": [
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "peer_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "peer_group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "below_rorwa_hurdle",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "credit_limit_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "drawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ead_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "ecl_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_deposit_only",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_single_product_lending",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "net_contribution_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product_propensity",
+              "exclude": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "open_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_other_bank_share_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "product_families_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "products_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "revenue_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_prior_fytd_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "revenue_yoy_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rorwa_latest_quarter",
+              "exclude": true
+            },
+            {
+              "column_name": "rwa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "exclude": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "time_deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_outstanding_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_credit_review_workflow",
+          "column_configs": [
+            {
+              "column_name": "Analyst",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Approval Fiscal Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Approver",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Outcome",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Review Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Review Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_facilities_covenants_collateral",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Collateral Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Covenant Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Facility",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Facility Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Facility Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Guarantor Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Headroom Bucket",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Is Latest Month",
+              "exclude": true
+            },
+            {
+              "column_name": "Is Month End",
+              "exclude": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Parent Rating",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Record Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Security Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_financial_ratios_vs_peers",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Is Latest Fiscal Year",
+              "exclude": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Peer Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Peer Quartile Position",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Ratio Category",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Ratio Name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Ratio Unit",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_financial_spreads",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Is Latest Fiscal Year",
+              "exclude": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Peer Group",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Reporting Currency",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Statement Basis",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Statement Line",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Statement Type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "3f244fc6af9dd8eaac4bb24000000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Credit work is per legal entity: for spreads, ratios, facilities, covenants, collateral and reviews, \"clients\" means Client (legal entity) - list every matching row (no top-20 cut). Sunda Energi Nusantara = `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%' (the lead obligor; the group also has a Singapore entity).\n",
+            "- Spreads and ratios are annual: filter or group by Fiscal Year (FY2023-FY2025; the latest spread year is FY2025, FY2026 has none), \"last 3 years\" = all three; always filter Statement Line or Ratio Name. \"vs peers\" = Peer Median, \"peer percentile\" = Percentile Rank in Peer Group %, \"worse than P25\" = Clients Below Peer P25.\n",
+            "- mv_facilities_covenants_collateral: each measure reads its own Record Type (Facility, Covenant Test, Collateral); filter Record Type only when listing covenant tests or collateral items. Date = record date; \"at the latest test\" = Is Latest Test; \"leverage covenant\" = Covenant Type 'Net Debt/EBITDA'; \"breached or < 10% headroom\" = Headroom Bucket IN ('Breached', '0-10%'); live book = Facility Status 'Active'; this fiscal year's tests = Fiscal Year 'FY2026'. Covenant waivers are always 0 in this data.\n",
+            "- Collateral needing review = LTV above 70% or a valuation older than 24 months (keep rows with MEASURE(`Collateral Needing Review`) > 0); parent support = Guarantor Type IN ('Parent Guarantee', 'Keepwell'); the parent's external rating (Japan share) = Parent Rating.\n",
+            "- \"Indonesian mining\" = Coverage Office 'ID' and Subsector IN ('Mining', 'Minerals', 'Natural Resources', 'Oil, Gas & Coal') (coal names sit under Energy); \"electronics\" = Subsector IN ('Electronics', 'Electronic Devices').\n",
+            "- mv_credit_review_workflow (statuses as of 30-Sep-2026): \"FY2025 financials not yet spread\" = Review Type 'Financial Spreading' + Review Fiscal Year 'FY2025' + Is Not Yet Spread; \"due in Q3 FY2026\" = Fiscal Quarter 'FY2026-Q3' (Date = due date); \"approved in H1 FY2026\" = Approval Fiscal Half 'FY2026-H1' + Outcome IN ('Approved', 'Approved with Conditions').\n",
+            "- Memo pack of one entity: spread P&L and balance sheet = fn_credit_memo_financials, facilities with limits and collateral = fn_credit_memo_facilities, current exposure (drawn, EAD, RWA, ECL, Stage 3, overdue) = fn_credit_memo_exposure; ratios and covenant tests come from the metric views.\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "4b4fd98bae33e47c9e13e1c500000000",
+          "question": [
+            "Key ratios of :client_name vs the peer median and peer percentile, by fiscal year"
+          ],
+          "sql": [
+            "SELECT `Ratio Name`, `Fiscal Year`,\n",
+            "       MEASURE(`Ratio Value`)                     AS ratio_value,\n",
+            "       MEASURE(`Peer Median`)                     AS peer_median,\n",
+            "       MEASURE(`Percentile Rank in Peer Group %`) AS peer_percentile_rank,\n",
+            "       MEASURE(`Clients Below Peer P25`)          AS worse_than_p25\n",
+            "FROM smbc_genie.metrics.mv_financial_ratios_vs_peers\n",
+            "WHERE `Client` LIKE CONCAT('%', :client_name, '%')\n",
+            "  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR', 'DSCR', 'Current Ratio', 'EBITDA Margin')\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Ratio Name`, `Fiscal Year`"
+          ],
+          "parameters": [
+            {
+              "name": "client_name",
+              "type_hint": "STRING",
+              "description": [
+                "Legal-entity name or a fragment of it (LIKE), e.g. Sunda Energi Nusantara (Jakarta)"
+              ],
+              "default_value": {
+                "values": [
+                  "Sunda Energi Nusantara (Jakarta)"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for the ratio section of a credit memo pack - key ratios, ratios vs peers, peer percentile or peer benchmarking of one client (legal entity), e.g. \"how does Sunda's leverage compare with its peers\"."
+          ]
+        },
+        {
+          "id": "4b4fd98bae33e47c9e13e1c500000001",
+          "question": [
+            "Covenant tests of :client_name since :from_date with actual, threshold, headroom and breaches"
+          ],
+          "sql": [
+            "SELECT `Facility`, `Covenant Type`, `Date` AS test_date, `Is Latest Test`,\n",
+            "       MEASURE(`Covenant Actual`)         AS actual,\n",
+            "       MEASURE(`Covenant Threshold`)      AS threshold,\n",
+            "       MEASURE(`Min Covenant Headroom %`) AS headroom,\n",
+            "       MEASURE(`Breaches`)                AS breaches\n",
+            "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+            "WHERE `Client` LIKE CONCAT('%', :client_name, '%')\n",
+            "  AND `Record Type` = 'Covenant Test' AND `Date` >= :from_date\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Facility`, `Covenant Type`, test_date"
+          ],
+          "parameters": [
+            {
+              "name": "client_name",
+              "type_hint": "STRING",
+              "description": [
+                "Legal-entity name or a fragment of it (LIKE), e.g. Sunda Energi Nusantara (Jakarta)"
+              ],
+              "default_value": {
+                "values": [
+                  "Sunda Energi Nusantara (Jakarta)"
+                ]
+              }
+            },
+            {
+              "name": "from_date",
+              "type_hint": "DATE",
+              "description": [
+                "First covenant test date to include (tests are at quarter-ends)"
+              ],
+              "default_value": {
+                "values": [
+                  "2025-12-31"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for the covenant section of a memo pack - covenant tests, covenant headroom history or the leverage path of one client; Is Latest Test flags the latest test of each facility covenant."
+          ]
+        },
+        {
+          "id": "4b4fd98bae33e47c9e13e1c500000002",
+          "question": [
+            "Which clients breached or have less than 10% headroom on a :covenant_type covenant at the latest test?"
+          ],
+          "sql": [
+            "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`,\n",
+            "       MEASURE(`Covenant Actual`)         AS actual,\n",
+            "       MEASURE(`Covenant Threshold`)      AS threshold,\n",
+            "       MEASURE(`Min Covenant Headroom %`) AS headroom\n",
+            "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+            "WHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = :covenant_type\n",
+            "  AND `Headroom Bucket` IN ('Breached', '0-10%')\n",
+            "GROUP BY ALL\n",
+            "ORDER BY headroom"
+          ],
+          "parameters": [
+            {
+              "name": "covenant_type",
+              "type_hint": "STRING",
+              "description": [
+                "Covenant Type: Net Debt/EBITDA (leverage) or ICR (interest cover)"
+              ],
+              "default_value": {
+                "values": [
+                  "Net Debt/EBITDA"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for covenant breaches, tight headroom, near-breach or covenant blind-spot questions at the latest test (\"leverage covenant\" = Net Debt/EBITDA, \"interest cover\" = ICR); lists legal entities and facilities."
+          ]
+        },
+        {
+          "id": "4b4fd98bae33e47c9e13e1c500000003",
+          "question": [
+            "Net Debt/EBITDA and ICR of mining clients in :coverage_office vs their peer median, FY2023-FY2025"
+          ],
+          "sql": [
+            "SELECT `Client`, `Subsector`, `Ratio Name`, `Fiscal Year`,\n",
+            "       MEASURE(`Ratio Value`)        AS ratio_value,\n",
+            "       MEASURE(`Peer Median`)        AS peer_median,\n",
+            "       MEASURE(`Gap to Peer Median`) AS gap_to_peer_median\n",
+            "FROM smbc_genie.metrics.mv_financial_ratios_vs_peers\n",
+            "WHERE `Coverage Office` = :coverage_office\n",
+            "  AND `Subsector` IN ('Mining', 'Minerals', 'Natural Resources', 'Oil, Gas & Coal')\n",
+            "  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR')\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Client`, `Ratio Name`, `Fiscal Year`"
+          ],
+          "parameters": [
+            {
+              "name": "coverage_office",
+              "type_hint": "STRING",
+              "description": [
+                "Coverage office / booking country ISO-2 code, e.g. ID"
+              ],
+              "default_value": {
+                "values": [
+                  "ID"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for leverage or interest cover of a country's mining, coal or resources clients vs peers; \"Indonesian mining\" = ID with the Mining, Minerals, Natural Resources and Oil, Gas & Coal subsectors."
+          ]
+        },
+        {
+          "id": "4b4fd98bae33e47c9e13e1c500000004",
+          "question": [
+            "Clients whose :review_fiscal_year financials are not yet spread, with the analyst, spreading status and days overdue"
+          ],
+          "sql": [
+            "SELECT `Client`, `Analyst`, `Status`, MEASURE(`Max Days Overdue`) AS days_overdue\n",
+            "FROM smbc_genie.metrics.mv_credit_review_workflow\n",
+            "WHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = :review_fiscal_year AND `Is Not Yet Spread`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY days_overdue DESC"
+          ],
+          "parameters": [
+            {
+              "name": "review_fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal year of the financials (statement year), e.g. FY2025"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for the financial-spreading backlog - financials / statements of a fiscal year not yet spread, by client or by analyst; the year of the financials is Review Fiscal Year (not Fiscal Year, the due date's year) and days overdue per client = Max Days Overdue."
+          ]
+        },
+        {
+          "id": "4b4fd98bae33e47c9e13e1c500000005",
+          "question": [
+            "Clients with breached or tight leverage covenants at the latest test and their :fiscal_year Net Debt/EBITDA vs the peer median"
+          ],
+          "sql": [
+            "WITH cov AS (\n",
+            "  SELECT `Client`, MEASURE(`Min Covenant Headroom %`) AS min_headroom, MEASURE(`Breaches`) AS breaches\n",
+            "  FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+            "  WHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'\n",
+            "  GROUP BY ALL\n",
+            "),\n",
+            "lev AS (\n",
+            "  SELECT `Client`, MEASURE(`Ratio Value`) AS net_debt_to_ebitda, MEASURE(`Peer Median`) AS peer_median\n",
+            "  FROM smbc_genie.metrics.mv_financial_ratios_vs_peers\n",
+            "  WHERE `Ratio Name` = 'Net Debt/EBITDA' AND `Fiscal Year` = :fiscal_year\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT cov.`Client`, cov.min_headroom, cov.breaches, lev.net_debt_to_ebitda, lev.peer_median\n",
+            "FROM cov LEFT JOIN lev ON lev.`Client` = cov.`Client`\n",
+            "WHERE cov.min_headroom < 0.10\n",
+            "ORDER BY cov.min_headroom"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Statement fiscal year of the ratio, e.g. FY2025 (the latest spread year)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Cross-view pattern (covenants + ratios) - wrap each metric-view query in a CTE and join the CTEs on Client; use when a question combines covenant headroom with spread ratios or peer benchmarks."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "d531b8ab6f96340c27cc845500000000",
+          "identifier": "smbc_genie.gold.fn_credit_memo_financials"
+        },
+        {
+          "id": "d531b8ab6f96340c27cc845500000001",
+          "identifier": "smbc_genie.gold.fn_credit_memo_facilities"
+        },
+        {
+          "id": "d531b8ab6f96340c27cc845500000002",
+          "identifier": "smbc_genie.gold.fn_credit_memo_exposure"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "1e33de78089a40dff34d0e3e00000000",
+          "question": [
+            "Credit memo pack for Sunda Energi Nusantara (Jakarta): show its spread P&L and balance sheet for the last 3 fiscal years - fiscal year, statement type, statement line, line order and amount in USD."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Fiscal Year`, `Statement Type`, `Statement Line`, `Line Order`, MEASURE(`Amount USD`) AS amount_usd\n",
+                "FROM smbc_genie.metrics.mv_financial_spreads\n",
+                "WHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%' AND `Statement Type` IN ('P&L', 'Balance Sheet')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Line Order`, `Fiscal Year`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000001",
+          "question": [
+            "For the Sunda Energi Nusantara (Jakarta) memo pack, show Net Debt/EBITDA, ICR, DSCR, Current Ratio and EBITDA Margin by fiscal year with the ratio value, the peer median, the percentile rank in the peer group and the worse-than-peer-P25 count."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Ratio Name`, `Fiscal Year`,\n",
+                "       MEASURE(`Ratio Value`)                     AS ratio_value,\n",
+                "       MEASURE(`Peer Median`)                     AS peer_median,\n",
+                "       MEASURE(`Percentile Rank in Peer Group %`) AS peer_percentile_rank,\n",
+                "       MEASURE(`Clients Below Peer P25`)          AS worse_than_p25\n",
+                "FROM smbc_genie.metrics.mv_financial_ratios_vs_peers\n",
+                "WHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'\n",
+                "  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR', 'DSCR', 'Current Ratio', 'EBITDA Margin')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Ratio Name`, `Fiscal Year`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000002",
+          "question": [
+            "List all facilities of Sunda Energi Nusantara (Jakarta) with facility type, status, security type, guarantor type, committed limit, drawn amount, margin in bps, collateral value and highest LTV."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Facility`, `Facility Type`, `Facility Status`, `Security Type`, `Guarantor Type`,\n",
+                "       MEASURE(`Limit USD`)            AS limit_usd,\n",
+                "       MEASURE(`Drawn USD`)            AS drawn_usd,\n",
+                "       MEASURE(`Weighted Margin bps`)  AS margin_bps,\n",
+                "       MEASURE(`Collateral Value USD`) AS collateral_value_usd,\n",
+                "       MEASURE(`Max LTV %`)            AS max_ltv\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY drawn_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000003",
+          "question": [
+            "Show the covenant tests of Sunda Energi Nusantara (Jakarta) since 31 Dec 2025: facility, covenant type, test date, whether it is the latest test, actual, threshold, headroom and number of breaches."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Facility`, `Covenant Type`, `Date` AS test_date, `Is Latest Test`,\n",
+                "       MEASURE(`Covenant Actual`)         AS actual,\n",
+                "       MEASURE(`Covenant Threshold`)      AS threshold,\n",
+                "       MEASURE(`Min Covenant Headroom %`) AS headroom,\n",
+                "       MEASURE(`Breaches`)                AS breaches\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%' AND `Record Type` = 'Covenant Test' AND `Date` >= DATE'2025-12-31'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Facility`, `Covenant Type`, test_date"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000004",
+          "question": [
+            "What is the current exposure of Sunda Energi Nusantara (Jakarta) at 30 Sep 2026: drawn, limit, EAD, RWA, ECL, Stage 3 exposure and overdue amount?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT drawn_usd, limit_usd, ead_usd, rwa_usd, ecl_usd, stage3_exposure_usd, overdue_usd\n",
+                "FROM smbc_genie.gold.fn_credit_memo_exposure('Sunda Energi Nusantara (Jakarta)')"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000005",
+          "question": [
+            "Which legal entities breached or have less than 10% headroom on a leverage covenant at the latest test? Show client, facility, headroom bucket, watchlist flag, actual, threshold and headroom."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`,\n",
+                "       MEASURE(`Covenant Actual`)         AS actual,\n",
+                "       MEASURE(`Covenant Threshold`)      AS threshold,\n",
+                "       MEASURE(`Min Covenant Headroom %`) AS headroom\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'\n",
+                "  AND `Headroom Bucket` IN ('Breached', '0-10%')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY headroom"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000006",
+          "question": [
+            "Net Debt/EBITDA and ICR for all Indonesian mining clients vs their peer median, FY2023-FY2025: client, subsector, ratio, fiscal year, ratio value, peer median and gap to the peer median."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Subsector`, `Ratio Name`, `Fiscal Year`,\n",
+                "       MEASURE(`Ratio Value`)        AS ratio_value,\n",
+                "       MEASURE(`Peer Median`)        AS peer_median,\n",
+                "       MEASURE(`Gap to Peer Median`) AS gap_to_peer_median\n",
+                "FROM smbc_genie.metrics.mv_financial_ratios_vs_peers\n",
+                "WHERE `Coverage Office` = 'ID' AND `Subsector` IN ('Mining', 'Minerals', 'Natural Resources', 'Oil, Gas & Coal')\n",
+                "  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Client`, `Ratio Name`, `Fiscal Year`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000007",
+          "question": [
+            "For FY2025 financials not yet spread, how many statements does each analyst have outstanding, and what are the average and maximum days overdue?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Analyst`,\n",
+                "       MEASURE(`Not Yet Spread`)       AS statements_not_spread,\n",
+                "       MEASURE(`Average Days Overdue`) AS avg_days_overdue,\n",
+                "       MEASURE(`Max Days Overdue`)     AS max_days_overdue\n",
+                "FROM smbc_genie.metrics.mv_credit_review_workflow\n",
+                "WHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = 'FY2025' AND `Is Not Yet Spread`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY statements_not_spread DESC, max_days_overdue DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000008",
+          "question": [
+            "Which clients' FY2025 financials are not yet spread? List client, analyst, spreading status and days overdue."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Analyst`, `Status`, MEASURE(`Max Days Overdue`) AS days_overdue\n",
+                "FROM smbc_genie.metrics.mv_credit_review_workflow\n",
+                "WHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = 'FY2025' AND `Is Not Yet Spread`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY days_overdue DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000009",
+          "question": [
+            "Annual reviews due in Q3 FY2026 by analyst and current status: number of reviews due and average days in preparation."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Analyst`, `Status`,\n",
+                "       MEASURE(`Reviews Due`)                 AS reviews_due,\n",
+                "       MEASURE(`Average Days in Preparation`) AS avg_days_in_preparation\n",
+                "FROM smbc_genie.metrics.mv_credit_review_workflow\n",
+                "WHERE `Review Type` = 'Annual' AND `Fiscal Quarter` = 'FY2026-Q3'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Analyst`, `Status`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e0000000a",
+          "question": [
+            "Collateral coverage on active facilities: list the collateral with LTV above 70% or a valuation older than 24 months - client, facility, collateral type, collateral value, LTV and valuation age in months."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Facility`, `Collateral Type`,\n",
+                "       MEASURE(`Collateral Value USD`)     AS collateral_value_usd,\n",
+                "       MEASURE(`Max LTV %`)                AS ltv,\n",
+                "       MEASURE(`Max Valuation Age Months`) AS valuation_age_months\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Record Type` = 'Collateral' AND `Facility Status` = 'Active'\n",
+                "GROUP BY ALL\n",
+                "HAVING MEASURE(`Collateral Needing Review`) > 0\n",
+                "ORDER BY ltv DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e0000000b",
+          "question": [
+            "Summarise collateral needing review on active facilities by collateral type: items needing review, items with LTV above 70% and items with valuations older than 24 months."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Collateral Type`,\n",
+                "       MEASURE(`Collateral Needing Review`) AS items_needing_review,\n",
+                "       MEASURE(`High LTV Items`)            AS ltv_over_70,\n",
+                "       MEASURE(`Stale Valuations`)          AS valuation_over_24m\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Record Type` = 'Collateral' AND `Facility Status` = 'Active'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY items_needing_review DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e0000000c",
+          "question": [
+            "Which Japanese-corporate subsidiaries rely on a parent guarantee or keepwell on their active facilities, and what is the parent's external rating from the Japan share? Show client, client group, guarantor type, parent rating, number of facilities and drawn amount."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Client Group`, `Guarantor Type`, `Parent Rating`,\n",
+                "       MEASURE(`Facilities`) AS facilities,\n",
+                "       MEASURE(`Drawn USD`)  AS drawn_usd\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Record Type` = 'Facility' AND `Facility Status` = 'Active' AND `Is Japanese Corporate`\n",
+                "  AND `Guarantor Type` IN ('Parent Guarantee', 'Keepwell')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY drawn_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e0000000d",
+          "question": [
+            "Working-capital cycle trend for electronics-sector clients, FY2023-FY2025: for DSO, DIO, DPO and the cash conversion cycle, show by fiscal year the number of clients, the client average days and the peer median days."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Ratio Name`, `Fiscal Year`,\n",
+                "       MEASURE(`Clients`)     AS clients,\n",
+                "       MEASURE(`Ratio Value`) AS client_average_days,\n",
+                "       MEASURE(`Peer Median`) AS peer_median_days\n",
+                "FROM smbc_genie.metrics.mv_financial_ratios_vs_peers\n",
+                "WHERE `Subsector` IN ('Electronics', 'Electronic Devices') AND `Ratio Name` IN ('DSO', 'DIO', 'DPO', 'Cash Conversion Cycle')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Ratio Name`, `Fiscal Year`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e0000000e",
+          "question": [
+            "How many covenant waivers were granted this fiscal year, what exposure is associated with them, and how many covenant tests were run in FY2026?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Waivers`)                   AS waivers,\n",
+                "       MEASURE(`Exposure with Waivers USD`) AS exposure_with_waivers_usd,\n",
+                "       MEASURE(`Covenant Tests`)            AS covenant_tests_fy2026\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Record Type` = 'Covenant Test' AND `Fiscal Year` = 'FY2026'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e0000000f",
+          "question": [
+            "New-money requests approved in H1 FY2026 by coverage office: number approved, requested amount, weighted margin in bps and average days to approval."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Coverage Office`,\n",
+                "       MEASURE(`Approved`)                 AS approvals,\n",
+                "       MEASURE(`Requested Amount USD`)     AS amount_usd,\n",
+                "       MEASURE(`Weighted Margin bps`)      AS weighted_margin_bps,\n",
+                "       MEASURE(`Average Days to Approval`) AS avg_days_to_approval\n",
+                "FROM smbc_genie.metrics.mv_credit_review_workflow\n",
+                "WHERE `Review Type` = 'New Money' AND `Approval Fiscal Half` = 'FY2026-H1' AND `Outcome` IN ('Approved', 'Approved with Conditions')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY amount_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000010",
+          "question": [
+            "Leverage covenant trips or sub-10% cushion at the last test - which obligors? Give facility, headroom bucket, WL flag, actual vs threshold and headroom."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`,\n",
+                "       MEASURE(`Covenant Actual`)         AS actual,\n",
+                "       MEASURE(`Covenant Threshold`)      AS threshold,\n",
+                "       MEASURE(`Min Covenant Headroom %`) AS headroom\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'\n",
+                "  AND `Headroom Bucket` IN ('Breached', '0-10%')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY headroom"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000011",
+          "question": [
+            "new money approvals H1 FY26 by office - count, amt, wtd margin bps, avg days to approve"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Coverage Office`,\n",
+                "       MEASURE(`Approved`)                 AS approvals,\n",
+                "       MEASURE(`Requested Amount USD`)     AS amount_usd,\n",
+                "       MEASURE(`Weighted Margin bps`)      AS weighted_margin_bps,\n",
+                "       MEASURE(`Average Days to Approval`) AS avg_days_to_approval\n",
+                "FROM smbc_genie.metrics.mv_credit_review_workflow\n",
+                "WHERE `Review Type` = 'New Money' AND `Approval Fiscal Half` = 'FY2026-H1' AND `Outcome` IN ('Approved', 'Approved with Conditions')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY amount_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000012",
+          "question": [
+            "list clients with FY2025 finacials not yet spred, with analyst, status and days overdue"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Analyst`, `Status`, MEASURE(`Max Days Overdue`) AS days_overdue\n",
+                "FROM smbc_genie.metrics.mv_credit_review_workflow\n",
+                "WHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = 'FY2025' AND `Is Not Yet Spread`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY days_overdue DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1e33de78089a40dff34d0e3e00000013",
+          "question": [
+            "did we waive any covenants this year? how much exposure did that cover, and how many covenant tests did we run in FY2026?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Waivers`)                   AS waivers,\n",
+                "       MEASURE(`Exposure with Waivers USD`) AS exposure_with_waivers_usd,\n",
+                "       MEASURE(`Covenant Tests`)            AS covenant_tests_fy2026\n",
+                "FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n",
+                "WHERE `Record Type` = 'Covenant Test' AND `Fiscal Year` = 'FY2026'"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

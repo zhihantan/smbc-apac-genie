@@ -1,0 +1,763 @@
+{
+ "columns": [
+  {
+   "comment": "Golden client id (GC-nnnnnn) - one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the client's current dim_client version.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Unique client label keeping the location, e.g. Kinokawa Precision (Singapore) Pte Ltd.",
+   "is_measure": false,
+   "name": "display_name",
+   "type": "string"
+  },
+  {
+   "comment": "Survived legal name of the client.",
+   "is_measure": false,
+   "name": "legal_name",
+   "type": "string"
+  },
+  {
+   "comment": "Name without location and legal form, e.g. Kinokawa Precision - match with LIKE '%...%'.",
+   "is_measure": false,
+   "name": "short_name",
+   "type": "string"
+  },
+  {
+   "comment": "Other names used by source records, ' | '-separated (for LIKE searches).",
+   "is_measure": false,
+   "name": "aliases_text",
+   "type": "string"
+  },
+  {
+   "comment": "Fictional LEI-like identifier (null when none).",
+   "is_measure": false,
+   "name": "lei_like_id",
+   "type": "string"
+  },
+  {
+   "comment": "ISO-2 country of incorporation.",
+   "is_measure": false,
+   "name": "country_of_incorporation",
+   "type": "string"
+  },
+  {
+   "comment": "Client group id (SYN-G-nnnn); join gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group short brand, e.g. Kinokawa Precision.",
+   "is_measure": false,
+   "name": "group_name",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client is its group's lead (relationship) entity.",
+   "is_measure": false,
+   "name": "is_group_lead",
+   "type": "boolean"
+  },
+  {
+   "comment": "Display name of the group's lead entity.",
+   "is_measure": false,
+   "name": "group_lead_client_name",
+   "type": "string"
+  },
+  {
+   "comment": "Legal name of the Japanese parent (Japan share); null for groups without one.",
+   "is_measure": false,
+   "name": "jp_parent_legal_name",
+   "type": "string"
+  },
+  {
+   "comment": "External-scale equivalent of the JP parent's Tokyo HO grade (Japan share).",
+   "is_measure": false,
+   "name": "jp_parent_rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate).",
+   "is_measure": false,
+   "name": "is_japanese_corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Relationship tier: Strategic, Core or Transactional.",
+   "is_measure": false,
+   "name": "relationship_tier",
+   "type": "string"
+  },
+  {
+   "comment": "Industry sector, e.g. Technology, Materials.",
+   "is_measure": false,
+   "name": "industry_sector",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector, e.g. Semiconductors, Oil, Gas & Coal.",
+   "is_measure": false,
+   "name": "industry_subsector",
+   "type": "string"
+  },
+  {
+   "comment": "True when the subsector is carbon-intensive.",
+   "is_measure": false,
+   "name": "is_carbon_intensive",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the entity is listed (external company master).",
+   "is_measure": false,
+   "name": "is_listed",
+   "type": "boolean"
+  },
+  {
+   "comment": "Coverage office = APAC booking location (ISO-2, e.g. SG, HK).",
+   "is_measure": false,
+   "name": "coverage_office",
+   "type": "string"
+  },
+  {
+   "comment": "Country name of the coverage office, e.g. Singapore.",
+   "is_measure": false,
+   "name": "coverage_office_name",
+   "type": "string"
+  },
+  {
+   "comment": "Employee id of the primary RM today (null = no RM coverage).",
+   "is_measure": false,
+   "name": "primary_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the primary RM (RM001-RM120).",
+   "is_measure": false,
+   "name": "primary_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the primary RM (fictional).",
+   "is_measure": false,
+   "name": "primary_rm_name",
+   "type": "string"
+  },
+  {
+   "comment": "Office of the primary RM (APAC booking location, e.g. SG).",
+   "is_measure": false,
+   "name": "primary_rm_office",
+   "type": "string"
+  },
+  {
+   "comment": "Credit analyst on the client's latest credit review (fictional).",
+   "is_measure": false,
+   "name": "credit_analyst_name",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 today (1 best, 10 default); null = not rated.",
+   "is_measure": false,
+   "name": "internal_rating_grade",
+   "type": "int"
+  },
+  {
+   "comment": "External-scale equivalent of the internal grade (AAA ... D).",
+   "is_measure": false,
+   "name": "rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "IFRS 9 stage 1 / 2 / 3 today; null = not rated.",
+   "is_measure": false,
+   "name": "ifrs9_stage",
+   "type": "int"
+  },
+  {
+   "comment": "Agency rating of the client's group issuer today (fictional agencies; null = unrated).",
+   "is_measure": false,
+   "name": "external_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final EWS band today (after overrides): Green (< 40), Amber (40-69) or Red (>= 70); null = not scored.",
+   "is_measure": false,
+   "name": "ews_band",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist today.",
+   "is_measure": false,
+   "name": "watchlist_flag",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High today; null = no KYC record.",
+   "is_measure": false,
+   "name": "kyc_risk_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Due date of the next KYC review not yet completed (past date = overdue).",
+   "is_measure": false,
+   "name": "kyc_next_review_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the client's group has an FY2026 account plan.",
+   "is_measure": false,
+   "name": "has_account_plan",
+   "type": "boolean"
+  },
+  {
+   "comment": "Customer-since date recorded by KYC.",
+   "is_measure": false,
+   "name": "onboarding_date",
+   "type": "date"
+  },
+  {
+   "comment": "Earliest evidence of the banking relationship.",
+   "is_measure": false,
+   "name": "relationship_start_date",
+   "type": "date"
+  },
+  {
+   "comment": "ESG risk High / Medium / Low (carbon-intensive subsector and / or ESG-controversy news in the last 12 months).",
+   "is_measure": false,
+   "name": "esg_rating",
+   "type": "string"
+  },
+  {
+   "comment": "Identity source systems holding the client, comma-separated.",
+   "is_measure": false,
+   "name": "source_systems_text",
+   "type": "string"
+  },
+  {
+   "comment": "Source identity records resolved to the client.",
+   "is_measure": false,
+   "name": "n_source_records",
+   "type": "int"
+  },
+  {
+   "comment": "0-1 confidence of the golden record.",
+   "is_measure": false,
+   "name": "golden_record_confidence",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue FY2026 to date (Apr-Sep 2026) in USD, all product families (fact_client_revenue_monthly).",
+   "is_measure": false,
+   "name": "revenue_fytd_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue of the same months one year earlier (Apr-Sep 2025) in USD.",
+   "is_measure": false,
+   "name": "revenue_prior_fytd_usd",
+   "type": "double"
+  },
+  {
+   "comment": "FYTD revenue vs prior FYTD as a fraction (-0.22 = -22%); null without prior revenue.",
+   "is_measure": false,
+   "name": "revenue_yoy_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Net contribution (revenue - allocated cost - credit cost) FY2026 to date in USD.",
+   "is_measure": false,
+   "name": "net_contribution_fytd_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Annualised RoRWA of the latest fiscal quarter (FY2026-Q2) as a fraction (hurdle 1.2%); null = no RWA.",
+   "is_measure": false,
+   "name": "rorwa_latest_quarter",
+   "type": "double"
+  },
+  {
+   "comment": "True when the latest-quarter RoRWA is below the configured hurdle (gold.dim_threshold RORWA_HURDLE).",
+   "is_measure": false,
+   "name": "below_rorwa_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "Products held at Sep-2026 (fact_product_holding_monthly).",
+   "is_measure": false,
+   "name": "products_held_count",
+   "type": "bigint"
+  },
+  {
+   "comment": "Product families held at Sep-2026.",
+   "is_measure": false,
+   "name": "product_families_held_count",
+   "type": "bigint"
+  },
+  {
+   "comment": "True when the client holds only deposit products at Sep-2026.",
+   "is_measure": false,
+   "name": "is_deposit_only",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client's only product is lending at Sep-2026.",
+   "is_measure": false,
+   "name": "is_single_product_lending",
+   "type": "boolean"
+  },
+  {
+   "comment": "Pipeline opportunities open at 30-Sep-2026 (fact_pipeline_opportunity; stages Prospecting to Negotiation).",
+   "is_measure": false,
+   "name": "open_opportunities",
+   "type": "int"
+  },
+  {
+   "comment": "Amount of the open pipeline opportunities in USD.",
+   "is_measure": false,
+   "name": "open_pipeline_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Open pipeline weighted by win probability in USD.",
+   "is_measure": false,
+   "name": "weighted_pipeline_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Amount of opportunities won in FY2026 to date (Apr-Sep 2026) in USD.",
+   "is_measure": false,
+   "name": "won_fytd_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Product ranked 1 by the latest next-best-product scoring (fact_next_best_product_score, Sep-2026), e.g. Supply Chain Finance; null = not scored.",
+   "is_measure": false,
+   "name": "next_best_product",
+   "type": "string"
+  },
+  {
+   "comment": "Propensity 0-1 of the next-best product.",
+   "is_measure": false,
+   "name": "next_best_product_propensity",
+   "type": "double"
+  },
+  {
+   "comment": "Date of the latest RM activity (meeting / call / e-mail / visit) with the client.",
+   "is_measure": false,
+   "name": "last_rm_contact_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the latest RM activity to 30-Sep-2026 (null = never contacted; > 90 = not touched in 90 days).",
+   "is_measure": false,
+   "name": "days_since_last_rm_contact",
+   "type": "int"
+  },
+  {
+   "comment": "RM activities with the client in the last 90 days.",
+   "is_measure": false,
+   "name": "rm_contacts_last_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Follow-up actions from RM notes still Open or Overdue.",
+   "is_measure": false,
+   "name": "open_rm_actions",
+   "type": "int"
+  },
+  {
+   "comment": "Credit facilities with a 30-Sep-2026 month-end snapshot (fact_credit_exposure_monthly).",
+   "is_measure": false,
+   "name": "facilities",
+   "type": "int"
+  },
+  {
+   "comment": "Committed credit limits at 30-Sep-2026 in USD.",
+   "is_measure": false,
+   "name": "credit_limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn credit at 30-Sep-2026 in USD.",
+   "is_measure": false,
+   "name": "drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Undrawn commitments at 30-Sep-2026 in USD (RCF headroom).",
+   "is_measure": false,
+   "name": "undrawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn / limit at 30-Sep-2026 (fraction); null without limits.",
+   "is_measure": false,
+   "name": "utilisation_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Exposure at default at 30-Sep-2026 in USD.",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Risk-weighted assets at 30-Sep-2026 in USD.",
+   "is_measure": false,
+   "name": "rwa_usd",
+   "type": "double"
+  },
+  {
+   "comment": "IFRS 9 expected credit loss provision at 30-Sep-2026 in USD.",
+   "is_measure": false,
+   "name": "ecl_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Highest days past due across the client's facilities at 30-Sep-2026 (null = no facility).",
+   "is_measure": false,
+   "name": "max_days_past_due",
+   "type": "int"
+  },
+  {
+   "comment": "EWS composite score 0-100 on 30-Sep-2026 (null = not scored).",
+   "is_measure": false,
+   "name": "ews_score",
+   "type": "double"
+  },
+  {
+   "comment": "EWS band computed by the model on 30-Sep-2026 (before overrides).",
+   "is_measure": false,
+   "name": "ews_computed_band",
+   "type": "string"
+  },
+  {
+   "comment": "Change of the EWS score over the last 30 days (points).",
+   "is_measure": false,
+   "name": "ews_score_change_30d",
+   "type": "double"
+  },
+  {
+   "comment": "True when the final band differs from the computed band on 30-Sep-2026 (analyst override).",
+   "is_measure": false,
+   "name": "is_ews_overridden",
+   "type": "boolean"
+  },
+  {
+   "comment": "Top EWS triggers driving the score on 30-Sep-2026.",
+   "is_measure": false,
+   "name": "ews_top_triggers",
+   "type": "string"
+  },
+  {
+   "comment": "Lowest covenant headroom at the latest test (fraction; negative = breach); null = no covenants.",
+   "is_measure": false,
+   "name": "covenant_min_headroom_pct",
+   "type": "double"
+  },
+  {
+   "comment": "True when a covenant is breached at its latest test.",
+   "is_measure": false,
+   "name": "has_covenant_breach",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenants with tight headroom at their latest test.",
+   "is_measure": false,
+   "name": "tight_covenants",
+   "type": "int"
+  },
+  {
+   "comment": "Due date of the open annual credit review (null = none open).",
+   "is_measure": false,
+   "name": "next_credit_review_due_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when a credit review is overdue at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_credit_review_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC reviews not completed at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "open_kyc_reviews",
+   "type": "int"
+  },
+  {
+   "comment": "KYC reviews overdue at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "overdue_kyc_reviews",
+   "type": "int"
+  },
+  {
+   "comment": "Latest onboarding case of the client (null = none).",
+   "is_measure": false,
+   "name": "latest_onboarding_case_id",
+   "type": "string"
+  },
+  {
+   "comment": "Status of the latest onboarding case (e.g. Live, Open, Withdrawn).",
+   "is_measure": false,
+   "name": "latest_onboarding_status",
+   "type": "string"
+  },
+  {
+   "comment": "Go-live date of the latest onboarding case.",
+   "is_measure": false,
+   "name": "latest_onboarding_go_live_date",
+   "type": "date"
+  },
+  {
+   "comment": "When the latest onboarding case was matched to the existing group: At Intake, After Account Opening or New Group.",
+   "is_measure": false,
+   "name": "latest_onboarding_match_timing",
+   "type": "string"
+  },
+  {
+   "comment": "Deposit balances at 30-Sep-2026 in USD (fact_deposit_balance_monthly).",
+   "is_measure": false,
+   "name": "deposits_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Current and savings account (CASA) balances at 30-Sep-2026 in USD.",
+   "is_measure": false,
+   "name": "casa_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Time-deposit balances at 30-Sep-2026 in USD.",
+   "is_measure": false,
+   "name": "time_deposits_usd",
+   "type": "double"
+  },
+  {
+   "comment": "CASA / total deposits at 30-Sep-2026 (fraction).",
+   "is_measure": false,
+   "name": "casa_ratio",
+   "type": "double"
+  },
+  {
+   "comment": "Time-deposit principal maturing in the next 90 days in USD.",
+   "is_measure": false,
+   "name": "td_maturing_90d_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Payment messages in the last 90 days (fact_payment_transaction).",
+   "is_measure": false,
+   "name": "payments_last_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Payment value in the last 90 days in USD.",
+   "is_measure": false,
+   "name": "payments_last_90d_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Share of the last-90-day payment value with counterparties at other banks (fraction).",
+   "is_measure": false,
+   "name": "payments_other_bank_share_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Trade finance outstanding at 30-Sep-2026 in USD (fact_trade_outstanding_monthly).",
+   "is_measure": false,
+   "name": "trade_outstanding_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Trade finance instruments outstanding at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "trade_instruments_outstanding",
+   "type": "int"
+  },
+  {
+   "comment": "Net cash flow forecast for the next 30 days made on 30-Sep-2026 (latest model, USD; negative = predicted outflow).",
+   "is_measure": false,
+   "name": "forecast_net_30d_usd",
+   "type": "double"
+  },
+  {
+   "comment": "P10 (pessimistic) of the 30-day net cash-flow forecast in USD.",
+   "is_measure": false,
+   "name": "forecast_net_30d_p10_usd",
+   "type": "double"
+  },
+  {
+   "comment": "P90 (optimistic) of the 30-day net cash-flow forecast in USD.",
+   "is_measure": false,
+   "name": "forecast_net_30d_p90_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when the 30-day net cash-flow forecast is negative (client forecast to go negative).",
+   "is_measure": false,
+   "name": "is_forecast_negative_30d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Latest predicted liquidity need of the client: Predicted Shortfall or Predicted Surplus (null = none).",
+   "is_measure": false,
+   "name": "latest_liquidity_event_type",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the latest predicted liquidity need.",
+   "is_measure": false,
+   "name": "latest_liquidity_event_date",
+   "type": "date"
+  },
+  {
+   "comment": "Predicted shortfall / surplus amount of the latest event in USD.",
+   "is_measure": false,
+   "name": "latest_liquidity_event_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Status of the latest liquidity event: Open, Actioned or Closed - No Action.",
+   "is_measure": false,
+   "name": "latest_liquidity_event_status",
+   "type": "string"
+  },
+  {
+   "comment": "Action taken on the latest liquidity event: RCF Drawdown, TD Placed or None.",
+   "is_measure": false,
+   "name": "latest_liquidity_event_action",
+   "type": "string"
+  },
+  {
+   "comment": "Signals of any source on the client in the last 90 days (fact_signal_event; group-level signals count on the lead entity).",
+   "is_measure": false,
+   "name": "signals_last_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Risk-polarity signals in the last 90 days.",
+   "is_measure": false,
+   "name": "risk_signals_last_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Opportunity-polarity signals in the last 90 days.",
+   "is_measure": false,
+   "name": "opportunity_signals_last_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Risk signals of the last 90 days not acknowledged by an RM.",
+   "is_measure": false,
+   "name": "unacknowledged_risk_signals_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Date of the latest signal in the last 90 days.",
+   "is_measure": false,
+   "name": "last_signal_date",
+   "type": "date"
+  },
+  {
+   "comment": "News items on the client in the last 90 days.",
+   "is_measure": false,
+   "name": "news_items_last_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Average news sentiment (-1..1) on the client in the last 90 days.",
+   "is_measure": false,
+   "name": "news_sentiment_last_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Negative news items (sentiment <= -0.2) in the last 90 days.",
+   "is_measure": false,
+   "name": "negative_news_last_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Average RM-note sentiment (-1..1) on the client in the last 90 days.",
+   "is_measure": false,
+   "name": "rm_note_sentiment_last_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Average news sentiment of the client's whole group in the last 90 days.",
+   "is_measure": false,
+   "name": "group_news_sentiment_last_90d",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client's group is a blind spot: external sentiment turned negative while RM notes stayed positive (last 90 days).",
+   "is_measure": false,
+   "name": "is_blind_spot_group",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the group's listed parent closed at its 52-week low on the latest trading day.",
+   "is_measure": false,
+   "name": "listed_parent_at_52w_low",
+   "type": "boolean"
+  },
+  {
+   "comment": "30-day share-price change of the group's listed parent (fraction).",
+   "is_measure": false,
+   "name": "listed_parent_price_change_30d_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Identity source systems (of 7) holding the client at Sep-2026.",
+   "is_measure": false,
+   "name": "sources_present",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is in core banking, CRM and KYC.",
+   "is_measure": false,
+   "name": "in_all_core_sources",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the KYC platform holds no record of the client.",
+   "is_measure": false,
+   "name": "is_missing_kyc_record",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the credit system holds no obligor record of the client.",
+   "is_measure": false,
+   "name": "is_missing_credit_record",
+   "type": "boolean"
+  },
+  {
+   "comment": "Golden-record attribute completeness (fraction of 10 key attributes).",
+   "is_measure": false,
+   "name": "attribute_completeness_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Key attributes missing on the golden record, comma-separated.",
+   "is_measure": false,
+   "name": "missing_attributes_text",
+   "type": "string"
+  }
+ ],
+ "comment": "Customer 360 drill-through view for Genie: one row per current golden client (legal entity) as of 30-Sep-2026 with its headline attributes (names and aliases for LIKE search, group, segment, tier, industry, coverage office, primary RM, internal and external rating, IFRS 9 stage, EWS band, watchlist, KYC risk) and the latest KPI of every domain: FYTD revenue and RoRWA, products held, open pipeline and next-best product, RM contact; credit limit, drawn, EAD / RWA / ECL, DPD, EWS score, covenant headroom, credit review due; KYC reviews and onboarding; deposits / CASA / TD, payments in the last 90 days, trade outstanding; 30-day cash-flow forecast and the latest liquidity need; signals, news and RM-note sentiment in the last 90 days; source coverage and attribute completeness. Point-in-time KPIs are at the 30-Sep-2026 month-end / day; FYTD = 1-Apr .. 30-Sep-2026 (FY2026 H1). USD amounts; 0 = none. Grain: one row per current golden client.",
+ "identifier": "smbc_genie.gold.vw_client_360",
+ "type": "VIEW"
+}

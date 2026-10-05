@@ -1,0 +1,330 @@
+# APAC Genie - Transactional Banking: Trade & Supply Chain Finance (brief §5.8, PLAN §8 / §9 / §10). Authored by G3
+# (p07g3). Must-answer queries: metrics/_answers/tb_trade_scf.sql. Caveats: scratch/genie_caveats.md §8.
+# mv_tb_payments (space 7's view, also_in this space) answers the SCF anchor-candidate question (suppliers paid).
+slug: tb_trade_scf
+title: "APAC Genie - Transactional Banking: Trade & Supply Chain Finance"
+description: >-
+  Ask about trade finance issuance and outstanding by product and corridor, supply chain finance programme health,
+  trade operations turnaround and document discrepancies, and trade-flow opportunities for SMBC's APAC clients.
+  Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client
+  names roll up to client groups; data is synthetic and as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_tb_trade_finance
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Booking Country: {entity_matching: true}
+      Product: {entity_matching: true}
+      Corridor From: {entity_matching: true}
+      Corridor To: {entity_matching: true}
+      Corridor: {entity_matching: true}
+      Commodity: {entity_matching: true}
+      Tenor Bucket: {entity_matching: true}
+      Counterparty Bank Country: {entity_matching: true}
+      Beneficiary Country: {entity_matching: true}
+      Expiry Quarter: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Fiscal Quarter: {entity_matching: true}
+      Fiscal Half: {entity_matching: true}
+      Live Instruments: {synonyms: [how many are live, how many guarantees are live, guarantees live, number of guarantees outstanding, live count]}
+      Transactions: {description: "Instruments ISSUED in the selected months (a flow of new business) - never the number live or outstanding at a date; for that use Live Instruments."}
+  - identifier: smbc_genie.metrics.mv_trade_operations
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Booking Country: {entity_matching: true}
+      Product: {entity_matching: true}
+      Discrepancy Type: {entity_matching: true}
+      Operations Team: {entity_matching: true}
+      Decision: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Fiscal Half: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_tb_scf
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Programme: {entity_matching: true}
+      Programme Type: {entity_matching: true}
+      Anchor Country: {entity_matching: true}
+      Utilisation Band: {entity_matching: true}
+      Supplier Country: {entity_matching: true}
+      Supplier Segment: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_trade_corridors
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Record Type: {entity_matching: true}
+      Corridor From: {entity_matching: true}
+      Corridor To: {entity_matching: true}
+      Corridor: {entity_matching: true}
+      Commodity: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Fiscal Half: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_tb_payments
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Booking Country: {entity_matching: true}
+      Direction: {entity_matching: true}
+      Payment Purpose: {entity_matching: true}
+      Corridor: {entity_matching: true}
+      Counterparty Country: {entity_matching: true}
+      Counterparty Bank Type: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_scf_programme
+    include_columns: [programme_id, programme_name, programme_type, anchor_client_name, anchor_country, client_group_id,
+                      launch_date, currency, n_supplier_countries, n_suppliers_banking_elsewhere, primary_corridor,
+                      programme_age_months]
+    columns:
+      programme_name: {entity_matching: true}
+      programme_type: {entity_matching: true}
+      anchor_country: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    include_columns: [golden_client_id, display_name, short_name, aliases_text, group_name, is_group_lead, segment,
+                      is_japanese_corporate, relationship_tier, industry_sector, industry_subsector, is_carbon_intensive,
+                      coverage_office, coverage_office_name, primary_rm_name, primary_rm_office, trade_outstanding_usd,
+                      trade_instruments_outstanding, payments_last_90d_usd, payments_other_bank_share_90d]
+    columns:
+      group_name: {entity_matching: true}
+      segment: {entity_matching: true}
+      relationship_tier: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+      primary_rm_name: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, is_japanese_group, group_segment,
+                      group_relationship_tier, is_strategic_group, group_industry_sector, lead_client_name, lead_office,
+                      lead_rm_name, n_entities_apac, n_apac_countries, apac_countries_text]
+    columns:
+      group_name: {entity_matching: true}
+      hq_country: {entity_matching: true}
+      group_segment: {entity_matching: true}
+      lead_office: {entity_matching: true}
+      lead_rm_name: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- Views: mv_tb_trade_finance = trade-finance issuance, fees / fee yield, tenor and outstanding by product, goods corridor, commodity and expiry quarter; mv_trade_operations = LC document checks, discrepancies, turnaround vs the 24-hour SLA; mv_tb_scf = SCF programmes and suppliers; mv_trade_corridors = external corridor statistics, SMBC share, clients without a trade product; mv_tb_payments = payments (suppliers paid)."
+    - "- Fiscal periods: filter or group the `Fiscal Year` / `Fiscal Half` / `Fiscal Quarter` dimensions by their labels ('FY2025' = Apr 2025-Mar 2026, 'FY2026' = Apr-Sep 2026 to date, 'FY2026-H1', 'FY2026-Q2'); never rebuild fiscal years from `Month` ranges. Point-in-time measures (Outstanding USD, Live Instruments, Active Trade Clients, SCF limit / outstanding / utilisation / supplier counts) need ONE `Month` or `Is Latest Month` (today = Sep 2026)."
+    - "- Trade `Corridor` / `Corridor From` / `Corridor To` = goods origin -> destination (CN->VN = goods from China into Vietnam; import LCs into Vietnam = `Corridor To` = 'VN'); `Booking Country` = where SMBC books it ('SG' = the Singapore hub). `Product`: 'Import LC', 'Export LC', 'Guarantee / SBLC', 'Documentary Collection', 'Trade Loan', 'Receivables Purchase'."
+    - "- Counts: `Transactions` = instruments ISSUED in the period (a flow); `Live Instruments` = instruments outstanding at the month-end (e.g. the number of live guarantees); `Active Trade Clients` counts clients. Pricing = `Fee Yield bps`; carbon exposure = `Is Carbon-Intensive Commodity`."
+    - "- Return ratios, shares and growth exactly as the measures give them - fractions (0.37 = 37%), never multiplied by 100. Corridor market growth = `Corridor Growth YoY %` with `Corridor Volume USD` and `Corridor Volume Prior Year USD` on the later period (it compares the same months a year earlier)."
+    - "- Keep NULL groups: never add `IS NOT NULL` filters on grouping columns unless asked (a NULL `Segment` / `Is Japanese Corporate` is an unclassified trade client). Japanese vs non-Japanese = GROUP BY `Is Japanese Corporate` itself (true / false / null), not a CASE label. Only add LIMIT for a top N."
+    - "- SCF limit / utilisation are programme-level (never split by supplier fields); `Utilisation Band` = 'Above 85%', '40-85%', 'Below 40%'; the anchor buyer is `Client`. Discrepancy counts by `Discrepancy Type` need `Is Discrepant`; rising-discrepancy clients = `Is Client Discrepancy Rising`; payment-visible clients with no trade product = `Is Payment Visible` AND NOT `Has Trade Product Today`."
+    - "- `Client Group` has a value dictionary: filter it with = on the exact name; entity questions list `Client`. Functions (STRING arguments): SCF anchor candidates = smbc_genie.gold.fn_scf_anchor_candidates('50'); the N fastest-growing corridors = fn_trade_corridor_growth('FY2026-H1', '20000000', '10'); one group's trade profile by entity = fn_trade_group_profile('<exact group name>')."
+
+  response: "- Answer with one summary sentence that states the period and filters used, then the table. In the SQL keep every value unscaled and unrounded - ratios, shares and growth stay fractions (never * 100); name output columns plainly."
+example_sqls:
+  - question: SCF programme utilisation and supplier activation by anchor at the end of :month
+    usage_guidance: Use for "SCF programme health", "utilisation by anchor", "programmes above 85% or below 40%", "supplier onboarding / activation by programme".
+    parameters:
+      - {name: month, type: DATE, description: "Month as its first day; 2026-09-01 = today (Sep 2026)", default: "2026-09-01"}
+    sql: |
+      SELECT `Programme`, `Client` AS anchor, `Anchor Country`, `Utilisation Band`,
+             MEASURE(`Programme Limit USD`)      AS programme_limit_usd,
+             MEASURE(`Financed Outstanding USD`) AS financed_outstanding_usd,
+             MEASURE(`Utilisation %`)            AS utilisation,
+             MEASURE(`Suppliers in Register`)    AS suppliers_in_register,
+             MEASURE(`Suppliers Onboarded`)      AS suppliers_onboarded,
+             MEASURE(`Suppliers Active`)         AS suppliers_active,
+             MEASURE(`Supplier Activation %`)    AS supplier_activation_rate
+      FROM smbc_genie.metrics.mv_tb_scf
+      WHERE `Month` = :month
+      GROUP BY ALL
+      ORDER BY utilisation DESC
+  - question: Trade finance issuance by product in :fiscal_half vs :prior_fiscal_half and the growth
+    usage_guidance: Use for "issuance by product half on half / year on year", "H1 FY2026 vs H1 FY2025 by product", "which trade products are growing"; for corridors use fn_trade_corridor_growth.
+    parameters:
+      - {name: fiscal_half, type: STRING, description: "Fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)", default: FY2026-H1}
+      - {name: prior_fiscal_half, type: STRING, description: "Same half one year earlier, e.g. FY2025-H1", default: FY2025-H1}
+    sql: |
+      WITH h AS (
+        SELECT `Product`, `Fiscal Half`, MEASURE(`Issuance USD`) AS issuance_usd
+        FROM smbc_genie.metrics.mv_tb_trade_finance
+        WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)
+        GROUP BY ALL
+      )
+      SELECT `Product`,
+             sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN issuance_usd END) AS issuance_prior_half_usd,
+             sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN issuance_usd END) AS issuance_half_usd,
+             sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN issuance_usd END)
+               / sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN issuance_usd END) - 1 AS issuance_growth_yoy
+      FROM h GROUP BY `Product`
+      ORDER BY issuance_growth_yoy DESC
+  - question: Clients flagged with a rising LC discrepancy rate and their discrepancy rate in :prior_fiscal_half and :fiscal_half
+    usage_guidance: Use for "clients with a rising / deteriorating discrepancy rate", "discrepancy trend by client", "early-warning input from trade documents".
+    parameters:
+      - {name: prior_fiscal_half, type: STRING, description: "Earlier fiscal half, e.g. FY2025-H2 (Oct-2025 to Mar-2026)", default: FY2025-H2}
+      - {name: fiscal_half, type: STRING, description: "Later fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)", default: FY2026-H1}
+    sql: |
+      WITH r AS (
+        SELECT `Client`, `Fiscal Half`, MEASURE(`Discrepancy Rate %`) AS discrepancy_rate
+        FROM smbc_genie.metrics.mv_trade_operations
+        WHERE `Is Client Discrepancy Rising` AND `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)
+        GROUP BY ALL
+      )
+      SELECT `Client`,
+             max(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN discrepancy_rate END) AS discrepancy_rate_prior_half,
+             max(CASE WHEN `Fiscal Half` = :fiscal_half THEN discrepancy_rate END) AS discrepancy_rate_half
+      FROM r GROUP BY `Client`
+      ORDER BY discrepancy_rate_half - discrepancy_rate_prior_half DESC
+  - question: Anchor-buyer candidates for new SCF programmes - buyers paying at least 50 distinct suppliers through us since :from_month that are not already an SCF anchor
+    usage_guidance: Use for "SCF anchor candidates / prospects", "buyers with 50+ suppliers", "who could anchor a supplier finance programme"; a payments CTE anti-joined to the SCF anchors (metric views cannot be joined directly).
+    parameters:
+      - {name: from_month, type: DATE, description: "First month of the look-back as its first day; 2025-10-01 = the last 12 months", default: "2025-10-01"}
+    sql: |
+      WITH sup AS (
+        SELECT `Client`, `Segment`, `Coverage Office`,
+               MEASURE(`Distinct Suppliers Paid`) AS distinct_suppliers_paid,
+               MEASURE(`Payment Volume USD`)      AS supplier_payments_usd
+        FROM smbc_genie.metrics.mv_tb_payments
+        WHERE `Month` >= :from_month AND `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'
+        GROUP BY ALL
+      ), anchors AS (
+        SELECT `Client`, MEASURE(`Programmes`) AS programmes
+        FROM smbc_genie.metrics.mv_tb_scf
+        WHERE `Is Latest Month`
+        GROUP BY ALL
+      )
+      SELECT s.`Client`, s.`Segment`, s.`Coverage Office`, s.distinct_suppliers_paid, s.supplier_payments_usd
+      FROM sup s LEFT ANTI JOIN anchors a ON a.`Client` = s.`Client`
+      WHERE s.distinct_suppliers_paid >= 50
+      ORDER BY s.supplier_payments_usd DESC
+  - question: Trade outstanding in carbon-intensive commodities at each fiscal quarter-end since :from_quarter, and its share of total outstanding
+    usage_guidance: Use for "carbon-intensive / high-carbon trade exposure trend", "transition-risk commodities by quarter", "brown commodity share of the trade book".
+    parameters:
+      - {name: from_quarter, type: STRING, description: "First fiscal quarter label, e.g. FY2024-Q1 (outstanding history starts Apr-2024)", default: FY2024-Q1}
+    sql: |
+      WITH q AS (
+        SELECT `Fiscal Quarter`, `Is Carbon-Intensive Commodity`, MEASURE(`Outstanding USD`) AS outstanding_usd
+        FROM smbc_genie.metrics.mv_tb_trade_finance
+        WHERE `Fiscal Quarter` >= :from_quarter
+        GROUP BY ALL
+      )
+      SELECT `Fiscal Quarter`,
+             sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END) AS carbon_intensive_outstanding_usd,
+             sum(outstanding_usd) AS total_outstanding_usd,
+             sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END) / sum(outstanding_usd) AS carbon_intensive_share
+      FROM q GROUP BY `Fiscal Quarter`
+      ORDER BY `Fiscal Quarter`
+  - question: Import LCs into Vietnam and India of electronics and auto parts from China, Korea and Japan - :fiscal_half vs :prior_fiscal_half, growth and the share booked in Singapore
+    usage_guidance: Use for "VN / IN import surge", "electronics and auto-parts import LCs into Vietnam and India", "how much of the surge is booked in the Singapore hub".
+    parameters:
+      - {name: fiscal_half, type: STRING, description: "Fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)", default: FY2026-H1}
+      - {name: prior_fiscal_half, type: STRING, description: "Same half one year earlier, e.g. FY2025-H1", default: FY2025-H1}
+    sql: |
+      WITH h AS (
+        SELECT `Fiscal Half`, `Booking Country`, MEASURE(`Transactions`) AS import_lcs
+        FROM smbc_genie.metrics.mv_tb_trade_finance
+        WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half) AND `Product` = 'Import LC'
+          AND `Corridor To` IN ('VN', 'IN') AND `Corridor From` IN ('CN', 'KR', 'JP')
+          AND `Commodity` IN ('Electronics', 'Auto Parts')
+        GROUP BY ALL
+      )
+      SELECT sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN import_lcs END) AS import_lcs_half,
+             sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN import_lcs END) AS import_lcs_prior_half,
+             sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN import_lcs END)
+               / sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN import_lcs END) - 1 AS import_lc_growth_yoy,
+             sum(CASE WHEN `Fiscal Half` = :fiscal_half AND `Booking Country` = 'SG' THEN import_lcs END)
+               / sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN import_lcs END) AS share_booked_in_singapore
+      FROM h
+
+sql_functions:
+  - smbc_genie.gold.fn_scf_anchor_candidates
+  - smbc_genie.gold.fn_trade_corridor_growth
+  - smbc_genie.gold.fn_trade_group_profile
+
+sample_questions:
+  - Which trade corridors grew trade finance issuance fastest in H1 FY2026 vs H1 FY2025?
+  - What is our import LC volume into Vietnam and India by commodity and client segment this fiscal year?
+  - How are our SCF programmes utilised by anchor, and which are above 85% or below 40%?
+  - What is the LC document discrepancy rate by booking country this fiscal year, and which clients have a rising discrepancy rate from H2 FY2025 to H1 FY2026?
+  - What is the median trade-operations turnaround by product and country versus the 24-hour SLA?
+  - Which clients trade in the CN->VN electronics corridor (visible from payments) but have no trade product with us?
+  - Which buyers paying 50 or more distinct suppliers through us could anchor a new SCF programme?
+  - How has our trade exposure to carbon-intensive commodities trended by quarter?
+
+benchmarks:
+  - key: Q1
+    question: Which 10 trade corridors grew trade-finance issuance fastest in H1 FY2026 versus H1 FY2025, among corridors with at least USD 20m of issuance in H1 FY2025? Show both halves' issuance and the growth.
+    answer: Q1
+  - key: Q1b
+    question: Show trade-finance issuance by product for H1 FY2025 and H1 FY2026, with the growth.
+    answer: Q1b
+  - key: Q2
+    question: What were the number and value of import LCs into Vietnam and India this fiscal year, by destination country, commodity and client segment?
+    answer: Q2
+  - key: Q2b
+    question: For import LCs into Vietnam and India of electronics and auto parts shipped from China, Korea or Japan, how many were issued in H1 FY2026 and in H1 FY2025, what was the growth, and what share of the H1 FY2026 ones was booked in Singapore?
+    answer: Q2b
+  - key: Q3
+    question: Show every SCF programme today with its anchor, anchor country and utilisation band, plus the programme limit, financed outstanding, utilisation, suppliers in the register, suppliers onboarded, suppliers active and the supplier activation rate.
+    answer: Q3
+  - key: Q4
+    question: What is the LC document discrepancy rate by booking country this fiscal year, with the number of examined presentations?
+    answer: Q4
+  - key: Q4-casual
+    question: discrepancy rate by booking country this year, and how many presentations were examined?
+    variant_of: Q4
+  - key: Q4b
+    question: How many discrepant presentations were there by discrepancy type this fiscal year? Count discrepant presentations only.
+    answer: Q4b
+  - key: Q4c
+    question: List all clients flagged with a rising LC discrepancy rate, with each client's discrepancy rate in H2 FY2025 and in H1 FY2026.
+    expected_sql: |
+      WITH r AS (
+        SELECT `Client`, `Fiscal Half`, MEASURE(`Discrepancy Rate %`) AS discrepancy_rate
+        FROM smbc_genie.metrics.mv_trade_operations
+        WHERE `Is Client Discrepancy Rising` AND `Fiscal Half` IN ('FY2025-H2', 'FY2026-H1')
+        GROUP BY ALL
+      )
+      SELECT `Client`,
+             max(CASE WHEN `Fiscal Half` = 'FY2025-H2' THEN discrepancy_rate END) AS discrepancy_rate_h2_fy2025,
+             max(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN discrepancy_rate END) AS discrepancy_rate_h1_fy2026
+      FROM r GROUP BY `Client`
+      ORDER BY discrepancy_rate_h1_fy2026 - discrepancy_rate_h2_fy2025 DESC
+    checks: {rows: 66, must_contain_columns: [Client]}
+    notes: Answers-file Q4c ends in LIMIT 15 inside a tie at +37.5 points (non-deterministic); the full flagged list (66 clients) is deterministic.
+  - key: Q5
+    question: What was the median LC examination turnaround in hours by product and booking country this fiscal year versus the 24-hour SLA? Show examined presentations, the median hours, the SLA hours and the share over SLA.
+    answer: Q5
+  - key: Q6
+    question: Which entities are active in the CN->VN electronics corridor (visible from their trade-settlement payments) but have no trade product with us? Show their segment, coverage office and trade-settlement payments.
+    answer: Q6
+  - key: Q6b
+    question: For the CN->VN electronics corridor in FY2025 and FY2026 to date, show the corridor market volume, SMBC trade-finance volume, SMBC share estimate, clients active in the corridor and clients without a trade product.
+    answer: Q6b
+  - key: Q6c
+    question: How much did the external market volume of the electronics and auto-parts import corridors into Vietnam and India from China, Korea and Japan grow in H1 FY2026 versus H1 FY2025? Show both halves' volume and the growth.
+    answer: Q6c
+  - key: Q7
+    question: Show guarantees and SBLCs outstanding today by beneficiary country and expiry quarter, with the number of live guarantees and the outstanding amount.
+    answer: Q7
+  - key: Q7-typo
+    question: guarantees and SBLCs outstandng today by beneficiary country and expiry quarter - how many guarantees are live and the amount outstanding
+    variant_of: Q7
+  - key: Q8
+    question: What was the trade fee yield in FY2025 and FY2026 to date for Japanese corporates versus non-Japanese clients, keeping unclassified clients (no Japanese-corporate flag) as their own group? Show fee yield in bps, fee income and the number of instruments.
+    answer: Q8
+  - key: Q8b
+    question: What was the fee yield in bps by segment and product in FY2025, for Japanese Corporate versus Non-Japanese Large Corporate clients?
+    answer: Q8b
+  - key: Q9
+    question: Which buyers paid 50 or more distinct suppliers through us in the last 12 months and are not already an SCF anchor? Show their segment, coverage office, distinct suppliers paid and supplier payment value.
+    answer: Q9
+  - key: Q9-jargon
+    question: SCF anchor prospects - names with 50+ suppliers paid through us over the last 12m that don't anchor a programme yet, with segment, coverage office, supplier count and supplier spend
+    variant_of: Q9
+  - key: Q10
+    question: Show trade finance outstanding in carbon-intensive commodities at each fiscal quarter-end since FY2024-Q1, with total outstanding and the carbon-intensive share.
+    answer: Q10

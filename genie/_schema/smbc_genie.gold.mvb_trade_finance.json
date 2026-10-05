@@ -1,0 +1,193 @@
+{
+ "columns": [
+  {
+   "comment": "Issuance (the instrument on its issue date) or Outstanding (the live instrument at a month-end).",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "Trade-finance instrument id.",
+   "is_measure": false,
+   "name": "txn_id",
+   "type": "string"
+  },
+  {
+   "comment": "Issue date (Issuance rows) or month-end (Outstanding rows) - the time axis of the view.",
+   "is_measure": false,
+   "name": "record_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of record_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version valid on record_date (as-was, D11).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan or Receivables Purchase.",
+   "is_measure": false,
+   "name": "product_type",
+   "type": "string"
+  },
+  {
+   "comment": "Trade product key; join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Import or Export.",
+   "is_measure": false,
+   "name": "direction",
+   "type": "string"
+  },
+  {
+   "comment": "Corridor from: goods origin country (ISO-2).",
+   "is_measure": false,
+   "name": "origin_country",
+   "type": "string"
+  },
+  {
+   "comment": "Corridor to: goods destination country (ISO-2).",
+   "is_measure": false,
+   "name": "destination_country",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor origin->destination, e.g. CN->VN.",
+   "is_measure": false,
+   "name": "corridor",
+   "type": "string"
+  },
+  {
+   "comment": "Goods traded (e.g. Electronics, Auto Parts, Mineral Fuels).",
+   "is_measure": false,
+   "name": "commodity",
+   "type": "string"
+  },
+  {
+   "comment": "HS chapter of the goods.",
+   "is_measure": false,
+   "name": "hs_chapter",
+   "type": "string"
+  },
+  {
+   "comment": "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats).",
+   "is_measure": false,
+   "name": "is_carbon_intensive_commodity",
+   "type": "boolean"
+  },
+  {
+   "comment": "Country of the beneficiary (guarantees / SBLCs).",
+   "is_measure": false,
+   "name": "beneficiary_country",
+   "type": "string"
+  },
+  {
+   "comment": "Country of the counterparty's bank.",
+   "is_measure": false,
+   "name": "counterparty_bank_country",
+   "type": "string"
+  },
+  {
+   "comment": "SMBC booking location of the instrument (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Original tenor bucket: 0-30 days, 31-90 days, 91-180 days, 181-365 days or Over 365 days.",
+   "is_measure": false,
+   "name": "tenor_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Maturity / expiry date of the instrument.",
+   "is_measure": false,
+   "name": "maturity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal quarter of the maturity date, e.g. FY2026-Q3.",
+   "is_measure": false,
+   "name": "expiry_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "True for sustainable / green trade instruments.",
+   "is_measure": false,
+   "name": "is_sustainable_trade",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for instruments issued before 1-Apr-2024 (incomplete FY2023 legacy book).",
+   "is_measure": false,
+   "name": "is_legacy_book",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on Outstanding rows of the as-of month-end 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_latest_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on Outstanding rows of fiscal quarter-ends (quarterly trends).",
+   "is_measure": false,
+   "name": "is_fiscal_quarter_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "Instrument amount in USD at issue (Issuance rows; 0 on Outstanding rows) - Issuance USD (flow).",
+   "is_measure": false,
+   "name": "issuance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "1 on Issuance rows, 0 on Outstanding rows - Transactions = SUM(transactions).",
+   "is_measure": false,
+   "name": "transactions",
+   "type": "int"
+  },
+  {
+   "comment": "Commission / fee income at issue in USD (Issuance rows; 0 on Outstanding rows).",
+   "is_measure": false,
+   "name": "fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Tenor in days on Issuance rows (0 on Outstanding rows) - Average Tenor Days = SUM(tenor_days_issued) / SUM(transactions).",
+   "is_measure": false,
+   "name": "tenor_days_issued",
+   "type": "int"
+  },
+  {
+   "comment": "Outstanding at the month-end in USD (Outstanding rows; 0 on Issuance rows; point-in-time).",
+   "is_measure": false,
+   "name": "outstanding_usd",
+   "type": "double"
+  }
+ ],
+ "comment": "Metric-view base for the TB trade-finance view (D13 record_type union): record_type 'Issuance' = one row per instrument on its issue date (issuance USD, 1 transaction, fee USD, tenor days; from fact_trade_finance_transaction, Apr-2023 onwards, complete from FY2024) and record_type 'Outstanding' = one row per live instrument per month-end from Apr-2024 (outstanding USD; from fact_trade_outstanding_monthly). Both carry the same dimensions (product, corridor from / to, commodity, booking / beneficiary / counterparty-bank country, tenor bucket, expiry quarter, carbon-intensive and sustainable flags). Issuance / transactions / fee / tenor columns are flows and are 0 on Outstanding rows; outstanding_usd is POINT-IN-TIME (one month-end; never sum across months) and 0 on Issuance rows. Fee yield bps = 10000 x SUM(fee_usd) / SUM(issuance_usd); average tenor = SUM(tenor_days_issued) / SUM(transactions). Grain: one row per record_type x instrument x record_date (issue date or month-end).",
+ "identifier": "smbc_genie.gold.mvb_trade_finance",
+ "type": "MANAGED"
+}

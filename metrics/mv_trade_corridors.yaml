@@ -1,0 +1,183 @@
+# Space 8, Transactional Banking: Trade & Supply Chain Finance (WP9b / WP8e). Source: gold.fact_trade_corridor_monthly,
+# client grain with the vendor trade statistics ALLOCATED (Client rows share the corridor's market value by activity;
+# one Market residual row per corridor-month without an active SMBC client), so SUM(market_value_allocated_usd) over any
+# corridors / commodities / months = the vendor total. The *_corridor_usd columns are corridor attributes and are never
+# summed. All measures are flows (monthly); Growth YoY uses the allocated prior-year value (additive).
+view: mv_trade_corridors
+space: tb_trade_scf
+comment: >-
+  Trade corridors (goods origin -> destination country x commodity) by month, Apr-2023 to Sep-2026 (USD): market size
+  from external trade statistics (vendor, allocated so it adds up), its growth YoY, SMBC trade-finance volume on the
+  corridor and SMBC's estimated share, clients' cross-border trade-settlement payments mapped to the goods corridor,
+  clients active in the corridor and those active only via payments without any SMBC trade product (the trade
+  finance opportunity). All measures add up over months; SMBC share and growth are ratios of sums - use them at
+  corridor / commodity level (a client filter keeps only that client's allocated share of the market).
+grain: one row per corridor x HS chapter x month x active client, plus one market residual row per corridor-month without an active client (gold.fact_trade_corridor_monthly)
+source: ${catalog}.gold.fact_trade_corridor_monthly
+blocks:
+  calendar: {date: source.month, grain: month, what: the trade month}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Record Type
+    expr: source.record_type
+    display_name: Record Type
+    comment: Client (an SMBC client active in the corridor) or Market residual (statistics of a corridor-month with no active SMBC client).
+    synonyms: [record type, row type, client or market, market residual]
+  - name: Corridor From
+    expr: source.origin_country
+    display_name: Corridor From (goods origin)
+    comment: Country the goods are shipped from (ISO-2), e.g. CN in CN->VN.
+    synonyms: [corridor from, origin, origin country, from country, exporter country, ship from, source market]
+  - name: Corridor To
+    expr: source.destination_country
+    display_name: Corridor To (goods destination)
+    comment: Country the goods are shipped to (ISO-2), e.g. VN in CN->VN (Vietnam importing from China).
+    synonyms: [corridor to, destination, destination country, to country, importer country, ship to, import market]
+  - name: Corridor
+    expr: source.corridor
+    display_name: Trade Corridor
+    comment: Goods corridor origin->destination, e.g. CN->VN. Trade-settlement payments are mapped to it (an outbound payment = the client imports).
+    synonyms: [corridor, trade corridor, trade lane, trade route, country pair, lane]
+  - name: Commodity
+    expr: source.commodity
+    display_name: Commodity
+    comment: >-
+      Goods: Electronics (HS 85), Machinery (84), Auto Parts (87), Precision Instruments (90), Chemicals (29), Plastics
+      (39), Iron & Steel (72), Mineral Fuels (27), Ores & Metals (26), Palm Oil & Fats (15), Food & Agri (10),
+      Textiles & Apparel (62); Unclassified = payment activity of clients with no main traded goods.
+    synonyms: [commodity, goods, HS chapter, product traded, cargo, electronics, auto parts]
+  - name: Is Carbon-Intensive Commodity
+    expr: source.is_carbon_intensive_commodity
+    display_name: Is Carbon-Intensive Commodity
+    comment: True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats).
+    synonyms: [carbon intensive, high carbon, brown commodity, fossil, climate sensitive]
+  - name: Is Payment Visible
+    expr: source.is_payment_visible
+    display_name: Visible from Payments
+    comment: True when the client's cross-border trade-settlement payments show it trading on the corridor in the month.
+    synonyms: [visible from payments, payment visible, seen in payments, payment flows, open account trade]
+  - name: Has Trade Product 12M
+    expr: source.has_trade_product_12m
+    display_name: Has Trade Product (12 months to the month)
+    comment: True when the client had an SMBC trade-finance instrument issued in the 12 months to the month-end or live at it (any corridor).
+    synonyms: [has trade product, trade customer, uses trade finance, trade relationship, with trade product]
+  - name: Has Trade Product Today
+    expr: source.has_trade_product_as_of
+    display_name: Has Trade Product Today
+    comment: True when the client has a live SMBC trade instrument at 30-Sep-2026 or one issued Oct-2025 to Sep-2026; false = no trade product with us.
+    synonyms: [trade product today, current trade customer, no trade product, without trade product, trade finance user]
+measures:
+  - name: Corridor Volume USD
+    expr: SUM(source.market_value_allocated_usd)
+    display_name: Corridor Market Volume (USD)
+    comment: >-
+      Size of the corridor from external trade statistics (vendor, USD), allocated so it adds up over corridors,
+      commodities and months (a flow).
+    synonyms: [corridor volume, market volume, trade flows, market size, trade statistics, total trade, imports,
+               external market volume, external trade volume, corridor market size]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Corridor Volume Prior Year USD
+    expr: SUM(source.market_value_prior_year_allocated_usd)
+    display_name: Corridor Market Volume a Year Earlier (USD)
+    comment: >-
+      The same corridors' external trade value 12 months earlier, allocated with the same keys (USD; from Apr-2024) -
+      e.g. with Fiscal Half = FY2026-H1 it is the H1 FY2025 volume, so one row gives both halves and Corridor Growth YoY %.
+    synonyms: [prior year volume, last year trade, PY market, market a year ago, comparative volume,
+               volume a year earlier, same period last year volume, prior-year half volume, H1 FY2025 volume,
+               external market volume a year earlier]
+    format: *usd
+  - name: Corridor Growth YoY %
+    expr: MEASURE(`Corridor Volume USD`) / NULLIF(MEASURE(`Corridor Volume Prior Year USD`), 0) - 1
+    display_name: Corridor Growth YoY
+    comment: >-
+      Year-on-year growth of the corridor market volume (fraction; 0.37 = +37% - return it as is, never multiplied by
+      100), e.g. Fiscal Half FY2026-H1 vs FY2025-H1: filter the later period and the measure compares it with the same
+      months a year earlier (Corridor Volume Prior Year USD).
+    synonyms: [growth YoY, corridor growth, market growth, trade growth, YoY growth, growth rate, market volume growth,
+               external statistics growth, corridor market growth, import growth]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: SMBC Trade Finance USD
+    expr: SUM(source.tf_issuance_usd)
+    display_name: SMBC Trade Finance Volume (USD)
+    comment: SMBC trade-finance instruments issued on the corridor, USD (a flow).
+    synonyms: [SMBC volume, trade finance volume, our volume, issuance, SMBC trade finance, financed trade]
+    format: *usd
+  - name: SMBC Share Estimate %
+    expr: SUM(source.tf_issuance_usd) / NULLIF(SUM(source.market_value_allocated_usd), 0)
+    display_name: SMBC Share Estimate
+    comment: SMBC trade-finance volume / corridor market volume (fraction) - SMBC's estimated share of the corridor.
+    synonyms: [SMBC share, market share, share of corridor, wallet share, penetration, share estimate]
+    format: *pct
+  - name: Trade Finance Transactions
+    expr: SUM(source.tf_transactions)
+    display_name: SMBC Trade Instruments on Corridor
+    comment: SMBC trade-finance instruments issued on the corridor (count; a flow).
+    synonyms: [instruments, LCs, trade transactions, number of instruments, deals]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Trade Settlement Payments USD
+    expr: SUM(source.trade_settlement_usd)
+    display_name: Trade-Settlement Payments (USD)
+    comment: Clients' cross-border trade-settlement payments mapped to the goods corridor, USD (open-account trade visible from payments).
+    synonyms: [trade settlements, settlement payments, open account trade, trade payments, payment-visible trade]
+    format: *usd
+  - name: Clients Active in Corridor
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients Active in Corridor
+    comment: Legal entities active on the corridor in the selection (SMBC trade finance or trade-settlement payments).
+    synonyms: [active clients, clients in corridor, corridor clients, traders, active traders, client count]
+    format: *count
+  - name: Clients in Corridor Without Trade Product
+    expr: COUNT(DISTINCT CASE WHEN source.is_payment_visible AND NOT source.has_trade_product_as_of THEN source.golden_client_id END)
+    display_name: Clients in Corridor Without Trade Product
+    comment: >-
+      Clients trading on the corridor (visible from their trade-settlement payments) that have no SMBC trade product
+      today - the trade finance cross-sell list.
+    synonyms: [clients without trade product, trade finance opportunity, no trade product, cross-sell, open account clients, prospects]
+    format: *count
+validate:
+  dims: [Month, Corridor]
+reconcile:
+  - name: market_volume_fy2025
+    measure: Corridor Volume USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sum(market_value_allocated_usd) FROM ${catalog}.gold.fact_trade_corridor_monthly
+      WHERE month BETWEEN DATE'2025-04-01' AND DATE'2026-03-01'
+  - name: market_volume_fy2025_gold
+    measure: Corridor Volume USD
+    by: [Commodity]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT commodity, sum(market_value_allocated_usd) FROM ${catalog}.gold.fact_trade_corridor_monthly
+      WHERE month BETWEEN DATE'2025-04-01' AND DATE'2026-03-01' GROUP BY 1
+  - name: vn_in_surge_market_growth_h1_fy2026
+    measure: Corridor Growth YoY %
+    where: >-
+      `Fiscal Half` = 'FY2026-H1' AND `Corridor To` IN ('VN', 'IN') AND `Corridor From` IN ('CN', 'KR', 'JP')
+      AND `Commodity` IN ('Electronics', 'Auto Parts')
+    gold: >-
+      SELECT sum(CASE WHEN month BETWEEN DATE'2026-04-01' AND DATE'2026-09-01' THEN market_value_allocated_usd END)
+      / sum(CASE WHEN month BETWEEN DATE'2025-04-01' AND DATE'2025-09-01' THEN market_value_allocated_usd END) - 1
+      FROM ${catalog}.gold.fact_trade_corridor_monthly
+      WHERE destination_country IN ('VN', 'IN') AND origin_country IN ('CN', 'KR', 'JP') AND hs_chapter IN ('85', '87')
+  - name: smbc_share_cn_vn_electronics_fy2025
+    measure: SMBC Share Estimate %
+    where: "`Fiscal Year` = 'FY2025' AND `Corridor` = 'CN->VN' AND `Commodity` = 'Electronics'"
+    gold: >-
+      SELECT sum(tf_issuance_usd) / sum(market_value_allocated_usd) FROM ${catalog}.gold.fact_trade_corridor_monthly
+      WHERE corridor = 'CN->VN' AND hs_chapter = '85' AND month BETWEEN DATE'2025-04-01' AND DATE'2026-03-01'
+  - name: cn_vn_electronics_payment_clients_without_trade_product
+    measure: Clients in Corridor Without Trade Product
+    where: "`Corridor` = 'CN->VN' AND `Commodity` = 'Electronics'"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_trade_corridor_monthly
+      WHERE corridor = 'CN->VN' AND hs_chapter = '85' AND is_payment_visible AND NOT has_trade_product_as_of
+  - name: smbc_tf_all_history
+    measure: SMBC Trade Finance USD
+    gold: SELECT sum(tf_issuance_usd) FROM ${catalog}.gold.fact_trade_corridor_monthly
+glossary:
+  caveats:
+    - >-
+      Corridor = goods flow origin->destination (trade-settlement payments mapped: outbound = import). Market volume
+      is the vendor statistic allocated over active clients by activity (residual rows hold corridors with none), so a
+      client filter returns only that client's allocated share. Latest months are Preliminary / Flash estimates.

@@ -1,0 +1,188 @@
+# Space 4, Early Warning Monitoring (WP9b / WP8d). The credit watchlist over the record_type union gold.mvb_watchlist
+# (D13): Event rows (Added / Escalated / De-escalated / Removed with the action plan status at 30-Sep-2026) and
+# Month-End Membership rows (one per client on the list at each month-end, Apr-2024..Sep-2026, with band, exposure,
+# EAD and ECL). Membership measures are point-in-time windows over Month; event counts are flows; action statuses
+# are as of today.
+view: mv_watchlist
+space: early_warning_monitoring
+comment: >-
+  SMBC APAC credit watchlist, Apr-2024 to Sep-2026: clients on the watchlist at each month-end with their drawn
+  exposure, EAD and IFRS 9 ECL (point-in-time: filter a Month or Is Latest Month = today; a longer period
+  returns its last month-end), Red names, days on the list; watchlist events per month (added, escalated,
+  de-escalated, removed - flows) with reason and owner RM; and review actions overdue / open at 30-Sep-2026.
+grain: one row per watchlist event or per client x month-end on the watchlist (gold.mvb_watchlist)
+source: ${catalog}.gold.mvb_watchlist
+blocks:
+  calendar: {date: source.record_date, grain: month, what: the watchlist event or month-end membership}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Record Type
+    expr: source.record_type
+    display_name: Record Type
+    comment: "Row type: Event (register event) or Month-End Membership (client on the list at the month-end)."
+    synonyms: [record type, row type, event or membership, data type]
+  - name: Event Type
+    expr: source.event_type
+    display_name: Event Type
+    comment: "Event rows: Added (left Green), Escalated (to Red), De-escalated (Red to Amber) or Removed (back to Green)."
+    synonyms: [event type, watchlist event, action, added, removed, escalated, movement]
+  - name: Reason
+    expr: source.lead_reason
+    display_name: Watchlist Reason
+    comment: >-
+      Lead reason of the event (membership rows: of the client's latest event), e.g. Credit deterioration (health /
+      utilisation / covenant), Deposit outflow, Wallet migration to competitors, Adverse external news.
+    synonyms: [reason, watchlist reason, cause, driver, lead reason, why on watchlist]
+  - name: Lead Category
+    expr: source.lead_category
+    display_name: Lead EWS Category
+    comment: "Dominant EWS driver: Credit, Liquidity, Behavioural or External."
+    synonyms: [category, driver category, lead category, risk category, EWS category]
+  - name: Owner
+    expr: source.owner_name
+    display_name: Owner RM
+    comment: RM owning the watchlist action (membership rows - the owner of the client's latest event); fictional name.
+    synonyms: [owner, action owner, owner RM, responsible RM, relationship manager, accountable banker]
+  - name: Action Type
+    expr: source.action_type
+    display_name: Action Plan
+    comment: "Event rows: action required - Watchlist credit review (Added), Recovery / exit plan (Escalated), Monitoring update (De-escalated)."
+    synonyms: [action, action plan, required action, follow-up, remediation plan, review action]
+  - name: Action Status
+    expr: source.action_status
+    display_name: Action Status (today)
+    comment: "Event rows: status of the action plan at 30-Sep-2026 - Completed, Open (not yet due) or Overdue."
+    synonyms: [action status, status, overdue, open, completed, follow-up status]
+  - name: Watchlist Band
+    expr: source.watchlist_band
+    display_name: Band on Watchlist (month-end)
+    comment: "Membership rows: final EWS band of the listed client at the month-end (Amber or Red)."
+    synonyms: [watchlist band, band, red or amber, EWS band at month-end, RAG]
+measures:
+  - name: Watchlist Clients
+    expr: COUNT(DISTINCT CASE WHEN source.record_type = 'Month-End Membership' THEN source.golden_client_id END)
+    display_name: Watchlist Clients
+    comment: Clients on the credit watchlist at the month-end (point-in-time; Is Latest Month = today, 30-Sep-2026).
+    synonyms: [watchlist clients, names on watchlist, watchlisted clients, watch list count, clients under watch, WL names]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Watchlist Exposure USD
+    expr: SUM(source.exposure_drawn_usd)
+    display_name: Watchlist Exposure (USD)
+    comment: Drawn lending exposure of the clients on the watchlist at the month-end, USD (point-in-time).
+    synonyms: [watchlist exposure, exposure on watchlist, watch list exposure, exposure under watch, drawn exposure]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: *eom
+  - name: ECL on Watchlist USD
+    expr: SUM(source.ecl_usd)
+    display_name: ECL on Watchlist (USD)
+    comment: IFRS 9 expected credit loss provisions of the watchlist clients at the month-end, USD (point-in-time).
+    synonyms: [ECL on watchlist, provisions on watchlist, expected credit loss, impairment on watchlist, loss allowance]
+    format: *usd
+    window: *eom
+  - name: EAD on Watchlist USD
+    expr: SUM(source.ead_usd)
+    display_name: EAD on Watchlist (USD)
+    comment: Exposure at default of the watchlist clients at the month-end, USD (from Apr-2024; point-in-time).
+    synonyms: [EAD on watchlist, exposure at default, watchlist EAD, credit exposure]
+    format: *usd
+    window: *eom
+  - name: Red Watchlist Clients
+    expr: COUNT(DISTINCT CASE WHEN source.watchlist_band = 'Red' THEN source.golden_client_id END)
+    display_name: Watchlist Clients in Red
+    comment: Watchlist clients whose final EWS band is Red at the month-end (point-in-time).
+    synonyms: [red watchlist, red names on watchlist, red clients, escalated names]
+    format: *count
+    window: *eom
+  - name: Average Days on Watchlist
+    expr: AVG(source.days_on_watchlist)
+    display_name: Average Days on Watchlist
+    comment: Average days since the clients were (last) added to the watchlist, at the month-end.
+    synonyms: [days on watchlist, time on watchlist, watchlist ageing, tenure on watchlist]
+    format: {type: number, decimal_places: {type: max, places: 0}}
+    window: *eom
+  - name: Added
+    expr: COUNT(1) FILTER (WHERE source.event_type = 'Added')
+    display_name: Added to Watchlist
+    comment: Watchlist additions in the selected months (a flow).
+    synonyms: [added, additions, new watchlist names, put on watch, inflows to watchlist]
+    format: *count
+  - name: Removed
+    expr: COUNT(1) FILTER (WHERE source.event_type = 'Removed')
+    display_name: Removed from Watchlist
+    comment: Watchlist removals in the selected months (a flow).
+    synonyms: [removed, removals, taken off watchlist, exits from watchlist, cured names]
+    format: *count
+  - name: Escalated
+    expr: COUNT(1) FILTER (WHERE source.event_type = 'Escalated')
+    display_name: Escalated to Red
+    comment: Escalations to Red in the selected months (a flow).
+    synonyms: [escalated, escalations, moved to red, upgraded to red, escalation events]
+    format: *count
+  - name: Net Additions
+    expr: MEASURE(`Added`) - MEASURE(`Removed`)
+    display_name: Net Additions
+    comment: Additions minus removals in the selected months.
+    synonyms: [net additions, net change, net movement, watchlist growth]
+    format: *count
+  - name: Actions Overdue
+    expr: COUNT(1) FILTER (WHERE source.is_action_overdue)
+    display_name: Actions Overdue
+    comment: >-
+      Watchlist action plans overdue at 30-Sep-2026 (status today, for the events in the selection). Actions come
+      from events of every month - for "actions overdue (by owner)" do not filter Month or Is Latest Month.
+    synonyms: [actions overdue, overdue actions, late actions, overdue reviews, missed follow-ups, overdue action plans]
+    format: *count
+  - name: Open Actions
+    expr: COUNT(1) FILTER (WHERE source.is_action_open)
+    display_name: Open Actions
+    comment: >-
+      Watchlist action plans not yet completed at 30-Sep-2026 (Open or Overdue), from events of every month - do not
+      filter Month or Is Latest Month.
+    synonyms: [open actions, pending actions, outstanding actions, actions in progress]
+    format: *count
+  - name: Average Action Days Overdue
+    expr: AVG(CASE WHEN source.is_action_overdue THEN source.action_days_overdue END)
+    display_name: Average Days Overdue (actions)
+    comment: Average days past due of the overdue action plans at 30-Sep-2026 (events of every month; do not filter Month).
+    synonyms: [days overdue, action ageing, overdue days, how late]
+    format: {type: number, decimal_places: {type: max, places: 1}}
+validate:
+  dims: [Month, Record Type]
+reconcile:
+  - name: watchlist_clients_today
+    measure: Watchlist Clients
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.mvb_watchlist
+      WHERE record_type = 'Month-End Membership' AND record_date = DATE'2026-09-30'
+  - name: watchlist_exposure_by_month_fy2026
+    measure: Watchlist Exposure USD
+    by: [Month]
+    where: "`Fiscal Year` = 'FY2026'"
+    gold: >-
+      SELECT trunc(record_date, 'MM'), sum(exposure_drawn_usd) FROM ${catalog}.gold.mvb_watchlist
+      WHERE record_type = 'Month-End Membership' AND record_date >= DATE'2026-04-30' GROUP BY 1
+  - name: ecl_on_watchlist_fy_end_is_last_month
+    measure: ECL on Watchlist USD
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT sum(ecl_usd) FROM ${catalog}.gold.mvb_watchlist WHERE record_type = 'Month-End Membership' AND record_date = DATE'2026-03-31'
+  - name: added_by_fiscal_year
+    measure: Added
+    by: [Fiscal Year]
+    gold: >-
+      SELECT concat('FY', CASE WHEN month(record_date) >= 4 THEN year(record_date) ELSE year(record_date) - 1 END), count(*)
+      FROM ${catalog}.gold.mvb_watchlist WHERE event_type = 'Added' GROUP BY 1
+  - name: actions_overdue_by_owner
+    measure: Actions Overdue
+    by: [Owner]
+    where: "`Record Type` = 'Event'"
+    gold: >-
+      SELECT owner_name, count(*) FROM ${catalog}.gold.fact_watchlist_event WHERE is_action_overdue GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Membership measures are point-in-time per month-end (grouped by Owner or Reason without a month, each group
+      shows its own last month); event counts are flows; action statuses are as of 30-Sep-2026.

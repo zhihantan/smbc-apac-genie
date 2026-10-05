@@ -1,0 +1,1105 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 7,
+      "columns": [
+        "Source System",
+        "records_in",
+        "matched_records",
+        "match_rate",
+        "fuzzy_share",
+        "pairwise_precision",
+        "pairwise_recall"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "core_customer",
+          "2050",
+          "2031",
+          "0.9907317073170732",
+          "0.10881339241752831",
+          "0.9809241901003124",
+          "0.9859504132231405"
+        ],
+        [
+          "credit_obligor",
+          "945",
+          "925",
+          "0.9788359788359788",
+          "0.018378378378378378",
+          "0.9820043437790879",
+          "0.9777571825764597"
+        ],
+        [
+          "crm_account",
+          "1079",
+          "1066",
+          "0.9879518072289156",
+          "0.0375234521575985",
+          "0.9682112068965517",
+          "0.9838488913222009"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0acb30342bc243ee",
+      "sorted_by": null
+    },
+    "Q1-abbrev": {
+      "rows": 7,
+      "columns": [
+        "Source System",
+        "records_in",
+        "matched_records",
+        "match_rate",
+        "fuzzy_share",
+        "pairwise_precision",
+        "pairwise_recall"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "core_customer",
+          "2050",
+          "2031",
+          "0.9907317073170732",
+          "0.10881339241752831",
+          "0.9809241901003124",
+          "0.9859504132231405"
+        ],
+        [
+          "credit_obligor",
+          "945",
+          "925",
+          "0.9788359788359788",
+          "0.018378378378378378",
+          "0.9820043437790879",
+          "0.9777571825764597"
+        ],
+        [
+          "crm_account",
+          "1079",
+          "1066",
+          "0.9879518072289156",
+          "0.0375234521575985",
+          "0.9682112068965517",
+          "0.9838488913222009"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0acb30342bc243ee",
+      "sorted_by": null
+    },
+    "Q1b": {
+      "rows": 1,
+      "columns": [
+        "records_in",
+        "match_rate",
+        "pairwise_precision",
+        "pairwise_recall"
+      ],
+      "types": [
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "9270",
+          "0.9870550161812298",
+          "0.9757041058703767",
+          "0.9840520191649555"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "28fc90633c0aa454",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 6,
+      "columns": [
+        "Run",
+        "Rule Version",
+        "records_in",
+        "golden_records",
+        "records_per_golden_record",
+        "duplicates_merged"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "ER-20250630",
+          "v1",
+          "9019",
+          "2820",
+          "3.19822695035461",
+          "560"
+        ],
+        [
+          "ER-20250930",
+          "v1",
+          "9067",
+          "2798",
+          "3.2405289492494638",
+          "564"
+        ],
+        [
+          "ER-20251231",
+          "v1",
+          "9121",
+          "2789",
+          "3.2703477949085693",
+          "571"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "84b1cfd1331b37f1",
+      "sorted_by": null
+    },
+    "Q2-casual": {
+      "rows": 6,
+      "columns": [
+        "Run",
+        "Rule Version",
+        "records_in",
+        "golden_records",
+        "records_per_golden_record",
+        "duplicates_merged"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "ER-20250630",
+          "v1",
+          "9019",
+          "2820",
+          "3.19822695035461",
+          "560"
+        ],
+        [
+          "ER-20250930",
+          "v1",
+          "9067",
+          "2798",
+          "3.2405289492494638",
+          "564"
+        ],
+        [
+          "ER-20251231",
+          "v1",
+          "9121",
+          "2789",
+          "3.2703477949085693",
+          "571"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "84b1cfd1331b37f1",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 3,
+      "columns": [
+        "Aging Bucket",
+        "open_items",
+        "average_days_open"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "0-7 days",
+          "8",
+          "0.0"
+        ],
+        [
+          "91-180 days",
+          "1",
+          "92.0"
+        ],
+        [
+          "Over 180 days",
+          "4",
+          "183.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "3d49b914452ef4bb",
+      "sorted_by": null
+    },
+    "Q3b": {
+      "rows": 6,
+      "columns": [
+        "Run",
+        "steward_decisions",
+        "still_open"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "ER-20250630",
+          "1740",
+          "0"
+        ],
+        [
+          "ER-20250930",
+          "4",
+          "0"
+        ],
+        [
+          "ER-20251231",
+          "8",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d75195ebb53fe750",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 4,
+      "columns": [
+        "Relationship Tier",
+        "golden_clients",
+        "missing_kyc",
+        "missing_credit"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          null,
+          "41",
+          "41",
+          "41"
+        ],
+        [
+          "Core",
+          "1111",
+          "475",
+          "732"
+        ],
+        [
+          "Strategic",
+          "596",
+          "246",
+          "370"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ba3ba43c28ca0d42",
+      "sorted_by": null
+    },
+    "Q4-typo": {
+      "rows": 4,
+      "columns": [
+        "Relationship Tier",
+        "golden_clients",
+        "missing_kyc",
+        "missing_credit"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          null,
+          "41",
+          "41",
+          "41"
+        ],
+        [
+          "Core",
+          "1111",
+          "475",
+          "732"
+        ],
+        [
+          "Strategic",
+          "596",
+          "246",
+          "370"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ba3ba43c28ca0d42",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 10,
+      "columns": [
+        "Table",
+        "DQ Dimension",
+        "dq_score_sep_2026",
+        "dq_score_aug_2026",
+        "change"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "silver.share_jp_parent_rating",
+          "timeliness",
+          "1.0",
+          "0.8380030815196077",
+          "0.16199691848039233"
+        ],
+        [
+          "silver.kyc_review",
+          "timeliness",
+          "0.7490347490347491",
+          "0.7211806886312063",
+          "0.02785406040354277"
+        ],
+        [
+          "silver.kyc_case_stage",
+          "timeliness",
+          "0.8608861362553597",
+          "0.8359350774146824",
+          "0.024951058840677276"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "cc3c6d7a8457121b",
+      "sorted_by": null
+    },
+    "Q5b": {
+      "rows": 14,
+      "columns": [
+        "Layer",
+        "DQ Dimension",
+        "dq_score_sep_2026",
+        "dq_score_aug_2026",
+        "row_pass_rate_sep_2026",
+        "tables_below_95"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "bronze",
+          "completeness",
+          "1.0",
+          "0.9981893297384737",
+          "1.0",
+          "0"
+        ],
+        [
+          "bronze",
+          "consistency",
+          "0.9975578360433586",
+          "0.9957157015615871",
+          "0.9998084381109207",
+          "0"
+        ],
+        [
+          "bronze",
+          "timeliness",
+          "1.0",
+          "0.9984088602330393",
+          "1.0",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "71643661827ca36b",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 5,
+      "columns": [
+        "Shared Table",
+        "avg_lag_hours",
+        "max_lag_hours",
+        "stale_days",
+        "sla_met"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "share_jp_group_master",
+          "3.8706666666666667",
+          "4.63",
+          "0",
+          "1.0"
+        ],
+        [
+          "share_jp_parent_exposure_monthly",
+          "3.904333333333333",
+          "4.6",
+          "0",
+          "1.0"
+        ],
+        [
+          "share_jp_parent_financials",
+          "3.9933333333333327",
+          "4.55",
+          "0",
+          "1.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e4646d165c76765a",
+      "sorted_by": null
+    },
+    "Q6b": {
+      "rows": 5,
+      "columns": [
+        "Shared Table",
+        "stale_days",
+        "max_lag_hours",
+        "longest_stale_run_days"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "INT"
+      ],
+      "head": [
+        [
+          "share_jp_parent_rating",
+          "5",
+          "124.62",
+          "5"
+        ],
+        [
+          "share_jp_group_master",
+          "0",
+          "4.63",
+          "0"
+        ],
+        [
+          "share_jp_parent_exposure_monthly",
+          "0",
+          "4.65",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "006a87d28b792630",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 5,
+      "columns": [
+        "client_group",
+        "Attribution Status",
+        "exposure_before_usd",
+        "exposure_after_usd",
+        "resolution_change_usd",
+        "resolution_change",
+        "crossed_500m_threshold"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "(unattributed)",
+          "Unattributed",
+          "4.2848032361E8",
+          "2.2281785984E8",
+          "-2.0566246377E8",
+          "-0.4799811156724028",
+          "0"
+        ],
+        [
+          "Meridian Agri Holdings",
+          "Attributed",
+          "4.1747975521E8",
+          "5.7615054824E8",
+          "1.5867079303E8",
+          "0.3800682333690305",
+          "1"
+        ],
+        [
+          "Oribe Fibre",
+          "Attributed",
+          "4717819.11",
+          "0.0",
+          "-4717819.11",
+          "-1.0",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4af8c55e6e4965fc",
+      "sorted_by": null
+    },
+    "Q7-jargon": {
+      "rows": 5,
+      "columns": [
+        "client_group",
+        "Attribution Status",
+        "exposure_before_usd",
+        "exposure_after_usd",
+        "resolution_change_usd",
+        "resolution_change",
+        "crossed_500m_threshold"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "(unattributed)",
+          "Unattributed",
+          "4.2848032361E8",
+          "2.2281785984E8",
+          "-2.0566246377E8",
+          "-0.4799811156724028",
+          "0"
+        ],
+        [
+          "Meridian Agri Holdings",
+          "Attributed",
+          "4.1747975521E8",
+          "5.7615054824E8",
+          "1.5867079303E8",
+          "0.3800682333690305",
+          "1"
+        ],
+        [
+          "Oribe Fibre",
+          "Attributed",
+          "4717819.11",
+          "0.0",
+          "-4717819.11",
+          "-1.0",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4af8c55e6e4965fc",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 4,
+      "columns": [
+        "Relationship Tier",
+        "golden_clients",
+        "avg_attribute_completeness",
+        "fully_complete"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          null,
+          "41",
+          "0.21707317073170823",
+          "0"
+        ],
+        [
+          "Core",
+          "1111",
+          "0.8142214221422143",
+          "87"
+        ],
+        [
+          "Strategic",
+          "596",
+          "0.8258389261745335",
+          "57"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ee4d88f081d7429d",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 2,
+      "columns": [
+        "Run",
+        "records",
+        "golden_records"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "ER-20251231",
+          "5",
+          "3"
+        ],
+        [
+          "ER-20260331",
+          "5",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "a112ade127bc4208",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 1,
+      "columns": [
+        "Client Group",
+        "exposure_before_usd",
+        "exposure_after_usd",
+        "resolution_change",
+        "attention_threshold_usd",
+        "crossed_threshold"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Meridian Agri Holdings",
+          "4.1747975521E8",
+          "5.7615054824E8",
+          "0.3800682333690305",
+          "5.0E8",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2818c55630bba3b9",
+      "sorted_by": null
+    },
+    "Q11": {
+      "rows": 5,
+      "columns": [
+        "Date",
+        "lag_hours",
+        "consecutive_stale_days"
+      ],
+      "types": [
+        "DATE",
+        "DOUBLE",
+        "INT"
+      ],
+      "head": [
+        [
+          "2026-08-11",
+          "28.62",
+          "1"
+        ],
+        [
+          "2026-08-12",
+          "52.62",
+          "2"
+        ],
+        [
+          "2026-08-13",
+          "76.62",
+          "3"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "705a121238dffd94",
+      "sorted_by": null
+    },
+    "Q12": {
+      "rows": 2,
+      "columns": [
+        "Layer",
+        "Rule",
+        "failed_rows",
+        "rows_deduplicated"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "bronze",
+          "pay_payment_message:key_unique",
+          "3966",
+          "3966"
+        ],
+        [
+          "silver",
+          "pay_payment_message:key_unique",
+          "0",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "a2f070868b5e31d5",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_entity_resolution",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2025-06-01",
+      "last": "2026-09-01",
+      "periods": 6
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_golden_record_coverage",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_data_quality",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_delta_sharing_freshness",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-04-01",
+      "last": "2026-09-30",
+      "periods": 913
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_er_exposure_impact",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2025-06-01",
+      "last": "2026-09-01",
+      "periods": 6
+    },
+    {
+      "asset": "smbc_genie.gold.xref_client_source",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:56:28+00:00",
+  "questions_captured_at": "2026-10-04T15:48:15+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "What are the entity-resolution match rate and precision by source system for the latest run?",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_er_run_summary`(run_date => 'NULL')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "source_system",
+        "records_in",
+        "matched_records",
+        "match_rate",
+        "fuzzy_share",
+        "pairwise_precision",
+        "pairwise_recall"
+      ],
+      "genie_rows": 7,
+      "seconds": 19.1,
+      "asked_at": "2026-10-04T14:56:28+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "How many client records collapsed into how many golden records in each ER run?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows; Genie shows 3 of the benchmark's 6 columns (not shown: Rule Version, records per golden record, duplicates merged)",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Run`,\n  MEASURE(`Records In`) AS `client_records`,\n  MEASURE(`Golden Records`) AS `golden_records`\nFROM `smbc_genie`.`metrics`.`mv_entity_resolution`\nWHERE `Month` >= DATE'2025-06-01' AND `Month` <= DATE'2026-09-01'\nGROUP BY ALL\nORDER BY `Run` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Run",
+        "client_records",
+        "golden_records"
+      ],
+      "genie_rows": 6,
+      "seconds": 21.8,
+      "asked_at": "2026-10-04T14:56:47+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "How old is the data-steward queue?",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Aging Bucket`,\n       MEASURE(`Steward Queue Open`) AS `open_items`,\n       MEASURE(`Average Days Open`) AS `average_days_open`\nFROM `smbc_genie`.`metrics`.`mv_entity_resolution`\nGROUP BY ALL\nHAVING MEASURE(`Steward Queue Open`) > 0\nORDER BY `average_days_open` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Aging Bucket",
+        "open_items",
+        "average_days_open"
+      ],
+      "genie_rows": 3,
+      "seconds": 21.1,
+      "asked_at": "2026-10-04T14:57:09+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "How many golden clients are missing KYC or credit data, by relationship tier?",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": "Q4",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Relationship Tier`,\n       MEASURE(`Golden Clients`)              AS golden_clients,\n       MEASURE(`Clients Missing KYC Data`)    AS missing_kyc,\n       MEASURE(`Clients Missing Credit Data`) AS missing_credit\nFROM smbc_genie.metrics.mv_golden_record_coverage\nWHERE `Month` = :month\nGROUP BY ALL\nORDER BY `Relationship Tier`",
+      "genie_parameters": [
+        {
+          "keyword": "month",
+          "value": "2026-09-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Relationship Tier",
+        "golden_clients",
+        "missing_kyc",
+        "missing_credit"
+      ],
+      "genie_rows": 4,
+      "seconds": 19.3,
+      "asked_at": "2026-10-04T14:57:31+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "How did DQ scores by table and dimension change this month vs last?",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie returns 762 rows, the benchmark 10; all benchmark rows are included",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Table`, `DQ Dimension`, MEASURE(`DQ Score %`) AS `dq_score`, MEASURE(`DQ Score Prior Month %`) AS `dq_score_prior_month`, MEASURE(`DQ Score Change vs Prior Month pts`) AS `dq_score_change_vs_prior_month_pts`, MEASURE(`Row Pass Rate %`) AS `row_pass_rate`, MEASURE(`Tables Below Target`) AS `tables_below_95` FROM `smbc_genie`.`metrics`.`mv_data_quality` WHERE `Month` = DATE'2026-09-01' AND `Table` IS NOT NULL AND `DQ Dimension` IS NOT NULL GROUP BY ALL ORDER BY `dq_score_change_vs_prior_month_pts` ASC, `Table` ASC, `DQ Dimension` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Table",
+        "DQ Dimension",
+        "dq_score",
+        "dq_score_prior_month",
+        "dq_score_change_vs_prior_month_pts",
+        "row_pass_rate",
+        "tables_below_95"
+      ],
+      "genie_rows": 762,
+      "seconds": 44.2,
+      "asked_at": "2026-10-04T14:57:50+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "How fresh is the Delta Share from Japan over the last 30 days, and are any tables stale?",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie returns 1 row, the benchmark 5",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Share`,\n       MEASURE(`Average Lag Hours`) AS `average_lag_hours`,\n       MEASURE(`Max Lag Hours`) AS `max_lag_hours`,\n       MEASURE(`Stale Table-Days`) AS `stale_table_days`,\n       MEASURE(`Tables Stale`) AS `tables_stale`,\n       MEASURE(`Tables Stale Latest Day`) AS `tables_stale_latest_day`,\n       MEASURE(`Freshness SLA Met %`) AS `freshness_sla_met_pct`,\n       MEASURE(`Failed Refreshes`) AS `failed_refreshes`,\n       MEASURE(`Schema Drift Events`) AS `schema_drift_events`\nFROM `smbc_genie`.`metrics`.`mv_delta_sharing_freshness`\nWHERE `Provider Region` = 'JP'\n  AND `Date` >= DATE'2026-09-01'\n  AND `Date` <= DATE'2026-09-30'\n  AND `Share` IS NOT NULL\nGROUP BY ALL\nORDER BY `Share`",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Share",
+        "average_lag_hours",
+        "max_lag_hours",
+        "stale_table_days",
+        "tables_stale",
+        "tables_stale_latest_day",
+        "freshness_sla_met_pct",
+        "failed_refreshes",
+        "schema_drift_events"
+      ],
+      "genie_rows": 1,
+      "seconds": 24.5,
+      "asked_at": "2026-10-04T14:58:35+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Which Japan tables were stale in August 2026?",
+      "after": "S6",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (1 row), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Shared Table`,\n       MEASURE(`Stale Table-Days`) AS stale_table_days,\n       MEASURE(`Tables Stale`) AS tables_stale,\n       MEASURE(`Average Lag Hours`) AS average_lag_hours,\n       MEASURE(`Max Lag Hours`) AS max_lag_hours,\n       MEASURE(`Longest Stale Run Days`) AS longest_stale_run_days,\n       MEASURE(`Freshness SLA Met %`) AS freshness_sla_met_pct,\n       MEASURE(`Failed Refreshes`) AS failed_refreshes\nFROM `smbc_genie`.`metrics`.`mv_delta_sharing_freshness`\nWHERE `Date` BETWEEN DATE'2026-08-01' AND DATE'2026-08-31'\n  AND `Provider Region` = 'JP'\n  AND `Shared Table` IS NOT NULL\nGROUP BY ALL\nHAVING stale_table_days > 0\nORDER BY stale_table_days DESC, max_lag_hours DESC, `Shared Table`",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Shared Table",
+        "stale_table_days",
+        "tables_stale",
+        "average_lag_hours",
+        "max_lag_hours",
+        "longest_stale_run_days",
+        "freshness_sla_met_pct",
+        "failed_refreshes"
+      ],
+      "genie_rows": 1,
+      "seconds": 24.2,
+      "asked_at": "2026-10-04T15:47:51+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Which exposures changed by more than 20% after the March 2026 resolution of Meridian Agri Holdings?",
+      "after": null,
+      "benchmark": "Q7",
+      "matched": "Q10",
+      "verdict": "match",
+      "note": "matches Q10: same rows as the benchmark; Genie adds 2 columns",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client Group`,\n       MEASURE(`Exposure Before Resolution USD`) AS `exposure_before_usd`,\n       MEASURE(`Exposure After Resolution USD`) AS `exposure_after_usd`,\n       MEASURE(`Resolution Change USD`) AS `resolution_change_usd`,\n       MEASURE(`Resolution Change %`) AS `resolution_change_pct`,\n       `Crossed Threshold on Resolution` AS `crossed_threshold_on_resolution`,\n       `Above Attention Threshold` AS `above_attention_threshold`,\n       MEASURE(`Attention Threshold USD`) AS `attention_threshold_usd`\nFROM `smbc_genie`.`metrics`.`mv_er_exposure_impact`\nWHERE `Month` = DATE'2026-03-01'\n  AND `Client Group` = 'Meridian Agri Holdings'\n  AND `Material Resolution Change` = true\nGROUP BY ALL",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client Group",
+        "exposure_before_usd",
+        "exposure_after_usd",
+        "resolution_change_usd",
+        "resolution_change_pct",
+        "crossed_threshold_on_resolution",
+        "above_attention_threshold",
+        "attention_threshold_usd"
+      ],
+      "genie_rows": 1,
+      "seconds": 24.4,
+      "asked_at": "2026-10-04T14:59:00+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "What is the attribute completeness of Strategic clients' golden records?",
+      "after": null,
+      "benchmark": "Q8",
+      "matched": "Q8",
+      "verdict": "match",
+      "note": "same rows; Genie shows 1 of the benchmark's 4 columns (not shown: Relationship Tier, golden clients, fully complete) (benchmark rows where Relationship Tier = Strategic)",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT MEASURE(`Average Attribute Completeness %`) AS `attribute_completeness_pct`\nFROM `smbc_genie`.`metrics`.`mv_golden_record_coverage`\nWHERE `Month` = DATE'2026-09-01'\n  AND `Relationship Tier` = 'Strategic'\nGROUP BY ALL",
+      "genie_parameters": [],
+      "genie_columns": [
+        "attribute_completeness_pct"
+      ],
+      "genie_rows": 1,
+      "seconds": 18.9,
+      "asked_at": "2026-10-04T14:59:25+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "customer360_data_foundation",
+  "space_id": "my-agent-id"
+}

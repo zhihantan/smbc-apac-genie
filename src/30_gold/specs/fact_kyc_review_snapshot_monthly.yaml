@@ -1,0 +1,58 @@
+table: fact_kyc_review_snapshot_monthly
+domain: onboarding
+comment: >-
+  Month-end KYC review health (brief 5.6, PLAN 7): one row per KYC review x month-end (Apr-2023 to Sep-2026)
+  in which the review fell due, was completed, or was overdue at the month-end (due before the month-end and
+  not completed by it). Carries review type, the client's KYC risk rating, due / completed dates, the month's
+  flags (due, completed, completed on time, overdue at month-end) and overdue days at the month-end, plus
+  booking country and segment. Overdue counts are point-in-time per month-end (never sum them across months);
+  due and completed counts are monthly flows. Storyline 7: high-risk periodic reviews overdue peak at end-May
+  2026 at ~3x the Apr-2025..Jan-2026 average and ~70% of that backlog was cleared by 30-Sep-2026.
+grain: one row per KYC review x month-end with activity (due, completed or overdue)
+primary_key: [review_id, month_end_date]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [month_end_date], references: dim_date}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [month_end_date, golden_client_sk]
+min_rows: 2000
+columns:
+  review_id: {type: STRING, comment: "KYC review id (KYR-...); join to fact_kyc_review."}
+  month_end_date: {type: DATE, comment: "Month-end of the snapshot."}
+  month: {type: DATE}
+  kyc_id: {type: STRING, comment: "KYC customer record reviewed."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  review_type: {type: STRING, comment: "Onboarding, Periodic or Trigger."}
+  kyc_risk_rating: {type: STRING, comment: "Client's KYC / AML risk rating from the KYC master: High, Medium or Low."}
+  is_high_risk: {type: BOOLEAN, comment: "True for High-risk clients (high-risk overdue reviews)."}
+  review_risk_rating: {type: STRING, comment: "Risk rating carried by the review (risk going into it, else the rating it set)."}
+  due_date: {type: DATE, comment: "Review due date."}
+  completed_date: {type: DATE, comment: "Review completion date (null while open)."}
+  is_due_in_month: {type: BOOLEAN, comment: "True when the review fell due in this month (reviews due)."}
+  is_completed_in_month: {type: BOOLEAN, comment: "True when the review was completed in this month."}
+  is_completed_on_time: {type: BOOLEAN, comment: "True when completed in this month on or before its due date."}
+  is_overdue_at_month_end: {type: BOOLEAN, comment: "True when due before the month-end and not completed by it (overdue at month-end)."}
+  overdue_days_at_month_end: {type: INT, comment: "Days past due at the month-end for overdue reviews (0 otherwise) - average over overdue rows."}
+  status_at_month_end: {type: STRING, comment: "Completed (completed in the month), Overdue (open past due at the month-end) or Due (due in the month, not yet overdue)."}
+  booking_country: {type: STRING, comment: "Client's coverage office / booking location at the month-end (ISO-2)."}
+  segment: {type: STRING}
+checks:
+  - name: storyline7_may_high_risk_overdue_2_7_to_3_6x
+    sql: >-
+      SELECT CASE WHEN max(CASE WHEN month_end_date = DATE'2026-05-31' THEN n END)
+                     / avg(CASE WHEN month_end_date BETWEEN DATE'2025-04-30' AND DATE'2026-01-31' THEN n END) BETWEEN 2.7 AND 3.6
+             THEN 0 ELSE 1 END
+      FROM (SELECT d.date AS month_end_date, count(s.review_id) AS n FROM ${catalog}.gold.dim_date d
+            LEFT JOIN ${table} s ON s.month_end_date = d.date AND s.review_type = 'Periodic' AND s.is_high_risk AND s.is_overdue_at_month_end
+            WHERE d.is_month_end AND d.date BETWEEN DATE'2025-04-30' AND DATE'2026-05-31' GROUP BY d.date)
+  - name: storyline7_may_backlog_cleared_65_75pct
+    sql: >-
+      SELECT CASE WHEN avg(CASE WHEN completed_date IS NOT NULL THEN 1.0 ELSE 0.0 END) BETWEEN 0.65 AND 0.75 THEN 0 ELSE 1 END
+      FROM ${table} WHERE month_end_date = DATE'2026-05-31' AND review_type = 'Periodic' AND is_overdue_at_month_end
+reconcile:
+  - name: overdue_today_vs_silver
+    gold: SELECT count_if(is_overdue_at_month_end) FROM ${table} WHERE month_end_date = DATE'${as_of_date}'
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_review WHERE completed_date IS NULL AND due_date < DATE'${as_of_date}'

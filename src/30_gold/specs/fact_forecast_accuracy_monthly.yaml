@@ -1,0 +1,46 @@
+table: fact_forecast_accuracy_monthly
+domain: cashflow
+comment: >-
+  Cash-flow forecast accuracy per client and target month (Apr-2024 to Sep-2026) for every scored horizon and model
+  version: forecast vs actual inflows, absolute and signed error, absolute % error, P10-P90 interval hit and the
+  within-10% flag. Model v1 scores the targets to May-2026 (MAPE ~18%), v2 from Jun-2026 (~11%) - the
+  model-upgrade storyline. Only the 30D (one-month-ahead) horizon is backtested by the cash-flow engine; the 7D /
+  90D forward forecasts have no actuals yet. MAPE = AVG(abs_pct_error); Bias % = SUM(forecast_error_usd) /
+  SUM(actual_inflow_usd); Interval Coverage = share of rows with is_within_p10_p90; Clients Within 10% MAPE = count
+  distinct golden_client_id with is_within_10pct (per month) - errors are not additive, use these ratios.
+grain: one row per golden client x target month x horizon x model version
+primary_key: [golden_client_id, target_month, horizon_days, model_version]
+foreign_keys:
+  - {columns: [target_month], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [target_month, golden_client_sk]
+min_rows: 20000
+columns:
+  golden_client_id: {type: STRING, not_null: true}
+  target_month: {type: DATE, comment: "First day of the month whose inflows were forecast and scored."}
+  horizon_days: {type: INT, comment: "Forecast horizon in days (30 = one month ahead)."}
+  horizon_label: {type: STRING, comment: "Horizon label (30D)."}
+  model_version: {type: STRING, comment: "v1 (targets Apr-2024 to May-2026) or v2 (upgraded model, targets from Jun-2026)."}
+  is_after_v2_upgrade: {type: BOOLEAN, comment: "True for target months from Jun-2026 (after the model upgrade)."}
+  forecast_date: {type: DATE, comment: "Date the forecast was run (1st of the month before the target month)."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version valid in the target month (as-was, D11)."}
+  client_group_id: {type: STRING}
+  booking_country: {type: STRING, comment: "Client's coverage office / booking location (ISO-2)."}
+  forecast_inflow_usd: {type: DOUBLE, comment: "Forecast inflows of the target month, USD."}
+  actual_inflow_usd: {type: DOUBLE, comment: "Actual inflows of the target month (from payments), USD."}
+  forecast_error_usd: {type: DOUBLE, comment: "forecast - actual inflows, USD (positive = over-forecast). Bias % = SUM(forecast_error_usd) / SUM(actual_inflow_usd)."}
+  abs_error_usd: {type: DOUBLE, comment: "|forecast - actual| inflows, USD."}
+  abs_pct_error: {type: DOUBLE, comment: "|forecast - actual| / actual (0-1; 0.11 = 11%). MAPE = average of this column."}
+  signed_pct_error: {type: DOUBLE, comment: "(forecast - actual) / actual (per-row bias)."}
+  forecast_inflow_p10_usd: {type: DOUBLE, comment: "P10 inflows of the forecast (empirical interval)."}
+  forecast_inflow_p90_usd: {type: DOUBLE, comment: "P90 inflows of the forecast (empirical interval)."}
+  is_within_p10_p90: {type: BOOLEAN, comment: "True when the actual fell inside the P10-P90 interval (target 80% coverage)."}
+  is_within_10pct: {type: BOOLEAN, comment: "True when abs_pct_error <= 10% (dim_threshold MAPE_GOOD) - well-forecast client-month."}
+checks:
+  - name: errors_consistent
+    sql: SELECT count_if(abs(abs_error_usd - abs(forecast_error_usd)) > 0.01 OR abs_pct_error < 0) FROM ${table}
+reconcile:
+  - name: rows_vs_backtests
+    silver: SELECT count(*) FROM ${catalog}.gold.fact_cashflow_forecast WHERE forecast_type = 'Backtest'

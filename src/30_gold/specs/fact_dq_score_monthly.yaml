@@ -1,0 +1,62 @@
+table: fact_dq_score_monthly
+domain: foundation
+comment: >-
+  Data-quality scorecard: monthly DQ score (Apr-2023 .. Sep-2026) per table of the bronze, shared and silver
+  layers and per DQ dimension (completeness, validity, uniqueness, timeliness, consistency) - score 0-1 =
+  share of evaluated rows passing, rules evaluated / failed, rows evaluated / failed - with the previous
+  month's score, the incident behind each explainable dip (Jun-2026 payments replay: uniqueness; Feb-May 2026
+  KYC workflow migration: timeliness; 11-15 Aug 2026 Japan share outage: timeliness / freshness) and a
+  below-95% flag. History is simulated and deterministic; the latest month (Sep-2026) equals the current
+  DQ run (fact_dq_rule_result). Scores are point-in-time per month: average them, never sum.
+grain: one row per month per layer-qualified table per DQ dimension
+primary_key: [month, table_name, dimension]
+foreign_keys:
+  - {columns: [month], references: dim_date}
+cluster_by: [month, table_name]
+min_rows: 20000
+columns:
+  month: {type: DATE, comment: First day of the scored month (the grain date).}
+  table_name: {type: STRING, comment: "Layer-qualified table, e.g. silver.kyc_review, bronze.pay_payment_message, shared.share_jp_parent_rating."}
+  dimension: {type: STRING, comment: "DQ dimension: completeness, validity, uniqueness, timeliness (incl. freshness of shared tables) or consistency."}
+  layer: {type: STRING, comment: "Layer: bronze (raw landing), shared (Delta Sharing inbound) or silver (cleansed)."}
+  base_table_name: {type: STRING, comment: "Table name without the layer, e.g. pay_payment_message."}
+  score: {type: DOUBLE, comment: "DQ score 0-1 = share of evaluated rows passing the dimension's rules (0.978 = 97.8%). Average it; weight by rows_evaluated for a pass rate."}
+  rules_evaluated: {type: INT, comment: Rules of the dimension evaluated on the table in the month.}
+  rules_failed: {type: INT, comment: Rules that failed their threshold in the month.}
+  rows_evaluated: {type: BIGINT, comment: Rows evaluated by the dimension's rules in the month.}
+  rows_failed: {type: BIGINT, comment: "Rows failing (e.g. 3,966 replayed payment messages de-duplicated in Sep-2026, bronze uniqueness)."}
+  rows_passed: {type: BIGINT, comment: rows_evaluated - rows_failed.}
+  basis: {type: STRING, comment: "simulated (history), incident (an explainable dip) or actual (the current DQ run, Sep-2026)."}
+  incident_key: {type: STRING, comment: "Incident behind a dip: payments_replay_landing, payments_replay_tie, kyc_migration_backlog, kyc_migration_recovery or jp_share_outage; null otherwise."}
+  incident_note: {type: STRING, comment: Explanation of the incident.}
+  storyline_no: {type: INT, comment: "Demo storyline the incident belongs to (7 KYC migration, 12 payments replay, 13 Delta Share staleness); null otherwise."}
+  dq_run_id: {type: STRING, comment: DQ run that produced / last refreshed the score history (DQ-yyyymmdd).}
+  is_latest_month: {type: BOOLEAN, comment: True for the latest month (Sep-2026 = this month).}
+  month_offset: {type: INT, comment: "Months relative to the latest month: 0 = Sep-2026 (this month), -1 = Aug-2026 (last month), ..."}
+  prev_month_score: {type: DOUBLE, comment: Score of the same table and dimension in the previous month (null if not scored then).}
+  score_change_vs_prev_month: {type: DOUBLE, comment: score - prev_month_score (fraction points; negative = deterioration).}
+  is_below_95: {type: BOOLEAN, comment: True when the score is below 95% (Tables Below 95%).}
+  is_incident: {type: BOOLEAN, comment: True when the row is an explainable incident dip.}
+checks:
+  - name: payments_replay_uniqueness_sep26   # storyline 12: 3,966 replayed messages de-duplicated (bronze uniqueness, actual)
+    sql: >-
+      SELECT abs(max(rows_failed) - 3966) FROM ${table}
+      WHERE table_name = 'bronze.pay_payment_message' AND dimension = 'uniqueness' AND month = DATE'2026-09-01'
+  - name: payments_replay_jun26_dip
+    sql: >-
+      SELECT count_if(NOT (score < prev_month_score AND incident_key = 'payments_replay_landing')) + (1 - count(*)) FROM ${table}
+      WHERE table_name = 'bronze.pay_payment_message' AND dimension = 'uniqueness' AND month = DATE'2026-06-01'
+  - name: kyc_migration_timeliness_dip       # storyline 7: Feb-May 2026 timeliness dips
+    sql: >-
+      SELECT 4 - count(DISTINCT month) FROM ${table} WHERE incident_key = 'kyc_migration_backlog' AND dimension = 'timeliness'
+      AND month BETWEEN DATE'2026-02-01' AND DATE'2026-05-01' AND score < 0.9
+  - name: jp_share_outage_aug26              # storyline 13: Aug-2026 freshness dip of the JP parent rating share
+    sql: >-
+      SELECT 1 - count(*) FROM ${table} WHERE incident_key = 'jp_share_outage' AND month = DATE'2026-08-01'
+      AND base_table_name = 'share_jp_parent_rating' AND score < 0.95
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.dq_score_history
+  - name: rows_failed_vs_silver
+    gold: SELECT sum(rows_failed) FROM ${table}
+    silver: SELECT sum(rows_failed) FROM ${catalog}.silver.dq_score_history

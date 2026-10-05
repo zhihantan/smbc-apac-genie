@@ -1,0 +1,1897 @@
+{
+  "title": "APAC Genie - Client Profitability & ROE",
+  "description": "Ask about relationship profitability, RoRWA, RAROC, ROE waterfalls and deal pricing vs hurdle for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "c18cb51d11152d0bf9527b6000000000",
+          "question": [
+            "Top and bottom 20 client groups by ROE in FY2025, with revenue, capital and credit cost."
+          ]
+        },
+        {
+          "id": "c18cb51d11152d0bf9527b6000000001",
+          "question": [
+            "Which Japanese-corporate relationships are single-product lending with RoRWA below the hurdle, and what cross-sell would lift them?"
+          ]
+        },
+        {
+          "id": "c18cb51d11152d0bf9527b6000000002",
+          "question": [
+            "ROE waterfall for the Hayashi Marine Logistics group, FY2024 vs FY2025."
+          ]
+        },
+        {
+          "id": "c18cb51d11152d0bf9527b6000000003",
+          "question": [
+            "Revenue mix by product family for Strategic clients vs Core clients."
+          ]
+        },
+        {
+          "id": "c18cb51d11152d0bf9527b6000000004",
+          "question": [
+            "Deals approved below hurdle in the last 4 quarters - by exception reason and whether realised RAROC caught up."
+          ]
+        },
+        {
+          "id": "c18cb51d11152d0bf9527b6000000005",
+          "question": [
+            "Net contribution by coverage office and segment, H1 FY2026 vs H1 FY2025."
+          ]
+        },
+        {
+          "id": "c18cb51d11152d0bf9527b6000000006",
+          "question": [
+            "Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA)?"
+          ]
+        },
+        {
+          "id": "c18cb51d11152d0bf9527b6000000007",
+          "question": [
+            "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong."
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "smbc_genie.gold.dim_client_group",
+          "column_configs": [
+            {
+              "column_name": "apac_countries_text",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "clients_amber",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_on_watchlist",
+              "exclude": true
+            },
+            {
+              "column_name": "clients_red",
+              "exclude": true
+            },
+            {
+              "column_name": "global_coverage_unit",
+              "exclude": true
+            },
+            {
+              "column_name": "global_industry",
+              "exclude": true
+            },
+            {
+              "column_name": "global_relationship_owner_region",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "global_rm_name",
+              "exclude": true
+            },
+            {
+              "column_name": "global_segment",
+              "exclude": true
+            },
+            {
+              "column_name": "global_tier",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_agency",
+              "exclude": true
+            },
+            {
+              "column_name": "group_external_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "group_industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "group_segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "has_account_plan_current_fy",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_country",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "hq_country_name",
+              "exclude": true
+            },
+            {
+              "column_name": "hq_region",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "is_listed_group",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_id",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_outlook",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_date",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_basis",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_client_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lead_golden_client_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lead_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "lead_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "master_status",
+              "exclude": true
+            },
+            {
+              "column_name": "n_apac_countries",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_amer",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_emea",
+              "exclude": true
+            },
+            {
+              "column_name": "n_entities_global",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_since",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "worst_rating_equivalent",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.dim_threshold",
+          "column_configs": [
+            {
+              "column_name": "applies_to",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "category",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "comparison",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "description",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "source",
+              "exclude": true
+            },
+            {
+              "column_name": "threshold_code",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "threshold_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "unit",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.gold.vw_client_360",
+          "column_configs": [
+            {
+              "column_name": "aliases_text",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "attribute_completeness_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_ratio",
+              "exclude": true
+            },
+            {
+              "column_name": "casa_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "client_group_id",
+              "exclude": true
+            },
+            {
+              "column_name": "country_of_incorporation",
+              "exclude": true
+            },
+            {
+              "column_name": "covenant_min_headroom_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "coverage_office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "coverage_office_name",
+              "exclude": true
+            },
+            {
+              "column_name": "credit_analyst_name",
+              "exclude": true
+            },
+            {
+              "column_name": "days_since_last_rm_contact",
+              "exclude": true
+            },
+            {
+              "column_name": "deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "display_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "esg_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_computed_band",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_score_change_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "ews_top_triggers",
+              "exclude": true
+            },
+            {
+              "column_name": "external_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "facilities",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p10_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_p90_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "forecast_net_30d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_client_id",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "golden_client_sk",
+              "exclude": true
+            },
+            {
+              "column_name": "golden_record_confidence",
+              "exclude": true
+            },
+            {
+              "column_name": "group_lead_client_name",
+              "exclude": true
+            },
+            {
+              "column_name": "group_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "group_news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "has_account_plan",
+              "exclude": true
+            },
+            {
+              "column_name": "has_covenant_breach",
+              "exclude": true
+            },
+            {
+              "column_name": "ifrs9_stage",
+              "exclude": true
+            },
+            {
+              "column_name": "in_all_core_sources",
+              "exclude": true
+            },
+            {
+              "column_name": "industry_sector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "industry_subsector",
+              "exclude": true
+            },
+            {
+              "column_name": "internal_rating_grade",
+              "exclude": true
+            },
+            {
+              "column_name": "is_blind_spot_group",
+              "exclude": true
+            },
+            {
+              "column_name": "is_carbon_intensive",
+              "exclude": true
+            },
+            {
+              "column_name": "is_credit_review_overdue",
+              "exclude": true
+            },
+            {
+              "column_name": "is_deposit_only",
+              "exclude": true
+            },
+            {
+              "column_name": "is_ews_overridden",
+              "exclude": true
+            },
+            {
+              "column_name": "is_forecast_negative_30d",
+              "exclude": true
+            },
+            {
+              "column_name": "is_group_lead",
+              "exclude": true
+            },
+            {
+              "column_name": "is_listed",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_credit_record",
+              "exclude": true
+            },
+            {
+              "column_name": "is_missing_kyc_record",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "jp_parent_rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_next_review_date",
+              "exclude": true
+            },
+            {
+              "column_name": "kyc_risk_rating",
+              "exclude": true
+            },
+            {
+              "column_name": "last_rm_contact_date",
+              "exclude": true
+            },
+            {
+              "column_name": "last_signal_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_action",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_status",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_type",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_liquidity_event_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_case_id",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_go_live_date",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_match_timing",
+              "exclude": true
+            },
+            {
+              "column_name": "latest_onboarding_status",
+              "exclude": true
+            },
+            {
+              "column_name": "legal_name",
+              "exclude": true
+            },
+            {
+              "column_name": "lei_like_id",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_at_52w_low",
+              "exclude": true
+            },
+            {
+              "column_name": "listed_parent_price_change_30d_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "max_days_past_due",
+              "exclude": true
+            },
+            {
+              "column_name": "missing_attributes_text",
+              "exclude": true
+            },
+            {
+              "column_name": "n_source_records",
+              "exclude": true
+            },
+            {
+              "column_name": "negative_news_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_items_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "news_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "next_best_product",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "next_credit_review_due_date",
+              "exclude": true
+            },
+            {
+              "column_name": "onboarding_date",
+              "exclude": true
+            },
+            {
+              "column_name": "open_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "open_opportunities",
+              "exclude": true
+            },
+            {
+              "column_name": "open_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "open_rm_actions",
+              "exclude": true
+            },
+            {
+              "column_name": "opportunity_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "overdue_kyc_reviews",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_last_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "payments_other_bank_share_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_code",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_id",
+              "exclude": true
+            },
+            {
+              "column_name": "primary_rm_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "primary_rm_office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "product_families_held_count",
+              "exclude": true
+            },
+            {
+              "column_name": "rating_equivalent",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_start_date",
+              "exclude": true
+            },
+            {
+              "column_name": "relationship_tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "risk_signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_contacts_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "rm_note_sentiment_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "short_name",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "signals_last_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "source_systems_text",
+              "exclude": true
+            },
+            {
+              "column_name": "sources_present",
+              "exclude": true
+            },
+            {
+              "column_name": "td_maturing_90d_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "tight_covenants",
+              "exclude": true
+            },
+            {
+              "column_name": "time_deposits_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_instruments_outstanding",
+              "exclude": true
+            },
+            {
+              "column_name": "trade_outstanding_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "unacknowledged_risk_signals_90d",
+              "exclude": true
+            },
+            {
+              "column_name": "undrawn_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "utilisation_pct",
+              "exclude": true
+            },
+            {
+              "column_name": "watchlist_flag",
+              "exclude": true
+            },
+            {
+              "column_name": "weighted_pipeline_usd",
+              "exclude": true
+            },
+            {
+              "column_name": "won_fytd_usd",
+              "exclude": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_client_profitability",
+          "column_configs": [
+            {
+              "column_name": "Business Line",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "description": [
+                "Office (ISO-2) where the primary RM sits - a location, not a person. Filter it for 'RMs in Hong Kong' (= 'HK'); when a question asks for the RM, show `Primary RM`."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Count Bucket",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_deal_pricing",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Exception Reason",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Pricing Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Realised Status",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_next_best_product",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Half",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Quarter",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Product Family",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Propensity Band",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Top Drivers",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "smbc_genie.metrics.mv_roe_waterfall",
+          "column_configs": [
+            {
+              "column_name": "Client",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Client Group",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Coverage Office",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "EWS Band",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Fiscal Year",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Industry",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "KYC Risk Rating",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Primary RM",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Primary RM Office",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "Product Count Bucket",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Relationship Tier",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Segment",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "Subsector",
+              "enable_format_assistance": true
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "5aba02949e4fa2b18d21c98c00000000",
+          "content": [
+            "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n",
+            "- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n",
+            "- Default currency is USD. Use local currency only when asked.\n",
+            "- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n",
+            "- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n",
+            "- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n",
+            "- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n",
+            "- Year-on-year compares the same fiscal period in the prior fiscal year.\n",
+            "- Prefer measures from the metric views; use MEASURE() syntax.\n",
+            "- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n",
+            "- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n",
+            "- Hurdles (gold.dim_threshold): RoRWA 1.2%, RAROC 12%, ROE 10%. 'Below the (8%) hurdle' for relationships = `Below RoRWA Hurdle` (the configured 1.2% hurdle, D20), a quarter-level flag: filter one `Fiscal Quarter` or `Is Latest Month` (FY2026-Q2).\n",
+            "- Monthly revenue, cost, net contribution, RWA, RoRWA / RAROC and revenue per RWA: mv_client_profitability (flows add up over months; returns are annualised ratios of sums). ROE and the P&L waterfall (revenue, opex, credit cost, tax, net income, allocated capital): mv_roe_waterfall, filter ONE `Fiscal Year`. Deal pricing vs hurdle: mv_deal_pricing (signing date).\n",
+            "- Group `ROE %` (ratio of sums) is extreme for deposit-rich groups with little capital: rank groups with `Allocated Capital USD` > 0 (or the capital floor asked for) and show `Median Client ROE %` beside it.\n",
+            "- 'Deals in the last 4 quarters' = `Signed in Last 4 Quarters` (Oct-2025..Sep-2026, mostly not yet seasoned); 'did realised RAROC catch up' = `Signed in Last 4 Seasoned Quarters` (FY2025 deals) with `Deals Caught Up` and `Caught-Up Rate %`.\n",
+            "- Growth = the `Revenue YoY %` measure (a fraction; never compute it by hand or x100): H1 FY2026 vs H1 FY2025 in one row = `Fiscal Half` = 'FY2026-H1' with `Total Revenue USD`, `Revenue Prior Year USD`, `Revenue YoY %`; side by side = `Fiscal Half` IN ('FY2026-H1', 'FY2025-H1'). 'Lowest revenue per unit of RWA' = `Revenue per RWA %` ascending over groups with `Average RWA USD` > 0; 'credit cost above 30% of revenue' = `Credit Cost Above 30%`.\n",
+            "- 'RM' / 'per RM' = `Primary RM` (the RM name); 'RMs in Hong Kong' = filter `Primary RM Office` = 'HK'. Products per client by segment = `Products per Client` by `Segment`; RoRWA vs number of products = `Product Count Bucket` with `Median Client RoRWA %`, both on `Is Latest Month`.\n",
+            "- `Client Group` has a value dictionary (= on the exact name, e.g. 'Hayashi Marine Logistics'); match entity names (`Client`) with LIKE. Relationship-level flags (below hurdle, single-product lending, credit cost > 30%) list `Client` rows with their `Client Group`.\n",
+            "- Keep NULL groups: clients without a segment (blank `Segment`) or without an RM are real rows, so never add IS NOT NULL filters the user did not ask for.\n",
+            "- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "82b290e52c753fed4fa07ab000000000",
+          "question": [
+            "Top and bottom 20 client groups by ROE in :fiscal_year with more than :min_capital_usd of allocated capital, with revenue, capital and credit cost"
+          ],
+          "sql": [
+            "WITH g AS (\n",
+            "  SELECT `Client Group`,\n",
+            "         MEASURE(`ROE %`)                 AS roe,\n",
+            "         MEASURE(`Median Client ROE %`)   AS median_client_roe,\n",
+            "         MEASURE(`Revenue USD`)           AS revenue_usd,\n",
+            "         MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n",
+            "         MEASURE(`Credit Cost USD`)       AS credit_cost_usd\n",
+            "  FROM smbc_genie.metrics.mv_roe_waterfall\n",
+            "  WHERE `Fiscal Year` = :fiscal_year AND `Client Group` IS NOT NULL\n",
+            "  GROUP BY ALL\n",
+            "  HAVING MEASURE(`Allocated Capital USD`) > CAST(:min_capital_usd AS DOUBLE)\n",
+            "), r AS (\n",
+            "  SELECT g.*, rank() OVER (ORDER BY roe DESC) AS top_rank, rank() OVER (ORDER BY roe ASC) AS bottom_rank FROM g\n",
+            ")\n",
+            "SELECT CASE WHEN top_rank <= 20 THEN 'Top 20' ELSE 'Bottom 20' END AS list, `Client Group` AS client_group, roe,\n",
+            "       median_client_roe, revenue_usd, allocated_capital_usd, credit_cost_usd\n",
+            "FROM r\n",
+            "WHERE top_rank <= 20 OR bottom_rank <= 20\n",
+            "ORDER BY roe DESC"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal-year label, e.g. FY2025 (latest full year)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025"
+                ]
+              }
+            },
+            {
+              "name": "min_capital_usd",
+              "type_hint": "STRING",
+              "description": [
+                "Allocated capital floor in USD, e.g. 0 or 1000000"
+              ],
+              "default_value": {
+                "values": [
+                  "0"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"top and bottom N groups by ROE\", \"best / worst ROE relationships\", \"ROE ranking\"; min_capital_usd = 0 keeps every group with capital, 1000000 = groups with at least USD 1m of capital."
+          ]
+        },
+        {
+          "id": "82b290e52c753fed4fa07ab000000001",
+          "question": [
+            "Cross-sell that would lift the Japanese-corporate single-product lending relationships below the RoRWA hurdle as of :month"
+          ],
+          "sql": [
+            "WITH b AS (\n",
+            "  SELECT `Client`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter\n",
+            "  FROM smbc_genie.metrics.mv_client_profitability\n",
+            "  WHERE `Month` = :month AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\n",
+            "  GROUP BY ALL\n",
+            "), n AS (\n",
+            "  SELECT `Client`, `Product`, MEASURE(`Max Propensity`) AS propensity\n",
+            "  FROM smbc_genie.metrics.mv_next_best_product\n",
+            "  WHERE `Month` = :month AND `Is Cross-Sell`\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT b.`Client` AS client, b.rorwa_latest_quarter, max_by(n.`Product`, n.propensity) AS top_cross_sell_product,\n",
+            "       max(n.propensity) AS propensity\n",
+            "FROM b LEFT JOIN n ON n.`Client` = b.`Client`\n",
+            "GROUP BY ALL\n",
+            "ORDER BY b.rorwa_latest_quarter"
+          ],
+          "parameters": [
+            {
+              "name": "month",
+              "type_hint": "DATE",
+              "description": [
+                "Month as its first day; latest = 2026-09-01"
+              ],
+              "default_value": {
+                "values": [
+                  "2026-09-01"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"what cross-sell would lift the below-hurdle lending relationships\", \"next best product for sub-hurdle clients\"; one CTE per metric view (profitability + next-best-product), joined on Client."
+          ]
+        },
+        {
+          "id": "82b290e52c753fed4fa07ab000000002",
+          "question": [
+            "ROE waterfall for the :client_group group, :fiscal_year_a vs :fiscal_year_b"
+          ],
+          "sql": [
+            "SELECT `Fiscal Year`,\n",
+            "       MEASURE(`Revenue USD`)           AS revenue_usd,\n",
+            "       MEASURE(`Opex USD`)              AS opex_usd,\n",
+            "       MEASURE(`Credit Cost USD`)       AS credit_cost_usd,\n",
+            "       MEASURE(`Pre-Tax Profit USD`)    AS pre_tax_profit_usd,\n",
+            "       MEASURE(`Tax USD`)               AS tax_usd,\n",
+            "       MEASURE(`Net Income USD`)        AS net_income_usd,\n",
+            "       MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n",
+            "       MEASURE(`ROE %`)                 AS roe,\n",
+            "       MEASURE(`Hurdle Gap pts`)        AS gap_to_roe_hurdle\n",
+            "FROM smbc_genie.metrics.mv_roe_waterfall\n",
+            "WHERE `Client Group` = :client_group AND `Fiscal Year` IN (:fiscal_year_a, :fiscal_year_b)\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Fiscal Year`"
+          ],
+          "parameters": [
+            {
+              "name": "client_group",
+              "type_hint": "STRING",
+              "description": [
+                "Exact client group name (value dictionary), e.g. Hayashi Marine Logistics"
+              ],
+              "default_value": {
+                "values": [
+                  "Hayashi Marine Logistics"
+                ]
+              }
+            },
+            {
+              "name": "fiscal_year_a",
+              "type_hint": "STRING",
+              "description": [
+                "First fiscal year, e.g. FY2024"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2024"
+                ]
+              }
+            },
+            {
+              "name": "fiscal_year_b",
+              "type_hint": "STRING",
+              "description": [
+                "Second fiscal year, e.g. FY2025"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"ROE waterfall / ROE walk / P&L walk for <group>\", \"revenue to net income to ROE\", \"compare two fiscal years of ROE for a group\"."
+          ]
+        },
+        {
+          "id": "82b290e52c753fed4fa07ab000000003",
+          "question": [
+            "Revenue mix by product family for :tier_a clients vs :tier_b clients in :fiscal_year"
+          ],
+          "sql": [
+            "WITH r AS (\n",
+            "  SELECT `Relationship Tier`, `Product Family`, MEASURE(`Total Revenue USD`) AS revenue_usd\n",
+            "  FROM smbc_genie.metrics.mv_client_profitability\n",
+            "  WHERE `Fiscal Year` = :fiscal_year AND `Relationship Tier` IN (:tier_a, :tier_b)\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Relationship Tier`, `Product Family`, revenue_usd,\n",
+            "       revenue_usd / SUM(revenue_usd) OVER (PARTITION BY `Relationship Tier`) AS revenue_mix_share\n",
+            "FROM r\n",
+            "ORDER BY `Relationship Tier`, revenue_usd DESC"
+          ],
+          "parameters": [
+            {
+              "name": "tier_a",
+              "type_hint": "STRING",
+              "description": [
+                "Relationship tier, e.g. Strategic"
+              ],
+              "default_value": {
+                "values": [
+                  "Strategic"
+                ]
+              }
+            },
+            {
+              "name": "tier_b",
+              "type_hint": "STRING",
+              "description": [
+                "Relationship tier, e.g. Core"
+              ],
+              "default_value": {
+                "values": [
+                  "Core"
+                ]
+              }
+            },
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal-year label; this fiscal year = FY2026 (to date)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"revenue mix by product family\", \"product mix of Strategic vs Core clients\", \"share of revenue by family per tier\"."
+          ]
+        },
+        {
+          "id": "82b290e52c753fed4fa07ab000000004",
+          "question": [
+            "Net contribution by coverage office and segment, :fiscal_half vs :prior_fiscal_half"
+          ],
+          "sql": [
+            "WITH n AS (\n",
+            "  SELECT `Coverage Office`, `Segment`, `Fiscal Half`, MEASURE(`Net Contribution USD`) AS net_contribution_usd\n",
+            "  FROM smbc_genie.metrics.mv_client_profitability\n",
+            "  WHERE `Fiscal Half` IN (:fiscal_half, :prior_fiscal_half)\n",
+            "  GROUP BY ALL\n",
+            ")\n",
+            "SELECT `Coverage Office`, `Segment`,\n",
+            "       SUM(CASE WHEN `Fiscal Half` = :fiscal_half THEN net_contribution_usd END)       AS net_contribution_usd,\n",
+            "       SUM(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN net_contribution_usd END) AS net_contribution_prior_usd,\n",
+            "       SUM(CASE WHEN `Fiscal Half` = :fiscal_half THEN net_contribution_usd ELSE -net_contribution_usd END) AS change_usd\n",
+            "FROM n\n",
+            "GROUP BY ALL\n",
+            "ORDER BY `Coverage Office`, `Segment`"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal half, e.g. FY2026-H1 (Apr-Sep 2026)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2026-H1"
+                ]
+              }
+            },
+            {
+              "name": "prior_fiscal_half",
+              "type_hint": "STRING",
+              "description": [
+                "Comparison half, e.g. FY2025-H1 (Apr-Sep 2025)"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025-H1"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"net contribution H1 FY2026 vs H1 FY2025\", \"contribution by office and segment, half on half\", \"profit change by booking country\"."
+          ]
+        },
+        {
+          "id": "82b290e52c753fed4fa07ab000000005",
+          "question": [
+            "Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA) in :fiscal_year?"
+          ],
+          "sql": [
+            "SELECT * FROM (\n",
+            "  SELECT `Client Group`,\n",
+            "         MEASURE(`Revenue per RWA %`) AS revenue_per_rwa,\n",
+            "         MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n",
+            "         MEASURE(`Total Revenue USD`) AS revenue_usd,\n",
+            "         MEASURE(`RoRWA %`)           AS rorwa\n",
+            "  FROM smbc_genie.metrics.mv_client_profitability\n",
+            "  WHERE `Fiscal Year` = :fiscal_year\n",
+            "  GROUP BY ALL\n",
+            ") WHERE average_rwa_usd > 0\n",
+            "ORDER BY revenue_per_rwa ASC\n",
+            "LIMIT 20"
+          ],
+          "parameters": [
+            {
+              "name": "fiscal_year",
+              "type_hint": "STRING",
+              "description": [
+                "Fiscal-year label, e.g. FY2025"
+              ],
+              "default_value": {
+                "values": [
+                  "FY2025"
+                ]
+              }
+            }
+          ],
+          "usage_guidance": [
+            "Use for \"lowest revenue per RWA\", \"capital-hungry relationships\", \"most capital relative to revenue\", \"worst capital efficiency\"; only groups with RWA."
+          ]
+        }
+      ],
+      "sql_functions": [
+        {
+          "id": "827e990ca57c0f0647d9542d00000000",
+          "identifier": "smbc_genie.gold.fn_profitability_below_hurdle_lending"
+        },
+        {
+          "id": "827e990ca57c0f0647d9542d00000001",
+          "identifier": "smbc_genie.gold.fn_profitability_deal_exceptions"
+        },
+        {
+          "id": "827e990ca57c0f0647d9542d00000002",
+          "identifier": "smbc_genie.gold.fn_profitability_rm_summary"
+        }
+      ]
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000000",
+          "question": [
+            "Top and bottom 20 client groups by ROE in FY2025 (groups with allocated capital) - label each Top 20 or Bottom 20 and show ROE, median client ROE, revenue, allocated capital and credit cost."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH g AS (\n",
+                "  SELECT `Client Group`,\n",
+                "         MEASURE(`ROE %`)                 AS roe,\n",
+                "         MEASURE(`Median Client ROE %`)   AS median_client_roe,\n",
+                "         MEASURE(`Revenue USD`)           AS revenue_usd,\n",
+                "         MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n",
+                "         MEASURE(`Credit Cost USD`)       AS credit_cost_usd\n",
+                "  FROM smbc_genie.metrics.mv_roe_waterfall\n",
+                "  WHERE `Fiscal Year` = 'FY2025' AND `Client Group` IS NOT NULL\n",
+                "  GROUP BY ALL\n",
+                "  HAVING MEASURE(`Allocated Capital USD`) > 0\n",
+                "), r AS (\n",
+                "  SELECT g.*, rank() OVER (ORDER BY roe DESC) AS top_rank, rank() OVER (ORDER BY roe ASC) AS bottom_rank FROM g\n",
+                ")\n",
+                "SELECT CASE WHEN top_rank <= 20 THEN 'Top 20' ELSE 'Bottom 20' END AS list, `Client Group` AS client_group, roe, median_client_roe,\n",
+                "       revenue_usd, allocated_capital_usd, credit_cost_usd\n",
+                "FROM r\n",
+                "WHERE top_rank <= 20 OR bottom_rank <= 20\n",
+                "ORDER BY roe DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000001",
+          "question": [
+            "Top and bottom 20 client groups by ROE in FY2025 among groups with at least USD 1m of allocated capital - label each Top 20 or Bottom 20 with ROE, median client ROE, revenue, allocated capital and credit cost."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH g AS (\n",
+                "  SELECT `Client Group`, MEASURE(`ROE %`) AS roe, MEASURE(`Median Client ROE %`) AS median_client_roe,\n",
+                "         MEASURE(`Revenue USD`) AS revenue_usd, MEASURE(`Allocated Capital USD`) AS allocated_capital_usd, MEASURE(`Credit Cost USD`) AS credit_cost_usd\n",
+                "  FROM smbc_genie.metrics.mv_roe_waterfall\n",
+                "  WHERE `Fiscal Year` = 'FY2025' AND `Client Group` IS NOT NULL\n",
+                "  GROUP BY ALL\n",
+                "  HAVING MEASURE(`Allocated Capital USD`) >= 1000000\n",
+                "), r AS (\n",
+                "  SELECT g.*, rank() OVER (ORDER BY roe DESC) AS top_rank, rank() OVER (ORDER BY roe ASC) AS bottom_rank FROM g\n",
+                ")\n",
+                "SELECT CASE WHEN top_rank <= 20 THEN 'Top 20' ELSE 'Bottom 20' END AS list, `Client Group` AS client_group, roe, median_client_roe,\n",
+                "       revenue_usd, allocated_capital_usd, credit_cost_usd\n",
+                "FROM r\n",
+                "WHERE top_rank <= 20 OR bottom_rank <= 20\n",
+                "ORDER BY roe DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000002",
+          "question": [
+            "Which Japanese-corporate relationships are single-product lending with RoRWA below the 8% hurdle? Show client, group, coverage office, RM, latest-quarter RoRWA, the hurdle, RWA and September revenue."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Client Group`, `Coverage Office`, `Primary RM`,\n",
+                "       MEASURE(`RoRWA %`)             AS rorwa_latest_quarter,\n",
+                "       MEASURE(`RoRWA Hurdle %`)      AS rorwa_hurdle,\n",
+                "       MEASURE(`Average RWA USD`)     AS rwa_usd,\n",
+                "       MEASURE(`Total Revenue USD`)   AS revenue_sep_2026_usd\n",
+                "FROM smbc_genie.metrics.mv_client_profitability\n",
+                "WHERE `Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY rwa_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000003",
+          "question": [
+            "JC mono-line lending names under the 8% hurdle - RoRWA vs hurdle, RWA, Sep revenue, RM and office"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Coverage Office`, `Primary RM`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter, MEASURE(`Average RWA USD`) AS rwa_usd\n",
+                "FROM smbc_genie.metrics.mv_client_profitability\n",
+                "WHERE `Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\n",
+                "GROUP BY `Client`, `Client Group`, `Coverage Office`, `Primary RM`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000004",
+          "question": [
+            "What cross-sell would lift the Japanese-corporate single-product lending relationships below the RoRWA hurdle? For each client show its latest-quarter RoRWA, the top cross-sell product from the latest next-best-product scores and its propensity."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH b AS (\n",
+                "  SELECT `Client`, MEASURE(`RoRWA %`) AS rorwa_latest_quarter\n",
+                "  FROM smbc_genie.metrics.mv_client_profitability\n",
+                "  WHERE `Is Latest Month` AND `Is Japanese Corporate` AND `Is Single-Product Lending` AND `Below RoRWA Hurdle`\n",
+                "  GROUP BY ALL\n",
+                "), n AS (\n",
+                "  SELECT `Client`, `Product`, MEASURE(`Max Propensity`) AS propensity\n",
+                "  FROM smbc_genie.metrics.mv_next_best_product\n",
+                "  WHERE `Is Latest Month` AND `Is Cross-Sell`\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT b.`Client` AS client, b.rorwa_latest_quarter, max_by(n.`Product`, n.propensity) AS top_cross_sell_product,\n",
+                "       max(n.propensity) AS propensity\n",
+                "FROM b LEFT JOIN n ON n.`Client` = b.`Client`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY b.rorwa_latest_quarter"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000005",
+          "question": [
+            "ROE waterfall for the Hayashi Marine Logistics group, FY2024 vs FY2025: revenue, opex, credit cost, pre-tax profit, tax, net income, allocated capital, ROE and the gap to the ROE hurdle."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Fiscal Year`,\n",
+                "       MEASURE(`Revenue USD`)           AS revenue_usd,\n",
+                "       MEASURE(`Opex USD`)              AS opex_usd,\n",
+                "       MEASURE(`Credit Cost USD`)       AS credit_cost_usd,\n",
+                "       MEASURE(`Pre-Tax Profit USD`)    AS pre_tax_profit_usd,\n",
+                "       MEASURE(`Tax USD`)               AS tax_usd,\n",
+                "       MEASURE(`Net Income USD`)        AS net_income_usd,\n",
+                "       MEASURE(`Allocated Capital USD`) AS allocated_capital_usd,\n",
+                "       MEASURE(`ROE %`)                 AS roe,\n",
+                "       MEASURE(`Hurdle Gap pts`)        AS gap_to_roe_hurdle\n",
+                "FROM smbc_genie.metrics.mv_roe_waterfall\n",
+                "WHERE `Client Group` = 'Hayashi Marine Logistics' AND `Fiscal Year` IN ('FY2024', 'FY2025')\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Fiscal Year`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000006",
+          "question": [
+            "walk me through hayashi marine logistics' ROE waterfall, FY24 vs FY25"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Fiscal Year`, MEASURE(`Revenue USD`) AS revenue_usd, MEASURE(`Net Income USD`) AS net_income_usd, MEASURE(`ROE %`) AS roe\n",
+                "FROM smbc_genie.metrics.mv_roe_waterfall\n",
+                "WHERE `Client Group` = 'Hayashi Marine Logistics' AND `Fiscal Year` IN ('FY2024', 'FY2025')\n",
+                "GROUP BY ALL"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000007",
+          "question": [
+            "Revenue mix by product family for Strategic clients vs Core clients this fiscal year - revenue and each family's share of the tier's revenue."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH r AS (\n",
+                "  SELECT `Relationship Tier`, `Product Family`, MEASURE(`Total Revenue USD`) AS revenue_usd\n",
+                "  FROM smbc_genie.metrics.mv_client_profitability\n",
+                "  WHERE `Fiscal Year` = 'FY2026' AND `Relationship Tier` IN ('Strategic', 'Core')\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Relationship Tier`, `Product Family`, revenue_usd,\n",
+                "       revenue_usd / SUM(revenue_usd) OVER (PARTITION BY `Relationship Tier`) AS revenue_mix_share\n",
+                "FROM r\n",
+                "ORDER BY `Relationship Tier`, revenue_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000008",
+          "question": [
+            "Deals approved below hurdle in the last 4 quarters - by exception reason and whether realised RAROC caught up: deals, amount, deals caught up, caught-up rate, average origination and realised RAROC."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Exception Reason`,\n",
+                "       MEASURE(`Deals`)                       AS deals,\n",
+                "       MEASURE(`Amount USD`)                  AS amount_usd,\n",
+                "       MEASURE(`Deals Caught Up`)             AS caught_up,\n",
+                "       MEASURE(`Caught-Up Rate %`)            AS caught_up_rate,\n",
+                "       MEASURE(`Average Origination RAROC %`) AS avg_origination_raroc,\n",
+                "       MEASURE(`Average Realised RAROC %`)    AS avg_realised_raroc\n",
+                "FROM smbc_genie.metrics.mv_deal_pricing\n",
+                "WHERE `Approved Below Hurdle` AND `Signed in Last 4 Seasoned Quarters`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY deals DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000009",
+          "question": [
+            "Deals approved below hurdle in the rolling last 4 quarters to 30-Sep-2026, by exception reason and realised status - number of deals and amount."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Exception Reason`, `Realised Status`, MEASURE(`Deals`) AS deals, MEASURE(`Amount USD`) AS amount_usd\n",
+                "FROM smbc_genie.metrics.mv_deal_pricing\n",
+                "WHERE `Approved Below Hurdle` AND `Signed in Last 4 Quarters`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Exception Reason`, `Realised Status`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f300000000a",
+          "question": [
+            "Net contribution by coverage office and segment, H1 FY2026 vs H1 FY2025, with the change."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "WITH n AS (\n",
+                "  SELECT `Coverage Office`, `Segment`, `Fiscal Half`, MEASURE(`Net Contribution USD`) AS net_contribution_usd\n",
+                "  FROM smbc_genie.metrics.mv_client_profitability\n",
+                "  WHERE `Fiscal Half` IN ('FY2026-H1', 'FY2025-H1')\n",
+                "  GROUP BY ALL\n",
+                ")\n",
+                "SELECT `Coverage Office`, `Segment`,\n",
+                "       SUM(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN net_contribution_usd END) AS net_contribution_h1_fy2026_usd,\n",
+                "       SUM(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN net_contribution_usd END) AS net_contribution_h1_fy2025_usd,\n",
+                "       SUM(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN net_contribution_usd ELSE -net_contribution_usd END) AS change_usd\n",
+                "FROM n\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Coverage Office`, `Segment`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f300000000b",
+          "question": [
+            "Which groups consume the most capital relative to revenue (lowest revenue per unit of RWA) in FY2025? Show the 20 lowest with revenue per RWA, average RWA, revenue and RoRWA."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT * FROM (\n",
+                "  SELECT `Client Group`,\n",
+                "         MEASURE(`Revenue per RWA %`) AS revenue_per_rwa,\n",
+                "         MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n",
+                "         MEASURE(`Total Revenue USD`) AS revenue_usd,\n",
+                "         MEASURE(`RoRWA %`)           AS rorwa\n",
+                "  FROM smbc_genie.metrics.mv_client_profitability\n",
+                "  WHERE `Fiscal Year` = 'FY2025'\n",
+                "  GROUP BY ALL\n",
+                ") WHERE average_rwa_usd > 0\n",
+                "ORDER BY revenue_per_rwa ASC\n",
+                "LIMIT 20"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f300000000c",
+          "question": [
+            "which groups use the most captial vs revenue in FY2025 - bottom 20 on revenue per RWA with avg RWA, revenue and RoRWA"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT * FROM (\n",
+                "  SELECT `Client Group`,\n",
+                "         MEASURE(`Revenue per RWA %`) AS revenue_per_rwa,\n",
+                "         MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n",
+                "         MEASURE(`Total Revenue USD`) AS revenue_usd,\n",
+                "         MEASURE(`RoRWA %`)           AS rorwa\n",
+                "  FROM smbc_genie.metrics.mv_client_profitability\n",
+                "  WHERE `Fiscal Year` = 'FY2025'\n",
+                "  GROUP BY ALL\n",
+                ") WHERE average_rwa_usd > 0\n",
+                "ORDER BY revenue_per_rwa ASC\n",
+                "LIMIT 20"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f300000000d",
+          "question": [
+            "Clients where credit cost exceeded 30% of revenue in FY2025 - client, group, revenue, credit cost and credit cost / revenue."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Client`, `Client Group`,\n",
+                "       MEASURE(`Revenue USD`)              AS revenue_usd,\n",
+                "       MEASURE(`Credit Cost USD`)          AS credit_cost_usd,\n",
+                "       MEASURE(`Credit Cost to Revenue %`) AS credit_cost_to_revenue\n",
+                "FROM smbc_genie.metrics.mv_roe_waterfall\n",
+                "WHERE `Fiscal Year` = 'FY2025' AND `Credit Cost Above 30%`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY credit_cost_to_revenue DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f300000000e",
+          "question": [
+            "Products per client by segment at the latest month-end (one row per segment, including clients with no segment), with the median client RoRWA and the number of clients."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Segment`,\n",
+                "       MEASURE(`Products per Client`)   AS products_per_client,\n",
+                "       MEASURE(`Median Client RoRWA %`) AS median_client_rorwa,\n",
+                "       MEASURE(`Clients`)               AS clients\n",
+                "FROM smbc_genie.metrics.mv_client_profitability\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY products_per_client DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f300000000f",
+          "question": [
+            "How does RoRWA relate to the number of products held? By product-count bucket at the latest month-end, show clients, median client RoRWA, portfolio RoRWA and clients below the RoRWA hurdle."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Product Count Bucket`,\n",
+                "       MEASURE(`Clients`)                    AS clients,\n",
+                "       MEASURE(`Median Client RoRWA %`)      AS median_client_rorwa,\n",
+                "       MEASURE(`RoRWA %`)                    AS portfolio_rorwa,\n",
+                "       MEASURE(`Clients Below RoRWA Hurdle`) AS clients_below_hurdle\n",
+                "FROM smbc_genie.metrics.mv_client_profitability\n",
+                "WHERE `Is Latest Month`\n",
+                "GROUP BY ALL\n",
+                "ORDER BY `Product Count Bucket`"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000010",
+          "question": [
+            "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong this fiscal year, with the number of clients."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Primary RM`,\n",
+                "       MEASURE(`Total Revenue USD`) AS revenue_fytd_usd,\n",
+                "       MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n",
+                "       MEASURE(`RoRWA %`)           AS rorwa,\n",
+                "       MEASURE(`Clients`)           AS clients\n",
+                "FROM smbc_genie.metrics.mv_client_profitability\n",
+                "WHERE `Primary RM Office` = 'HK' AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY revenue_fytd_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000011",
+          "question": [
+            "HK RM P&L by RM - FYTD rev, avg RWA, RoRWA, clients"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT `Primary RM`,\n",
+                "       MEASURE(`Total Revenue USD`) AS revenue_fytd_usd,\n",
+                "       MEASURE(`Average RWA USD`)   AS average_rwa_usd,\n",
+                "       MEASURE(`RoRWA %`)           AS rorwa,\n",
+                "       MEASURE(`Clients`)           AS clients\n",
+                "FROM smbc_genie.metrics.mv_client_profitability\n",
+                "WHERE `Primary RM Office` = 'HK' AND `Fiscal Year` = 'FY2026'\n",
+                "GROUP BY ALL\n",
+                "ORDER BY revenue_fytd_usd DESC"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000012",
+          "question": [
+            "How many FY2025 deals were approved below hurdle on Relationship exceptions, and how many of them caught up?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Deals`) AS relationship_exceptions, MEASURE(`Deals Caught Up`) AS caught_up\n",
+                "FROM smbc_genie.metrics.mv_deal_pricing\n",
+                "WHERE `Fiscal Year` = 'FY2025' AND `Exception Reason` = 'Relationship'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4cb7c04797b329b4d9b55f3000000013",
+          "question": [
+            "In one row: the Kinokawa Precision group's revenue in H1 FY2026, its revenue in the same months of FY2025 (H1 FY2025) and the YoY growth."
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT MEASURE(`Total Revenue USD`) AS revenue_h1_fy2026_usd, MEASURE(`Revenue Prior Year USD`) AS revenue_h1_fy2025_usd,\n",
+                "       MEASURE(`Revenue YoY %`) AS revenue_yoy\n",
+                "FROM smbc_genie.metrics.mv_client_profitability\n",
+                "WHERE `Client Group` = 'Kinokawa Precision' AND `Fiscal Half` = 'FY2026-H1'"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

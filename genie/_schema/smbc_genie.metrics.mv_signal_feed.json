@@ -1,0 +1,259 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date of the signal (EWS signals - first day of the month evaluated). Today is 30-Sep-2026 (never use CURRENT_DATE); \"last N days\" means Date between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date return the last date of any longer period you group by.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the signal (EWS signals - first day of the month evaluated) as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the signal (EWS signals - first day of the month evaluated), April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the signal (EWS signals - first day of the month evaluated)).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Signal code, e.g. DEPOSIT_SURPLUS, FX_FLOW_VIA_OTHER_BANK, TRADE_CORRIDOR_GROWTH, CAPEX_NEWS (CRM); UTIL_HIGH, DPD_30, COV_BREACH, NEWS_NEGATIVE (EWS); NEWS_EXPANSION, NEWS_REGULATORY, NEWS_LITIGATION (news topics); MARKET_52W_LOW, MARKET_CDS_WIDENING; EXT_RATING_DOWNGRADE, EXT_OUTLOOK_NEGATIVE; PARENT_RATING_UPGRADE / _DOWNGRADE (Japan share); RM_NOTE_POSITIVE / _NEGATIVE. See gold.dim_signal_type.",
+   "is_measure": false,
+   "name": "Signal Type",
+   "type": "string"
+  },
+  {
+   "comment": "Opportunity (positive / sales), Risk (negative / early warning) or Neutral. News takes the item sentiment; upgrades are Opportunity, downgrades and negative outlooks Risk.",
+   "is_measure": false,
+   "name": "Polarity",
+   "type": "string"
+  },
+  {
+   "comment": "Data quadrant of the signal: Internal Quantitative, Internal Qualitative, External Quantitative or External Qualitative.",
+   "is_measure": false,
+   "name": "Source Quadrant",
+   "type": "string"
+  },
+  {
+   "comment": "Workflow that acts on the signal type: Opportunity Identification, Early Warning or Both.",
+   "is_measure": false,
+   "name": "Consumed By",
+   "type": "string"
+  },
+  {
+   "comment": "Feed the signal came from: crm_signal (CRM opportunity engine), ews_signal (early-warning engine), news, market (listed-parent market data), ext_rating (agencies), jp_parent_rating (Japan / Tokyo HO Delta Share) or rm_note (RM call notes).",
+   "is_measure": false,
+   "name": "Source Feed",
+   "type": "string"
+  },
+  {
+   "comment": "JP for signals from the Japan (Tokyo head office) Delta Share - the JP parent rating actions; APAC for local feeds and vendors. \"Rating actions from JP-shared parent data\" means Source Region = JP.",
+   "is_measure": false,
+   "name": "Source Region",
+   "type": "string"
+  },
+  {
+   "comment": "True when an RM acknowledged the signal: CRM signals whose status moved beyond New; RM notes (raised by the RM); any other signal when an RM logged an activity with the client group within 30 days after it.",
+   "is_measure": false,
+   "name": "Acknowledged",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client (group-level signals - the group) has an open pipeline opportunity at 30-Sep-2026 or one created on or after the signal date; false = a signal with no pipeline.",
+   "is_measure": false,
+   "name": "Has Pipeline",
+   "type": "boolean"
+  },
+  {
+   "comment": "Signal events on the selected clients and days (a flow).",
+   "is_measure": true,
+   "name": "Signals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Mean signal strength 0-1 (CRM engine strength; EWS severity High 1.0 / Medium 0.6 / Low 0.3; news 0.5 x relevance + 0.5 x |sentiment|; size of the market move; rating notches; |note sentiment|).",
+   "is_measure": true,
+   "name": "Average Strength",
+   "type": "double"
+  },
+  {
+   "comment": "Signals with polarity Opportunity.",
+   "is_measure": true,
+   "name": "Opportunity Signals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Signals with polarity Risk (early-warning side).",
+   "is_measure": true,
+   "name": "Risk Signals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Signals no RM has acknowledged (see Acknowledged).",
+   "is_measure": true,
+   "name": "Unacknowledged Signals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Risk signals with no RM acknowledgement - group by Primary RM for \"unacknowledged risk signals by RM\".",
+   "is_measure": true,
+   "name": "Unacknowledged Risk Signals",
+   "type": "bigint"
+  },
+  {
+   "comment": "Acknowledged signals / all signals (fraction).",
+   "is_measure": true,
+   "name": "Acknowledged %",
+   "type": "double"
+  },
+  {
+   "comment": "Average days from a signal to its acknowledgement (acknowledged signals only).",
+   "is_measure": true,
+   "name": "Average Days to Acknowledge",
+   "type": "double"
+  },
+  {
+   "comment": "Signals whose client (group) has no open pipeline opportunity and none created since the signal.",
+   "is_measure": true,
+   "name": "Signals Without Pipeline",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups with at least one signal in the selection.",
+   "is_measure": true,
+   "name": "Groups Signalled",
+   "type": "bigint"
+  },
+  {
+   "comment": "Signals / client groups with signals.",
+   "is_measure": true,
+   "name": "Signals per Group",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities (golden clients) with at least one signal in the selection.",
+   "is_measure": true,
+   "name": "Clients Signalled",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Unified signal feed consumed by Opportunity Identification and Early Warning, Apr-2023 to Sep-2026: every signal on an APAC client from CRM opportunity signals (e.g. DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH), EWS triggers (monthly, e.g. UTIL_HIGH, DPD_30), news items (NEWS_*), market moves on listed parents (MARKET_*), agency rating actions (EXT_RATING_*, EXT_OUTLOOK_NEGATIVE), JP parent rating actions from the Japan share (PARENT_RATING_*) and positive / negative RM notes (RM_NOTE_*): signals, opportunity vs risk signals, average strength 0-1, unacknowledged signals (no RM follow-up), days to acknowledge and signals with no pipeline. Group-level signals (market, agency, JP parent) sit on the group's lead entity. All measures add up over days. Grain: one row per signal event (gold.fact_signal_event).",
+ "identifier": "smbc_genie.metrics.mv_signal_feed",
+ "type": "METRIC_VIEW"
+}

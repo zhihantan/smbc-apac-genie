@@ -1,0 +1,325 @@
+{
+ "columns": [
+  {
+   "comment": "Credit facility id (FAC-nnnnnn).",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit-system obligor id (CRD-nnnnnn) the facility is booked to.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Current dim_client version of the borrower (current snapshot; join to gold.dim_client).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Snapshot date of the terms and balances (30-Sep-2026).",
+   "is_measure": false,
+   "name": "as_of_date",
+   "type": "date"
+  },
+  {
+   "comment": "Facility type: Term Loan, Revolving Credit Facility (RCF), Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan.",
+   "is_measure": false,
+   "name": "facility_type",
+   "type": "string"
+  },
+  {
+   "comment": "Product key of the facility type; join to gold.dim_product (business line Lending / Transaction Banking).",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Facility status: Active, Matured or Prepaid.",
+   "is_measure": false,
+   "name": "facility_status",
+   "type": "string"
+  },
+  {
+   "comment": "True for facilities active at the as-of date (the live credit book).",
+   "is_measure": false,
+   "name": "is_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "Facility currency (ISO 4217).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Committed facility limit in USD (terms).",
+   "is_measure": false,
+   "name": "limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn (outstanding) balance at the as-of month-end in USD - the current funded exposure; 0 when no longer outstanding.",
+   "is_measure": false,
+   "name": "drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn balance at the as-of month-end in facility currency.",
+   "is_measure": false,
+   "name": "drawn_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Undrawn commitment (limit - drawn, floored at 0) for active facilities, USD; 0 otherwise.",
+   "is_measure": false,
+   "name": "undrawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn / limit at the as-of month-end as a fraction (0.95 = 95%).",
+   "is_measure": false,
+   "name": "utilisation_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Last month-end with a balance record for the facility (shows when a matured facility was last outstanding).",
+   "is_measure": false,
+   "name": "last_balance_date",
+   "type": "date"
+  },
+  {
+   "comment": "Lending margin over the base rate in basis points (weight by limit for a portfolio average: SUM(margin_bps * limit_usd) / SUM(limit_usd)).",
+   "is_measure": false,
+   "name": "margin_bps",
+   "type": "int"
+  },
+  {
+   "comment": "Facility origination / signing date.",
+   "is_measure": false,
+   "name": "origination_date",
+   "type": "date"
+  },
+  {
+   "comment": "Contractual final maturity date.",
+   "is_measure": false,
+   "name": "maturity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the facility was closed early (prepaid / refinanced); null otherwise.",
+   "is_measure": false,
+   "name": "closed_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the as-of date to maturity for active facilities (null otherwise).",
+   "is_measure": false,
+   "name": "days_to_maturity",
+   "type": "int"
+  },
+  {
+   "comment": "Remaining tenor in years for active facilities.",
+   "is_measure": false,
+   "name": "remaining_tenor_years",
+   "type": "double"
+  },
+  {
+   "comment": "True for active facilities maturing within 12 months of the as-of date (refinancing window).",
+   "is_measure": false,
+   "name": "matures_within_12m",
+   "type": "boolean"
+  },
+  {
+   "comment": "Security: Unsecured, Cash, Receivables, Inventory, Fixed Assets or Real Estate.",
+   "is_measure": false,
+   "name": "security_type",
+   "type": "string"
+  },
+  {
+   "comment": "True when the facility is secured (security_type other than Unsecured).",
+   "is_measure": false,
+   "name": "is_secured",
+   "type": "boolean"
+  },
+  {
+   "comment": "Credit support: Parent Guarantee, Keepwell (parent keepwell / comfort letter), Corporate Guarantee, Sponsor Support or None.",
+   "is_measure": false,
+   "name": "guarantor_type",
+   "type": "string"
+  },
+  {
+   "comment": "True when the facility relies on the parent: guarantor_type Parent Guarantee or Keepwell.",
+   "is_measure": false,
+   "name": "has_parent_support",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the facility carries financial covenants.",
+   "is_measure": false,
+   "name": "has_covenant",
+   "type": "boolean"
+  },
+  {
+   "comment": "Comma-separated covenants tested on the facility (e.g. ICR, Net Debt/EBITDA); null = none.",
+   "is_measure": false,
+   "name": "covenant_types",
+   "type": "string"
+  },
+  {
+   "comment": "Number of distinct financial covenants tested.",
+   "is_measure": false,
+   "name": "n_covenants",
+   "type": "int"
+  },
+  {
+   "comment": "Date of the facility's latest covenant test on or before the as-of date.",
+   "is_measure": false,
+   "name": "last_test_date",
+   "type": "date"
+  },
+  {
+   "comment": "Lowest covenant headroom at the latest test across the facility's covenants, as a fraction (0.08 = 8%; negative = breached).",
+   "is_measure": false,
+   "name": "min_headroom_latest",
+   "type": "double"
+  },
+  {
+   "comment": "Headroom of the leverage covenant (Net Debt/EBITDA) at its latest test (fraction; negative = breached).",
+   "is_measure": false,
+   "name": "leverage_headroom_latest",
+   "type": "double"
+  },
+  {
+   "comment": "Net Debt/EBITDA actual at the latest leverage test (x).",
+   "is_measure": false,
+   "name": "leverage_actual_latest",
+   "type": "double"
+  },
+  {
+   "comment": "Maximum Net Debt/EBITDA allowed by the leverage covenant at the latest test (x).",
+   "is_measure": false,
+   "name": "leverage_threshold_latest",
+   "type": "double"
+  },
+  {
+   "comment": "True when any covenant was breached at its latest test.",
+   "is_measure": false,
+   "name": "covenant_breached_latest",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenant tests of the facility with a waiver granted (all history).",
+   "is_measure": false,
+   "name": "n_covenant_waivers",
+   "type": "int"
+  },
+  {
+   "comment": "True when a covenant waiver was granted on a test in the current fiscal year (FY2026, from 1-Apr-2026).",
+   "is_measure": false,
+   "name": "has_waiver_current_fy",
+   "type": "boolean"
+  },
+  {
+   "comment": "Collateral items pledged to the facility.",
+   "is_measure": false,
+   "name": "n_collateral",
+   "type": "int"
+  },
+  {
+   "comment": "Appraised value of the pledged collateral in USD (latest valuation).",
+   "is_measure": false,
+   "name": "collateral_value_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Highest loan-to-value of the facility's collateral items as a fraction (0.72 = 72%).",
+   "is_measure": false,
+   "name": "max_ltv_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Oldest last-valuation date among the facility's collateral items.",
+   "is_measure": false,
+   "name": "oldest_valuation_date",
+   "type": "date"
+  },
+  {
+   "comment": "Support letter in the JP share (JPSL-...) backing the facility: the parent guarantee covering it, or the subsidiary's keepwell; null when not parent-supported or not found.",
+   "is_measure": false,
+   "name": "jp_support_letter_id",
+   "type": "string"
+  },
+  {
+   "comment": "Status of that support letter: Active, Expired or Released.",
+   "is_measure": false,
+   "name": "jp_support_letter_status",
+   "type": "string"
+  },
+  {
+   "comment": "Date the parent last confirmed the support letter.",
+   "is_measure": false,
+   "name": "jp_support_last_confirmed_date",
+   "type": "date"
+  },
+  {
+   "comment": "Amount of parent support stated in the letter, USD.",
+   "is_measure": false,
+   "name": "jp_support_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Japanese parent (JPP-nnnn) providing the guarantee / keepwell (parent-supported facilities only).",
+   "is_measure": false,
+   "name": "jp_parent_id",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese parent's internal grade (1 best .. 10) in force at the as-of date, from the Tokyo HO rating share; parent-supported facilities only.",
+   "is_measure": false,
+   "name": "parent_rating_grade",
+   "type": "int"
+  },
+  {
+   "comment": "External-scale equivalent of the parent's rating (e.g. AA, A+) from the JP share - the 'parent external rating'.",
+   "is_measure": false,
+   "name": "parent_rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "Outlook of the parent rating: Positive, Stable or Negative.",
+   "is_measure": false,
+   "name": "parent_rating_outlook",
+   "type": "string"
+  },
+  {
+   "comment": "Latest parent rating action: Initial, Affirm, Upgrade or Downgrade.",
+   "is_measure": false,
+   "name": "parent_rating_last_action",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the latest parent rating action.",
+   "is_measure": false,
+   "name": "parent_rating_date",
+   "type": "date"
+  }
+ ],
+ "comment": "Credit facility terms as of 30-Sep-2026 (credit memo pack, brief 5.3): one row per facility (active, matured or prepaid) with type, committed limit, drawn balance at the as-of month-end, undrawn, margin, maturity, security type, guarantor type (parent guarantee, keepwell, corporate guarantee, sponsor support, none), the covenant list with the latest-test headroom, the collateral held and, for parent-supported facilities, the support letter from the JP share and the Japanese parent's current rating (Tokyo HO share). Current snapshot: amounts are as of the as-of date (drawn = 0 for facilities no longer outstanding); use is_active = true for the live book. Grain: one row per credit facility (terms as of the as-of date).",
+ "identifier": "smbc_genie.gold.fact_facility_terms",
+ "type": "MANAGED"
+}

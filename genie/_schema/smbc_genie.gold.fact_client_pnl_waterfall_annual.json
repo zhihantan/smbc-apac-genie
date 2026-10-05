@@ -1,0 +1,313 @@
+{
+ "columns": [
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Last day of the fiscal year (31-Mar), e.g. 2026-03-31 for FY2025.",
+   "is_measure": false,
+   "name": "fiscal_year_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Last day covered: the fiscal year end, or the as-of date 30-Sep-2026 for FY2026.",
+   "is_measure": false,
+   "name": "period_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Months covered: 12 for a full year, 6 for FY2026 (H1) - annualisation factor 12 / months.",
+   "is_measure": false,
+   "name": "months_in_period",
+   "type": "bigint"
+  },
+  {
+   "comment": "True for complete fiscal years (FY2024, FY2025); false for FY2026 to date.",
+   "is_measure": false,
+   "name": "is_full_year",
+   "type": "boolean"
+  },
+  {
+   "comment": "dim_client version valid at period_end_date (as-was).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Coverage office (ISO-2) whose statutory corporate tax rate is applied.",
+   "is_measure": false,
+   "name": "tax_jurisdiction",
+   "type": "string"
+  },
+  {
+   "comment": "Total revenue in USD for the period (NII + fees + trading, incl. other TB and advisory).",
+   "is_measure": false,
+   "name": "revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Net interest income in USD for the period.",
+   "is_measure": false,
+   "name": "nii_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Fee and commission income in USD for the period.",
+   "is_measure": false,
+   "name": "fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Trading (FX) revenue in USD for the period.",
+   "is_measure": false,
+   "name": "trading_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue of the Lending business line in USD.",
+   "is_measure": false,
+   "name": "lending_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue of the Transaction Banking business line in USD (cash, liquidity, payments, trade, other TB and advisory).",
+   "is_measure": false,
+   "name": "tb_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue of the Markets business line in USD (FX).",
+   "is_measure": false,
+   "name": "markets_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Operating expense = allocated cost to serve in USD for the period.",
+   "is_measure": false,
+   "name": "opex_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Credit cost = expected loss in USD for the period.",
+   "is_measure": false,
+   "name": "credit_cost_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Pre-tax profit in USD = revenue - opex - credit cost (= net contribution).",
+   "is_measure": false,
+   "name": "pre_tax_profit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Statutory corporate tax rate applied (fraction, e.g. 0.17 for Singapore); a fixed business rule in gold.",
+   "is_measure": false,
+   "name": "tax_rate",
+   "type": "double"
+  },
+  {
+   "comment": "Tax in USD = max(pre-tax profit, 0) x tax_rate (no credit for losses).",
+   "is_measure": false,
+   "name": "tax_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Net income in USD = pre-tax profit - tax, for the period (FY2026 = 6 months).",
+   "is_measure": false,
+   "name": "net_income_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Net income annualised in USD (x 12 / months_in_period) - ROE numerator.",
+   "is_measure": false,
+   "name": "net_income_annualised_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Average month-end EAD over the period in USD.",
+   "is_measure": false,
+   "name": "avg_ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "EAD at the last month of the period in USD (exposure for Exposure Below Hurdle).",
+   "is_measure": false,
+   "name": "period_end_ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Average month-end RWA over the period in USD (sum of monthly RWA / months_in_period).",
+   "is_measure": false,
+   "name": "avg_rwa_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Average economic capital over the period in USD - RAROC denominator.",
+   "is_measure": false,
+   "name": "avg_economic_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Average allocated capital (12.5% of RWA) over the period in USD - ROE denominator.",
+   "is_measure": false,
+   "name": "avg_allocated_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Charge for allocated capital at the 10% cost of equity in USD for the period.",
+   "is_measure": false,
+   "name": "cost_of_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Economic profit in USD = net income - cost of capital (negative = value-destroying).",
+   "is_measure": false,
+   "name": "economic_profit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Change in the IFRS 9 ECL allowance over the period in USD (impairment charge; information, not in the waterfall).",
+   "is_measure": false,
+   "name": "ecl_charge_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Relationship net profit (pre-tax, finance hurdle basis, excl. FX and trade fees) in USD for the period - RoRWA / RAROC numerator.",
+   "is_measure": false,
+   "name": "relationship_net_profit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "relationship_net_profit_usd x 12 / months_in_period.",
+   "is_measure": false,
+   "name": "relationship_net_profit_annualised_usd",
+   "type": "double"
+  },
+  {
+   "comment": "ROE = net_income_annualised_usd / avg_allocated_capital_usd (fraction), winsorised to -0.25..1.00; null without capital.",
+   "is_measure": false,
+   "name": "roe",
+   "type": "double"
+  },
+  {
+   "comment": "RoRWA = relationship_net_profit_annualised_usd / avg_rwa_usd (fraction), winsorised to -0.25..1.00; null without RWA.",
+   "is_measure": false,
+   "name": "rorwa",
+   "type": "double"
+  },
+  {
+   "comment": "RAROC = relationship_net_profit_annualised_usd / avg_economic_capital_usd (fraction), winsorised to -0.25..1.00.",
+   "is_measure": false,
+   "name": "raroc",
+   "type": "double"
+  },
+  {
+   "comment": "roe - ROE hurdle 10% (fraction; x 100 = percentage points; negative = below hurdle).",
+   "is_measure": false,
+   "name": "roe_hurdle_gap",
+   "type": "double"
+  },
+  {
+   "comment": "True when the unwinsorised ROE is below the 10% ROE hurdle (dim_threshold ROE_HURDLE); null without capital.",
+   "is_measure": false,
+   "name": "below_roe_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the unwinsorised RoRWA is below the 1.2% hurdle (dim_threshold RORWA_HURDLE; also for questions saying 8% hurdle); null without RWA.",
+   "is_measure": false,
+   "name": "below_rorwa_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the unwinsorised RAROC is below the 12% hurdle (dim_threshold RAROC_HURDLE); null without RWA.",
+   "is_measure": false,
+   "name": "below_raroc_hurdle",
+   "type": "boolean"
+  },
+  {
+   "comment": "credit_cost_usd / revenue_usd (fraction).",
+   "is_measure": false,
+   "name": "credit_cost_to_revenue",
+   "type": "double"
+  },
+  {
+   "comment": "True when credit cost exceeds 30% of revenue (dim_threshold CREDIT_COST_SHARE_HIGH).",
+   "is_measure": false,
+   "name": "is_credit_cost_above_30pct",
+   "type": "boolean"
+  },
+  {
+   "comment": "opex_usd / revenue_usd (fraction).",
+   "is_measure": false,
+   "name": "cost_income_ratio",
+   "type": "double"
+  },
+  {
+   "comment": "Annualised revenue / average RWA (fraction; low = capital-hungry relationship); null without RWA.",
+   "is_measure": false,
+   "name": "revenue_per_rwa",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client consumed RWA in the period (credit relationship).",
+   "is_measure": false,
+   "name": "has_capital",
+   "type": "boolean"
+  },
+  {
+   "comment": "Products held at the last month of the period.",
+   "is_measure": false,
+   "name": "products_held_count",
+   "type": "bigint"
+  },
+  {
+   "comment": "Bucket of products_held_count at the period end: 0 products, 1 product, 2 products, 3-4 products, 5-7 products or 8+ products.",
+   "is_measure": false,
+   "name": "product_count_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "True when, at the period end, the client's only products are credit facilities.",
+   "is_measure": false,
+   "name": "is_single_product_lending",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client is known only to the credit system (no core-banking, treasury or trade record).",
+   "is_measure": false,
+   "name": "is_lending_only_relationship",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when, at the period end, the client holds nothing but deposits.",
+   "is_measure": false,
+   "name": "is_deposit_only",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Client ROE waterfall per fiscal year (Client Profitability, mv_roe_waterfall): revenue -> opex (allocated cost) -> credit cost (expected loss) -> pre-tax profit -> tax -> net income -> allocated capital -> ROE, for FY2024, FY2025 and FY2026 to date (Apr-Sep 2026, flows not annualised; ratios annualised). Built from gold.fact_client_revenue_monthly, so amounts tie to the monthly fact. ROE = annualised net income / average allocated capital (12.5% of RWA; hurdle 10%); RoRWA and RAROC use the relationship-P&L net profit (hurdles 1.2% and 12%) - the same definitions as the monthly fact. Ratios are winsorised to -0.25..1.00 for display while the below-hurdle flags use the unwinsorised ratios; aggregate ROE = SUM(net_income_annualised_usd) / SUM(avg_allocated_capital_usd). Flows add across clients (not across years of one client); average balances add across clients. Grain: one row per golden client x fiscal year (FY2026 = year to date).",
+ "identifier": "smbc_genie.gold.fact_client_pnl_waterfall_annual",
+ "type": "MANAGED"
+}

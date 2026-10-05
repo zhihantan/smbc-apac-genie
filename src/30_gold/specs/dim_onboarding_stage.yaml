@@ -1,0 +1,24 @@
+table: dim_onboarding_stage
+domain: hub
+comment: >-
+  Onboarding funnel stages in order - 1 Request, 2 KYC Docs, 3 Screening, 4 Risk Assessment,
+  5 Credit/Product Approval, 6 Account Open, 7 First Transaction - with the SLA days per stage and the
+  cumulative SLA to that stage. Go-live is the end of Account Open; First Transaction measures activation.
+grain: one row per onboarding stage
+primary_key: [stage_no]
+cluster_by: [stage_no]
+min_rows: 7
+columns:
+  stage_no: {type: INT, comment: Stage number 1-7 in funnel order.}
+  stage_name: {type: STRING, comment: "Stage name: Request, KYC Docs, Screening, Risk Assessment, Credit/Product Approval, Account Open, First Transaction."}
+  sla_days: {type: INT, comment: SLA in calendar days for completing the stage.}
+  cumulative_sla_days: {type: INT, comment: Sum of the SLA days of stages 1..stage_no (target elapsed days at the end of the stage).}
+  is_go_live_stage: {type: BOOLEAN, comment: True for Account Open - the client is live when this stage ends.}
+  is_final_stage: {type: BOOLEAN, comment: True for the last funnel stage (First Transaction).}
+  stage_description: {type: STRING, comment: What happens in the stage.}
+  cases_entered: {type: BIGINT, comment: Onboarding cases that have entered the stage (all history to the as-of date).}
+checks:
+  - name: one_sla_per_stage
+    sql: >-
+      SELECT count(*) FROM (SELECT stage_no FROM ${catalog}.silver.kyc_case_stage GROUP BY stage_no
+      HAVING count(DISTINCT stage_name) > 1)

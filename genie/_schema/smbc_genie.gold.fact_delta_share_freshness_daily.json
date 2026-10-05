@@ -1,0 +1,157 @@
+{
+ "columns": [
+  {
+   "comment": "Day of the freshness check (the grain date).",
+   "is_measure": false,
+   "name": "log_date",
+   "type": "date"
+  },
+  {
+   "comment": "Shared table, e.g. share_jp_parent_rating, share_emea_exposure_monthly.",
+   "is_measure": false,
+   "name": "table_name",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the month of the check.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Data provider region: JP (Tokyo head office), EMEA or AMER; joins gold.dim_booking_entity.",
+   "is_measure": false,
+   "name": "provider_region",
+   "type": "string"
+  },
+  {
+   "comment": "Delta Share the table arrives in: jp_head_office_share, emea_regional_share or amer_regional_share.",
+   "is_measure": false,
+   "name": "share_name",
+   "type": "string"
+  },
+  {
+   "comment": "When the freshness check ran (UTC).",
+   "is_measure": false,
+   "name": "checked_at",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "When the provider's daily refresh was scheduled (UTC).",
+   "is_measure": false,
+   "name": "scheduled_refresh_at",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "Outcome of the scheduled refresh: Success, Late or Failed.",
+   "is_measure": false,
+   "name": "refresh_status",
+   "type": "string"
+  },
+  {
+   "comment": "Time of the latest successful provider refresh visible at the check (UTC).",
+   "is_measure": false,
+   "name": "last_refreshed_at",
+   "type": "timestamp_ltz"
+  },
+  {
+   "comment": "Provider table version visible at the check (does not move while the share is stale).",
+   "is_measure": false,
+   "name": "provider_version",
+   "type": "int"
+  },
+  {
+   "comment": "Hours between the latest successful refresh and the check (freshness lag).",
+   "is_measure": false,
+   "name": "lag_hours",
+   "type": "double"
+  },
+  {
+   "comment": "Freshness SLA in hours (24).",
+   "is_measure": false,
+   "name": "sla_hours",
+   "type": "int"
+  },
+  {
+   "comment": "True when the lag exceeds the SLA (Tables Stale > 24h).",
+   "is_measure": false,
+   "name": "is_stale",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when lag_hours > 24 (gold.dim_threshold SHARE_STALE_HOURS).",
+   "is_measure": false,
+   "name": "is_over_24h",
+   "type": "boolean"
+  },
+  {
+   "comment": "Hours beyond the SLA (0 when fresh).",
+   "is_measure": false,
+   "name": "hours_over_sla",
+   "type": "double"
+  },
+  {
+   "comment": "Consecutive stale days up to and including this day (0 when fresh).",
+   "is_measure": false,
+   "name": "consecutive_stale_days",
+   "type": "int"
+  },
+  {
+   "comment": "Rows in the shared table at the check.",
+   "is_measure": false,
+   "name": "row_count",
+   "type": "int"
+  },
+  {
+   "comment": "Row-count change vs the previous day's check.",
+   "is_measure": false,
+   "name": "row_count_change",
+   "type": "int"
+  },
+  {
+   "comment": "Schema version of the shared table.",
+   "is_measure": false,
+   "name": "schema_version",
+   "type": "int"
+  },
+  {
+   "comment": "True when the provider changed the table schema since the previous check (Schema Drift Events).",
+   "is_measure": false,
+   "name": "schema_drift_flag",
+   "type": "boolean"
+  },
+  {
+   "comment": "Description of the schema change (null when none).",
+   "is_measure": false,
+   "name": "schema_change",
+   "type": "string"
+  },
+  {
+   "comment": "Refresh error message (null when none).",
+   "is_measure": false,
+   "name": "error_message",
+   "type": "string"
+  },
+  {
+   "comment": "True on the latest check day (30-Sep-2026).",
+   "is_measure": false,
+   "name": "is_latest_day",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days between the check day and the as-of date 30-Sep-2026; last N days = days_before_as_of < N.",
+   "is_measure": false,
+   "name": "days_before_as_of",
+   "type": "int"
+  },
+  {
+   "comment": "True for checks in the 30 days to 30-Sep-2026 (1-Sep .. 30-Sep-2026).",
+   "is_measure": false,
+   "name": "is_last_30d",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Delta Sharing freshness: one row per day (Apr-2024 .. Sep-2026) and shared table received from the JP (Tokyo head office), EMEA and AMER lakehouses - provider region, share, refresh status, last refresh time, provider version, lag in hours vs the 24-hour SLA, stale flag (lag > 24h), consecutive stale days, row count and schema drift. Storyline 13: share_jp_parent_rating was not refreshed 11-15 Aug 2026 (5 stale days, lag up to 125h). Lag and row counts are point-in-time per day: average / max them, never sum. Grain: one row per day per shared table.",
+ "identifier": "smbc_genie.gold.fact_delta_share_freshness_daily",
+ "type": "MANAGED"
+}

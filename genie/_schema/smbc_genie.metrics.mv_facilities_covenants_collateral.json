@@ -1,0 +1,343 @@
+{
+ "columns": [
+  {
+   "comment": "Record date: 30-Sep-2026 (snapshot) on facility rows, the covenant test date on covenant rows and the last valuation date on collateral rows. For covenant questions prefer Is Latest Test; this fiscal year's tests = Fiscal Year FY2026. Today is 30-Sep-2026 (never CURRENT_DATE).",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the record (facility snapshot / covenant test / collateral valuation) as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the record (facility snapshot / covenant test / collateral valuation), April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the record (facility snapshot / covenant test / collateral valuation)).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Row type: Facility, Covenant Test or Collateral (each measure reads its own row type).",
+   "is_measure": false,
+   "name": "Record Type",
+   "type": "string"
+  },
+  {
+   "comment": "Credit facility id (FAC-nnnnnn) - the facility a covenant test or collateral item belongs to.",
+   "is_measure": false,
+   "name": "Facility",
+   "type": "string"
+  },
+  {
+   "comment": "Term Loan, Revolving Credit Facility (RCF), Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan.",
+   "is_measure": false,
+   "name": "Facility Type",
+   "type": "string"
+  },
+  {
+   "comment": "Facility status at 30-Sep-2026: Active (the live book), Matured or Prepaid.",
+   "is_measure": false,
+   "name": "Facility Status",
+   "type": "string"
+  },
+  {
+   "comment": "Security of the facility: Unsecured, Cash, Receivables, Inventory, Fixed Assets or Real Estate.",
+   "is_measure": false,
+   "name": "Security Type",
+   "type": "string"
+  },
+  {
+   "comment": "Credit support: Parent Guarantee, Keepwell (parent keepwell / comfort letter), Corporate Guarantee, Sponsor Support or None. \"Parent support\" = Parent Guarantee or Keepwell.",
+   "is_measure": false,
+   "name": "Guarantor Type",
+   "type": "string"
+  },
+  {
+   "comment": "Rating of the Japanese parent behind a parent guarantee / keepwell at 30-Sep-2026, on the external scale (e.g. AA, A+), from the Tokyo HO rating share; null for facilities without parent support.",
+   "is_measure": false,
+   "name": "Parent Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant Test rows: Net Debt/EBITDA (leverage covenant, a maximum) or ICR (interest cover, a minimum).",
+   "is_measure": false,
+   "name": "Covenant Type",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant Test rows: Breached, 0-10% (tight), 10-20%, 20-30% or 30%+.",
+   "is_measure": false,
+   "name": "Headroom Bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant Test rows: the latest test of each facility covenant on or before 30-Sep-2026 - set true for \"at the latest test\" questions.",
+   "is_measure": false,
+   "name": "Is Latest Test",
+   "type": "boolean"
+  },
+  {
+   "comment": "Collateral rows: Cash, Receivables, Inventory, Fixed Assets or Real Estate.",
+   "is_measure": false,
+   "name": "Collateral Type",
+   "type": "string"
+  },
+  {
+   "comment": "Credit facilities (one Facility row each) in the selection; add Facility Status = Active for the live book.",
+   "is_measure": true,
+   "name": "Facilities",
+   "type": "bigint"
+  },
+  {
+   "comment": "Committed facility limit in USD (Facility rows; snapshot 30-Sep-2026, point-in-time).",
+   "is_measure": true,
+   "name": "Limit USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn balance at 30-Sep-2026 in USD - the current funded exposure (Facility rows; point-in-time).",
+   "is_measure": true,
+   "name": "Drawn USD",
+   "type": "double"
+  },
+  {
+   "comment": "Undrawn commitment of active facilities at 30-Sep-2026 in USD (Facility rows; point-in-time).",
+   "is_measure": true,
+   "name": "Undrawn USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn / committed limit (fraction, 0.95 = 95%) at 30-Sep-2026.",
+   "is_measure": true,
+   "name": "Utilisation %",
+   "type": "double"
+  },
+  {
+   "comment": "Limit-weighted average lending margin over the base rate in basis points (Facility rows).",
+   "is_measure": true,
+   "name": "Weighted Margin bps",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant tests in the selection (filter Is Latest Test for one per facility covenant).",
+   "is_measure": true,
+   "name": "Covenant Tests",
+   "type": "bigint"
+  },
+  {
+   "comment": "Tested covenant value (x), e.g. Net Debt/EBITDA 4.6 = 4.6x - for one test its value, for several their average.",
+   "is_measure": true,
+   "name": "Covenant Actual",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant level (x) - the maximum for Net Debt/EBITDA (e.g. 4.0x) or the minimum for ICR.",
+   "is_measure": true,
+   "name": "Covenant Threshold",
+   "type": "double"
+  },
+  {
+   "comment": "Tightest covenant headroom in the selection as a fraction of the threshold (0.08 = 8%; negative = breached). With Is Latest Test = true it is the headroom at the latest test.",
+   "is_measure": true,
+   "name": "Min Covenant Headroom %",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant tests that breached (Covenant Test rows; with Is Latest Test = true, breaches at the latest test).",
+   "is_measure": true,
+   "name": "Breaches",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients with at least one breached covenant test in the selection (use with Is Latest Test).",
+   "is_measure": true,
+   "name": "Clients Breaching Covenant",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients with a covenant test not breached but with headroom below 10% (dim_threshold COVENANT_HEADROOM_WARN) - use with Is Latest Test and Covenant Type = Net Debt/EBITDA for the leverage blind spot.",
+   "is_measure": true,
+   "name": "Clients with Tight Headroom",
+   "type": "bigint"
+  },
+  {
+   "comment": "Covenant tests with a waiver granted (this fiscal year = Fiscal Year FY2026 on the test date).",
+   "is_measure": true,
+   "name": "Waivers",
+   "type": "bigint"
+  },
+  {
+   "comment": "Facility drawn balance at the month-end of tests that were waived, USD.",
+   "is_measure": true,
+   "name": "Exposure with Waivers USD",
+   "type": "double"
+  },
+  {
+   "comment": "Collateral items pledged in the selection (Collateral rows).",
+   "is_measure": true,
+   "name": "Collateral Items",
+   "type": "bigint"
+  },
+  {
+   "comment": "Appraised value of the collateral at its last valuation, USD (Collateral rows).",
+   "is_measure": true,
+   "name": "Collateral Value USD",
+   "type": "double"
+  },
+  {
+   "comment": "Average loan-to-value of the selected collateral items (fraction, 0.72 = 72%).",
+   "is_measure": true,
+   "name": "Average LTV %",
+   "type": "double"
+  },
+  {
+   "comment": "Highest loan-to-value among the selected collateral items (fraction).",
+   "is_measure": true,
+   "name": "Max LTV %",
+   "type": "double"
+  },
+  {
+   "comment": "Months since the oldest last valuation among the selected collateral items at 30-Sep-2026 (over 24 = stale).",
+   "is_measure": true,
+   "name": "Max Valuation Age Months",
+   "type": "int"
+  },
+  {
+   "comment": "Collateral items with loan-to-value above 70% (dim_threshold LTV_HIGH).",
+   "is_measure": true,
+   "name": "High LTV Items",
+   "type": "bigint"
+  },
+  {
+   "comment": "Collateral items whose last valuation is older than 24 months at 30-Sep-2026.",
+   "is_measure": true,
+   "name": "Stale Valuations",
+   "type": "bigint"
+  },
+  {
+   "comment": "Collateral items with LTV above 70% or a valuation older than 24 months.",
+   "is_measure": true,
+   "name": "Collateral Needing Review",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Credit facilities, covenants and collateral of SMBC's APAC clients as of 30-Sep-2026: committed limit, drawn, undrawn, utilisation and limit-weighted margin per facility; covenant tests (Net Debt/EBITDA leverage, ICR) with headroom %, breaches, tight headroom (< 10%) and waivers, at the latest test (Is Latest Test) or over a test period; collateral value, LTV and stale valuations; plus security type, guarantor type and the Japanese parent's rating from the JP share. Date = record date: 30-Sep-2026 on facility rows, the test date on covenant rows, the last valuation date on collateral rows. Balances are point-in-time (latest snapshot). Grain: one row per facility, covenant test or collateral item (gold.mvb_facility_risk, record_type union).",
+ "identifier": "smbc_genie.metrics.mv_facilities_covenants_collateral",
+ "type": "METRIC_VIEW"
+}

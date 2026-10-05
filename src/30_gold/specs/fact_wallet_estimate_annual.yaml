@@ -1,0 +1,49 @@
+table: fact_wallet_estimate_annual
+domain: rm
+comment: >-
+  Bankable wallet of each client group by fiscal year and product family (Account Planning; FY2024-FY2026):
+  the estimated total revenue pool the group pays all banks, SMBC's revenue and share of wallet, the top
+  competitor bank (fictional) and its share, and the untapped gap. FY2026 SMBC revenue is H1 year to date
+  (smbc_revenue_basis = H1 YTD) and is annualised in smbc_revenue_annualised_usd. Share of Wallet % =
+  SUM(smbc_revenue_annualised_usd) / SUM(estimated_wallet_usd); amounts add across groups and families within a
+  fiscal year (never across years).
+grain: one row per client group x fiscal year x product family
+primary_key: [client_group_id, fiscal_year, product_family]
+foreign_keys:
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [lead_golden_client_sk], references: dim_client}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+  - {columns: [top_competitor_bank_id], references: dim_competitor_bank}
+cluster_by: [fiscal_year_end_date, client_group_id]
+min_rows: 5000
+columns:
+  wallet_id: {type: STRING, comment: "CRM wallet estimate id."}
+  client_group_id: {type: STRING}
+  lead_golden_client_sk: {type: BIGINT, comment: "dim_client version of the group's lead entity at the fiscal year end (as-of date for FY2026)."}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_year_end_date: {type: DATE, comment: "Last day of the fiscal year (31-Mar)."}
+  product_family: {type: STRING, comment: "Product family of the wallet: Corporate Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance or FX."}
+  is_current_fiscal_year: {type: BOOLEAN, comment: "True for FY2026, the fiscal year of the as-of date."}
+  crm_account_id: {type: STRING, comment: "CRM account the estimate is recorded on (the group's lead account)."}
+  estimated_wallet_usd: {type: DOUBLE, comment: "Estimated full-year bankable wallet in USD (revenue the group pays all banks for the family)."}
+  smbc_revenue_usd: {type: DOUBLE, comment: "SMBC revenue from the group for the family in USD (full year, or H1 YTD for FY2026)."}
+  smbc_revenue_basis: {type: STRING, comment: "Period of smbc_revenue_usd: Full Year or H1 YTD."}
+  smbc_revenue_annualised_usd: {type: DOUBLE, comment: "SMBC revenue annualised in USD (H1 YTD x 2) - Share of Wallet numerator."}
+  share_of_wallet: {type: DOUBLE, comment: "SMBC share of wallet as estimated (fraction); aggregate with SUM/SUM, not AVG."}
+  wallet_gap_usd: {type: DOUBLE, comment: "Untapped wallet in USD = estimated wallet - SMBC annualised revenue (floored at 0)."}
+  top_competitor_bank_id: {type: STRING, comment: "Bank id of the competitor with the largest share; join to gold.dim_competitor_bank."}
+  top_competitor_bank: {type: STRING, comment: "Name of the top competitor bank (fictional)."}
+  top_competitor_share: {type: DOUBLE, comment: "Share of the wallet held by the top competitor (fraction)."}
+  top_competitor_wallet_usd: {type: DOUBLE, comment: "estimated_wallet_usd x top_competitor_share in USD."}
+  is_competitor_ahead: {type: BOOLEAN, comment: "True when the top competitor's share exceeds SMBC's."}
+  is_untapped: {type: BOOLEAN, comment: "True when SMBC earns nothing from the group in the family (pure wallet gap)."}
+  estimation_method: {type: STRING, comment: "Bottom-up from client flows, Treasury FX wallet estimate or Peer benchmark."}
+  estimate_date: {type: DATE, comment: "Date the estimate was made."}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_wallet_estimate
+  - name: wallet_vs_silver
+    gold: SELECT sum(estimated_wallet_usd) FROM ${table}
+    silver: SELECT sum(estimated_wallet_usd) FROM ${catalog}.silver.crm_wallet_estimate
+    tolerance: 1

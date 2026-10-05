@@ -1,0 +1,175 @@
+{
+ "columns": [
+  {
+   "comment": "Watchlist event id (WLE-nnnnnn).",
+   "is_measure": false,
+   "name": "event_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor record the event belongs to.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the watchlist event.",
+   "is_measure": false,
+   "name": "event_date",
+   "type": "date"
+  },
+  {
+   "comment": "Added, Escalated, De-escalated or Removed.",
+   "is_measure": false,
+   "name": "event_type",
+   "type": "string"
+  },
+  {
+   "comment": "Final EWS band before the event (Green, Amber, Red).",
+   "is_measure": false,
+   "name": "band_from",
+   "type": "string"
+  },
+  {
+   "comment": "Final EWS band after the event.",
+   "is_measure": false,
+   "name": "band_to",
+   "type": "string"
+  },
+  {
+   "comment": "Composite EWS score (0-100) of the month that triggered the event.",
+   "is_measure": false,
+   "name": "composite_score",
+   "type": "double"
+  },
+  {
+   "comment": "Dominant EWS driver: Credit, Liquidity, Behavioural or External.",
+   "is_measure": false,
+   "name": "lead_category",
+   "type": "string"
+  },
+  {
+   "comment": "Watchlist reason, e.g. Credit deterioration (health / utilisation / covenant), Deposit outflow.",
+   "is_measure": false,
+   "name": "lead_reason",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the RM owning the watchlist action (RM001-RM120).",
+   "is_measure": false,
+   "name": "owner_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Owner RM as employee_id; join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "owner_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Owner RM name (fictional).",
+   "is_measure": false,
+   "name": "owner_name",
+   "type": "string"
+  },
+  {
+   "comment": "Action plan required by the event: Watchlist credit review (Added), Recovery / exit plan (Escalated), Monitoring update (De-escalated); null for Removed.",
+   "is_measure": false,
+   "name": "action_type",
+   "type": "string"
+  },
+  {
+   "comment": "Due date of the action plan (30 days after an addition, 21 after an escalation).",
+   "is_measure": false,
+   "name": "action_due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the action was completed; null while open.",
+   "is_measure": false,
+   "name": "action_completed_date",
+   "type": "date"
+  },
+  {
+   "comment": "Action status at the as-of date: Completed, Open (not yet due) or Overdue; null for removals.",
+   "is_measure": false,
+   "name": "action_status",
+   "type": "string"
+  },
+  {
+   "comment": "Days the open action is past due at the as-of date (0 otherwise).",
+   "is_measure": false,
+   "name": "action_days_overdue",
+   "type": "int"
+  },
+  {
+   "comment": "True when the action plan is overdue at the as-of date (watchlist actions overdue).",
+   "is_measure": false,
+   "name": "is_action_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the action plan is not yet completed (Open or Overdue).",
+   "is_measure": false,
+   "name": "is_action_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the obligor's latest watchlist event to the as-of date.",
+   "is_measure": false,
+   "name": "is_latest_event",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the latest event of obligors still on the watchlist at 30-Sep-2026 (latest event is not a removal).",
+   "is_measure": false,
+   "name": "is_on_watchlist_as_of",
+   "type": "boolean"
+  },
+  {
+   "comment": "Next scheduled watchlist review of names still on the list (on their latest event).",
+   "is_measure": false,
+   "name": "next_review_date",
+   "type": "date"
+  },
+  {
+   "comment": "Client's drawn lending exposure at the event month-end, USD.",
+   "is_measure": false,
+   "name": "exposure_drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's exposure at default in the event month, USD.",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's IFRS 9 expected credit loss in the event month, USD.",
+   "is_measure": false,
+   "name": "ecl_usd",
+   "type": "double"
+  }
+ ],
+ "comment": "Credit watchlist register events (brief 5.4), Apr-2024 to Sep-2026: one row per event - Added (final EWS band left Green), Escalated (to Red), De-escalated (Red to Amber), Removed (back to Green) - with the band move, composite score, lead reason, owner RM, the review action plan (watchlist credit review, recovery / exit plan, monitoring update) with its due / completed dates and status as of 30-Sep-2026 (Completed, Open, Overdue), and the client's drawn exposure, EAD and ECL at the event month-end. is_on_watchlist_as_of marks each listed client's latest event (count those for watchlist clients today). Grain: one row per watchlist event.",
+ "identifier": "smbc_genie.gold.fact_watchlist_event",
+ "type": "MANAGED"
+}

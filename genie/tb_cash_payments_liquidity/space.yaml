@@ -1,0 +1,300 @@
+# APAC Genie - Transactional Banking: Cash, Payments & Liquidity (brief §5.7, PLAN §8 / §9 / §10). Authored by G3
+# (p07g3). Must-answer queries: metrics/_answers/tb_cash_payments_liquidity.sql. Caveats: scratch/genie_caveats.md §7.
+slug: tb_cash_payments_liquidity
+title: "APAC Genie - Transactional Banking: Cash, Payments & Liquidity"
+description: >-
+  Ask about operating deposits, CASA behaviour, payment flows and counterparties, liquidity structures (cash
+  pooling) and digital channel adoption for SMBC's APAC clients. Figures are USD unless you ask for local currency;
+  periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and
+  as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_tb_deposits
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Primary RM Office: {entity_matching: true}
+      Booking Country: {entity_matching: true}
+      Account Type: {entity_matching: true}
+      Currency: {entity_matching: true}
+      TD Maturity Bucket: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Fiscal Quarter: {entity_matching: true}
+      Fiscal Half: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_tb_payments
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Booking Country: {entity_matching: true}
+      Channel: {entity_matching: true}
+      Direction: {entity_matching: true}
+      Payment Purpose: {entity_matching: true}
+      Currency: {entity_matching: true}
+      Corridor: {entity_matching: true}
+      Counterparty Country: {entity_matching: true}
+      Counterparty Bank Type: {entity_matching: true}
+      Counterparty Bank: {entity_matching: true}
+      Repair Reason: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Fiscal Quarter: {entity_matching: true}
+      Fiscal Half: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_tb_liquidity_structures
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Structure Type: {entity_matching: true}
+      Header Country: {entity_matching: true}
+      Participant Country: {entity_matching: true}
+      Currency: {entity_matching: true}
+      Member Role: {entity_matching: true}
+      Record Type: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_tb_channel_adoption
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Booking Country: {entity_matching: true}
+      Channel: {entity_matching: true}
+      Channel Type: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    include_columns: [golden_client_id, display_name, short_name, aliases_text, group_name, is_group_lead, segment,
+                      is_japanese_corporate, relationship_tier, industry_sector, industry_subsector, coverage_office,
+                      coverage_office_name, primary_rm_name, primary_rm_office, deposits_usd, casa_usd,
+                      time_deposits_usd, casa_ratio, td_maturing_90d_usd, payments_last_90d, payments_last_90d_usd,
+                      payments_other_bank_share_90d]
+    columns:
+      group_name: {entity_matching: true}
+      segment: {entity_matching: true}
+      relationship_tier: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+      primary_rm_name: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, is_japanese_group, group_segment,
+                      group_relationship_tier, is_strategic_group, group_industry_sector, lead_client_name, lead_office,
+                      lead_rm_name, n_entities_apac, n_apac_countries, apac_countries_text]
+    columns:
+      group_name: {entity_matching: true}
+      hq_country: {entity_matching: true}
+      hq_region: {entity_matching: true}
+      group_segment: {entity_matching: true}
+      lead_office: {entity_matching: true}
+      lead_rm_name: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- Views: mv_tb_deposits = deposit balances, CASA / time deposits (TD), CASA ratio, depositors, top-10 concentration, TD maturities; mv_tb_payments = payment flows, STP and repairs, purpose, counterparty bank (other-bank leakage); mv_tb_liquidity_structures = cash pools and pooling candidates (group level); mv_tb_channel_adoption = digital channels and manual instructions."
+    - "- Point-in-time measures (balances, CASA, CASA ratio, depositors, TD maturing, pooled balance, group deposits, pooling candidates) need ONE `Month` or `Is Latest Month` (today = Sep 2026); CASA Movement, Deposit Movement, Transferred to TD, payments, fees and channel counts are flows that add up over months."
+    - "- 'CASA vs last month' = `CASA Balance USD`, `CASA Balance Prior Month USD` and `CASA Change vs Prior Month USD` on one `Month` (September 2026 = DATE'2026-09-01'). CASA outflow over a quarter = `CASA Movement USD` with `Fiscal Quarter` (Q2 FY2026 = 'FY2026-Q2'); compare it with `Transferred to TD USD` and `Deposit Movement USD` for 'moved to TD or left the bank'."
+    - "- Booking Country = Coverage Office for deposits and payments (use Booking Country). Payment `Corridor` is the money flow payer->payee, e.g. CN->VN = paid from China to Vietnam."
+    - "- 'Supplier payments to other banks' = `Share Paid via Other Banks %` with `Direction` = 'Outbound' AND `Payment Purpose` = 'Supplier'. Repairs = `Repairs` by `Repair Reason` and `Channel`; STP = `STP Rate %`. Ratios and shares are fractions (0.35 = 35%)."
+    - "- Pooling candidates = `Is Pooling Candidate` on `Is Latest Month` (groups with deposit accounts in >= 3 APAC countries and no active structure), ranked by `Unpooled Group Deposits USD`; counts: `Clients Without Pooling`, `Multi-Country Groups`, `Pooling Penetration %`."
+    - "- `Client Group` has a value dictionary: filter it with = on the exact group name. Questions about entities, depositors or 'legal entities' list `Client`; the largest depositors of a country = `Depositor Rank in Country` <= 10 on `Is Latest Month`. Only add LIMIT when the user asks for a top N."
+    - "- Functions (STRING arguments): payment volume down > 30% YoY while deposits held steady = smbc_genie.gold.fn_tb_payment_drop_steady_deposits('FY2026-H1'); CASA by country vs the prior month-end = fn_casa_movement_by_country('2026-09'); one group's cash profile by entity = fn_tb_group_cash_profile('<exact group name>')."
+
+example_sqls:
+  - question: Which client groups drove the largest CASA outflow in :fiscal_quarter, and did it move to time deposits or leave the bank?
+    usage_guidance: Use for "largest CASA outflows / run-off by group in a quarter", "did the CASA go to TD or leave the bank", "CASA attrition by client group", "CASA to TD migration".
+    parameters:
+      - {name: fiscal_quarter, type: STRING, description: "Japanese fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026)", default: FY2026-Q2}
+    sql: |
+      WITH g AS (
+        SELECT `Client Group`,
+               MEASURE(`CASA Movement USD`)     AS casa_movement_usd,
+               MEASURE(`Transferred to TD USD`) AS casa_moved_to_td_usd,
+               MEASURE(`Deposit Movement USD`)  AS total_deposit_movement_usd
+        FROM smbc_genie.metrics.mv_tb_deposits
+        WHERE `Fiscal Quarter` = :fiscal_quarter
+        GROUP BY ALL
+      )
+      SELECT `Client Group`, casa_movement_usd, casa_moved_to_td_usd, total_deposit_movement_usd,
+             CASE WHEN total_deposit_movement_usd >= casa_movement_usd / 2 THEN 'Mostly moved to time deposits'
+                  ELSE 'Mostly left the bank' END AS where_it_went
+      FROM g
+      WHERE casa_movement_usd < 0
+      ORDER BY casa_movement_usd ASC
+      LIMIT 20
+  - question: Monthly CASA ratio of Japanese corporates vs non-Japanese clients since :from_month
+    usage_guidance: Use for "CASA ratio trend", "CASA mix over time", "Japanese vs non-Japanese (JC vs non-JC) CASA ratio by month".
+    parameters:
+      - {name: from_month, type: DATE, description: "First month as its first day, e.g. 2025-04-01 (start of FY2025)", default: "2025-04-01"}
+    sql: |
+      SELECT `Month`,
+             CASE WHEN `Is Japanese Corporate` THEN 'Japanese corporate' ELSE 'Non-Japanese' END AS client_type,
+             MEASURE(`CASA Ratio %`) AS casa_ratio
+      FROM smbc_genie.metrics.mv_tb_deposits
+      WHERE `Month` >= :from_month
+      GROUP BY ALL
+      ORDER BY `Month`, client_type
+  - question: Which entities' payment volume dropped more than 30% in :fiscal_half vs :prior_fiscal_half while their average month-end deposits held steady (within 10%)?
+    usage_guidance: Use for "payments down but balances steady", "payment attrition with stable deposits", "clients moving their payments to other banks"; a payments CTE joined to a deposits CTE (metric views cannot be joined directly).
+    parameters:
+      - {name: fiscal_half, type: STRING, description: "Fiscal half to test, e.g. FY2026-H1 (Apr-Sep 2026)", default: FY2026-H1}
+      - {name: prior_fiscal_half, type: STRING, description: "Same half one year earlier, e.g. FY2025-H1", default: FY2025-H1}
+    sql: |
+      WITH pay AS (
+        SELECT `Client`, `Fiscal Half`, MEASURE(`Payment Volume USD`) AS payment_volume_usd
+        FROM smbc_genie.metrics.mv_tb_payments
+        WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)
+        GROUP BY ALL
+      ), p AS (
+        SELECT `Client`,
+               sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN payment_volume_usd END) AS payments_prior_half_usd,
+               sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN payment_volume_usd END) AS payments_half_usd
+        FROM pay GROUP BY `Client`
+      ), dep AS (
+        SELECT `Client`, `Fiscal Half`, `Month`, MEASURE(`End of Month Balance USD`) AS deposits_usd
+        FROM smbc_genie.metrics.mv_tb_deposits
+        WHERE `Fiscal Half` IN (:prior_fiscal_half, :fiscal_half)
+        GROUP BY ALL
+      ), d AS (
+        SELECT `Client`,
+               sum(CASE WHEN `Fiscal Half` = :prior_fiscal_half THEN deposits_usd END) / 6 AS avg_deposits_prior_usd,
+               sum(CASE WHEN `Fiscal Half` = :fiscal_half THEN deposits_usd END) / 6 AS avg_deposits_usd
+        FROM dep GROUP BY `Client`
+      )
+      SELECT p.`Client`, p.payments_prior_half_usd, coalesce(p.payments_half_usd, 0) AS payments_half_usd,
+             coalesce(p.payments_half_usd, 0) / p.payments_prior_half_usd - 1 AS payment_volume_yoy,
+             d.avg_deposits_usd / d.avg_deposits_prior_usd - 1 AS avg_deposits_change
+      FROM p JOIN d ON d.`Client` = p.`Client`
+      WHERE p.payments_prior_half_usd >= 1000000
+        AND coalesce(p.payments_half_usd, 0) / p.payments_prior_half_usd - 1 < -0.30
+        AND abs(d.avg_deposits_usd / d.avg_deposits_prior_usd - 1) <= 0.10
+      ORDER BY p.payments_prior_half_usd - coalesce(p.payments_half_usd, 0) DESC
+  - question: Who are the ten largest depositors in :booking_country today?
+    usage_guidance: Use for "largest / top depositors in <country>", "who holds the most deposits in Singapore", "depositor ranking"; Booking Country is an ISO-2 code.
+    parameters:
+      - {name: booking_country, type: STRING, description: "APAC booking country ISO-2 code, e.g. SG (Singapore), HK (Hong Kong), CN (China)", default: SG}
+    sql: |
+      SELECT `Client`, `Client Group`, `Depositor Rank in Country`,
+             MEASURE(`End of Month Balance USD`) AS deposits_usd
+      FROM smbc_genie.metrics.mv_tb_deposits
+      WHERE `Is Latest Month` AND `Booking Country` = :booking_country AND `Depositor Rank in Country` <= 10
+      GROUP BY ALL
+      ORDER BY `Depositor Rank in Country`
+  - question: Multi-country client groups with no liquidity pooling structure at the end of :month, ranked by their deposits
+    usage_guidance: Use for "pooling candidates", "groups in 3+ APAC countries without a cash pool / sweep", "liquidity structure cross-sell list", "unpooled groups ranked by balances".
+    parameters:
+      - {name: month, type: DATE, description: "Month as its first day; 2026-09-01 = today (Sep 2026)", default: "2026-09-01"}
+    sql: |
+      SELECT `Client Group`, `Group APAC Countries`,
+             MEASURE(`Unpooled Group Deposits USD`) AS group_deposits_usd
+      FROM smbc_genie.metrics.mv_tb_liquidity_structures
+      WHERE `Month` = :month AND `Is Pooling Candidate`
+      GROUP BY ALL
+      ORDER BY group_deposits_usd DESC
+      LIMIT 20
+  - question: Time deposits maturing in the next 90 days after the end of :month, by booking country and currency
+    usage_guidance: Use for "TD maturities next 90 days", "maturity wall", "time deposits rolling off by country / currency"; keep only pairs with maturities.
+    parameters:
+      - {name: month, type: DATE, description: "Month-end as its first day; 2026-09-01 = today (maturities to 29-Dec-2026)", default: "2026-09-01"}
+    sql: |
+      SELECT * FROM (
+        SELECT `Booking Country`, `Currency`,
+               MEASURE(`TD Maturing Next 90D USD`) AS td_maturing_next_90d_usd
+        FROM smbc_genie.metrics.mv_tb_deposits
+        WHERE `Month` = :month
+        GROUP BY ALL
+      ) WHERE td_maturing_next_90d_usd > 0
+      ORDER BY `Booking Country`, td_maturing_next_90d_usd DESC
+
+sql_functions:
+  - smbc_genie.gold.fn_casa_movement_by_country
+  - smbc_genie.gold.fn_tb_payment_drop_steady_deposits
+  - smbc_genie.gold.fn_tb_group_cash_profile
+
+sample_questions:
+  - What was the total CASA balance by booking country at the end of September 2026, and how did it move versus August?
+  - Which client groups drove the largest CASA outflow in Q2 FY2026, and did it move to time deposits or leave the bank?
+  - How has the CASA ratio of Japanese vs non-Japanese corporates trended month by month since FY2025?
+  - How much of our clients' outbound supplier payments this fiscal year went to accounts at other banks?
+  - Where is the STP rate lowest by channel and currency this fiscal year, and where are repairs concentrated?
+  - Which multi-country groups have no liquidity pooling structure, ranked by their deposits?
+  - Which clients' payment volume through us dropped more than 30% year on year while their balances held steady?
+  - Who still sends manual payment instructions - digital adoption by segment this fiscal year?
+
+benchmarks:
+  - key: Q1
+    question: What was the total CASA balance by booking country at the end of September 2026, with the end-August 2026 balance and the change versus August?
+    answer: Q1
+  - key: Q1-casual
+    question: casa by country end of sept vs end of aug, and how much did it change?
+    variant_of: Q1
+  - key: Q2
+    question: Show the 20 client groups with the largest CASA outflow in Q2 FY2026, with the CASA moved into time deposits, their total deposit movement, and whether the money mostly moved to time deposits or left the bank.
+    answer: Q2
+  - key: Q2b
+    question: For Hong Kong, month by month from June to August 2026, what were the CASA movement, the CASA transferred into time deposits and the CASA ratio?
+    answer: Q2b
+  - key: Q3
+    question: Show the monthly CASA ratio since April 2025, Japanese corporates versus non-Japanese clients.
+    answer: Q3
+  - key: Q4
+    question: For outbound payments this fiscal year, what are the payment volume and the number of payments by payment purpose and counterparty bank type?
+    answer: Q4
+  - key: Q4b
+    question: What share of our clients' outbound supplier payments this fiscal year went to accounts at other banks? Show the share, the value paid to other banks and the total supplier payment value.
+    answer: Q4b
+  - key: Q4b-jargon
+    question: Supplier-payment leakage FYTD - what % of outbound supplier flows went to competitor banks, the leaked value and total supplier payments?
+    variant_of: Q4b
+  - key: Q5
+    question: Which 12 channel and currency combinations with at least 200 payments had the lowest STP rate this fiscal year? Show the number of payments, the STP rate and the number of repairs.
+    answer: Q5
+  - key: Q5b
+    question: Where were payment repairs concentrated this fiscal year? Show the top 10 repair reason and channel combinations by number of repairs, with their average processing hours.
+    answer: Q5b
+  - key: Q6
+    question: Rank the multi-country client groups (deposit accounts in 3 or more APAC countries) that have no liquidity pooling structure today by their total deposits - the top 20, with their number of APAC countries.
+    answer: Q6
+  - key: Q6-typo
+    question: top 20 multi-country groups with no cash poolng structure today by deposits, with their number of APAC countries
+    variant_of: Q6
+  - key: Q6b
+    question: How many multi-country groups have no pooling structure today, out of how many multi-country groups, what is the pooling penetration and how much do the unpooled groups hold in deposits?
+    answer: Q6b
+  - key: Q7
+    question: What is the top-10 depositor concentration in each booking country today, with each country's total deposits and number of depositors?
+    answer: Q7
+  - key: Q7b
+    question: Who are the ten largest depositors in Singapore today? Show each entity with its client group, its depositor rank and its deposits.
+    answer: Q7b
+  - key: Q8a
+    question: List every legal entity whose total deposits held steady year on year at end-September 2026 (within plus or minus 10% of end-September 2025), with its client group, booking country, both month-end balances and the YoY change.
+    answer: Q8a
+  - key: Q8
+    question: Which legal entities saw their payment volume through us drop by more than 30% in H1 FY2026 versus H1 FY2025 (with at least USD 1m of payments in H1 FY2025) while their average month-end deposits held steady within plus or minus 10%? Show both halves' payment volume, the payment change and the deposit change.
+    answer: Q8
+  - key: Q9
+    question: Digital channel adoption by segment this fiscal year - show active clients, the digital share of payments, the manual instruction share and the number of clients still sending manual instructions.
+    answer: Q9
+  - key: Q9b
+    question: Which entities sent 5 or more manual payment instructions this fiscal year? Show their segment, relationship tier, number of manual instructions and manual instruction share.
+    expected_sql: |
+      SELECT `Client`, `Segment`, `Relationship Tier`,
+             MEASURE(`Manual Instructions`)        AS manual_instructions,
+             MEASURE(`Manual Instruction Share %`) AS manual_instruction_share
+      FROM smbc_genie.metrics.mv_tb_channel_adoption
+      WHERE `Fiscal Year` = 'FY2026'
+      GROUP BY ALL
+      HAVING MEASURE(`Manual Instructions`) >= 5
+      ORDER BY manual_instructions DESC
+    checks: {rows: 12, must_contain_columns: [Client, manual_instructions]}
+    notes: Answers-file Q9b ends in LIMIT 10 inside a 7-way tie at 5 instructions (non-deterministic); the threshold form returns the same top senders deterministically (12 entities).
+  - key: Q10
+    question: How much time-deposit principal matures in the next 90 days, by booking country and currency? Only show country and currency pairs with maturities.
+    answer: Q10

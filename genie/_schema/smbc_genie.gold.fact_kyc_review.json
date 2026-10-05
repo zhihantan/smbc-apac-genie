@@ -1,0 +1,151 @@
+{
+ "columns": [
+  {
+   "comment": "KYC review id (KYR-nnnnnn-nn).",
+   "is_measure": false,
+   "name": "review_id",
+   "type": "string"
+  },
+  {
+   "comment": "KYC customer record (KYC-...) reviewed.",
+   "is_measure": false,
+   "name": "kyc_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Onboarding, Periodic or Trigger.",
+   "is_measure": false,
+   "name": "review_type",
+   "type": "string"
+  },
+  {
+   "comment": "Event behind a trigger review: Ownership Change, Adverse Media, Credit Deterioration, Screening Alert or Regulatory Request; null otherwise.",
+   "is_measure": false,
+   "name": "trigger_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Date the review is due (grain date).",
+   "is_measure": false,
+   "name": "due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year of the due date.",
+   "is_measure": false,
+   "name": "due_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Date the review was completed; null while open.",
+   "is_measure": false,
+   "name": "completed_date",
+   "type": "date"
+  },
+  {
+   "comment": "Status at the as-of date: Completed, Overdue (past due, open), Due Soon (due within 90 days) or Scheduled.",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "True when completed by the as-of date.",
+   "is_measure": false,
+   "name": "is_completed",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when past due and not completed at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days past due at the as-of date for open overdue reviews (0 otherwise).",
+   "is_measure": false,
+   "name": "days_overdue",
+   "type": "int"
+  },
+  {
+   "comment": "Days a completed review finished after its due date (0 = on time or early).",
+   "is_measure": false,
+   "name": "days_late_on_completion",
+   "type": "int"
+  },
+  {
+   "comment": "True when completed after the due date.",
+   "is_measure": false,
+   "name": "completed_late",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC risk rating going into the review (High, Medium, Low; null for onboarding reviews).",
+   "is_measure": false,
+   "name": "risk_before",
+   "type": "string"
+  },
+  {
+   "comment": "KYC risk rating set by the review (null while open).",
+   "is_measure": false,
+   "name": "risk_after",
+   "type": "string"
+  },
+  {
+   "comment": "True when the review changed the client's risk rating.",
+   "is_measure": false,
+   "name": "risk_rating_changed",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client's current KYC / AML risk rating from the KYC master (High, Medium, Low) - drives the review cadence; use for 'high-risk reviews'.",
+   "is_measure": false,
+   "name": "kyc_risk_rating",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client's KYC risk rating is High.",
+   "is_measure": false,
+   "name": "is_high_risk",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC officer assigned to the review (employee_id).",
+   "is_measure": false,
+   "name": "reviewer_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client's coverage office / booking location at the due date (ISO-2, e.g. SG).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "segment",
+   "type": "string"
+  }
+ ],
+ "comment": "KYC / CDD reviews (brief 5.6): one row per review - Onboarding (risk assessment at onboarding), Periodic (cadence by KYC risk: High every year, Medium every 2 years, Low every 3 years) or Trigger (event-driven) - due from Apr-2023 to Mar-2027, with due and completed dates, status at 30-Sep-2026 (Completed, Overdue, Due Soon, Scheduled), overdue days, lateness on completion, risk rating before / after the review and the client's current KYC risk rating (High / Medium / Low, from the KYC master). Review status is as of today; for overdue trends by month-end use fact_kyc_review_snapshot_monthly. Periodic reviews scheduled beyond Mar-2027 are not included. Grain: one row per KYC review.",
+ "identifier": "smbc_genie.gold.fact_kyc_review",
+ "type": "MANAGED"
+}

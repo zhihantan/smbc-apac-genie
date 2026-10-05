@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "Signal id: the CRM signal id (SIG-...), or EWS-<obligor>-<yyyyMM>-<trigger>, NEWS-EVT-<news id>, MKT-<issuer>-<yyyyMMdd>-<code>, XR-<agency rating id>, JPR-EVT-<JP rating id>, NOTE-<activity id>.",
+   "is_measure": false,
+   "name": "signal_event_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the signal was raised (EWS signals: first day of the month evaluated) - the grain date.",
+   "is_measure": false,
+   "name": "signal_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the calendar month of the signal.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Signal type code; join gold.dim_signal_type (e.g. DEPOSIT_SURPLUS, UTIL_HIGH, NEWS_EXPANSION, MARKET_52W_LOW, PARENT_RATING_UPGRADE).",
+   "is_measure": false,
+   "name": "signal_code",
+   "type": "string"
+  },
+  {
+   "comment": "Signal type name (from dim_signal_type).",
+   "is_measure": false,
+   "name": "signal_name",
+   "type": "string"
+  },
+  {
+   "comment": "Signal category, e.g. Wallet Leakage, Growth, Liquidity, Credit, News, Market, Rating, Internal Sentiment.",
+   "is_measure": false,
+   "name": "signal_category",
+   "type": "string"
+  },
+  {
+   "comment": "Polarity of this signal: Opportunity, Risk or Neutral. News takes the item sentiment (>= 0.2 Opportunity, <= -0.2 Risk, else the type default); rating actions: upgrade = Opportunity, downgrade / negative outlook = Risk.",
+   "is_measure": false,
+   "name": "polarity",
+   "type": "string"
+  },
+  {
+   "comment": "True when polarity = Opportunity.",
+   "is_measure": false,
+   "name": "is_opportunity_signal",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when polarity = Risk.",
+   "is_measure": false,
+   "name": "is_risk_signal",
+   "type": "boolean"
+  },
+  {
+   "comment": "Data quadrant of the signal type: Internal Quantitative, Internal Qualitative, External Quantitative or External Qualitative.",
+   "is_measure": false,
+   "name": "source_quadrant",
+   "type": "string"
+  },
+  {
+   "comment": "Workflow that consumes the signal type: Opportunity Identification, Early Warning or Both.",
+   "is_measure": false,
+   "name": "consumed_by",
+   "type": "string"
+  },
+  {
+   "comment": "Feed the signal came from: crm_signal, ews_signal, news, market, ext_rating, jp_parent_rating or rm_note.",
+   "is_measure": false,
+   "name": "source_feed",
+   "type": "string"
+  },
+  {
+   "comment": "Producing engine of the signal type: crm_signal_engine, news_alerts, ews_engine, news_vendor, market_data, rating_agency, jp_share or crm_notes.",
+   "is_measure": false,
+   "name": "source_system",
+   "type": "string"
+  },
+  {
+   "comment": "Region of the data provider: JP for signals from the Japan (Tokyo HO) Delta Share, APAC for local feeds and vendors - filter JP for rating actions from JP-shared parent data.",
+   "is_measure": false,
+   "name": "source_region",
+   "type": "string"
+  },
+  {
+   "comment": "Id of the source record (CRM signal id, news id, agency or JP rating id, activity id, issuer|date, obligor|month|trigger).",
+   "is_measure": false,
+   "name": "source_record_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client (raised on the legal entity) or Group (raised on the group / listed parent and attached to the group lead entity).",
+   "is_measure": false,
+   "name": "signal_level",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client the signal is about (group-level signals: the group's lead entity).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "RM who owns the signal: the CRM signal owner, the RM who wrote the note, else the client's primary RM at the signal date (dim_client as-was); join gold.dim_employee.",
+   "is_measure": false,
+   "name": "owner_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Signal strength 0-1: CRM engine strength; EWS severity (High 1.0, Medium 0.6, Low 0.3); news 0.5 x relevance + 0.5 x |sentiment|; market move size; rating notches; |note sentiment|. Average it.",
+   "is_measure": false,
+   "name": "strength",
+   "type": "double"
+  },
+  {
+   "comment": "Sentiment -1..1 for news and RM-note signals; null for other feeds.",
+   "is_measure": false,
+   "name": "sentiment_score",
+   "type": "double"
+  },
+  {
+   "comment": "Short description: CRM signal detail, EWS detail, news headline, market move, rating rationale or RM note text (synthetic).",
+   "is_measure": false,
+   "name": "signal_text",
+   "type": "string"
+  },
+  {
+   "comment": "CRM signal status for CRM opportunity signals: New, Actioned, Converted or Dismissed; null for other feeds.",
+   "is_measure": false,
+   "name": "source_status",
+   "type": "string"
+  },
+  {
+   "comment": "False for EWS signals that also fired for the same obligor and trigger the month before (a persisting condition); true for first occurrences and every other feed.",
+   "is_measure": false,
+   "name": "is_new_occurrence",
+   "type": "boolean"
+  },
+  {
+   "comment": "Acknowledged by the RM: CRM signals whose status moved beyond New; RM notes (raised by the RM); any other signal when an RM logged a CRM activity with the client group within 30 days on or after the signal date. False = unacknowledged.",
+   "is_measure": false,
+   "name": "is_acknowledged",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date of the acknowledgement (CRM action / status date or the first qualifying RM activity); null when unacknowledged.",
+   "is_measure": false,
+   "name": "acknowledged_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the signal to its acknowledgement; null when unacknowledged.",
+   "is_measure": false,
+   "name": "days_to_acknowledge",
+   "type": "int"
+  },
+  {
+   "comment": "Pipeline opportunity the CRM signal converted into (null otherwise).",
+   "is_measure": false,
+   "name": "linked_opportunity_id",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client (group-level signals: any client of the group) has an open pipeline opportunity at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "has_open_pipeline",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when a pipeline opportunity was created for the client (group-level: the group) on or after the signal date, or the CRM signal is linked to one.",
+   "is_measure": false,
+   "name": "has_opportunity_since_signal",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when has_open_pipeline or has_opportunity_since_signal - false = a signal with no pipeline.",
+   "is_measure": false,
+   "name": "has_pipeline",
+   "type": "boolean"
+  },
+  {
+   "comment": "Days between the signal date and the as-of date 30-Sep-2026; last N days = days_before_as_of < N.",
+   "is_measure": false,
+   "name": "days_before_as_of",
+   "type": "int"
+  },
+  {
+   "comment": "True for signals in the 30 days to 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_last_30d",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for signals in the 90 days to 30-Sep-2026 (3-Jul-2026 .. 30-Sep-2026).",
+   "is_measure": false,
+   "name": "is_last_90d",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Unified signal feed consumed by Opportunity Identification and Early Warning: every signal from every source keyed to gold.dim_signal_type - CRM opportunity signals (e.g. DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH), EWS triggers (e.g. UTIL_HIGH, DPD_30; monthly), news items (NEWS_*), market moves on listed parents (MARKET_*), external agency rating actions (EXT_RATING_*, EXT_OUTLOOK_NEGATIVE), JP parent rating actions from the Japan share (PARENT_RATING_*, source_region JP) and positive / negative RM notes (RM_NOTE_*). Group-level signals (market, agency, JP parent) sit on the group's lead entity. Each signal has a polarity (Opportunity / Risk / Neutral), a strength 0-1, an owner RM, an acknowledged flag and pipeline flags. Flow fact: count signals, average strength. Grain: one row per signal event.",
+ "identifier": "smbc_genie.gold.fact_signal_event",
+ "type": "MANAGED"
+}

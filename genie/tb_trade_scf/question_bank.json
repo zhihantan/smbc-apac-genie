@@ -1,0 +1,1087 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 10,
+      "columns": [
+        "Corridor",
+        "issuance_h1_fy2025_usd",
+        "issuance_h1_fy2026_usd",
+        "issuance_growth_yoy"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "SG->TH",
+          "2.833731974E7",
+          "4.1616455260000005E7",
+          "0.4686094394896363"
+        ],
+        [
+          "JP->IN",
+          "2.4605851580000002E7",
+          "3.447035319E7",
+          "0.4009006385301457"
+        ],
+        [
+          "DE->AU",
+          "2.343664272E7",
+          "3.21938337E7",
+          "0.3736538157202407"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "336c37a0ba54d2c1",
+      "sorted_by": null
+    },
+    "Q1b": {
+      "rows": 6,
+      "columns": [
+        "Product",
+        "issuance_h1_fy2025_usd",
+        "issuance_h1_fy2026_usd",
+        "issuance_growth_yoy"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Receivables Purchase",
+          "2.8143975057E8",
+          "2.9643141476999986E8",
+          "0.053267756845425174"
+        ],
+        [
+          "Export LC",
+          "6.846601981900007E8",
+          "7.204630166199993E8",
+          "0.05229282865375939"
+        ],
+        [
+          "Import LC",
+          "1.0263002277499999E9",
+          "1.0757910324599998E9",
+          "0.04822254090160394"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "1706bc773cc7a3fa",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 78,
+      "columns": [
+        "Corridor To",
+        "Commodity",
+        "Segment",
+        "import_lcs",
+        "import_lc_volume_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "VN",
+          "Electronics",
+          "Japanese Corporate",
+          "49",
+          "3.622760196000001E7"
+        ],
+        [
+          "VN",
+          "Auto Parts",
+          "Japanese Corporate",
+          "23",
+          "1.712342721E7"
+        ],
+        [
+          "IN",
+          "Electronics",
+          "Japanese Corporate",
+          "36",
+          "1.6579861669999996E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "36f00076567a3035",
+      "sorted_by": null
+    },
+    "Q2b": {
+      "rows": 1,
+      "columns": [
+        "import_lcs_h1_fy2026",
+        "import_lcs_h1_fy2025",
+        "import_lc_growth_yoy",
+        "share_booked_in_singapore"
+      ],
+      "types": [
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "154",
+          "110",
+          "0.3999999999999999",
+          "0.44805194805194803"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "98a963426b858bd0",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 8,
+      "columns": [
+        "Programme",
+        "anchor",
+        "Anchor Country",
+        "Utilisation Band",
+        "programme_limit_usd",
+        "financed_outstanding_usd",
+        "utilisation",
+        "suppliers_in_register",
+        "suppliers_onboarded",
+        "suppliers_active",
+        "supplier_activation_rate"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG",
+        "LONG",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Pilbara Beverages Berhad Group Trading Receivables Finance",
+          "Pilbara Beverages Berhad Group Trading (Sydney) Pty Ltd",
+          "AU",
+          "Above 85%",
+          "1.1606202627E8",
+          "1.078448348E8",
+          "0.9291999999131154",
+          "61",
+          "35",
+          "35",
+          "0.5737704918032787"
+        ],
+        [
+          "Kinokawa Precision Payables Finance",
+          "Kinokawl Precision (Jakarta) PT",
+          "ID",
+          "40-85%",
+          "1.1093422083E8",
+          "8.820379900999999E7",
+          "0.7951000002530058",
+          "55",
+          "30",
+          "30",
+          "0.5454545454545454"
+        ],
+        [
+          "Meridian Agri Holdings Payables Finance",
+          "Meridian Agri Holdings (Singapore) Pte Ltd",
+          "SG",
+          "40-85%",
+          "1.7404770998E8",
+          "1.2482701770000005E8",
+          "0.717200000588023",
+          "72",
+          "41",
+          "41",
+          "0.5694444444444444"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "23e4be00d2c259e1",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 13,
+      "columns": [
+        "Booking Country",
+        "examined_presentations",
+        "discrepancy_rate"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "TH",
+          "137",
+          "0.291970802919708"
+        ],
+        [
+          "VN",
+          "212",
+          "0.28773584905660377"
+        ],
+        [
+          "ID",
+          "153",
+          "0.27450980392156865"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "6680a944bb0ea201",
+      "sorted_by": null
+    },
+    "Q4-casual": {
+      "rows": 13,
+      "columns": [
+        "Booking Country",
+        "examined_presentations",
+        "discrepancy_rate"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "TH",
+          "137",
+          "0.291970802919708"
+        ],
+        [
+          "VN",
+          "212",
+          "0.28773584905660377"
+        ],
+        [
+          "ID",
+          "153",
+          "0.27450980392156865"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "6680a944bb0ea201",
+      "sorted_by": null
+    },
+    "Q4b": {
+      "rows": 9,
+      "columns": [
+        "Discrepancy Type",
+        "discrepant_presentations"
+      ],
+      "types": [
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Inconsistent Data Between Documents",
+          "101"
+        ],
+        [
+          "Late Shipment",
+          "88"
+        ],
+        [
+          "Late Presentation",
+          "58"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "d62465de3dcd4126",
+      "sorted_by": null
+    },
+    "Q4c": {
+      "rows": 66,
+      "columns": [
+        "Client",
+        "discrepancy_rate_h2_fy2025",
+        "discrepancy_rate_h1_fy2026"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Amagase Construction Group Co Ltd",
+          "0.0",
+          "0.6666666666666666"
+        ],
+        [
+          "Hoshioka Auto Parts Holdings Trading",
+          "0.4",
+          "1.0"
+        ],
+        [
+          "Suvarna Infrastructure Holdings Services (Singapore) Pte Ltd",
+          "0.0",
+          "0.5"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "8fbcf507ef16b029",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 26,
+      "columns": [
+        "Product",
+        "Booking Country",
+        "examined_presentations",
+        "median_turnaround_hours",
+        "sla_hours",
+        "share_over_sla"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Export LC",
+          "VN",
+          "65",
+          "23.4",
+          "24.0",
+          "0.49230769230769234"
+        ],
+        [
+          "Export LC",
+          "IN",
+          "57",
+          "21.78",
+          "24.0",
+          "0.40350877192982454"
+        ],
+        [
+          "Import LC",
+          "ID",
+          "81",
+          "20.88",
+          "24.0",
+          "0.41975308641975306"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "3a14496ea4cbd25c",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 4,
+      "columns": [
+        "Client",
+        "Segment",
+        "Coverage Office",
+        "trade_settlement_payments_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "TIMOR TELECOM (SHANGHAI)",
+          "Non-Japanese Large Corporate",
+          "CN",
+          "361199.77"
+        ],
+        [
+          "Sakaida Prime Semiconductor (Shanghai) Co Ltd",
+          "Japanese Corporate",
+          "CN",
+          "300621.62"
+        ],
+        [
+          "Timor Asia Renewables (Shanghai) Co Ltd",
+          "Sponsor & Structured Finance",
+          "CN",
+          "235426.14"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "381e490584719c59",
+      "sorted_by": null
+    },
+    "Q6b": {
+      "rows": 2,
+      "columns": [
+        "Fiscal Year",
+        "corridor_market_volume_usd",
+        "smbc_trade_finance_usd",
+        "smbc_share_estimate",
+        "clients_active",
+        "clients_without_trade_product"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "FY2025",
+          "1.2990941805750004E10",
+          "9.112586946000001E7",
+          "0.007014569907446295",
+          "37",
+          "2"
+        ],
+        [
+          "FY2026",
+          "8.082309992330001E9",
+          "4.359425410999999E7",
+          "0.005393786448598276",
+          "29",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "59c9aa4e969ed2b3",
+      "sorted_by": null
+    },
+    "Q6c": {
+      "rows": 1,
+      "columns": [
+        "corridor_market_volume_h1_fy2026_usd",
+        "corridor_market_volume_h1_fy2025_usd",
+        "corridor_growth_yoy"
+      ],
+      "types": [
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "3.0687004890939987E10",
+          "2.2399273643019997E10",
+          "0.3700000000001158"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0e155744389ccd19",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 101,
+      "columns": [
+        "Beneficiary Country",
+        "Expiry Quarter",
+        "live_guarantees",
+        "outstanding_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "CN",
+          "FY2027-Q1",
+          "65",
+          "7.876260643E7"
+        ],
+        [
+          "CN",
+          "FY2026-Q4",
+          "73",
+          "7.769966096E7"
+        ],
+        [
+          "CN",
+          "FY2026-Q3",
+          "72",
+          "7.254807624E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2daeaf27664ade4c",
+      "sorted_by": null
+    },
+    "Q7-typo": {
+      "rows": 101,
+      "columns": [
+        "Beneficiary Country",
+        "Expiry Quarter",
+        "live_guarantees",
+        "outstanding_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "CN",
+          "FY2027-Q1",
+          "65",
+          "7.876260643E7"
+        ],
+        [
+          "CN",
+          "FY2026-Q4",
+          "73",
+          "7.769966096E7"
+        ],
+        [
+          "CN",
+          "FY2026-Q3",
+          "72",
+          "7.254807624E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2daeaf27664ade4c",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 6,
+      "columns": [
+        "Fiscal Year",
+        "Is Japanese Corporate",
+        "fee_yield_bps",
+        "fee_income_usd",
+        "instruments"
+      ],
+      "types": [
+        "STRING",
+        "BOOLEAN",
+        "DOUBLE",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "FY2025",
+          null,
+          "33.09144751267384",
+          "1430079.0300000003",
+          "350"
+        ],
+        [
+          "FY2025",
+          "false",
+          "37.852879736298135",
+          "1.377806441999999E7",
+          "3509"
+        ],
+        [
+          "FY2025",
+          "true",
+          "31.67107648903947",
+          "1.165210924E7",
+          "3496"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "116014c1c4c6422e",
+      "sorted_by": null
+    },
+    "Q8b": {
+      "rows": 12,
+      "columns": [
+        "Segment",
+        "Product",
+        "fee_yield_bps"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Japanese Corporate",
+          "Documentary Collection",
+          "8.49294663410439"
+        ],
+        [
+          "Non-Japanese Large Corporate",
+          "Documentary Collection",
+          "9.985244268096897"
+        ],
+        [
+          "Japanese Corporate",
+          "Export LC",
+          "18.694024572229484"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2d73c1f72db7f25e",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 8,
+      "columns": [
+        "Client",
+        "Segment",
+        "Coverage Office",
+        "distinct_suppliers_paid",
+        "supplier_payments_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Shiramiae Devices Pte Ltd",
+          "Japanese Corporate",
+          "SG",
+          "62",
+          "3.035520680299999E8"
+        ],
+        [
+          "HAGIWARA STEEL (TAIPEI)",
+          "Japanese Corporate",
+          "TW",
+          "62",
+          "2.1039644254000002E8"
+        ],
+        [
+          "CATBA tROPERTY (BANGKOK) PCL",
+          "Non-Japanese Large Corporate",
+          "TH",
+          "59",
+          "2.0198330368999997E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "c205898a61949154",
+      "sorted_by": null
+    },
+    "Q9-jargon": {
+      "rows": 8,
+      "columns": [
+        "Client",
+        "Segment",
+        "Coverage Office",
+        "distinct_suppliers_paid",
+        "supplier_payments_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Shiramiae Devices Pte Ltd",
+          "Japanese Corporate",
+          "SG",
+          "62",
+          "3.035520680299999E8"
+        ],
+        [
+          "HAGIWARA STEEL (TAIPEI)",
+          "Japanese Corporate",
+          "TW",
+          "62",
+          "2.1039644254000002E8"
+        ],
+        [
+          "CATBA tROPERTY (BANGKOK) PCL",
+          "Non-Japanese Large Corporate",
+          "TH",
+          "59",
+          "2.0198330368999997E8"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "c205898a61949154",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 10,
+      "columns": [
+        "Fiscal Quarter",
+        "carbon_intensive_outstanding_usd",
+        "total_outstanding_usd",
+        "carbon_intensive_share"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "FY2024-Q1",
+          "1.316792643369999E9",
+          "3.33023140984E9",
+          "0.3954057485252245"
+        ],
+        [
+          "FY2024-Q2",
+          "1.3479159147E9",
+          "3.5147075306799994E9",
+          "0.38350727704481724"
+        ],
+        [
+          "FY2024-Q3",
+          "1.3986730073099997E9",
+          "3.627878704279999E9",
+          "0.38553466676267645"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "cc6fb69867eebf5f",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_tb_trade_finance",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_trade_operations",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-05-01",
+      "last": "2026-09-01",
+      "periods": 41
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_tb_scf",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-04-01",
+      "last": "2026-09-01",
+      "periods": 30
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_trade_corridors",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_tb_payments",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-04-01",
+      "last": "2026-09-01",
+      "periods": 30
+    },
+    {
+      "asset": "smbc_genie.gold.dim_scf_programme",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:47:07+00:00",
+  "questions_captured_at": "2026-10-04T15:45:39+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "Which trade corridors grew trade finance issuance fastest in H1 FY2026 vs H1 FY2025?",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_trade_corridor_growth`(fiscal_half => 'FY2026-H1', min_prior_issuance_usd => '20000000', top_n => '10')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Corridor",
+        "issuance_prior_half_usd",
+        "issuance_half_usd",
+        "issuance_growth_yoy"
+      ],
+      "genie_rows": 10,
+      "seconds": 15.1,
+      "asked_at": "2026-10-04T14:47:07+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "What is our import LC volume into Vietnam and India by commodity and client segment this fiscal year?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie returns 51 rows, the benchmark 78",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Commodity`,\n  `Segment`,\n  MEASURE(`Issuance USD`) AS `import_lc_volume_usd`\nFROM `smbc_genie`.`metrics`.`mv_tb_trade_finance`\nWHERE `Fiscal Year` = 'FY2026'\n  AND `Product` = 'Import LC'\n  AND `Corridor To` IN ('VN', 'IN')\nGROUP BY ALL\nORDER BY `import_lc_volume_usd` DESC, `Commodity` ASC, `Segment` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Commodity",
+        "Segment",
+        "import_lc_volume_usd"
+      ],
+      "genie_rows": 51,
+      "seconds": 23.0,
+      "asked_at": "2026-10-04T14:47:23+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Only the ones booked in Singapore.",
+      "after": "S2",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (7 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Commodity`,\n  `Segment`,\n  MEASURE(`Issuance USD`) AS `issuance_usd`\nFROM `smbc_genie`.`metrics`.`mv_tb_trade_finance`\nWHERE `Fiscal Year` = 'FY2026'\n  AND `Product` = 'Import LC'\n  AND `Corridor To` IN ('VN', 'IN')\n  AND `Booking Country` = 'SG'\nGROUP BY ALL\nORDER BY `issuance_usd` DESC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Commodity",
+        "Segment",
+        "issuance_usd"
+      ],
+      "genie_rows": 7,
+      "seconds": 21.7,
+      "asked_at": "2026-10-04T15:44:21+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "How are our SCF programmes utilised by anchor, and which are above 85% or below 40%?",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Programme`, `Client` AS anchor, `Anchor Country`, `Utilisation Band`,\n       MEASURE(`Programme Limit USD`)      AS programme_limit_usd,\n       MEASURE(`Financed Outstanding USD`) AS financed_outstanding_usd,\n       MEASURE(`Utilisation %`)            AS utilisation,\n       MEASURE(`Suppliers in Register`)    AS suppliers_in_register,\n       MEASURE(`Suppliers Onboarded`)      AS suppliers_onboarded,\n       MEASURE(`Suppliers Active`)         AS suppliers_active,\n       MEASURE(`Supplier Activation %`)    AS supplier_activation_rate\nFROM smbc_genie.metrics.mv_tb_scf\nWHERE `Month` = :month\nGROUP BY ALL\nORDER BY utilisation DESC",
+      "genie_parameters": [
+        {
+          "keyword": "month",
+          "value": "2026-09-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Programme",
+        "anchor",
+        "Anchor Country",
+        "Utilisation Band",
+        "programme_limit_usd",
+        "financed_outstanding_usd",
+        "utilisation",
+        "suppliers_in_register",
+        "suppliers_onboarded",
+        "suppliers_active",
+        "supplier_activation_rate"
+      ],
+      "genie_rows": 8,
+      "seconds": 19.9,
+      "asked_at": "2026-10-04T14:47:46+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "What is the LC document discrepancy rate by booking country this fiscal year, and which clients have a rising discrepancy rate from H2 FY2025 to H1 FY2026?",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": "Q4+Q4c",
+      "verdict": "match",
+      "note": "Genie answers each part in one table: its 'booking country discrepancy rate FY2026' rows match Q4; its 'rising clients H2 FY2025 to H1 FY2026' rows match Q4c",
+      "status": "COMPLETED",
+      "genie_sql": "WITH `country_rates` AS (\n  SELECT\n    'booking_country_discrepancy_rate_fy2026' AS `section`,\n    `Booking Country` AS `booking_country`,\n    CAST(NULL AS STRING) AS `client`,\n    MEASURE(`Discrepancy Rate %`) AS `discrepancy_rate`,\n    CAST(NULL AS DOUBLE) AS `discrepancy_rate_prior_half`,\n    CAST(NULL AS DOUBLE) AS `discrepancy_rate_half`,\n    CAST(NULL AS DOUBLE) AS `rate_change`\n  FROM `smbc_genie`.`metrics`.`mv_trade_operations`\n  WHERE `Fiscal Year` = 'FY2026'\n    AND `Booking Country` IS NOT NULL\n  GROUP BY ALL\n),\n`rising_half_rates` AS (\n  SELECT\n    `Client`,\n    `Fiscal Half`,\n    MEASURE(`Discrepancy Rate %`) AS `discrepancy_rate`\n  FROM `smbc_genie`.`metrics`.`mv_trade_operations`\n  WHERE `Is Client Discrepancy Rising` = true\n    AND `Fiscal Half` IN ('FY2025-H2', 'FY2026-H1')\n    AND `Client` IS NOT NULL\n    AND `Fiscal Half` IS NOT NULL\n  GROUP BY ALL\n),\n`rising_clients` AS (\n  SELECT\n    'rising_clients_h2_fy2025_to_h1_fy2026' AS `section`,\n    CAST(NULL AS STRING) AS `booking_country`,\n    `Client` AS `client`,\n    CAST(NULL AS DOUBLE) AS `discrepancy_rate`,\n    MAX(CASE WHEN `Fiscal Half` = 'FY2025-H2' THEN `discrepancy_rate` END) AS `discrepancy_rate_prior_half`,\n    MAX(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN `discrepancy_rate` END) AS `discrepancy_rate_half`,\n    MAX(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN `discrepancy_rate` END) - MAX(CASE WHEN `Fiscal Half` = 'FY2025-H2' THEN `discrepancy_rate` END) AS `rate_change`\n  FROM `rising_half_rates`\n  GROUP BY `Client`\n)\nSELECT *\nFROM `country_rates`\nUNION ALL\nSELECT *\nFROM `rising_clients`\nORDER BY\n  `section` ASC,\n  CASE WHEN `section` = 'booking_country_discrepancy_rate_fy2026' THEN `booking_country` END ASC,\n  CASE WHEN `section` = 'rising_clients_h2_fy2025_to_h1_fy2026' THEN `rate_change` END DESC,\n  `client` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "section",
+        "booking_country",
+        "client",
+        "discrepancy_rate",
+        "discrepancy_rate_prior_half",
+        "discrepancy_rate_half",
+        "rate_change"
+      ],
+      "genie_rows": 79,
+      "seconds": 27.7,
+      "asked_at": "2026-10-04T15:44:43+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "What is the median trade-operations turnaround by product and country versus the 24-hour SLA?",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": null,
+      "verdict": "differs",
+      "note": "same 26 rows; values differ for examined presentations, median turnaround hours, share over SLA (Genie: median turnaround hours, vs SLA hours)",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Booking Country` AS `booking_country`,\n  `Product` AS `product`,\n  MEASURE(`Median Turnaround Hours`) AS `median_turnaround_hours`,\n  MEASURE(`SLA Hours`) AS `sla_hours`,\n  MEASURE(`Median Turnaround Hours`) - MEASURE(`SLA Hours`) AS `vs_sla_hours`\nFROM `smbc_genie`.`metrics`.`mv_trade_operations`\nWHERE `Booking Country` IS NOT NULL\n  AND `Product` IS NOT NULL\nGROUP BY ALL\nORDER BY `booking_country` ASC, `product` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "booking_country",
+        "product",
+        "median_turnaround_hours",
+        "sla_hours",
+        "vs_sla_hours"
+      ],
+      "genie_rows": 26,
+      "seconds": 21.8,
+      "asked_at": "2026-10-04T14:48:34+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Which clients trade in the CN->VN electronics corridor (visible from payments) but have no trade product with us?",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": null,
+      "verdict": "differs",
+      "note": "same 4 rows; Client, Segment differ (Genie: client group)",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Client Group` AS `client_group`,\n  `Coverage Office` AS `coverage_office`,\n  MEASURE(`Trade Settlement Payments USD`) AS `trade_settlement_payments_usd`\nFROM `smbc_genie`.`metrics`.`mv_trade_corridors`\nWHERE `Record Type` = 'Client'\n  AND `Corridor` = 'CN->VN'\n  AND `Commodity` = 'Electronics'\n  AND `Is Payment Visible` = true\n  AND `Has Trade Product Today` = false\n  AND `Client Group` IS NOT NULL\n  AND `Coverage Office` IS NOT NULL\nGROUP BY ALL\nORDER BY `trade_settlement_payments_usd` DESC\nLIMIT 20",
+      "genie_parameters": [],
+      "genie_columns": [
+        "client_group",
+        "coverage_office",
+        "trade_settlement_payments_usd"
+      ],
+      "genie_rows": 4,
+      "seconds": 24.1,
+      "asked_at": "2026-10-04T14:48:56+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Which buyers paying 50 or more distinct suppliers through us could anchor a new SCF programme?",
+      "after": null,
+      "benchmark": "Q9",
+      "matched": "Q9",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_scf_anchor_candidates`(min_suppliers => '50')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Segment",
+        "Coverage Office",
+        "distinct_suppliers_paid",
+        "supplier_payments_usd"
+      ],
+      "genie_rows": 8,
+      "seconds": 17.8,
+      "asked_at": "2026-10-04T14:49:21+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "How has our trade exposure to carbon-intensive commodities trended by quarter?",
+      "after": null,
+      "benchmark": "Q10",
+      "matched": "Q10",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH q AS (\n  SELECT `Fiscal Quarter`, `Is Carbon-Intensive Commodity`, MEASURE(`Outstanding USD`) AS outstanding_usd\n  FROM smbc_genie.metrics.mv_tb_trade_finance\n  WHERE `Fiscal Quarter` >= :from_quarter\n  GROUP BY ALL\n)\nSELECT `Fiscal Quarter`,\n       sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END) AS carbon_intensive_outstanding_usd,\n       sum(outstanding_usd) AS total_outstanding_usd,\n       try_divide(sum(CASE WHEN `Is Carbon-Intensive Commodity` THEN outstanding_usd END),sum(outstanding_usd)) AS carbon_intensive_share\nFROM q GROUP BY `Fiscal Quarter`\nORDER BY `Fiscal Quarter`",
+      "genie_parameters": [
+        {
+          "keyword": "from_quarter",
+          "value": "FY2024-Q1",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Fiscal Quarter",
+        "carbon_intensive_outstanding_usd",
+        "total_outstanding_usd",
+        "carbon_intensive_share"
+      ],
+      "genie_rows": 10,
+      "seconds": 17.8,
+      "asked_at": "2026-10-04T14:49:39+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "safer",
+      "id": "Q6c",
+      "question": "How much did the external market volume of the electronics and auto-parts import corridors into Vietnam and India from China, Korea and Japan grow in H1 FY2026 versus H1 FY2025? Show both halves' volume and the Corridor Growth YoY %.",
+      "after": null,
+      "benchmark": "Q6c",
+      "matched": "Q6c",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH h AS (\n  SELECT\n    `Fiscal Half`,\n    MEASURE(`Corridor Volume USD`) AS `corridor_volume_usd`,\n    MEASURE(`Corridor Growth YoY %`) AS `corridor_growth_yoy_pct`\n  FROM `smbc_genie`.`metrics`.`mv_trade_corridors`\n  WHERE `Fiscal Half` IN ('FY2026-H1', 'FY2025-H1')\n    AND `Corridor To` IN ('VN', 'IN')\n    AND `Corridor From` IN ('CN', 'KR', 'JP')\n    AND `Commodity` IN ('Electronics', 'Auto Parts')\n  GROUP BY ALL\n)\nSELECT\n  SUM(CASE WHEN `Fiscal Half` = 'FY2025-H1' THEN `corridor_volume_usd` END) AS `corridor_volume_prior_half_usd`,\n  SUM(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN `corridor_volume_usd` END) AS `corridor_volume_half_usd`,\n  MAX(CASE WHEN `Fiscal Half` = 'FY2026-H1' THEN `corridor_growth_yoy_pct` END) AS `corridor_growth_yoy_pct`\nFROM h",
+      "genie_parameters": [],
+      "genie_columns": [
+        "corridor_volume_prior_half_usd",
+        "corridor_volume_half_usd",
+        "corridor_growth_yoy_pct"
+      ],
+      "genie_rows": 1,
+      "seconds": 27.5,
+      "asked_at": "2026-10-04T15:45:11+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "tb_trade_scf",
+  "space_id": "my-agent-id"
+}

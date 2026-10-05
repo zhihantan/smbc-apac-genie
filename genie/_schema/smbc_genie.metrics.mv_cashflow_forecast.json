@@ -1,0 +1,277 @@
+{
+ "columns": [
+  {
+   "comment": "Date the forecast was run: 30-Sep-2026 for the forward forecasts (Is Latest Forecast), the 1st of the month before the target month for the backtests. Measures return the latest run of the selection.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the forecast run as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the forecast run, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the forecast run).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "7D (1-7 Oct 2026), 30D (October 2026 / the target month) or 90D (Oct-Dec 2026). Always filter or group by one Horizon - forecasts of different horizons must not be added.",
+   "is_measure": false,
+   "name": "Horizon",
+   "type": "string"
+  },
+  {
+   "comment": "Forecast model - v1 (MAPE about 18%, until the May-2026 targets) or v2 (upgraded model, about 11%, from June-2026; the forward runs).",
+   "is_measure": false,
+   "name": "Model Version",
+   "type": "string"
+  },
+  {
+   "comment": "Forward (from the as-of date 30-Sep-2026) or Backtest (historical one-month-ahead run scored against actuals).",
+   "is_measure": false,
+   "name": "Forecast Type",
+   "type": "string"
+  },
+  {
+   "comment": "True for the latest run (the forward forecasts dated 30-Sep-2026) - use it for \"next 7 / 30 / 90 days\" questions.",
+   "is_measure": false,
+   "name": "Is Latest Forecast",
+   "type": "boolean"
+  },
+  {
+   "comment": "Last day of the forecast window (e.g. 31-Oct-2026 for the 30D forward forecast).",
+   "is_measure": false,
+   "name": "Window End",
+   "type": "date"
+  },
+  {
+   "comment": "True when the forecast net cash flow over the window is negative (outflows exceed inflows).",
+   "is_measure": false,
+   "name": "Is Forecast Net Negative",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the forecast net outflow is at least 50% of the client's typical gross monthly flow (the liquidity-event engine's predicted-shortfall rule) - a liquidity need worth an RCF / overdraft conversation.",
+   "is_measure": false,
+   "name": "Is Material Shortfall",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has a committed RCF (with a balance at the month-end before the window).",
+   "is_measure": false,
+   "name": "Has RCF",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client's coverage office / booking location (ISO-2).",
+   "is_measure": false,
+   "name": "Booking Country",
+   "type": "string"
+  },
+  {
+   "comment": "Forecast inflows (collections) over the forecast window, USD - latest run of the selection; one Horizon.",
+   "is_measure": true,
+   "name": "Forecast Inflow USD",
+   "type": "double"
+  },
+  {
+   "comment": "Expected outflows over the window (average monthly outflows of the 3 months before the run), USD.",
+   "is_measure": true,
+   "name": "Forecast Outflow USD",
+   "type": "double"
+  },
+  {
+   "comment": "Forecast inflows - expected outflows over the window, USD (negative = predicted net outflow).",
+   "is_measure": true,
+   "name": "Forecast Net USD",
+   "type": "double"
+  },
+  {
+   "comment": "Pessimistic (10th percentile) net cash flow = P10 inflows - expected outflows, USD (summed over clients = conservative).",
+   "is_measure": true,
+   "name": "Forecast Net P10 USD",
+   "type": "double"
+  },
+  {
+   "comment": "Optimistic (90th percentile) net cash flow = P90 inflows - expected outflows, USD.",
+   "is_measure": true,
+   "name": "Forecast Net P90 USD",
+   "type": "double"
+  },
+  {
+   "comment": "P10 forecast inflows (empirical 10th percentile of actual / forecast in the model's backtests), USD.",
+   "is_measure": true,
+   "name": "Forecast Inflow P10 USD",
+   "type": "double"
+  },
+  {
+   "comment": "P90 forecast inflows, USD.",
+   "is_measure": true,
+   "name": "Forecast Inflow P90 USD",
+   "type": "double"
+  },
+  {
+   "comment": "Undrawn committed RCF headroom (limit - drawn) at the month-end before the window, USD (30-Sep-2026 for the latest forecasts).",
+   "is_measure": true,
+   "name": "Undrawn RCF USD",
+   "type": "double"
+  },
+  {
+   "comment": "Clients' total deposits at the month-end before the window, USD.",
+   "is_measure": true,
+   "name": "Opening Deposits USD",
+   "type": "double"
+  },
+  {
+   "comment": "Opening deposits + forecast net cash flow, USD - the position at the end of the window if nothing else changes.",
+   "is_measure": true,
+   "name": "Projected Closing Deposits USD",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities with a forecast in the latest run of the selection.",
+   "is_measure": true,
+   "name": "Clients Forecast",
+   "type": "bigint"
+  },
+  {
+   "comment": "Legal entities whose forecast net cash flow over the window is negative (latest run; one Horizon).",
+   "is_measure": true,
+   "name": "Clients Forecast Negative",
+   "type": "bigint"
+  },
+  {
+   "comment": "Legal entities whose forecast net outflow is at least 50% of their typical gross monthly flow (latest run; one Horizon).",
+   "is_measure": true,
+   "name": "Clients with Material Shortfall",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients forecast net negative / clients forecast (fraction).",
+   "is_measure": true,
+   "name": "Share of Clients Forecast Negative %",
+   "type": "double"
+  }
+ ],
+ "comment": "Client cash-flow forecasts: the latest forward forecasts from 30-Sep-2026 for the next 7, 30 and 90 days (model v2; forecast inflows, expected outflows, net cash flow with P10 / P90) and the monthly backtest runs (30-day horizon, model v1 until the May-2026 targets, v2 from June-2026), with clients forecast to run a net outflow, material shortfalls and the undrawn committed RCF headroom to cover them. Each measure returns the LATEST forecast run in the selection - never a sum over runs - and must be read for ONE Horizon (filter Horizon = '30D', or group by Horizon); for \"next 30 days\" filter Is Latest Forecast and Horizon = '30D'. P10 / P90 summed over clients are conservative. Grain: one row per client x forecast date x horizon x model version (gold.fact_cashflow_forecast).",
+ "identifier": "smbc_genie.metrics.mv_cashflow_forecast",
+ "type": "METRIC_VIEW"
+}

@@ -1,0 +1,55 @@
+table: dim_date
+domain: hub
+comment: >-
+  Calendar from 1-Apr-2023 to 31-Mar-2027 with Japanese fiscal-year fields (FY2026 = Apr 2026 - Mar 2027;
+  Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar; H1 Apr-Sep, H2 Oct-Mar) and flags relative to the
+  as-of date 30-Sep-2026 (H1 FY2026 close, the demo "today" - never use CURRENT_DATE). Date keys of
+  gold facts reference dim_date.date.
+grain: one row per calendar day
+primary_key: [date]
+cluster_by: [date]
+min_rows: 1461
+columns:
+  date: {type: DATE, comment: Calendar date (primary key; facts join their date key here).}
+  date_key: {type: INT, comment: Date as an integer yyyymmdd (e.g. 20260930).}
+  calendar_year: {type: INT, comment: Calendar year.}
+  calendar_month: {type: INT, comment: Calendar month number 1-12.}
+  calendar_quarter: {type: INT, comment: Calendar quarter 1-4 (Jan-Mar = 1). Use fiscal_quarter for Japanese fiscal quarters.}
+  month_name: {type: STRING, comment: Three-letter month name (Jan ... Dec).}
+  calendar_month_label: {type: STRING, comment: Calendar month as yyyy-MM (e.g. 2026-09).}
+  day_of_month: {type: INT, comment: Day of the month 1-31.}
+  day_of_week: {type: INT, comment: Day of week 1-7 with 1 = Sunday and 7 = Saturday.}
+  day_name: {type: STRING, comment: Three-letter weekday name (Mon ... Sun).}
+  month_start_date: {type: DATE, comment: First day of the calendar month.}
+  month_end_date: {type: DATE}
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_year_start_date: {type: DATE, comment: First day of the fiscal year (1 April).}
+  fiscal_year_end_date: {type: DATE, comment: Last day of the fiscal year (31 March).}
+  fiscal_quarter: {type: INT}
+  fiscal_quarter_label: {type: STRING}
+  fiscal_half: {type: STRING}
+  fiscal_half_label: {type: STRING}
+  fiscal_month_no: {type: INT, comment: Fiscal month number 1-12 with April = 1 and March = 12.}
+  is_month_end: {type: BOOLEAN, comment: True on the last calendar day of a month (month-end snapshot date).}
+  is_quarter_end: {type: BOOLEAN, comment: "True on the last day of a fiscal quarter (30 Jun, 30 Sep, 31 Dec, 31 Mar)."}
+  is_fiscal_year_end: {type: BOOLEAN, comment: "True on 31 March, the Japanese fiscal year-end."}
+  is_weekend: {type: BOOLEAN, comment: True on Saturday or Sunday.}
+  is_business_day_sg: {type: BOOLEAN, comment: True on a Singapore business day (Monday-Friday; same rule as the source calendar).}
+  is_last_business_day_of_month: {type: BOOLEAN, comment: True on the last Monday-Friday of the month.}
+  days_before_as_of: {type: INT, comment: "Days between this date and the as-of date 30-Sep-2026 (0 = as-of, positive = past, negative = future). Last N days = days_before_as_of between 0 and N-1."}
+  month_offset: {type: INT, comment: "Months between this date's month and the as-of month (0 = Sep 2026, -1 = Aug 2026, +1 = Oct 2026)."}
+  is_as_of_date: {type: BOOLEAN, comment: True only on the as-of date 30-Sep-2026 ("today").}
+  is_future: {type: BOOLEAN, comment: True for dates after the as-of date (forecast / maturity horizon).}
+  is_latest_month: {type: BOOLEAN, comment: True for days of the as-of month (Sep 2026).}
+  is_latest_closed_month: {type: BOOLEAN, comment: "True for days of the latest closed month (Sep 2026, closed at the as-of date)."}
+  is_fytd: {type: BOOLEAN, comment: True for fiscal-year-to-date days of the as-of fiscal year (1-Apr-2026 to 30-Sep-2026).}
+  is_prior_fytd_same_period: {type: BOOLEAN, comment: True for the same fiscal-year-to-date window one year earlier (1-Apr-2025 to 30-Sep-2025) - the YoY comparison base.}
+checks:
+  - name: covers_calendar_window
+    sql: SELECT abs(count(*) - (datediff(DATE'${calendar_end}', DATE'${history_start}') + 1)) FROM ${table}
+  - name: one_as_of_day
+    sql: SELECT abs(count_if(is_as_of_date) - 1) FROM ${table}
+  - name: fytd_windows_align        # same-period YoY windows differ by at most a leap day
+    sql: SELECT abs(count_if(is_fytd) - count_if(is_prior_fytd_same_period)) FROM ${table}
+    max: 1

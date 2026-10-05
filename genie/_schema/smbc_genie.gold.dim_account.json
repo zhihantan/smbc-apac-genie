@@ -1,0 +1,97 @@
+{
+ "columns": [
+  {
+   "comment": "Core-banking account id; join to gold.dim_account.",
+   "is_measure": false,
+   "name": "account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Core-banking customer number (source identity record) holding the account.",
+   "is_measure": false,
+   "name": "cust_no",
+   "type": "string"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the account holder's current version.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Account type: Current Account, Savings Account, Time Deposit or Money Market Deposit.",
+   "is_measure": false,
+   "name": "account_type",
+   "type": "string"
+  },
+  {
+   "comment": "Product key (PRD-<NAME>); join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "CASA (current and savings accounts) or TD (time and money-market deposits).",
+   "is_measure": false,
+   "name": "deposit_class",
+   "type": "string"
+  },
+  {
+   "comment": "True for current / savings accounts (CASA).",
+   "is_measure": false,
+   "name": "is_casa",
+   "type": "boolean"
+  },
+  {
+   "comment": "ISO 4217 currency of the account.",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location of the account = the holder's coverage office (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Date the account was opened.",
+   "is_measure": false,
+   "name": "open_date",
+   "type": "date"
+  },
+  {
+   "comment": "Account status in core banking: ACTIVE, DORMANT or CLOSED.",
+   "is_measure": false,
+   "name": "account_status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the account status is ACTIVE.",
+   "is_measure": false,
+   "name": "is_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "Whole months from opening to the as-of date 30-Sep-2026.",
+   "is_measure": false,
+   "name": "account_age_months",
+   "type": "int"
+  }
+ ],
+ "comment": "Core-banking deposit accounts (current, savings, time deposit, money market) with their golden client, product, CASA / TD class, currency, booking country and open date. Deposit balance, time-deposit, payment and liquidity-structure facts reference account_id. Grain: one row per core-banking account.",
+ "identifier": "smbc_genie.gold.dim_account",
+ "type": "MANAGED"
+}

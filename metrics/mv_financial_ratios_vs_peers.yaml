@@ -1,0 +1,201 @@
+# Space 3, Credit Memo & Financial Spreading (WP9b / WP8d). Client financial ratios vs their peer group per fiscal
+# year: one row per credit obligor x fiscal year x ratio with the peer P25 / median / P75 denormalised from the
+# benchmark, a direction-adjusted percentile rank and the direction-aware worse-than-P25 flag (gold). Ratios are
+# point values: averaged (never summed) and windowed over the fiscal year (latest year when none is selected).
+view: mv_financial_ratios_vs_peers
+space: credit_memo_financial_spreading
+comment: >-
+  Client financial ratios vs peers, FY2023-FY2025: leverage (Net Debt/EBITDA, Debt/Equity), coverage (ICR,
+  DSCR), liquidity (current, quick), margins and returns (gross, EBITDA, net margin, ROE, ROA), working capital
+  (DSO, DIO, DPO, cash conversion cycle, in days), free cash flow and revenue growth, with the peer group's P25,
+  median and P75 for the same year, the client's percentile rank in its peer group (1 = best, direction-aware)
+  and clients worse than the peer bottom-quartile boundary. Always filter or group by Ratio Name (units
+  differ). Ratios are averaged, never summed; without a Fiscal Year each client's latest year is used.
+grain: one row per credit obligor x fiscal year x ratio (gold.fact_financial_ratio_annual)
+source: ${catalog}.gold.fact_financial_ratio_annual
+blocks:
+  calendar: {grain: fiscal_year, fy: source.fiscal_year, what: the statement fiscal year of the ratio}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: pg
+    source: ${catalog}.gold.dim_peer_group
+    'on': source.peer_group_id = pg.peer_group_id
+overrides:
+  Is Latest Fiscal Year:
+    comment: >-
+      True for FY2026, the fiscal year of the as-of date. Ratios exist up to FY2025 (the latest spread year) -
+      filter Fiscal Year = 'FY2025' for the latest ratios.
+    synonyms: [current fiscal year, this fiscal year, current FY, latest FY]
+dimensions:
+  - name: Ratio Name
+    expr: source.ratio_name
+    display_name: Ratio
+    comment: >-
+      Financial ratio: Net Debt/EBITDA (leverage), Debt/Equity, ICR (interest cover), DSCR, Current Ratio, Quick
+      Ratio, Gross Margin, EBITDA Margin, Net Margin, ROE, ROA, DSO, DIO, DPO, Cash Conversion Cycle, Free Cash
+      Flow (USD), Revenue YoY Growth. Filter one ratio (or group by it) - values are not comparable across ratios.
+    synonyms: [ratio, financial ratio, metric, KPI, credit ratio, leverage ratio, coverage ratio]
+  - name: Ratio Category
+    expr: source.ratio_category
+    display_name: Ratio Category
+    comment: "Ratio family: Leverage, Coverage, Liquidity, Profitability, Working Capital, Cash Flow or Growth."
+    synonyms: [ratio family, ratio type, ratio group, category, working capital ratios]
+  - name: Ratio Unit
+    expr: source.ratio_unit
+    display_name: Ratio Unit
+    comment: "Unit of the ratio value: x (multiple, 4.6 = 4.6x), fraction (0.15 = 15%), days, or usd (free cash flow)."
+    synonyms: [unit, ratio unit, measure unit, units]
+  - name: Higher Is Better
+    expr: source.higher_is_better
+    display_name: Higher Is Better
+    comment: >-
+      Direction of the ratio: true = higher is better (coverage, liquidity, margins, returns, DPO, FCF, growth);
+      false = lower is better (Net Debt/EBITDA, Debt/Equity, DSO, DIO, cash conversion cycle).
+    synonyms: [direction, higher is better, lower is better, good direction, polarity]
+  - name: Peer Group
+    expr: pg.peer_group_name
+    display_name: Peer Group
+    comment: Peer group of the client = industry sector - subsector (e.g. Materials - Mining); benchmarks are per peer group and fiscal year.
+    synonyms: [peer group, peers, benchmark group, comparable group, peer set, comps]
+  - name: Peer Quartile Position
+    expr: source.peer_quartile_position
+    display_name: Peer Quartile Position
+    comment: >-
+      Direction-aware position of the client's ratio vs the peer benchmark: Top quartile, Better than median, Worse
+      than median or Bottom quartile (= worse than P25).
+    synonyms: [quartile, peer quartile, quartile position, peer position, bottom quartile, top quartile]
+  - name: Worse Than Peer P25
+    expr: source.worse_than_p25
+    display_name: Worse Than Peer P25
+    comment: >-
+      True when the ratio is worse than the peer quartile boundary, direction-aware: below P25 for higher-is-better
+      ratios, above P75 for lower-is-better ratios (e.g. leverage above the peer P75). Null when no value.
+    synonyms: [worse than P25, bottom quartile, below peers, underperforming peers, worse than peers, laggard]
+  - name: Is Spread
+    expr: source.is_spread
+    display_name: Statements Spread
+    comment: True when the statement year behind the ratio has been spread (false = provisional, FY2025 backlog).
+    synonyms: [spread, spread status, financials spread, provisional]
+measures:
+  - name: Ratio Value
+    expr: AVG(source.ratio_value)
+    display_name: Ratio Value
+    comment: >-
+      Value of the selected ratio in its unit (x, fraction, days or USD); for one client and year its ratio, for
+      several clients their average. Window over the fiscal year: without a Fiscal Year each client's latest year.
+    synonyms: [ratio value, value, ratio, level, reading, actual ratio]
+    format: &x2 {type: number, decimal_places: {type: max, places: 2}}
+    window: &fy
+      - {order: Fiscal Year Number, range: current, semiadditive: last}
+  - name: Median Ratio Value
+    expr: MEDIAN(source.ratio_value)
+    display_name: Median Ratio Value (clients)
+    comment: Median of the selected ratio across the selected clients for the fiscal year (latest year when none is selected).
+    synonyms: [median ratio, median, typical value, middle value, client median]
+    format: *x2
+    window: *fy
+  - name: Peer P25
+    expr: AVG(source.peer_p25)
+    display_name: Peer P25
+    comment: Peer group 25th percentile of the ratio for the fiscal year (value-based); averaged when several peer groups are selected.
+    synonyms: [peer P25, lower quartile, peer 25th percentile, bottom quartile boundary, P25]
+    format: *x2
+    window: *fy
+  - name: Peer Median
+    expr: AVG(source.peer_median)
+    display_name: Peer Median
+    comment: Peer group median (P50) of the ratio for the fiscal year - "vs peers" / "vs peer median" means this.
+    synonyms: [peer median, peer P50, benchmark, peer average, sector median, median of peers]
+    format: *x2
+    window: *fy
+  - name: Peer P75
+    expr: AVG(source.peer_p75)
+    display_name: Peer P75
+    comment: Peer group 75th percentile of the ratio for the fiscal year (value-based).
+    synonyms: [peer P75, upper quartile, peer 75th percentile, top quartile boundary, P75]
+    format: *x2
+    window: *fy
+  - name: Gap to Peer Median
+    expr: AVG(source.gap_to_peer_median)
+    display_name: Gap to Peer Median
+    comment: Ratio value minus the peer median in the ratio's unit (not direction-adjusted - for leverage a positive gap is worse).
+    synonyms: [gap to median, vs peer median, difference to peers, spread to peers, premium to peers]
+    format: *x2
+    window: *fy
+  - name: Percentile Rank in Peer Group %
+    expr: AVG(source.peer_percentile_rank)
+    display_name: Percentile Rank in Peer Group
+    comment: >-
+      Direction-adjusted percentile of the client within its peer group for the ratio and year (fraction: 1 =
+      best in the peer group, 0 = worst; low leverage ranks high). Averaged over several clients.
+    synonyms: [peer percentile, percentile rank, percentile, peer ranking, rank vs peers, standing in peer group]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 0}}
+    window: *fy
+  - name: Change vs Prior Year
+    expr: AVG(source.change_vs_prior_year)
+    display_name: Change vs Prior Year
+    comment: Ratio value minus the previous fiscal year's value, in the ratio's unit (positive = the ratio rose).
+    synonyms: [change vs prior year, YoY change, trend, movement, delta, improvement or deterioration]
+    format: *x2
+    window: *fy
+  - name: Clients
+    expr: COUNT(DISTINCT source.golden_client_id)
+    display_name: Clients
+    comment: Legal entities (golden clients) with the ratio in the fiscal year.
+    synonyms: [clients, number of clients, borrowers, entities, obligors, companies]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: *fy
+  - name: Clients Below Peer P25
+    expr: COUNT(DISTINCT CASE WHEN source.worse_than_p25 THEN source.golden_client_id END)
+    display_name: Clients Worse Than Peer P25
+    comment: >-
+      Clients whose ratio is in the bottom quartile of their peer group (direction-aware worse_than_p25) for the
+      fiscal year - filter one Ratio Name.
+    synonyms: [clients below P25, bottom quartile clients, laggards, clients worse than peers, underperformers]
+    format: *count
+    window: *fy
+  - name: Share Below Peer P25 %
+    expr: MEASURE(`Clients Below Peer P25`) / NULLIF(MEASURE(`Clients`), 0)
+    display_name: Share of Clients Worse Than Peer P25
+    comment: Share of the selected clients in their peer group's bottom quartile for the ratio (fraction).
+    synonyms: [share below P25, bottom quartile share, laggard share, percent below peers]
+    format: {type: percentage, decimal_places: {type: max, places: 1}}
+validate:
+  dims: [Fiscal Year, Ratio Name]
+reconcile:
+  - name: sunda_leverage_fy2025
+    measure: Ratio Value
+    where: "`Fiscal Year` = 'FY2025' AND `Ratio Name` = 'Net Debt/EBITDA' AND `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%'"
+    gold: >-
+      SELECT avg(r.ratio_value) FROM ${catalog}.gold.fact_financial_ratio_annual r
+      JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = r.golden_client_sk
+      WHERE r.fiscal_year = 2025 AND r.ratio_name = 'Net Debt/EBITDA' AND c.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%'
+  - name: peer_median_by_ratio_fy2025
+    measure: Peer Median
+    by: [Ratio Name]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT ratio_name, avg(peer_median) FROM ${catalog}.gold.fact_financial_ratio_annual WHERE fiscal_year = 2025 GROUP BY 1
+  - name: clients_below_p25_by_ratio_fy2025
+    measure: Clients Below Peer P25
+    by: [Ratio Name]
+    where: "`Fiscal Year` = 'FY2025'"
+    gold: >-
+      SELECT ratio_name, count(DISTINCT CASE WHEN worse_than_p25 THEN golden_client_id END)
+      FROM ${catalog}.gold.fact_financial_ratio_annual WHERE fiscal_year = 2025 GROUP BY 1
+  - name: share_below_p25_leverage_by_year
+    measure: Share Below Peer P25 %
+    by: [Fiscal Year]
+    where: "`Ratio Name` = 'Net Debt/EBITDA'"
+    gold: >-
+      SELECT concat('FY', fiscal_year), count(DISTINCT CASE WHEN worse_than_p25 THEN golden_client_id END) / count(DISTINCT golden_client_id)
+      FROM ${catalog}.gold.fact_financial_ratio_annual WHERE ratio_name = 'Net Debt/EBITDA' GROUP BY 1
+  - name: icr_latest_year_without_filter
+    measure: Ratio Value
+    where: "`Ratio Name` = 'ICR'"
+    gold: SELECT avg(ratio_value) FROM ${catalog}.gold.fact_financial_ratio_annual WHERE ratio_name = 'ICR' AND fiscal_year = 2025
+glossary:
+  caveats:
+    - >-
+      Peer benchmarks are value-based percentiles of the peer sample (our clients in the peer group); the
+      percentile rank and worse-than-P25 flag are direction-aware. Revenue YoY Growth has no FY2023 value.

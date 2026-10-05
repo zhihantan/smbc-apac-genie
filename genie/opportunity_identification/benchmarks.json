@@ -1,0 +1,236 @@
+[
+  {
+    "id": "e320dc1576a38b8948d3d5a500000000",
+    "key": "Q1",
+    "question": "Top 25 open opportunities by estimated revenue across APAC, with signal type, RM, detection date and days open.",
+    "expected_sql": "SELECT `Client`, `Signal Type`, `Primary RM`, `Date` AS detected_date,\n       MEASURE(`Open Estimated Revenue USD`) AS estimated_revenue_usd,\n       MEASURE(`Days Open Average`)          AS days_open\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Status` = 'Open'\nGROUP BY ALL\nORDER BY estimated_revenue_usd DESC\nLIMIT 25",
+    "expected_checks": {
+      "rows": 25
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000001",
+    "key": "Q1-casual",
+    "question": "what are the biggest open opportunities right now? top 25 by estimated revenue",
+    "expected_sql": "SELECT `Client`, `Signal Type`, MEASURE(`Open Estimated Revenue USD`) AS estimated_revenue_usd\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Status` = 'Open'\nGROUP BY `Client`, `Signal Type`, `Primary RM`, `Date`\nORDER BY estimated_revenue_usd DESC\nLIMIT 25",
+    "expected_checks": {
+      "min_rows": 1
+    },
+    "answer_ref": null,
+    "variant_of": "Q1",
+    "allow_extra_columns": true,
+    "variant_of_id": "e320dc1576a38b8948d3d5a500000000"
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000002",
+    "key": "Q2",
+    "question": "Which clients are paying USD/JPY or USD/VND through other banks (FX flow we do not capture), and how much flow? Show client, currency pair, the latest 12-month flow and the number of signals.",
+    "expected_sql": "SELECT `Client`, `Currency Pair`,\n       MEASURE(`Latest Observed Amount USD`) AS fx_flow_via_other_banks_12m_usd,\n       MEASURE(`Signals`)                    AS signals\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Signal Type` = 'FX_FLOW_VIA_OTHER_BANK' AND `Currency Pair` IN ('USD/JPY', 'USD/VND')\nGROUP BY ALL\nORDER BY fx_flow_via_other_banks_12m_usd DESC",
+    "expected_checks": {
+      "rows": 145
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000003",
+    "key": "Q2-typo",
+    "question": "clients paying USD/JPY or USD/VND thru other banks - how much fx flow are we mising?",
+    "expected_sql": "SELECT `Client`, `Currency Pair`, MEASURE(`Latest Observed Amount USD`) AS fx_flow_via_other_banks_12m_usd\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Signal Type` = 'FX_FLOW_VIA_OTHER_BANK' AND `Currency Pair` IN ('USD/JPY', 'USD/VND')\nGROUP BY ALL",
+    "expected_checks": {
+      "min_rows": 1
+    },
+    "answer_ref": null,
+    "variant_of": "Q2",
+    "allow_extra_columns": true,
+    "variant_of_id": "e320dc1576a38b8948d3d5a500000002"
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000004",
+    "key": "Q3",
+    "question": "Clients with a deposit surplus signal in the last 60 days that have no time-deposit or investment product with us - show the detection date, status and surplus amount.",
+    "expected_sql": "SELECT `Client`, `Date` AS detected_date, `Status`,\n       MEASURE(`Observed Amount USD`) AS surplus_usd\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Signal Type` = 'DEPOSIT_SURPLUS' AND `Date` BETWEEN DATE'2026-08-02' AND DATE'2026-09-30' AND NOT `Holds TD or Investment`\nGROUP BY ALL\nORDER BY surplus_usd DESC",
+    "expected_checks": {
+      "rows": 2
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000005",
+    "key": "Q4",
+    "question": "Which groups have open facility-maturing signals (facilities maturing in the next 12 months) with no refinancing opportunity in the pipeline? Show the number of signals and the maturing amount per group.",
+    "expected_sql": "SELECT `Client Group`,\n       MEASURE(`Open Signals`)        AS maturing_facility_signals,\n       MEASURE(`Observed Amount USD`) AS maturing_amount_usd\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Signal Type` = 'FACILITY_MATURING_12M' AND `Status` = 'Open' AND NOT `Has Open Lending Opportunity`\nGROUP BY ALL\nORDER BY maturing_amount_usd DESC",
+    "expected_checks": {
+      "rows": 27
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000006",
+    "key": "Q4-jargon",
+    "question": "Refi gap: groups with maturities in the next 12 months and no refi in the pipe - open signal count and maturing amount",
+    "expected_sql": "SELECT `Client Group`,\n       MEASURE(`Open Signals`)        AS maturing_facility_signals,\n       MEASURE(`Observed Amount USD`) AS maturing_amount_usd\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Signal Type` = 'FACILITY_MATURING_12M' AND `Status` = 'Open' AND NOT `Has Open Lending Opportunity`\nGROUP BY ALL\nORDER BY maturing_amount_usd DESC",
+    "expected_checks": {
+      "rows": 27
+    },
+    "answer_ref": "Q4",
+    "variant_of": "Q4",
+    "allow_extra_columns": false,
+    "variant_of_id": "e320dc1576a38b8948d3d5a500000005"
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000007",
+    "key": "Q5",
+    "question": "Product penetration gap vs peers for Japanese automotive-parts subsidiaries in FY2026 - which products are under-penetrated? Show clients, penetration, peer penetration, clients with a gap, all-APAC penetration and the gap vs all APAC clients.",
+    "expected_sql": "SELECT `Product`,\n       MEASURE(`Clients`)                         AS clients,\n       MEASURE(`Penetration %`)                   AS penetration,\n       MEASURE(`Peer Penetration %`)              AS peer_penetration,\n       MEASURE(`Clients With Gap`)                AS clients_with_gap_vs_peers,\n       MEASURE(`All-Client Penetration %`)        AS all_apac_penetration,\n       MEASURE(`Gap vs All Clients pts`)          AS gap_vs_all_apac_pts\nFROM smbc_genie.metrics.mv_product_penetration\nWHERE `Fiscal Year` = 'FY2026' AND `Segment` = 'Japanese Corporate' AND `Subsector` = 'Auto Parts'\nGROUP BY ALL\nHAVING MEASURE(`Clients With Gap`) > 0 OR MEASURE(`Gap vs All Clients pts`) > 0.05\nORDER BY gap_vs_all_apac_pts DESC",
+    "expected_checks": {
+      "rows": 11
+    },
+    "answer_ref": "Q5",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000008",
+    "key": "Q6",
+    "question": "Next-best-product: top 20 clients by propensity for supply chain finance, with the product, rank and main drivers.",
+    "expected_sql": "SELECT `Client`, `Product`, `Propensity Rank`, `Top Drivers`,\n       MEASURE(`Max Propensity`) AS propensity\nFROM smbc_genie.metrics.mv_next_best_product\nWHERE `Is Latest Month` AND `Product Family` = 'Supply Chain Finance'\nGROUP BY ALL\nORDER BY propensity DESC\nLIMIT 20",
+    "expected_checks": {
+      "rows": 20
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000009",
+    "key": "Q6-jargon",
+    "question": "top 20 NBP names for SCF - propensity, rank and drivers",
+    "expected_sql": "SELECT `Client`, `Propensity Rank`, `Top Drivers`, MEASURE(`Max Propensity`) AS propensity\nFROM smbc_genie.metrics.mv_next_best_product\nWHERE `Is Latest Month` AND `Product Family` = 'Supply Chain Finance'\nGROUP BY `Client`, `Product`, `Propensity Rank`, `Top Drivers`\nORDER BY propensity DESC\nLIMIT 20",
+    "expected_checks": {
+      "min_rows": 1
+    },
+    "answer_ref": null,
+    "variant_of": "Q6",
+    "allow_extra_columns": true,
+    "variant_of_id": "e320dc1576a38b8948d3d5a500000008"
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a50000000a",
+    "key": "Q7",
+    "question": "Opportunities created from trade-corridor-growth signals into Vietnam and India this fiscal year, and their conversion rate - created, closed, won and win rate by destination.",
+    "expected_sql": "SELECT `Corridor Destination`,\n       MEASURE(`Opportunities`)        AS created,\n       MEASURE(`Opportunities Closed`) AS closed,\n       MEASURE(`Opportunities Won`)    AS won,\n       MEASURE(`Win Rate %`)           AS win_rate\nFROM smbc_genie.metrics.mv_pipeline\nWHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN') AND `Fiscal Year` = 'FY2026'\nGROUP BY ALL\nORDER BY `Corridor Destination`",
+    "expected_checks": {
+      "rows": 2
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a50000000b",
+    "key": "Q7b",
+    "question": "In total, how many opportunities were created from trade-corridor-growth signals into Vietnam and India in FY2026, how many closed and won, and what is the win rate?",
+    "expected_sql": "SELECT MEASURE(`Opportunities`)        AS created,\n       MEASURE(`Opportunities Closed`) AS closed,\n       MEASURE(`Opportunities Won`)    AS won,\n       MEASURE(`Win Rate %`)           AS win_rate\nFROM smbc_genie.metrics.mv_pipeline\nWHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN') AND `Fiscal Year` = 'FY2026'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q7b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a50000000c",
+    "key": "Q8",
+    "question": "Which capex / expansion news signals in Australia have not been actioned by an RM? List client, detection date, status, number of signals and estimated revenue.",
+    "expected_sql": "SELECT `Client`, `Date` AS detected_date, `Status`,\n       MEASURE(`Signals`)               AS signals,\n       MEASURE(`Estimated Revenue USD`) AS estimated_revenue_usd\nFROM smbc_genie.metrics.mv_opportunity_signals\nWHERE `Signal Type` = 'CAPEX_NEWS' AND `Coverage Office` = 'AU' AND NOT `Is Actioned`\nGROUP BY ALL\nORDER BY detected_date DESC",
+    "expected_checks": {
+      "rows": 7
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a50000000d",
+    "key": "Q9",
+    "question": "Pipeline by expected close quarter and stage for H2 FY2026, weighted value by product - with open opportunities, pipeline amount and weighted pipeline.",
+    "expected_sql": "SELECT `Expected Close Quarter`, `Stage`, `Product`,\n       MEASURE(`Open Opportunities`)    AS open_opportunities,\n       MEASURE(`Pipeline Amount USD`)   AS pipeline_amount_usd,\n       MEASURE(`Weighted Pipeline USD`) AS weighted_pipeline_usd\nFROM smbc_genie.metrics.mv_pipeline\nWHERE `Expected Close Half` = 'FY2026-H2' AND `Is Open`\nGROUP BY ALL\nORDER BY `Expected Close Quarter`, `Stage`, weighted_pipeline_usd DESC",
+    "expected_checks": {
+      "rows": 62
+    },
+    "answer_ref": "Q9",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a50000000e",
+    "key": "Q9-abbrev",
+    "question": "H2 FY26 pipe by close qtr, stage and product - open count, amount, weighted",
+    "expected_sql": "SELECT `Expected Close Quarter`, `Stage`, `Product`,\n       MEASURE(`Open Opportunities`)    AS open_opportunities,\n       MEASURE(`Pipeline Amount USD`)   AS pipeline_amount_usd,\n       MEASURE(`Weighted Pipeline USD`) AS weighted_pipeline_usd\nFROM smbc_genie.metrics.mv_pipeline\nWHERE `Expected Close Half` = 'FY2026-H2' AND `Is Open`\nGROUP BY ALL\nORDER BY `Expected Close Quarter`, `Stage`, weighted_pipeline_usd DESC",
+    "expected_checks": {
+      "rows": 62
+    },
+    "answer_ref": "Q9",
+    "variant_of": "Q9",
+    "allow_extra_columns": false,
+    "variant_of_id": "e320dc1576a38b8948d3d5a50000000d"
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a50000000f",
+    "key": "Q10",
+    "question": "Win rate by source type and source signal type - which signals actually convert? Show closed, won and win rate.",
+    "expected_sql": "SELECT `Source Type`, `Source Signal Type`,\n       MEASURE(`Opportunities Closed`) AS closed,\n       MEASURE(`Opportunities Won`)    AS won,\n       MEASURE(`Win Rate %`)           AS win_rate\nFROM smbc_genie.metrics.mv_pipeline\nGROUP BY ALL\nHAVING MEASURE(`Opportunities Closed`) > 0\nORDER BY win_rate DESC",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000010",
+    "key": "X1",
+    "question": "Show the supply chain finance opportunity created for the Kinokawa Precision group in August 2026 from a signal - client, created date, product, stage, source signal type, opportunities and open amount.",
+    "expected_sql": "SELECT `Client`, `Date` AS created_date, `Product`, `Stage`, `Source Signal Type`,\n       MEASURE(`Opportunities`) AS opportunities, MEASURE(`Pipeline Amount USD`) AS open_amount_usd\nFROM smbc_genie.metrics.mv_pipeline\nWHERE `Client Group` = 'Kinokawa Precision' AND `Month` = DATE'2026-08-01' AND `Product` = 'Supply Chain Finance'\n  AND `Source Type` = 'Signal'\nGROUP BY ALL",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "QS2b",
+    "variant_of": null,
+    "allow_extra_columns": true,
+    "variant_of_id": null
+  },
+  {
+    "id": "e320dc1576a38b8948d3d5a500000011",
+    "key": "X2",
+    "question": "For Banksia Renewables Partners, how many green-loan opportunities are open in the pipeline and how many SLL_ELIGIBLE signals were raised?",
+    "expected_sql": "WITH p AS (\n  SELECT MEASURE(`Open Opportunities`) AS open_green_loans\n  FROM smbc_genie.metrics.mv_pipeline\n  WHERE `Client Group` = 'Banksia Renewables Partners' AND `Product` = 'Green Loan'\n), s AS (\n  SELECT MEASURE(`Signals`) AS sll_signals\n  FROM smbc_genie.metrics.mv_opportunity_signals\n  WHERE `Client Group` = 'Banksia Renewables Partners' AND `Signal Type` = 'SLL_ELIGIBLE'\n)\nSELECT p.open_green_loans, s.sll_signals FROM p CROSS JOIN s",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "QS10",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  }
+]

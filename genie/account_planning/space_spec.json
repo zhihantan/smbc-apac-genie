@@ -1,0 +1,188 @@
+{
+  "slug": "account_planning",
+  "title": "APAC Genie - Account Planning",
+  "description": "Ask about account plans, relationship footprint, global group relationships and RM engagement for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_account_plan_progress",
+    "smbc_genie.metrics.mv_relationship_footprint",
+    "smbc_genie.metrics.mv_global_group_relationship",
+    "smbc_genie.metrics.mv_rm_engagement",
+    "smbc_genie.gold.dim_account_plan_initiative",
+    "smbc_genie.gold.dim_client_group",
+    "smbc_genie.gold.vw_client_360"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_account_plan_progress.Fiscal Year",
+    "smbc_genie.metrics.mv_account_plan_progress.Client Group",
+    "smbc_genie.metrics.mv_account_plan_progress.Segment",
+    "smbc_genie.metrics.mv_account_plan_progress.Relationship Tier",
+    "smbc_genie.metrics.mv_account_plan_progress.Industry",
+    "smbc_genie.metrics.mv_account_plan_progress.Subsector",
+    "smbc_genie.metrics.mv_account_plan_progress.Coverage Office",
+    "smbc_genie.metrics.mv_account_plan_progress.Primary RM",
+    "smbc_genie.metrics.mv_account_plan_progress.Primary RM Office",
+    "smbc_genie.metrics.mv_account_plan_progress.Product Family",
+    "smbc_genie.metrics.mv_account_plan_progress.Plan Status",
+    "smbc_genie.metrics.mv_account_plan_progress.Plan Owner RM",
+    "smbc_genie.metrics.mv_account_plan_progress.Plan Owner RM Office",
+    "smbc_genie.metrics.mv_account_plan_progress.Top Competitor Bank",
+    "smbc_genie.metrics.mv_relationship_footprint.Client Group",
+    "smbc_genie.metrics.mv_relationship_footprint.Segment",
+    "smbc_genie.metrics.mv_relationship_footprint.Relationship Tier",
+    "smbc_genie.metrics.mv_relationship_footprint.Coverage Office",
+    "smbc_genie.metrics.mv_relationship_footprint.Primary RM",
+    "smbc_genie.metrics.mv_relationship_footprint.Product Family",
+    "smbc_genie.metrics.mv_relationship_footprint.Product",
+    "smbc_genie.metrics.mv_relationship_footprint.Business Line",
+    "smbc_genie.metrics.mv_relationship_footprint.Booking Country",
+    "smbc_genie.metrics.mv_global_group_relationship.Client Group",
+    "smbc_genie.metrics.mv_global_group_relationship.Segment",
+    "smbc_genie.metrics.mv_global_group_relationship.Relationship Tier",
+    "smbc_genie.metrics.mv_global_group_relationship.Region",
+    "smbc_genie.metrics.mv_global_group_relationship.Booking Entity",
+    "smbc_genie.metrics.mv_global_group_relationship.Product Family",
+    "smbc_genie.metrics.mv_global_group_relationship.Entity Type",
+    "smbc_genie.metrics.mv_rm_engagement.Client Group",
+    "smbc_genie.metrics.mv_rm_engagement.Segment",
+    "smbc_genie.metrics.mv_rm_engagement.Relationship Tier",
+    "smbc_genie.metrics.mv_rm_engagement.Coverage Office",
+    "smbc_genie.metrics.mv_rm_engagement.Primary RM",
+    "smbc_genie.metrics.mv_rm_engagement.Record Type",
+    "smbc_genie.metrics.mv_rm_engagement.RM",
+    "smbc_genie.metrics.mv_rm_engagement.RM Office",
+    "smbc_genie.metrics.mv_rm_engagement.Activity Type",
+    "smbc_genie.metrics.mv_rm_engagement.Contact Role",
+    "smbc_genie.metrics.mv_rm_engagement.Purpose",
+    "smbc_genie.gold.dim_account_plan_initiative.group_name",
+    "smbc_genie.gold.dim_account_plan_initiative.fiscal_year_label",
+    "smbc_genie.gold.dim_account_plan_initiative.product_family",
+    "smbc_genie.gold.dim_account_plan_initiative.status",
+    "smbc_genie.gold.dim_account_plan_initiative.priority",
+    "smbc_genie.gold.dim_account_plan_initiative.due_fiscal_quarter_label",
+    "smbc_genie.gold.dim_account_plan_initiative.due_fiscal_half_label",
+    "smbc_genie.gold.dim_account_plan_initiative.owner_name",
+    "smbc_genie.gold.dim_account_plan_initiative.owner_rm_name",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_client_group.hq_country",
+    "smbc_genie.gold.dim_client_group.hq_region",
+    "smbc_genie.gold.dim_client_group.group_segment",
+    "smbc_genie.gold.dim_client_group.group_relationship_tier",
+    "smbc_genie.gold.dim_client_group.global_tier",
+    "smbc_genie.gold.dim_client_group.lead_office",
+    "smbc_genie.gold.dim_client_group.lead_rm_name",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.segment",
+    "smbc_genie.gold.vw_client_360.relationship_tier",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.vw_client_360.primary_rm_name"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- Plan targets, attainment, run-rate, revenue YoY, wallet / share of wallet and initiative counts: mv_account_plan_progress (group x fiscal year x product family). Filter ONE `Fiscal Year`; FY2026 actuals are H1 (Apr-Sep 2026), so attainment near 50% is on track and `Attainment %` < 0.40 is behind plan.\n- Products held, deposit-only entities, drawn lending, deposits: mv_relationship_footprint. Exposure, deposits and revenue by region (APAC, JP, EMEA, AMER): mv_global_group_relationship. RM activities and contact gaps: mv_rm_engagement. These are point-in-time: filter `Is Latest Month` for today (Sep-2026).\n- `Client Group` has a value dictionary: filter it with = on the exact group name ('Tanaka Chemical' and 'Tanaka Chemical Group' are different groups). Use LIKE only for entity (`Client`) names.\n- Questions about entities or subsidiaries (which entities hold only deposits, which clients were not contacted) list `Client` (legal entity) with its `Client Group`; a group question lists `Client Group`.\n- RMs: 'by RM' = `Primary RM` (the group lead RM; `Plan Owner RM` in plan lists); 'RMs in Singapore / Hong Kong' = `Primary RM Office` = 'SG' / 'HK' (where the RM sits, not the client's `Coverage Office`).\n- 'No RM contact in 90 days' = `Strategic Clients Not Touched 90D` (Strategic) or `Clients Not Touched 90D` on `Is Latest Month`: CRM-covered clients only; `Strategic Entities Without CRM` counts Strategic-tier entities with no CRM account at all.\n- Initiative detail (name, status, due quarter, owner RM): gold.dim_account_plan_initiative with is_open, is_overdue and due_fiscal_quarter_label (e.g. 'FY2026-Q3'); per-group / per-RM counts: `Initiatives Open`, `Initiatives Overdue`.\n- `Revenue YoY %` is like for like: FY2026 = H1 FY2026 vs H1 FY2025. Share of wallet: `Share of Wallet %` with `Estimated Wallet USD` > 0; 'where is it lowest' = ascending order.\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "Give me the account-plan status for the Kinokawa Precision group: FY2026 target vs H1 actual by product family, and the full-year run-rate.",
+    "Which Strategic-tier groups are below 40% plan attainment at H1, by coverage office and RM?",
+    "Show the global relationship with Hayashi Marine Logistics - exposure, deposits and revenue by region including Japan, EMEA and Americas.",
+    "Which Tanaka Chemical entities hold nothing but deposits with us?",
+    "Where is our share of wallet lowest by segment and product family in FY2025?",
+    "Which Strategic clients have had no RM contact in the last 90 days?",
+    "RM book summary: for each RM in Singapore, number of groups, revenue YTD and attainment.",
+    "List account-plan initiatives still open for Q3 FY2026 by RM."
+  ],
+  "trusted_queries": [
+    {
+      "name": "Global relationship with :client_group by region - entities, committed, drawn, deposits and revenue 12M (including Japan, EMEA and Americas)",
+      "usage_guidance": "Use for \"global relationship / global exposure of <group>\", \"by region including Japan, EMEA and Americas\", \"JP parent exposure\", \"how big is <group> worldwide\".",
+      "parameters": [
+        {
+          "name": "client_group",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Region`,\n       MEASURE(`Entity Count`)           AS entities,\n       MEASURE(`Global Committed USD`)   AS committed_usd,\n       MEASURE(`Global Drawn USD`)       AS drawn_usd,\n       MEASURE(`Global Deposits USD`)    AS deposits_usd,\n       MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd\nFROM smbc_genie.metrics.mv_global_group_relationship\nWHERE `Client Group` = :client_group AND `Is Latest Month`\nGROUP BY ALL\nORDER BY `Region`"
+    },
+    {
+      "name": "Which :relationship_tier tier groups are below 40% plan attainment at H1 of :fiscal_year, by coverage office and RM?",
+      "usage_guidance": "Use for \"groups behind plan\", \"below 40% attainment\", \"laggards vs plan at H1 / half-year\", \"under-achieving Strategic relationships\".",
+      "parameters": [
+        {
+          "name": "relationship_tier",
+          "type": "STRING"
+        },
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Coverage Office`, `Plan Owner RM`, `Client Group`,\n       MEASURE(`Attainment %`)           AS attainment_h1,\n       MEASURE(`Revenue Actual YTD USD`) AS revenue_h1_usd,\n       MEASURE(`Effective Target USD`)   AS target_usd\nFROM smbc_genie.metrics.mv_account_plan_progress\nWHERE `Fiscal Year` = :fiscal_year AND `Relationship Tier` = :relationship_tier\nGROUP BY ALL\nHAVING MEASURE(`Attainment %`) < 0.40\nORDER BY attainment_h1"
+    },
+    {
+      "name": "What products does the :client_group group hold with us across APAC today, by product family and product?",
+      "usage_guidance": "Use for \"what products does <group> hold\", \"product footprint / product mix of <group>\", \"products held across APAC\".",
+      "parameters": [
+        {
+          "name": "client_group",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Product Family`, `Product`,\n       MEASURE(`Product Holdings`)  AS entities_holding,\n       MEASURE(`Deposits USD`)      AS deposits_usd,\n       MEASURE(`Lending Drawn USD`) AS lending_drawn_usd,\n       MEASURE(`TB Volume 12M USD`) AS tb_volume_12m_usd\nFROM smbc_genie.metrics.mv_relationship_footprint\nWHERE `Client Group` = :client_group AND `Is Latest Month` AND `Is Active Product`\nGROUP BY ALL\nORDER BY `Product Family`, `Product`"
+    },
+    {
+      "name": "Which :segment groups grew revenue more than 20% YoY and which fell more than 15% in :fiscal_year? Break down by product family.",
+      "usage_guidance": "Use for \"groups growing > 20% / falling > 15% year on year\", \"revenue movers by product\", \"YoY winners and losers\"; YoY is H1 FY2026 vs H1 FY2025 like for like.",
+      "parameters": [
+        {
+          "name": "segment",
+          "type": "STRING"
+        },
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "WITH g AS (\n  SELECT `Client Group`, MEASURE(`Revenue YoY %`) AS group_yoy\n  FROM smbc_genie.metrics.mv_account_plan_progress\n  WHERE `Fiscal Year` = :fiscal_year AND `Segment` = :segment\n  GROUP BY ALL\n  HAVING MEASURE(`Revenue YoY %`) > 0.20 OR MEASURE(`Revenue YoY %`) < -0.15\n), f AS (\n  SELECT `Client Group`, `Product Family`,\n         MEASURE(`Revenue YTD Comparable USD`) AS revenue_h1_fy2026_usd,\n         MEASURE(`Revenue Prior YTD USD`)      AS revenue_h1_fy2025_usd,\n         MEASURE(`Revenue YoY %`)              AS family_yoy\n  FROM smbc_genie.metrics.mv_account_plan_progress\n  WHERE `Fiscal Year` = :fiscal_year AND `Segment` = :segment\n  GROUP BY ALL\n)\nSELECT CASE WHEN g.group_yoy > 0.20 THEN 'Grew > 20%' ELSE 'Fell > 15%' END AS bucket,\n       g.`Client Group` AS client_group, g.group_yoy, f.`Product Family` AS product_family,\n       f.revenue_h1_fy2026_usd, f.revenue_h1_fy2025_usd, f.family_yoy\nFROM g JOIN f ON f.`Client Group` = g.`Client Group`\nWHERE f.revenue_h1_fy2025_usd IS NOT NULL\nORDER BY bucket, g.group_yoy, product_family"
+    },
+    {
+      "name": "For groups where APAC is less than 20% of global group revenue, what is the APAC product footprint vs the rest of the group as of :month?",
+      "usage_guidance": "Use for \"groups where APAC is a small share of the global relationship\", \"APAC footprint vs rest of group\", \"APAC share of group revenue below 20%\".",
+      "parameters": [
+        {
+          "name": "month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "WITH s AS (\n  SELECT `Client Group`, MEASURE(`APAC Share of Group Revenue %`) AS apac_share\n  FROM smbc_genie.metrics.mv_global_group_relationship\n  WHERE `Month` = :month\n  GROUP BY ALL\n  HAVING MEASURE(`APAC Share of Group Revenue %`) < 0.20\n), f AS (\n  SELECT `Client Group`, `Region`, `Product Family`,\n         MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd,\n         MEASURE(`Global Drawn USD`)       AS drawn_usd,\n         MEASURE(`Global Deposits USD`)    AS deposits_usd\n  FROM smbc_genie.metrics.mv_global_group_relationship\n  WHERE `Month` = :month\n  GROUP BY ALL\n)\nSELECT CASE WHEN f.`Region` = 'APAC' THEN 'APAC' ELSE 'Rest of group' END AS scope,\n       f.`Product Family` AS product_family,\n       count(DISTINCT f.`Client Group`) AS groups, sum(f.revenue_12m_usd) AS revenue_12m_usd,\n       sum(f.drawn_usd) AS drawn_usd, sum(f.deposits_usd) AS deposits_usd\nFROM f JOIN s ON s.`Client Group` = f.`Client Group`\nGROUP BY ALL\nORDER BY scope, revenue_12m_usd DESC"
+    },
+    {
+      "name": "Account-plan initiatives still open and due in :due_quarter by RM, with each RM's open and overdue initiatives for :fiscal_year",
+      "usage_guidance": "Use for \"open initiatives for Q3 FY2026 by RM\", \"account-plan actions due next quarter\", \"initiative backlog per RM\"; joins the initiative detail table with the plan view (CTE per source).",
+      "parameters": [
+        {
+          "name": "due_quarter",
+          "type": "STRING"
+        },
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "WITH d AS (\n  SELECT owner_rm_name, count(*) AS open_initiatives_due_q3, sum(target_revenue_usd) AS target_revenue_usd\n  FROM smbc_genie.gold.dim_account_plan_initiative\n  WHERE is_open AND due_fiscal_quarter_label = :due_quarter\n  GROUP BY 1\n), v AS (\n  SELECT `Plan Owner RM`, MEASURE(`Initiatives Open`) AS open_initiatives_fy2026,\n         MEASURE(`Initiatives Overdue`) AS overdue_initiatives_fy2026\n  FROM smbc_genie.metrics.mv_account_plan_progress\n  WHERE `Fiscal Year` = :fiscal_year\n  GROUP BY ALL\n)\nSELECT d.owner_rm_name AS rm, d.open_initiatives_due_q3, d.target_revenue_usd,\n       v.open_initiatives_fy2026, v.overdue_initiatives_fy2026\nFROM d LEFT JOIN v ON v.`Plan Owner RM` = d.owner_rm_name\nORDER BY d.open_initiatives_due_q3 DESC, rm"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_account_plan_status",
+    "smbc_genie.gold.fn_account_plan_footprint",
+    "smbc_genie.gold.fn_account_plan_rm_book"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 7,
+    "example_sqls": 6,
+    "sql_functions": 3,
+    "text_instructions": 1,
+    "instruction_lines": 20,
+    "instructions_total": 10,
+    "sample_questions": 8,
+    "benchmarks": 18,
+    "entity_matching_columns": 63
+  }
+}

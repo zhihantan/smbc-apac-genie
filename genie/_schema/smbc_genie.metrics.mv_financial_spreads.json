@@ -1,0 +1,265 @@
+{
+ "columns": [
+  {
+   "comment": "Japanese fiscal year as a number (2026 = FY2026 = Apr 2026 - Mar 2027); the order field for prior-year comparisons (offset -1).",
+   "is_measure": false,
+   "name": "Fiscal Year Number",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label of the statement fiscal year, April to March: FY2026 = Apr 2026 - Mar 2027 (in progress, H1 closed 30-Sep-2026), FY2025 = Apr 2025 - Mar 2026 (the latest complete year).",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "True for FY2026, the fiscal year of the as-of date. No statements are spread for FY2026 yet: the latest spread year is FY2025 (years ending Dec-2025 or Mar-2026) - filter Fiscal Year = 'FY2025' for the latest financials.",
+   "is_measure": false,
+   "name": "Is Latest Fiscal Year",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Financial statement: P&L, Balance Sheet or Cash Flow.",
+   "is_measure": false,
+   "name": "Statement Type",
+   "type": "string"
+  },
+  {
+   "comment": "Standard spread line: Revenue, COGS, Gross Profit, Operating Expenses, EBITDA, Depreciation & Amortisation, EBIT, Interest Expense, Pre-Tax Profit, Tax, Net Income, Cash, Receivables, Inventory, Total Current Assets, Fixed Assets, Total Assets, Payables, Short-Term Debt, Long-Term Debt, Total Debt, Net Debt (derived = Total Debt - Cash), Equity, Cash Flow from Operations, Capex, Free Cash Flow, Dividends Paid.",
+   "is_measure": false,
+   "name": "Statement Line",
+   "type": "string"
+  },
+  {
+   "comment": "Display order of the line in a spread (P&L 10-110, Balance Sheet 210-310, Cash Flow 410-440) - ORDER BY it.",
+   "is_measure": false,
+   "name": "Line Order",
+   "type": "int"
+  },
+  {
+   "comment": "True when the statement year is audited (false = management / unaudited accounts).",
+   "is_measure": false,
+   "name": "Is Audited",
+   "type": "boolean"
+  },
+  {
+   "comment": "Basis recorded on the spreading task: Audited or Unaudited / Management.",
+   "is_measure": false,
+   "name": "Statement Basis",
+   "type": "string"
+  },
+  {
+   "comment": "True when the statement year has been spread into the credit system; false = received but not yet spread (FY2025 backlog).",
+   "is_measure": false,
+   "name": "Is Spread",
+   "type": "boolean"
+  },
+  {
+   "comment": "Balance-sheet date of the statements (the client's year-end, 31 Dec or 31 Mar), e.g. 2026-03-31 for a March FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year End",
+   "type": "date"
+  },
+  {
+   "comment": "Local reporting currency of the statements (ISO 4217); all measures are in USD.",
+   "is_measure": false,
+   "name": "Reporting Currency",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group of the client (PG-nnn, one per industry subsector) used for ratio benchmarking; see mv_financial_ratios_vs_peers.",
+   "is_measure": false,
+   "name": "Peer Group",
+   "type": "string"
+  },
+  {
+   "comment": "Statement amount in USD for the selected line(s) and fiscal year: annual flow for P&L / cash-flow lines, year-end balance for balance-sheet lines. Filter one Statement Line. Without a Fiscal Year it returns each client's latest spread year (never a sum of years).",
+   "is_measure": true,
+   "name": "Amount USD",
+   "type": "double"
+  },
+  {
+   "comment": "Same line one fiscal year earlier, USD (null for FY2023, the first spread year).",
+   "is_measure": true,
+   "name": "Amount Prior Year USD",
+   "type": "double"
+  },
+  {
+   "comment": "Year-on-year change of the selected line(s) in USD (fraction, 0.05 = +5%) - e.g. revenue growth when Statement Line = Revenue.",
+   "is_measure": true,
+   "name": "Amount YoY %",
+   "type": "double"
+  },
+  {
+   "comment": "Annual revenue (turnover / sales) in USD for the fiscal year; latest year per client when no year is selected.",
+   "is_measure": true,
+   "name": "Revenue USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue of the previous fiscal year, USD.",
+   "is_measure": true,
+   "name": "Revenue Prior Year USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue growth vs the prior fiscal year (fraction).",
+   "is_measure": true,
+   "name": "Revenue YoY %",
+   "type": "double"
+  },
+  {
+   "comment": "Earnings before interest, tax, depreciation and amortisation for the fiscal year, USD.",
+   "is_measure": true,
+   "name": "EBITDA USD",
+   "type": "double"
+  },
+  {
+   "comment": "EBITDA / revenue for the same fiscal year(s) and clients (fraction) - correct at any grain.",
+   "is_measure": true,
+   "name": "EBITDA Margin %",
+   "type": "double"
+  },
+  {
+   "comment": "Net income (profit after tax) for the fiscal year, USD.",
+   "is_measure": true,
+   "name": "Net Income USD",
+   "type": "double"
+  },
+  {
+   "comment": "Short- plus long-term debt at the fiscal year-end, USD (balance).",
+   "is_measure": true,
+   "name": "Total Debt USD",
+   "type": "double"
+  },
+  {
+   "comment": "Net debt = total debt - cash at the fiscal year-end, USD (derived line; negative = net cash).",
+   "is_measure": true,
+   "name": "Net Debt USD",
+   "type": "double"
+  },
+  {
+   "comment": "Leverage multiple from the spreads = net debt / EBITDA of the same fiscal year(s) (e.g. 4.6 = 4.6x); for several clients it is the aggregate (sum / sum). Client-level ratios vs peers are in mv_financial_ratios_vs_peers.",
+   "is_measure": true,
+   "name": "Net Debt/EBITDA (x)",
+   "type": "double"
+  },
+  {
+   "comment": "Shareholders' equity at the fiscal year-end, USD (balance).",
+   "is_measure": true,
+   "name": "Equity USD",
+   "type": "double"
+  },
+  {
+   "comment": "Free cash flow = cash flow from operations - capex for the fiscal year, USD (can be negative).",
+   "is_measure": true,
+   "name": "Free Cash Flow USD",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities (golden clients) with spread statements for the fiscal year (latest year when none is selected).",
+   "is_measure": true,
+   "name": "Clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Credit obligor records whose statements for the fiscal year are received but not yet spread (FY2025 backlog).",
+   "is_measure": true,
+   "name": "Statement Years Not Spread",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Spread financial statements of SMBC's APAC credit clients, FY2023-FY2025 (USD): P&L, balance-sheet and cash-flow lines per client and fiscal year (each client's own year-end, December or March), with the prior year, YoY growth, headline lines (revenue, EBITDA, net income, total and net debt, equity, free cash flow), EBITDA margin and Net Debt/EBITDA. Amounts are per fiscal year: group or filter by Fiscal Year (latest spread year = FY2025); without a year each client's latest year is used - never add years or different statement lines together. Costs (COGS, opex, interest, tax, capex, dividends) are positive amounts. Grain: one row per credit obligor x fiscal year x statement line (gold.fact_financial_statement_annual).",
+ "identifier": "smbc_genie.metrics.mv_financial_spreads",
+ "type": "METRIC_VIEW"
+}

@@ -1,0 +1,253 @@
+{
+ "columns": [
+  {
+   "comment": "Evaluation date of the signal = month-end of the month it fired (30-Sep-2026 for the current month); signals are monthly, so filter or group by Month / Fiscal Year. Today is 30-Sep-2026 (never CURRENT_DATE).",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the signal evaluation (month-end of the signal month) as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the signal evaluation (month-end of the signal month), April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the signal evaluation (month-end of the signal month)).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Trigger code fired. Aliases: UTIL_HIGH = utilisation >= 90% (UTILISATION_GT_90, \"utilisation spike\"), UTIL_ELEVATED = 80-90%, COV_HEADROOM_LOW = covenant headroom below 10% (COVENANT_HEADROOM_LT_10), COV_BREACH = covenant breach (COVENANT_BREACH), DEPOSIT_OUTFLOW / DEPOSIT_OUTFLOW_SEVERE = deposit outflow >= 10% / >= 25% MoM, NEWS_NEGATIVE = negative news sentiment (NEGATIVE_NEWS_SENTIMENT), WALLET_LEAKAGE, HEALTH_DECLINE, GRADE_DOWNGRADE, DPD_15, DPD_30 (days past due).",
+   "is_measure": false,
+   "name": "Trigger",
+   "type": "string"
+  },
+  {
+   "comment": "Business family: Utilisation (UTIL_HIGH / UTIL_ELEVATED), Covenant (COV_BREACH / COV_HEADROOM_LOW), Deposit Outflow, Wallet Leakage, Credit Health, Internal Rating, Adverse News (NEWS_NEGATIVE) or Payment Arrears (DPD_15 / DPD_30).",
+   "is_measure": false,
+   "name": "Trigger Family",
+   "type": "string"
+  },
+  {
+   "comment": "Severity of the firing: High, Medium or Low.",
+   "is_measure": false,
+   "name": "Severity",
+   "type": "string"
+  },
+  {
+   "comment": "Data quadrant of the trigger: Internal Quantitative (credit, liquidity, behaviour data) or External Qualitative (news).",
+   "is_measure": false,
+   "name": "Source Quadrant",
+   "type": "string"
+  },
+  {
+   "comment": "True for DPD_15, DPD_30 and NEWS_NEGATIVE - reported as signals but not part of the composite score.",
+   "is_measure": false,
+   "name": "Is Informational",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when an internal-rating downgrade of the client followed within 90 days after the signal (signal -> downgrade pair).",
+   "is_measure": false,
+   "name": "Preceded Downgrade 90D",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for signals in the current fiscal year to date (Apr-Sep 2026) - \"this fiscal year\" / \"this year\".",
+   "is_measure": false,
+   "name": "Is Current FYTD",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client had a deposit-outflow trigger and a utilisation trigger (UTIL_HIGH or UTIL_ELEVATED) in the same month.",
+   "is_measure": false,
+   "name": "Outflow and Utilisation Same Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Trigger firings in the selection (client x month x trigger) - a flow, adds up over months.",
+   "is_measure": true,
+   "name": "Signals Fired",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients with at least one signal in the selection.",
+   "is_measure": true,
+   "name": "Distinct Clients",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average signals fired per affected client in the selection.",
+   "is_measure": true,
+   "name": "Signals per Client",
+   "type": "double"
+  },
+  {
+   "comment": "Composite-score points contributed by the signals (0 for informational triggers).",
+   "is_measure": true,
+   "name": "Score Points Total",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn exposure of the affected clients at the signal month-end, USD. Exact per trigger and month; across several triggers or months a client counts once per trigger-month - filter one Trigger and one Month.",
+   "is_measure": true,
+   "name": "Exposure Affected USD",
+   "type": "double"
+  },
+  {
+   "comment": "Signals followed by an internal-rating downgrade of the client within 90 days (signal -> downgrade pairs).",
+   "is_measure": true,
+   "name": "Signals Preceding Downgrade",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of the signals followed by a downgrade within 90 days (fraction) - rank triggers by this, not by the raw pair count (GRADE_DOWNGRADE tops raw counts through repeat downgrades; DPD_30 has the best hit rate).",
+   "is_measure": true,
+   "name": "Downgrade Hit Rate %",
+   "type": "double"
+  },
+  {
+   "comment": "Clients with a signal in the selection that was followed by a downgrade within 90 days.",
+   "is_measure": true,
+   "name": "Clients Downgraded Within 90D",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average lead time in days from signal to downgrade, over signals that preceded a downgrade within 90 days.",
+   "is_measure": true,
+   "name": "Average Days to Downgrade",
+   "type": "double"
+  },
+  {
+   "comment": "Clients with a deposit-outflow trigger and a utilisation trigger in the same month (this fiscal year = Is Current FYTD).",
+   "is_measure": true,
+   "name": "Clients with Outflow and Utilisation",
+   "type": "bigint"
+  },
+  {
+   "comment": "Signals with severity High.",
+   "is_measure": true,
+   "name": "High Severity Signals",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Early-warning signals (EWS triggers) fired per client and month-end evaluation, Apr-2024 to Sep-2026: signals fired, distinct clients, score points, exposure of the affected clients, triggers that preceded an internal rating downgrade within 90 days and their hit rate, and clients with a deposit outflow and a utilisation trigger in the same month. Trigger codes: UTIL_HIGH (utilisation >= 90%), UTIL_ELEVATED (80-90%), COV_HEADROOM_LOW (covenant headroom < 10%), COV_BREACH, DEPOSIT_OUTFLOW (>= 10% MoM), DEPOSIT_OUTFLOW_SEVERE (>= 25%), WALLET_LEAKAGE, HEALTH_DECLINE, GRADE_DOWNGRADE, NEWS_NEGATIVE, DPD_15, DPD_30. Signals are flows (they add up over months); Date is the month-end of the evaluation. Grain: one row per client x evaluation month-end x trigger fired (gold.fact_ews_signal_daily).",
+ "identifier": "smbc_genie.metrics.mv_ews_signals",
+ "type": "METRIC_VIEW"
+}

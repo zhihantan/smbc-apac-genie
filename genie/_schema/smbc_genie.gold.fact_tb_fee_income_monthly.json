@@ -1,0 +1,109 @@
+{
+ "columns": [
+  {
+   "comment": "Fee line key = golden client | yyyy-MM | fee type | product | booking country | currency.",
+   "is_measure": false,
+   "name": "fee_line_id",
+   "type": "string"
+  },
+  {
+   "comment": "First day of the month the fee was earned.",
+   "is_measure": false,
+   "name": "fee_month",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Booking location of the fee (ISO-2): the account's / instrument's / deal's booking country; the client's coverage office for account-level fees.",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Account Maintenance, Channel - Portal, Channel - Host-to-Host, Channel - API, Liquidity Structure, Payment Processing, Cross-Border Payment Commission, Trade Commission or FX Margin.",
+   "is_measure": false,
+   "name": "fee_type",
+   "type": "string"
+  },
+  {
+   "comment": "Where the line comes from: finance engine fee ledger (silver.fin_tb_fee) or derived from payments / trade instruments / FX deals with the bank tariff.",
+   "is_measure": false,
+   "name": "fee_source",
+   "type": "string"
+  },
+  {
+   "comment": "Product earning the fee where identifiable (e.g. PRD-IMPORT-LC, PRD-CROSS-BORDER-PAYMENTS, PRD-FX-SPOT); null for account-level fees (maintenance, portal, liquidity structure).",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Cash, Payments, Liquidity, Trade Finance or FX.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Transaction Banking (all fee types except FX Margin) or Markets (FX Margin).",
+   "is_measure": false,
+   "name": "business_line",
+   "type": "string"
+  },
+  {
+   "comment": "True for transaction-banking fees (business line Transaction Banking); false for FX margin (Markets). TB fee income = SUM(fee_usd) WHERE is_tb_fee.",
+   "is_measure": false,
+   "name": "is_tb_fee",
+   "type": "boolean"
+  },
+  {
+   "comment": "Currency of fee_lcy: the client's billing currency for ledger fees, USD for derived fees.",
+   "is_measure": false,
+   "name": "fee_currency",
+   "type": "string"
+  },
+  {
+   "comment": "Fee amount in fee_currency (flow).",
+   "is_measure": false,
+   "name": "fee_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Fee income in USD (flow, additive across months and clients).",
+   "is_measure": false,
+   "name": "fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Transactions behind derived fees (payments, instruments issued, FX deals); null for ledger fees.",
+   "is_measure": false,
+   "name": "activity_count",
+   "type": "bigint"
+  },
+  {
+   "comment": "USD volume behind derived fees (payment value, instrument amount, FX notional; cross-border value for the commission); null for ledger fees. Fee yield bps = 10000 x SUM(fee_usd) / SUM(activity_volume_usd).",
+   "is_measure": false,
+   "name": "activity_volume_usd",
+   "type": "double"
+  }
+ ],
+ "comment": "Monthly transaction-banking fee income per client from Apr-2024 to Sep-2026, by fee type, product and booking country (shared by the Cash & Payments and the Trade & SCF spaces). Fee lines booked by the finance engine (account maintenance, portal / host-to-host / API channel fees, liquidity-structure fees; local billing currency) plus the fees derived in gold from the transactions with the bank's tariff - payment processing (USD 3 per payment message), cross-border payment commission (10 bps of cross-border value), trade-finance commissions per instrument, and FX margin income (Markets, flagged is_tb_fee = false). Derived lines reconcile with the finance engine's client revenue. SCF discount income is not a fee (see fact_scf_programme_drawdown). All amounts are monthly flows (additive). Grain: one row per golden client per month per fee type per product per booking country per fee currency.",
+ "identifier": "smbc_genie.gold.fact_tb_fee_income_monthly",
+ "type": "MANAGED"
+}

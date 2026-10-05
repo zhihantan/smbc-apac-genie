@@ -1,0 +1,63 @@
+table: fact_ews_signal_daily
+domain: ews
+comment: >-
+  Early-warning signals (brief 5.4): one row per golden client x evaluation date x EWS trigger fired, Apr-2024
+  to Sep-2026. The EWS engine evaluates every credit obligor monthly on month-end data, so signal_date is the
+  month-end of the signal month (30-Sep-2026 for the current month). Carries the trigger's family, severity,
+  source quadrant, observed value, composite-score points (0 for the informational DPD and news triggers,
+  which do not move the score), evidence text, the client's drawn exposure at that month-end and the
+  precomputed preceded_downgrade_90d flag (an internal-rating downgrade followed within 90 days). Trigger
+  codes: UTIL_HIGH (utilisation >= 90%), UTIL_ELEVATED (80-90%), COV_HEADROOM_LOW (covenant headroom < 10%),
+  COV_BREACH, DEPOSIT_OUTFLOW (>= 10% MoM), DEPOSIT_OUTFLOW_SEVERE (>= 25% MoM), WALLET_LEAKAGE,
+  HEALTH_DECLINE, GRADE_DOWNGRADE, NEWS_NEGATIVE, DPD_15, DPD_30. Signals Fired = COUNT(*); count clients with
+  COUNT(DISTINCT golden_client_id).
+grain: one row per golden client x signal (evaluation) date x trigger code
+primary_key: [golden_client_id, signal_date, trigger_code]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [signal_date], references: dim_date}
+  - {columns: [trigger_code], references: dim_ews_trigger}
+cluster_by: [signal_date, golden_client_sk]
+min_rows: 10000
+columns:
+  golden_client_id: {type: STRING, not_null: true}
+  signal_date: {type: DATE, comment: "Evaluation date of the signal: month-end of the month it fired (30-Sep-2026 for the current month)."}
+  trigger_code: {type: STRING, comment: "EWS trigger fired (join to gold.dim_ews_trigger): UTIL_HIGH (utilisation >= 90%, a.k.a. UTILISATION_GT_90), UTIL_ELEVATED, COV_HEADROOM_LOW (covenant headroom < 10%, a.k.a. COVENANT_HEADROOM_LT_10), COV_BREACH (covenant breach), DEPOSIT_OUTFLOW, DEPOSIT_OUTFLOW_SEVERE (deposit outflow >= 25% MoM), WALLET_LEAKAGE, HEALTH_DECLINE, GRADE_DOWNGRADE, NEWS_NEGATIVE (negative news sentiment), DPD_15, DPD_30."}
+  golden_client_sk: {type: BIGINT}
+  client_group_id: {type: STRING}
+  obligor_id: {type: STRING, comment: "Credit obligor record whose evaluation fired the trigger (the strongest one when the client has duplicate credit records)."}
+  n_obligors_fired: {type: INT, comment: "Credit obligor records of the client for which the trigger fired that month (normally 1)."}
+  signal_month: {type: DATE, comment: "First day of the month the trigger fired."}
+  trigger_name: {type: STRING, comment: "Trigger name, e.g. Facility utilisation >= 90%."}
+  trigger_category: {type: STRING, comment: "Trigger category: Credit, Liquidity, Behavioural or External."}
+  trigger_family: {type: STRING, comment: "Business family of the trigger: Utilisation, Covenant, Deposit Outflow, Wallet Leakage, Credit Health, Internal Rating, Adverse News or Payment Arrears."}
+  severity: {type: STRING, comment: "Severity of the firing: High, Medium or Low."}
+  source_quadrant: {type: STRING, comment: "Data quadrant: Internal Quantitative (credit, liquidity, behaviour data) or External Qualitative (news)."}
+  signal_value: {type: DOUBLE, comment: "Observed value that fired the trigger: utilisation fraction, covenant headroom fraction, MoM deposit change (negative), leakage share, health drop, notches, days past due or average news sentiment."}
+  score_points: {type: DOUBLE, comment: "Points the trigger contributed to the 0-100 composite EWS score (0 for informational triggers)."}
+  is_informational: {type: BOOLEAN, comment: "True for DPD_15, DPD_30 and NEWS_NEGATIVE: reported as signals but not part of the composite score."}
+  evidence_text: {type: STRING, comment: "Engine explanation of the firing, e.g. Utilisation 97% of committed limit."}
+  exposure_drawn_usd: {type: DOUBLE, comment: "Client's drawn lending exposure at the signal month-end, USD (repeats on each trigger row of the client-month: do not sum across triggers)."}
+  exposure_limit_usd: {type: DOUBLE, comment: "Client's committed facility limits at the signal month-end, USD (repeats per trigger row)."}
+  n_triggers_client_month: {type: INT, comment: "Distinct triggers that fired for the client in the same month."}
+  outflow_and_util_same_month: {type: BOOLEAN, comment: "True when the client had both a deposit-outflow trigger (DEPOSIT_OUTFLOW / _SEVERE) and a utilisation trigger (UTIL_HIGH / UTIL_ELEVATED) in the same month."}
+  preceded_downgrade_90d: {type: BOOLEAN, comment: "True when an internal-rating downgrade of the client followed within 90 days after the signal date (signal -> downgrade pair); use to rank which signals precede downgrades."}
+  next_downgrade_date: {type: DATE, comment: "Date of the client's next internal-rating downgrade after the signal (any horizon); null if none to the as-of date."}
+  days_to_next_downgrade: {type: INT, comment: "Days from the signal date to that next downgrade."}
+  next_downgrade_notches: {type: INT, comment: "Notches of that next downgrade (positive = worse grade)."}
+  signal_fiscal_year: {type: INT, comment: "Japanese fiscal year of the signal date (FY2026 = Apr 2026 - Mar 2027)."}
+  is_current_fytd: {type: BOOLEAN, comment: "True for signals in the current fiscal year to date (Apr-Sep 2026) - 'this fiscal year'."}
+checks:
+  - name: preceded_flag_consistent
+    sql: SELECT count_if(preceded_downgrade_90d <> coalesce(days_to_next_downgrade <= 90, false)) FROM ${table}
+  - name: storyline1_sunda_pre_downgrade_signals_flagged   # Sunda's Mar-May 2026 signals precede the 12-Jun downgrade
+    sql: >-
+      SELECT count_if(NOT s.preceded_downgrade_90d) + (CASE WHEN count(*) = 0 THEN 1 ELSE 0 END) FROM ${table} s
+      JOIN ${catalog}.gold.dim_client d ON d.golden_client_sk = s.golden_client_sk
+      WHERE d.display_name LIKE 'Sunda Energi Nusantara (Jakarta)%' AND s.signal_date BETWEEN DATE'2026-03-31' AND DATE'2026-05-31'
+reconcile:
+  - name: rows_vs_silver_client_months
+    silver: >-
+      SELECT count(*) FROM (SELECT DISTINCT golden_client_id, signal_month, trigger_code FROM ${catalog}.silver.ews_signal
+      WHERE golden_client_id IS NOT NULL AND signal_month <= DATE'${as_of_date}')

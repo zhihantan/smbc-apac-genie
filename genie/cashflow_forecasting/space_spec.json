@@ -1,0 +1,183 @@
+{
+  "slug": "cashflow_forecasting",
+  "title": "APAC Genie - Cashflow Forecasting",
+  "description": "Ask about client cash flows derived from payments, 7 / 30 / 90-day cash-flow forecasts with P10 / P90 ranges, forecast accuracy, and predicted shortfalls and surpluses that create RCF and deposit opportunities for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_cashflow_forecast",
+    "smbc_genie.metrics.mv_forecast_accuracy",
+    "smbc_genie.metrics.mv_liquidity_events",
+    "smbc_genie.metrics.mv_client_cashflow",
+    "smbc_genie.gold.vw_client_360",
+    "smbc_genie.gold.dim_client_group"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_cashflow_forecast.Client Group",
+    "smbc_genie.metrics.mv_cashflow_forecast.Segment",
+    "smbc_genie.metrics.mv_cashflow_forecast.Relationship Tier",
+    "smbc_genie.metrics.mv_cashflow_forecast.Industry",
+    "smbc_genie.metrics.mv_cashflow_forecast.Coverage Office",
+    "smbc_genie.metrics.mv_cashflow_forecast.Primary RM",
+    "smbc_genie.metrics.mv_cashflow_forecast.Horizon",
+    "smbc_genie.metrics.mv_cashflow_forecast.Model Version",
+    "smbc_genie.metrics.mv_cashflow_forecast.Forecast Type",
+    "smbc_genie.metrics.mv_cashflow_forecast.Booking Country",
+    "smbc_genie.metrics.mv_forecast_accuracy.Fiscal Year",
+    "smbc_genie.metrics.mv_forecast_accuracy.Client Group",
+    "smbc_genie.metrics.mv_forecast_accuracy.Segment",
+    "smbc_genie.metrics.mv_forecast_accuracy.Industry",
+    "smbc_genie.metrics.mv_forecast_accuracy.Coverage Office",
+    "smbc_genie.metrics.mv_forecast_accuracy.Horizon",
+    "smbc_genie.metrics.mv_forecast_accuracy.Model Version",
+    "smbc_genie.metrics.mv_forecast_accuracy.Booking Country",
+    "smbc_genie.metrics.mv_liquidity_events.Client Group",
+    "smbc_genie.metrics.mv_liquidity_events.Segment",
+    "smbc_genie.metrics.mv_liquidity_events.Industry",
+    "smbc_genie.metrics.mv_liquidity_events.Coverage Office",
+    "smbc_genie.metrics.mv_liquidity_events.Primary RM",
+    "smbc_genie.metrics.mv_liquidity_events.Event Type",
+    "smbc_genie.metrics.mv_liquidity_events.Horizon",
+    "smbc_genie.metrics.mv_liquidity_events.Action Taken",
+    "smbc_genie.metrics.mv_liquidity_events.Event Status",
+    "smbc_genie.metrics.mv_liquidity_events.Model Version",
+    "smbc_genie.metrics.mv_client_cashflow.Fiscal Year",
+    "smbc_genie.metrics.mv_client_cashflow.Fiscal Quarter",
+    "smbc_genie.metrics.mv_client_cashflow.Client Group",
+    "smbc_genie.metrics.mv_client_cashflow.Segment",
+    "smbc_genie.metrics.mv_client_cashflow.Relationship Tier",
+    "smbc_genie.metrics.mv_client_cashflow.Industry",
+    "smbc_genie.metrics.mv_client_cashflow.Subsector",
+    "smbc_genie.metrics.mv_client_cashflow.Coverage Office",
+    "smbc_genie.metrics.mv_client_cashflow.Primary RM",
+    "smbc_genie.metrics.mv_client_cashflow.EWS Band",
+    "smbc_genie.metrics.mv_client_cashflow.Cashflow Category",
+    "smbc_genie.metrics.mv_client_cashflow.Cashflow Category Group",
+    "smbc_genie.metrics.mv_client_cashflow.Booking Country",
+    "smbc_genie.metrics.mv_client_cashflow.Current EWS Band",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.segment",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.vw_client_360.primary_rm_name",
+    "smbc_genie.gold.vw_client_360.ews_band",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_client_group.group_segment",
+    "smbc_genie.gold.dim_client_group.lead_office",
+    "smbc_genie.gold.dim_client_group.lead_rm_name"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- Views: mv_cashflow_forecast = forward forecasts run on 30-Sep-2026 (7D, 30D, 90D) and monthly backtests; mv_forecast_accuracy = MAPE, bias and P10-P90 coverage by model version; mv_liquidity_events = predicted shortfalls / surpluses and the action that followed (RCF drawdown, TD placed); mv_client_cashflow = actual daily inflows / outflows, closing balance, volatility and seasonality.\n- Forecast measures return the latest run of the selection: always pick ONE `Horizon` ('7D', '30D' or '90D') and never add runs or horizons; 'next 30 days' = `Is Latest Forecast` AND `Horizon` = '30D'. Fiscal periods use the `Fiscal Year` / `Fiscal Half` labels ('FY2024' = Apr 2024-Mar 2025, 'FY2025' = Apr 2025-Mar 2026), never rebuilt from `Month`.\n- 'Forecast to go negative' = `Is Material Shortfall` (forecast net outflow >= 50% of the client's typical monthly gross flow; no client's deposits actually turn negative). `Clients Forecast Negative` counts any net outflow. RCF cover = `Has RCF` with `Undrawn RCF USD`.\n- Accuracy is backtested for the 30D horizon only; before vs after the model upgrade = `Model Version` 'v1' vs 'v2' (v2 from the June-2026 targets). Return MAPE %, Bias %, Interval Coverage % and CV exactly as the measures give them - fractions (0.11 = 11%), never multiplied by 100.\n- Liquidity events: `Event Type` = 'Predicted Shortfall' or 'Predicted Surplus'; `Month` is the event month (June-September 2026 = `Month` BETWEEN DATE'2026-06-01' AND DATE'2026-09-01'). Unplaced large surpluses = `Is Large Surplus` AND `Is Surplus Not Placed`; RCF follow-up = `Is RCF Drawdown Within 10D`.\n- mv_client_cashflow: `Closing Balance USD` is point-in-time on `Date` (the last date of the selection); seasonality = `Seasonality Index` by `Industry` and `Calendar Month` (3 = March, 9 = September); inflow volatility = `Inflow Volatility USD` and `Inflow Volatility CV %` by `Client` over 12 months (`Month` >= DATE'2025-10-01').\n- Red / Amber clients today = `Current EWS Band` IN ('Red', 'Amber') in mv_client_cashflow (`EWS Band` is the band at each row's month-end). `Client Group` has a value dictionary: filter it with = on the exact group name; entity questions list `Client`; add no `IS NOT NULL` filters unless asked and LIMIT only for a top N.\n- Functions (STRING arguments): one group's forecast by entity and horizon = smbc_genie.gold.fn_cashflow_forecast_by_entity('<exact group name>'); material shortfalls of clients with an RCF = fn_cashflow_shortfalls_with_rcf('30D'); one group's liquidity snapshot by entity = fn_cashflow_group_liquidity('<exact group name>').\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "What is the 30-day net cash-flow forecast for Kinokawa Precision, with P10 and P90?",
+    "Which clients are forecast to go negative in the next 30 days, and how much undrawn RCF do they have?",
+    "How did forecast accuracy change by horizon and segment after model v2?",
+    "Which predicted surpluses above USD 20m have not been placed?",
+    "Which industries have March and September inflow peaks?",
+    "How many predicted shortfalls were followed by an RCF drawdown within 10 days?",
+    "Rank the Red and Amber EWS clients by inflow volatility.",
+    "What is the forecast bias by booking country?"
+  ],
+  "trusted_queries": [
+    {
+      "name": "Next :horizon net cash-flow forecast for :client_group with P10 / P90",
+      "usage_guidance": "Use for \"30-day cash forecast for <group>\", \"forecast inflows, outflows and net with the P10 / P90 range\", \"what does <group>'s cash look like next month / week / quarter\".",
+      "parameters": [
+        {
+          "name": "client_group",
+          "type": "STRING"
+        },
+        {
+          "name": "horizon",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Client Group`,\n       MEASURE(`Forecast Inflow USD`)  AS forecast_inflows_usd,\n       MEASURE(`Forecast Outflow USD`) AS expected_outflows_usd,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Forecast Net P90 USD`) AS forecast_net_p90_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = :horizon AND `Client Group` = :client_group\nGROUP BY ALL"
+    },
+    {
+      "name": "Forecast accuracy by horizon, segment and model version for target months since :from_month",
+      "usage_guidance": "Use for \"forecast accuracy before vs after model v2\", \"MAPE / bias / interval coverage by segment\", \"did the model upgrade improve accuracy\".",
+      "parameters": [
+        {
+          "name": "from_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Horizon`, `Segment`, `Model Version`,\n       MEASURE(`MAPE %`)              AS mape,\n       MEASURE(`Bias %`)              AS bias,\n       MEASURE(`Interval Coverage %`) AS p10_p90_coverage,\n       MEASURE(`Scored Forecasts`)    AS scored_forecasts\nFROM smbc_genie.metrics.mv_forecast_accuracy\nWHERE `Month` >= :from_month\nGROUP BY ALL\nORDER BY `Horizon`, `Segment`, `Model Version`"
+    },
+    {
+      "name": "Which industries have March and September inflow peaks - seasonality index by industry for March, September and the highest other month, :from_month to :to_month",
+      "usage_guidance": "Use for \"seasonality\", \"fiscal year-end / half-year inflow peaks\", \"which sectors peak in March or September\", \"seasonal cash-flow patterns by industry\".",
+      "parameters": [
+        {
+          "name": "from_month",
+          "type": "DATE"
+        },
+        {
+          "name": "to_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "WITH s AS (\n  SELECT `Industry`, `Calendar Month`, MEASURE(`Seasonality Index`) AS seasonality_index\n  FROM smbc_genie.metrics.mv_client_cashflow\n  WHERE `Month` BETWEEN :from_month AND :to_month\n  GROUP BY ALL\n)\nSELECT `Industry`,\n       max(CASE WHEN `Calendar Month` = 3 THEN seasonality_index END) AS march_index,\n       max(CASE WHEN `Calendar Month` = 9 THEN seasonality_index END) AS september_index,\n       max(CASE WHEN `Calendar Month` NOT IN (3, 9) THEN seasonality_index END) AS highest_other_month_index\nFROM s WHERE `Industry` IS NOT NULL\nGROUP BY `Industry`\nORDER BY march_index + september_index DESC"
+    },
+    {
+      "name": "Predicted shortfalls from :from_month to :to_month and how many were followed by an RCF drawdown within 10 days",
+      "usage_guidance": "Use for \"shortfalls followed by an RCF drawdown\", \"did predicted shortfalls convert into RCF usage\", \"RCF follow-up within 10 days\", \"revenue from liquidity actions\".",
+      "parameters": [
+        {
+          "name": "from_month",
+          "type": "DATE"
+        },
+        {
+          "name": "to_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT MEASURE(`Shortfall Events`)                     AS predicted_shortfalls,\n       MEASURE(`Shortfalls Covered by RCF Within 10D`) AS followed_by_rcf_drawdown_within_10d,\n       MEASURE(`Action Amount USD`)                    AS amount_drawn_usd,\n       MEASURE(`Revenue from Actions USD`)             AS annual_revenue_from_actions_usd\nFROM smbc_genie.metrics.mv_liquidity_events\nWHERE `Month` BETWEEN :from_month AND :to_month AND `Event Type` = 'Predicted Shortfall'"
+    },
+    {
+      "name": "Inflow volatility ranking of clients in the :band_1 or :band_2 EWS band today over the 12 months from :from_month",
+      "usage_guidance": "Use for \"inflow volatility of Red / Amber clients\", \"most volatile receipts among watch names\", \"cash-flow volatility ranking\"; uses today's band (Current EWS Band).",
+      "parameters": [
+        {
+          "name": "band_1",
+          "type": "STRING"
+        },
+        {
+          "name": "band_2",
+          "type": "STRING"
+        },
+        {
+          "name": "from_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Client`, `Current EWS Band`,\n       MEASURE(`Average Monthly Inflow USD`) AS average_monthly_inflow_usd,\n       MEASURE(`Inflow Volatility USD`)      AS inflow_stddev_usd,\n       MEASURE(`Inflow Volatility CV %`)     AS inflow_coefficient_of_variation\nFROM smbc_genie.metrics.mv_client_cashflow\nWHERE `Month` >= :from_month AND `Current EWS Band` IN (:band_1, :band_2)\nGROUP BY ALL\nHAVING MEASURE(`Average Monthly Inflow USD`) >= 500000\nORDER BY inflow_coefficient_of_variation DESC"
+    },
+    {
+      "name": "Predicted surpluses above USD 20m not placed since :from_month, with each client's closing balance today and its next-30-day forecast",
+      "usage_guidance": "Use for \"idle cash / deposit opportunities with today's balance and forecast\", \"unplaced surpluses vs current liquidity\"; joins a liquidity-events CTE, a cash-flow CTE and a forecast CTE (metric views cannot be joined directly).",
+      "parameters": [
+        {
+          "name": "from_month",
+          "type": "DATE"
+        }
+      ],
+      "sql": "WITH ev AS (\n  SELECT `Client`, MEASURE(`Large Surpluses Not Placed`) AS unplaced_large_surpluses,\n         MEASURE(`Predicted Amount USD`) AS unplaced_surplus_usd\n  FROM smbc_genie.metrics.mv_liquidity_events\n  WHERE `Is Large Surplus` AND `Is Surplus Not Placed` AND `Month` >= :from_month\n  GROUP BY ALL\n), bal AS (\n  SELECT `Client`, MEASURE(`Closing Balance USD`) AS closing_balance_usd\n  FROM smbc_genie.metrics.mv_client_cashflow\n  WHERE `Date` = DATE'2026-09-30'\n  GROUP BY ALL\n), fc AS (\n  SELECT `Client`, MEASURE(`Forecast Net USD`) AS forecast_net_30d_usd\n  FROM smbc_genie.metrics.mv_cashflow_forecast\n  WHERE `Is Latest Forecast` AND `Horizon` = '30D'\n  GROUP BY ALL\n)\nSELECT ev.`Client`, ev.unplaced_large_surpluses, ev.unplaced_surplus_usd,\n       bal.closing_balance_usd, fc.forecast_net_30d_usd\nFROM ev\nLEFT JOIN bal ON bal.`Client` = ev.`Client`\nLEFT JOIN fc ON fc.`Client` = ev.`Client`\nORDER BY ev.unplaced_surplus_usd DESC"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_cashflow_forecast_by_entity",
+    "smbc_genie.gold.fn_cashflow_shortfalls_with_rcf",
+    "smbc_genie.gold.fn_cashflow_group_liquidity"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 6,
+    "example_sqls": 6,
+    "sql_functions": 3,
+    "text_instructions": 1,
+    "instruction_lines": 20,
+    "instructions_total": 10,
+    "sample_questions": 8,
+    "benchmarks": 20,
+    "entity_matching_columns": 51
+  }
+}

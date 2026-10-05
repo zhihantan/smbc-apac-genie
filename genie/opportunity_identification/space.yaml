@@ -1,0 +1,282 @@
+# APAC Genie - Opportunity Identification (brief §5.2, PLAN §8 / §9 / §10). Authored by G1 (p07g1).
+# Must-answer queries: metrics/_answers/opportunity_identification.sql. Caveats: scratch/genie_caveats.md §2.
+slug: opportunity_identification
+title: APAC Genie - Opportunity Identification
+description: >-
+  Ask about opportunity signals, next-best-product recommendations, the sales pipeline and product penetration vs
+  peers for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese
+  fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_opportunity_signals
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true, description: "APAC booking country as an ISO-2 code - filter with the code: AU Australia, SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. 'Signals in Australia' = `Coverage Office` = 'AU'."}
+      Primary RM: {entity_matching: true}
+      Signal Type: {entity_matching: true}
+      Signal Category: {entity_matching: true}
+      Status: {entity_matching: true}
+      Currency Pair: {entity_matching: true}
+      Corridor Destination: {entity_matching: true}
+      Recommended Product: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_next_best_product
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Product Family: {entity_matching: true}
+      Product: {entity_matching: true}
+      Propensity Band: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_pipeline
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Coverage Office: {entity_matching: true, description: "APAC booking country as an ISO-2 code - filter with the code: AU Australia, SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. 'Signals in Australia' = `Coverage Office` = 'AU'."}
+      Primary RM: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+      Stage: {entity_matching: true}
+      Product: {entity_matching: true}
+      Product Family: {entity_matching: true}
+      Expected Close Quarter: {entity_matching: true}
+      Expected Close Half: {entity_matching: true}
+      Source Type: {entity_matching: true}
+      Source Signal Type: {entity_matching: true}
+      Corridor Destination: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_product_penetration
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Peer Group: {entity_matching: true}
+      Product Family: {entity_matching: true}
+      Product: {entity_matching: true}
+      Business Line: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_signal_type
+    include_columns: [signal_code, signal_name, signal_category, polarity, source_quadrant, source_system, consumed_by,
+                      description]
+    columns:
+      signal_code: {entity_matching: true}
+      signal_name: {entity_matching: true}
+      signal_category: {entity_matching: true}
+      polarity: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, is_japanese_group, group_segment,
+                      group_relationship_tier, is_strategic_group, group_industry_sector, group_industry_subsector,
+                      lead_client_name, lead_office, lead_rm_name, n_entities_apac, apac_countries_text]
+    columns:
+      group_name: {entity_matching: true}
+      group_segment: {entity_matching: true}
+      lead_office: {entity_matching: true}
+      lead_rm_name: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    include_columns: [golden_client_id, display_name, short_name, aliases_text, group_name, segment,
+                      is_japanese_corporate, relationship_tier, industry_sector, industry_subsector, coverage_office,
+                      primary_rm_name, primary_rm_office, products_held_count, product_families_held_count,
+                      is_deposit_only, is_single_product_lending, open_opportunities, open_pipeline_usd,
+                      weighted_pipeline_usd, won_fytd_usd, next_best_product, next_best_product_propensity,
+                      opportunity_signals_last_90d, deposits_usd, time_deposits_usd, payments_other_bank_share_90d,
+                      trade_outstanding_usd]
+    columns:
+      group_name: {entity_matching: true}
+      segment: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+      primary_rm_name: {entity_matching: true}
+      next_best_product: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- 'Open opportunities' = open SIGNALS in mv_opportunity_signals (`Status` = 'Open'; `Open Signals`, `Open Estimated Revenue USD`) unless the user says pipeline, deals or CRM opportunities (mv_pipeline)."
+    - "- Signals are entity-level events dated by detection (`Date`); 'last 60 days' = `Date` BETWEEN DATE'2026-08-02' AND DATE'2026-09-30'. `Signal Type` codes: FX_FLOW_VIA_OTHER_BANK, DEPOSIT_SURPLUS, FACILITY_MATURING_12M, TRADE_CORRIDOR_GROWTH, CAPEX_NEWS (capex / expansion news), MA_NEWS, SLL_ELIGIBLE, SCF_ANCHOR_CANDIDATE, LOAN_SERVICE_TO_OTHER_BANK, PRODUCT_GAP_VS_PEERS."
+    - "- FX flow via other banks = `Latest Observed Amount USD` (the current 12-month flow; never sum `Observed Amount USD` for it). 'Not actioned by an RM' = NOT `Is Actioned`; 'no time-deposit or investment product' = NOT `Holds TD or Investment`; 'no refinancing in the pipeline' = NOT `Has Open Lending Opportunity` on `Status` = 'Open' signals."
+    - "- mv_pipeline calendar fields (`Fiscal Year`, `Month`, `Date`) are the CREATION date ('created this fiscal year' = `Fiscal Year` = 'FY2026'); forecasts use `Expected Close Quarter` / `Expected Close Half` (e.g. 'FY2026-H2') with `Is Open`. `Win Rate %` = won / (won + lost)."
+    - "- Next-best-product scores are monthly snapshots: filter `Is Latest Month`; 'top N clients for product X' = filter `Product Family` (e.g. 'Supply Chain Finance') and order by `Max Propensity`, showing `Propensity Rank` and `Top Drivers`."
+    - "- Penetration is per `Fiscal Year` (FY2026 to date); 'automotive parts' = `Subsector` 'Auto Parts' (all Japanese Corporate, so the peer gap nets to 0). 'Under-penetrated products' = HAVING MEASURE(`Clients With Gap`) > 0 OR MEASURE(`Gap vs All Clients pts`) > 0.05."
+    - "- Countries are ISO-2 codes in `Coverage Office` ('in Australia' = 'AU', Vietnam = 'VN', India = 'IN'); never search `Client` names for a country. `Client Group` has a value dictionary (= on the exact name); match entity names (`Client`) with LIKE. Questions about clients list `Client` (legal entity) rows unless the user asks for groups."
+    - "- Keep NULL groups: a blank `Source Signal Type` (RM-originated, referral or client-request deals) is a real row, so never add IS NOT NULL filters the user did not ask for; 'win rate by source' groups by `Source Type` and `Source Signal Type`."
+
+example_sqls:
+  - question: Which groups have open :signal_type signals with no refinancing (lending) opportunity in the pipeline?
+    usage_guidance: Use for "facilities maturing in the next 12 months with no refinancing opportunity", "refi gap", "maturities not covered by the pipeline".
+    parameters:
+      - {name: signal_type, type: STRING, description: "Signal code, e.g. FACILITY_MATURING_12M", default: FACILITY_MATURING_12M}
+    sql: |
+      SELECT `Client Group`,
+             MEASURE(`Open Signals`)        AS maturing_facility_signals,
+             MEASURE(`Observed Amount USD`) AS maturing_amount_usd
+      FROM smbc_genie.metrics.mv_opportunity_signals
+      WHERE `Signal Type` = :signal_type AND `Status` = 'Open' AND NOT `Has Open Lending Opportunity`
+      GROUP BY ALL
+      ORDER BY maturing_amount_usd DESC
+  - question: Next-best-product - top 20 clients by propensity for :product_family and the main drivers
+    usage_guidance: Use for "top N clients by propensity for <product>", "NBP / next best product for SCF", "who should we pitch <product> to", "propensity ranking".
+    parameters:
+      - {name: product_family, type: STRING, description: "Product family, e.g. Supply Chain Finance, Corporate Lending, Liquidity", default: Supply Chain Finance}
+    sql: |
+      SELECT `Client`, `Product`, `Propensity Rank`, `Top Drivers`,
+             MEASURE(`Max Propensity`) AS propensity
+      FROM smbc_genie.metrics.mv_next_best_product
+      WHERE `Is Latest Month` AND `Product Family` = :product_family
+      GROUP BY ALL
+      ORDER BY propensity DESC
+      LIMIT 20
+  - question: Opportunities created from trade-corridor-growth signals into Vietnam and India in :fiscal_year, split by destination country (one row per country), and their conversion rate
+    usage_guidance: Use when the user wants corridor-growth opportunities per destination / by country (VN and IN rows); for one combined total use the 'in total' query instead.
+    parameters:
+      - {name: fiscal_year, type: STRING, description: "Fiscal year of creation, e.g. FY2026 (this fiscal year)", default: FY2026}
+    sql: |
+      SELECT `Corridor Destination`,
+             MEASURE(`Opportunities`)        AS created,
+             MEASURE(`Opportunities Closed`) AS closed,
+             MEASURE(`Opportunities Won`)    AS won,
+             MEASURE(`Win Rate %`)           AS win_rate
+      FROM smbc_genie.metrics.mv_pipeline
+      WHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN')
+        AND `Fiscal Year` = :fiscal_year
+      GROUP BY ALL
+      ORDER BY `Corridor Destination`
+  - question: In total (Vietnam and India together), how many opportunities were created from trade-corridor-growth signals in :fiscal_year, how many closed and won, and what is the win rate?
+    usage_guidance: Use for the combined conversion of corridor-growth opportunities into VN and IN (one row, no destination column), e.g. "in total", "overall", "combined".
+    parameters:
+      - {name: fiscal_year, type: STRING, description: "Fiscal year of creation, e.g. FY2026 (this fiscal year)", default: FY2026}
+    sql: |
+      SELECT MEASURE(`Opportunities`)        AS created,
+             MEASURE(`Opportunities Closed`) AS closed,
+             MEASURE(`Opportunities Won`)    AS won,
+             MEASURE(`Win Rate %`)           AS win_rate
+      FROM smbc_genie.metrics.mv_pipeline
+      WHERE `Source Signal Type` = 'TRADE_CORRIDOR_GROWTH' AND `Corridor Destination` IN ('VN', 'IN')
+        AND `Fiscal Year` = :fiscal_year
+  - question: Pipeline by expected close quarter and stage for :expected_close_half, weighted value by product
+    usage_guidance: Use for "pipeline for H2 FY2026", "weighted pipeline by stage / product / close quarter", "what is expected to close next half".
+    parameters:
+      - {name: expected_close_half, type: STRING, description: "Fiscal half of the expected close, e.g. FY2026-H2 (Oct-2026 to Mar-2027)", default: FY2026-H2}
+    sql: |
+      SELECT `Expected Close Quarter`, `Stage`, `Product`,
+             MEASURE(`Open Opportunities`)    AS open_opportunities,
+             MEASURE(`Pipeline Amount USD`)   AS pipeline_amount_usd,
+             MEASURE(`Weighted Pipeline USD`) AS weighted_pipeline_usd
+      FROM smbc_genie.metrics.mv_pipeline
+      WHERE `Expected Close Half` = :expected_close_half AND `Is Open`
+      GROUP BY ALL
+      ORDER BY `Expected Close Quarter`, `Stage`, weighted_pipeline_usd DESC
+  - question: For :client_group, how many :product opportunities are open in the pipeline and how many :signal_type signals were raised?
+    usage_guidance: Use for questions that combine the pipeline with signals for one group (e.g. open green loans and SLL-eligible signals for Banksia Renewables Partners); one CTE per metric view, then join.
+    parameters:
+      - {name: client_group, type: STRING, description: "Exact client group name (value dictionary), e.g. Banksia Renewables Partners", default: Banksia Renewables Partners}
+      - {name: product, type: STRING, description: "Pipeline product, e.g. Green Loan, Supply Chain Finance", default: Green Loan}
+      - {name: signal_type, type: STRING, description: "Signal code, e.g. SLL_ELIGIBLE", default: SLL_ELIGIBLE}
+    sql: |
+      WITH p AS (
+        SELECT MEASURE(`Open Opportunities`) AS open_green_loans
+        FROM smbc_genie.metrics.mv_pipeline
+        WHERE `Client Group` = :client_group AND `Product` = :product
+      ), s AS (
+        SELECT MEASURE(`Signals`) AS sll_signals
+        FROM smbc_genie.metrics.mv_opportunity_signals
+        WHERE `Client Group` = :client_group AND `Signal Type` = :signal_type
+      )
+      SELECT p.open_green_loans, s.sll_signals FROM p CROSS JOIN s
+
+sql_functions:
+  - smbc_genie.gold.fn_opportunity_top_open_signals
+  - smbc_genie.gold.fn_opportunity_fx_leakage
+  - smbc_genie.gold.fn_opportunity_penetration_gaps
+
+sample_questions:
+  - Top 25 open opportunities by estimated revenue across APAC, with signal type, RM and days open.
+  - Which clients are paying USD/JPY or USD/VND through other banks, and how much flow?
+  - Clients with a deposit surplus signal in the last 60 days that have no time-deposit or investment product with us.
+  - Which groups have facilities maturing in the next 12 months with no refinancing opportunity in the pipeline?
+  - Product penetration gap vs peers for Japanese automotive-parts subsidiaries - which products are under-penetrated?
+  - "Next-best-product: top 20 clients by propensity for supply chain finance and the main drivers."
+  - Opportunities created from trade-corridor-growth signals into Vietnam and India this fiscal year, and their conversion rate.
+  - Pipeline by expected close quarter and stage for H2 FY2026, weighted value by product.
+
+benchmarks:
+  - key: Q1
+    question: Top 25 open opportunities by estimated revenue across APAC, with signal type, RM, detection date and days open.
+    answer: Q1
+    allow_extra_columns: true
+  - key: Q1-casual
+    question: what are the biggest open opportunities right now? top 25 by estimated revenue
+    variant_of: Q1
+    expected_sql: |
+      SELECT `Client`, `Signal Type`, MEASURE(`Open Estimated Revenue USD`) AS estimated_revenue_usd
+      FROM smbc_genie.metrics.mv_opportunity_signals
+      WHERE `Status` = 'Open'
+      GROUP BY `Client`, `Signal Type`, `Primary RM`, `Date`
+      ORDER BY estimated_revenue_usd DESC
+      LIMIT 25
+    allow_extra_columns: true
+  - key: Q2
+    question: Which clients are paying USD/JPY or USD/VND through other banks (FX flow we do not capture), and how much flow? Show client, currency pair, the latest 12-month flow and the number of signals.
+    answer: Q2
+  - key: Q2-typo
+    question: clients paying USD/JPY or USD/VND thru other banks - how much fx flow are we mising?
+    variant_of: Q2
+    expected_sql: |
+      SELECT `Client`, `Currency Pair`, MEASURE(`Latest Observed Amount USD`) AS fx_flow_via_other_banks_12m_usd
+      FROM smbc_genie.metrics.mv_opportunity_signals
+      WHERE `Signal Type` = 'FX_FLOW_VIA_OTHER_BANK' AND `Currency Pair` IN ('USD/JPY', 'USD/VND')
+      GROUP BY ALL
+    allow_extra_columns: true
+  - key: Q3
+    question: Clients with a deposit surplus signal in the last 60 days that have no time-deposit or investment product with us - show the detection date, status and surplus amount.
+    answer: Q3
+    allow_extra_columns: true
+  - key: Q4
+    question: Which groups have open facility-maturing signals (facilities maturing in the next 12 months) with no refinancing opportunity in the pipeline? Show the number of signals and the maturing amount per group.
+    answer: Q4
+  - key: Q4-jargon
+    question: "Refi gap: groups with maturities in the next 12 months and no refi in the pipe - open signal count and maturing amount"
+    variant_of: Q4
+  - key: Q5
+    question: Product penetration gap vs peers for Japanese automotive-parts subsidiaries in FY2026 - which products are under-penetrated? Show clients, penetration, peer penetration, clients with a gap, all-APAC penetration and the gap vs all APAC clients.
+    answer: Q5
+  - key: Q6
+    question: "Next-best-product: top 20 clients by propensity for supply chain finance, with the product, rank and main drivers."
+    answer: Q6
+  - key: Q6-jargon
+    question: top 20 NBP names for SCF - propensity, rank and drivers
+    variant_of: Q6
+    expected_sql: |
+      SELECT `Client`, `Propensity Rank`, `Top Drivers`, MEASURE(`Max Propensity`) AS propensity
+      FROM smbc_genie.metrics.mv_next_best_product
+      WHERE `Is Latest Month` AND `Product Family` = 'Supply Chain Finance'
+      GROUP BY `Client`, `Product`, `Propensity Rank`, `Top Drivers`
+      ORDER BY propensity DESC
+      LIMIT 20
+    allow_extra_columns: true
+  - key: Q7
+    question: Opportunities created from trade-corridor-growth signals into Vietnam and India this fiscal year, and their conversion rate - created, closed, won and win rate by destination.
+    answer: Q7
+  - key: Q7b
+    question: In total, how many opportunities were created from trade-corridor-growth signals into Vietnam and India in FY2026, how many closed and won, and what is the win rate?
+    answer: Q7b
+  - key: Q8
+    question: Which capex / expansion news signals in Australia have not been actioned by an RM? List client, detection date, status, number of signals and estimated revenue.
+    answer: Q8
+    allow_extra_columns: true
+  - key: Q9
+    question: Pipeline by expected close quarter and stage for H2 FY2026, weighted value by product - with open opportunities, pipeline amount and weighted pipeline.
+    answer: Q9
+  - key: Q9-abbrev
+    question: H2 FY26 pipe by close qtr, stage and product - open count, amount, weighted
+    variant_of: Q9
+  - key: Q10
+    question: Win rate by source type and source signal type - which signals actually convert? Show closed, won and win rate.
+    answer: Q10
+  - key: X1
+    question: Show the supply chain finance opportunity created for the Kinokawa Precision group in August 2026 from a signal - client, created date, product, stage, source signal type, opportunities and open amount.
+    answer: QS2b
+    allow_extra_columns: true
+  - key: X2
+    question: For Banksia Renewables Partners, how many green-loan opportunities are open in the pipeline and how many SLL_ELIGIBLE signals were raised?
+    answer: QS10

@@ -1,0 +1,59 @@
+table: fact_client_product_penetration_annual
+domain: opportunity
+comment: >-
+  Product penetration vs peers (Opportunity Identification, mv_product_penetration): dense golden client x core
+  product x fiscal year (FY2024, FY2025, FY2026 to date) for every client with an active product in the year -
+  whether the client holds or used the product in the year, how widely the client's peer group (same industry
+  subsector) holds it, and the gap. Penetration % = AVG(holds_product_flag) over the selected clients; Peer
+  Penetration % = AVG(peer_penetration_pct); Penetration Gap pts = Peer - Penetration; Clients With Gap = clients
+  with is_gap_vs_peers (not held while >= 50% of peers hold it). When the selection is a whole peer group (e.g.
+  Japanese automotive-parts subsidiaries: every Auto Parts client is Japanese Corporate) the aggregate peer gap is 0
+  by construction - compare with sector_penetration_pct or all_clients_penetration_pct instead. One fiscal year at
+  a time.
+grain: one row per golden client x core product x fiscal year (dense)
+primary_key: [golden_client_id, product_id, fiscal_year]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [fiscal_year_end_date], references: dim_date}
+  - {columns: [peer_group_id], references: dim_peer_group}
+  - {columns: [product_id], references: dim_product}
+cluster_by: [fiscal_year_end_date, golden_client_sk]
+min_rows: 100000
+columns:
+  fiscal_year: {type: INT}
+  fiscal_year_label: {type: STRING}
+  fiscal_year_end_date: {type: DATE, comment: "Last day of the fiscal year (31-Mar)."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version valid at the fiscal year end (as-of date for FY2026)."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  peer_group_id: {type: STRING, comment: "Peer group (industry subsector) of the client; join to gold.dim_peer_group."}
+  product_id: {type: STRING}
+  product_name: {type: STRING, comment: "Core product name, e.g. Time Deposit, Notional Pooling, Import LC, FX Forward."}
+  product_family: {type: STRING}
+  business_line: {type: STRING}
+  holds_product: {type: BOOLEAN, comment: "True when the client held or used the product in any month of the fiscal year."}
+  holds_product_flag: {type: INT, comment: "1 when holds_product, else 0 - Penetration % = AVG(holds_product_flag)."}
+  months_active: {type: BIGINT, comment: "Months of the fiscal year in which the product was active for the client."}
+  activity_usd: {type: DOUBLE, comment: "Client's activity in the product in USD: average month-end balance for balance products, annual volume for flow products; null when not held."}
+  activity_basis: {type: STRING, comment: "Average balance or Annual volume (basis of activity_usd)."}
+  peer_group_clients: {type: BIGINT, comment: "Clients of the peer group active in the fiscal year (penetration denominator)."}
+  peer_group_holders: {type: BIGINT, comment: "Peer-group clients holding the product in the fiscal year."}
+  peer_penetration_pct: {type: DOUBLE, comment: "Share of the peer group's clients holding the product (fraction) - Peer Penetration %."}
+  penetration_gap_pts: {type: DOUBLE, comment: "peer_penetration_pct - holds_product_flag (fraction; positive = under-penetrated vs peers)."}
+  is_gap_vs_peers: {type: BOOLEAN, comment: "True when the client does not hold the product while at least half of its peer group does - Clients With Gap."}
+  sector_penetration_pct: {type: DOUBLE, comment: "Share of the industry sector's active clients (all subsectors, e.g. Automotive) holding the product (fraction) - a broader benchmark when the peer group is the selection itself."}
+  gap_vs_sector_pts: {type: DOUBLE, comment: "sector_penetration_pct - holds_product_flag (fraction; positive = under-penetrated vs the sector)."}
+  all_clients_penetration_pct: {type: DOUBLE, comment: "Share of all active SMBC APAC clients holding the product in the fiscal year (fraction) - bank-wide benchmark."}
+  gap_vs_all_clients_pts: {type: DOUBLE, comment: "all_clients_penetration_pct - holds_product_flag (fraction; positive = under-penetrated vs the whole APAC book)."}
+  is_gap_vs_all_clients: {type: BOOLEAN, comment: "True when the client does not hold the product while at least half of all APAC clients do."}
+checks:
+  - name: dense_grid
+    sql: >-
+      SELECT count(*) - (SELECT count(*) FROM ${catalog}.gold.dim_product WHERE product_type = 'Core product')
+      * count(DISTINCT golden_client_id, fiscal_year) FROM ${table}
+  - name: holders_consistent_with_holdings
+    sql: >-
+      SELECT abs(count_if(holds_product AND fiscal_year = 2025) - (SELECT count(DISTINCT h.golden_client_id, h.product_id)
+      FROM ${catalog}.gold.fact_product_holding_monthly h JOIN ${catalog}.gold.dim_product p ON p.product_id = h.product_id
+      WHERE h.fiscal_year = 2025 AND h.is_active AND p.product_type = 'Core product')) FROM ${table}

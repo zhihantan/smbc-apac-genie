@@ -1,0 +1,73 @@
+{
+ "columns": [
+  {
+   "comment": "Booking entity code: ISO-2 country code for the APAC locations and JP, or EMEA / AMER for the provider regions.",
+   "is_measure": false,
+   "name": "booking_entity_id",
+   "type": "string"
+  },
+  {
+   "comment": "Display name, e.g. Singapore (SG hub) or EMEA provider region.",
+   "is_measure": false,
+   "name": "booking_entity_name",
+   "type": "string"
+  },
+  {
+   "comment": "ISO-2 country of the booking entity (null for the EMEA / AMER provider regions).",
+   "is_measure": false,
+   "name": "country_code",
+   "type": "string"
+  },
+  {
+   "comment": "Country name of the booking entity (e.g. Vietnam).",
+   "is_measure": false,
+   "name": "country_name",
+   "type": "string"
+  },
+  {
+   "comment": "City of the booking entity (e.g. Ho Chi Minh City).",
+   "is_measure": false,
+   "name": "city",
+   "type": "string"
+  },
+  {
+   "comment": "Region: APAC, JP, EMEA or AMER.",
+   "is_measure": false,
+   "name": "region_cluster",
+   "type": "string"
+  },
+  {
+   "comment": "Local banking regulator (illustrative only: MAS, HKMA, ...).",
+   "is_measure": false,
+   "name": "regulator",
+   "type": "string"
+  },
+  {
+   "comment": "ISO 4217 local currency of the booking entity.",
+   "is_measure": false,
+   "name": "local_currency",
+   "type": "string"
+  },
+  {
+   "comment": "True for Singapore, the APAC hub.",
+   "is_measure": false,
+   "name": "is_hub",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the 13 APAC booking locations.",
+   "is_measure": false,
+   "name": "is_apac",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for JP / EMEA / AMER - regions that only provide data via Delta Sharing (not APAC booking locations).",
+   "is_measure": false,
+   "name": "is_provider_region",
+   "type": "boolean"
+  }
+ ],
+ "comment": "SMBC booking entities: the 13 APAC booking locations (Singapore hub plus HK, CN, TH, ID, IN, AU, VN, MY, TW, KR, PH, NZ) and the three data-provider regions JP (Tokyo head office), EMEA and AMER that publish via Delta Sharing. A client's coverage office and the booking country of facts reference this table. Grain: one row per booking entity.",
+ "identifier": "smbc_genie.gold.dim_booking_entity",
+ "type": "MANAGED"
+}

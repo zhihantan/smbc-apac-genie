@@ -1,0 +1,325 @@
+{
+ "columns": [
+  {
+   "comment": "Row type: Facility, Covenant Test or Collateral - filter or measure on it.",
+   "is_measure": false,
+   "name": "record_type",
+   "type": "string"
+  },
+  {
+   "comment": "Key of the row within its type: facility_id, facility|covenant|test date, or collateral_id.",
+   "is_measure": false,
+   "name": "record_id",
+   "type": "string"
+  },
+  {
+   "comment": "True on the one Facility row per facility - count facilities with COUNT_IF(is_primary_row).",
+   "is_measure": false,
+   "name": "is_primary_row",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date of the row: snapshot date 30-Sep-2026 (Facility), test date (Covenant Test), last valuation date (Collateral).",
+   "is_measure": false,
+   "name": "record_date",
+   "type": "date"
+  },
+  {
+   "comment": "Credit facility (FAC-nnnnnn) the row belongs to.",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor record of the borrower.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version: current for Facility / Collateral rows, as-was at the test date for Covenant Test rows.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Facility type: Term Loan, Revolving Credit Facility, Syndicated Loan, Bilateral Loan, Overdraft or Trade Loan (all rows).",
+   "is_measure": false,
+   "name": "facility_type",
+   "type": "string"
+  },
+  {
+   "comment": "Facility status at the as-of date: Active, Matured or Prepaid (all rows).",
+   "is_measure": false,
+   "name": "facility_status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the facility is active at the as-of date (all rows).",
+   "is_measure": false,
+   "name": "is_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "Facility security: Unsecured, Cash, Receivables, Inventory, Fixed Assets or Real Estate (all rows).",
+   "is_measure": false,
+   "name": "security_type",
+   "type": "string"
+  },
+  {
+   "comment": "Credit support: Parent Guarantee, Keepwell, Corporate Guarantee, Sponsor Support or None (all rows).",
+   "is_measure": false,
+   "name": "guarantor_type",
+   "type": "string"
+  },
+  {
+   "comment": "True for Parent Guarantee or Keepwell facilities (all rows).",
+   "is_measure": false,
+   "name": "has_parent_support",
+   "type": "boolean"
+  },
+  {
+   "comment": "Product key of the facility type (all rows).",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Facility currency (all rows).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese parent giving the guarantee / keepwell (parent-supported facilities).",
+   "is_measure": false,
+   "name": "jp_parent_id",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese parent's grade (1 best .. 10) at the as-of date from the JP share (parent-supported facilities).",
+   "is_measure": false,
+   "name": "parent_rating_grade",
+   "type": "int"
+  },
+  {
+   "comment": "Parent's rating on the external scale (e.g. AA, A+) from the JP share - the parent external rating.",
+   "is_measure": false,
+   "name": "parent_rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "Outlook of the parent rating (Positive, Stable, Negative).",
+   "is_measure": false,
+   "name": "parent_rating_outlook",
+   "type": "string"
+  },
+  {
+   "comment": "Facility rows only: committed limit, USD.",
+   "is_measure": false,
+   "name": "limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Facility rows only: drawn balance at the as-of month-end, USD (current exposure).",
+   "is_measure": false,
+   "name": "drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Facility rows only: undrawn commitment of active facilities, USD.",
+   "is_measure": false,
+   "name": "undrawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Facility rows only: drawn / limit (fraction).",
+   "is_measure": false,
+   "name": "utilisation_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Facility rows only: lending margin in basis points.",
+   "is_measure": false,
+   "name": "margin_bps",
+   "type": "double"
+  },
+  {
+   "comment": "Facility rows only: margin_bps x limit_usd, for the limit-weighted margin SUM(margin_x_limit_usd) / SUM(limit_usd).",
+   "is_measure": false,
+   "name": "margin_x_limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Facility rows only: final maturity date.",
+   "is_measure": false,
+   "name": "maturity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Facility rows only: active and maturing within 12 months.",
+   "is_measure": false,
+   "name": "matures_within_12m",
+   "type": "boolean"
+  },
+  {
+   "comment": "Facility rows only: a covenant waiver was granted on a test in FY2026.",
+   "is_measure": false,
+   "name": "has_waiver_current_fy",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenant Test rows: Net Debt/EBITDA (leverage) or ICR (interest cover).",
+   "is_measure": false,
+   "name": "covenant_type",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant Test rows: Leverage or Interest Cover.",
+   "is_measure": false,
+   "name": "covenant_category",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant Test rows: test date.",
+   "is_measure": false,
+   "name": "test_date",
+   "type": "date"
+  },
+  {
+   "comment": "Covenant Test rows: Quarterly or FY<year> Annual.",
+   "is_measure": false,
+   "name": "test_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant Test rows: covenant level (x).",
+   "is_measure": false,
+   "name": "covenant_threshold",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant Test rows: tested value (x).",
+   "is_measure": false,
+   "name": "covenant_actual",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant Test rows: headroom as a fraction of the threshold (negative = breached); use MIN for the tightest.",
+   "is_measure": false,
+   "name": "headroom_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant Test rows: Breached, 0-10%, 10-20%, 20-30% or 30%+.",
+   "is_measure": false,
+   "name": "headroom_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant Test rows: covenant breached at the test.",
+   "is_measure": false,
+   "name": "is_breached",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenant Test rows: not breached and headroom below 10%.",
+   "is_measure": false,
+   "name": "is_tight_headroom",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenant Test rows: waiver granted.",
+   "is_measure": false,
+   "name": "is_waived",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenant Test rows: latest test of the facility covenant on or before 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_latest_test",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenant Test rows: test in the current fiscal year (FY2026).",
+   "is_measure": false,
+   "name": "is_current_fy_test",
+   "type": "boolean"
+  },
+  {
+   "comment": "Covenant Test rows: facility drawn balance at the test month-end, USD (exposure linked to the test, e.g. for waivers).",
+   "is_measure": false,
+   "name": "exposure_at_test_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant Test rows: client on the credit watchlist at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "client_on_watchlist_as_of",
+   "type": "boolean"
+  },
+  {
+   "comment": "Collateral rows: collateral item id.",
+   "is_measure": false,
+   "name": "collateral_id",
+   "type": "string"
+  },
+  {
+   "comment": "Collateral rows: Cash, Receivables, Inventory, Fixed Assets or Real Estate.",
+   "is_measure": false,
+   "name": "collateral_type",
+   "type": "string"
+  },
+  {
+   "comment": "Collateral rows: appraised value at the last valuation, USD.",
+   "is_measure": false,
+   "name": "collateral_value_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Collateral rows: loan-to-value (fraction).",
+   "is_measure": false,
+   "name": "ltv_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Collateral rows: last valuation date.",
+   "is_measure": false,
+   "name": "last_valuation_date",
+   "type": "date"
+  },
+  {
+   "comment": "Collateral rows: months since the last valuation at the as-of date.",
+   "is_measure": false,
+   "name": "valuation_age_months",
+   "type": "int"
+  },
+  {
+   "comment": "Collateral rows: LTV above 70%.",
+   "is_measure": false,
+   "name": "is_high_ltv",
+   "type": "boolean"
+  },
+  {
+   "comment": "Collateral rows: valuation older than 24 months.",
+   "is_measure": false,
+   "name": "is_valuation_stale",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Metric-view base for facilities, covenants and collateral (mv_facilities_covenants_collateral, D13): a record_type union of Facility rows (one per facility: limit, drawn, undrawn, margin - is_primary_row), Covenant Test rows (one per covenant test from FY2023: threshold, actual, headroom %, bucket, breach, waiver, is_latest_test) and Collateral rows (one per collateral item: appraised value, LTV, valuation age, review flags). Facility descriptors (type, status, security, guarantor, parent rating from the JP share) repeat on every row for slicing; each amount or flag is populated only on the row type that owns it and null elsewhere, so SUM / MIN / COUNT_IF over the base never double counts. Facility amounts are as of 30-Sep-2026. Examples: Limit USD = SUM(limit_usd); latest leverage headroom = MIN(headroom_pct) WHERE is_latest_test AND covenant_type = 'Net Debt/EBITDA'; Collateral Value USD = SUM(collateral_value_usd); weighted margin bps = SUM(margin_x_limit_usd) / SUM(limit_usd). Grain: one row per record_type x record (facility, covenant test or collateral item).",
+ "identifier": "smbc_genie.gold.mvb_facility_risk",
+ "type": "MANAGED"
+}

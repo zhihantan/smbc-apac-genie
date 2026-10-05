@@ -1,0 +1,247 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar date of the trading day. Today is 30-Sep-2026 (never use CURRENT_DATE); \"last N days\" means Date between DATE'2026-09-30' minus (N-1) days and DATE'2026-09-30'. Point-in-time measures ordered by Date return the last date of any longer period you group by.",
+   "is_measure": false,
+   "name": "Date",
+   "type": "date"
+  },
+  {
+   "comment": "Calendar month of the trading day as its first day (DATE): September 2026 = DATE'2026-09-01'. Point-in-time measures grouped by Month return the month's last date (month-end); the latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the trading day, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "True on the last calendar day of a month (the month-end snapshot date of the trading day).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics). \"Client\" or \"group\" without qualification means this level. Match with LIKE '%Kinokawa%'.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "The group's lead (relationship) legal entity, e.g. the entity holding the account plan.",
+   "is_measure": false,
+   "name": "Lead Client",
+   "type": "string"
+  },
+  {
+   "comment": "Group segment (most common segment of its APAC clients): Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Group relationship tier - Strategic, Core or Transactional. \"Strategic groups\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for groups headquartered in Japan (Japanese corporate groups) - \"Japanese corporates\" / \"JC\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Group industry sector (most common sector of its APAC clients), e.g. Technology, Materials, Energy.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Group industry subsector (most common subsector of its APAC clients), e.g. Automotive Parts, Shipping.",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Lead office of the group = coverage office of its lead entity, ISO-2 code (SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand).",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Group lead RM = current primary RM of the group's lead entity (fictional name).",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the group lead RM sits - \"RMs in Singapore\" means this.",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Worst (highest) internal rating grade 1-10 among the group's rated APAC clients today; null = no rated client.",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "Highest IFRS 9 stage (1-3) among the group's APAC clients today.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when at least one APAC client of the group is on the credit watchlist today.",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating (Low, Medium, High) of the group's lead entity today; null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Worst current early-warning band among the group's APAC clients (Red > Amber > Green); null = none scored.",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Listed parent company of the client group (fictional, e.g. Hagiwara Steel KK) - one per group.",
+   "is_measure": false,
+   "name": "Listed Parent",
+   "type": "string"
+  },
+  {
+   "comment": "Agency rating of the listed parent in force on the trading day (primary agency first; fictional agencies; AAA ... D scale).",
+   "is_measure": false,
+   "name": "External Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Outlook attached to the rating in force: Stable, Positive or Negative.",
+   "is_measure": false,
+   "name": "Outlook",
+   "type": "string"
+  },
+  {
+   "comment": "True when the parent closed at (or below) its 52-week low that trading day.",
+   "is_measure": false,
+   "name": "At 52-Week Low",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the group's APAC credit exposure is above USD 100m (gold.dim_threshold MARKET_APAC_EXPOSURE_USD).",
+   "is_measure": false,
+   "name": "APAC Exposure Above 100m",
+   "type": "boolean"
+  },
+  {
+   "comment": "Listed parents with a close on the last trading day of the selection (point-in-time).",
+   "is_measure": true,
+   "name": "Listed Parents",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average 1-day share-price return of the parents on the last trading day of the selection (fraction).",
+   "is_measure": true,
+   "name": "Average Share Price Change 1D %",
+   "type": "double"
+  },
+  {
+   "comment": "Average share-price change vs 30 calendar days earlier of the parents on the last trading day of the selection (fraction; -0.20 = -20%).",
+   "is_measure": true,
+   "name": "Average Share Price Change 30D %",
+   "type": "double"
+  },
+  {
+   "comment": "Average CDS-like credit spread of the parents on the last trading day of the selection, in basis points.",
+   "is_measure": true,
+   "name": "Average CDS Spread bps",
+   "type": "double"
+  },
+  {
+   "comment": "Average change of the CDS spread over the last 30 days, bps, on the last trading day of the selection (positive = widening = worse).",
+   "is_measure": true,
+   "name": "Average CDS Change 30D bps",
+   "type": "double"
+  },
+  {
+   "comment": "Client groups whose listed parent closed at its 52-week low on the last trading day of the selection.",
+   "is_measure": true,
+   "name": "Groups at 52-Week Low",
+   "type": "bigint"
+  },
+  {
+   "comment": "APAC credit exposure of the groups (drawn lending + trade finance outstanding at the latest month-end) on the last trading day of the selection, USD - point-in-time.",
+   "is_measure": true,
+   "name": "APAC Exposure USD",
+   "type": "double"
+  },
+  {
+   "comment": "APAC exposure of the groups whose parent is at its 52-week low, on the last trading day of the selection (USD).",
+   "is_measure": true,
+   "name": "APAC Exposure at 52-Week Low USD",
+   "type": "double"
+  },
+  {
+   "comment": "Market capitalisation of the listed parents on the last trading day of the selection, USD.",
+   "is_measure": true,
+   "name": "Market Cap USD",
+   "type": "double"
+  },
+  {
+   "comment": "Agency downgrades of the listed parents (any agency) over the selected days - a flow.",
+   "is_measure": true,
+   "name": "Rating Downgrades",
+   "type": "bigint"
+  },
+  {
+   "comment": "Agency upgrades of the listed parents over the selected days - a flow.",
+   "is_measure": true,
+   "name": "Rating Upgrades",
+   "type": "bigint"
+  },
+  {
+   "comment": "Agency outlook revisions to Negative over the selected days - a flow.",
+   "is_measure": true,
+   "name": "Outlook Changes to Negative",
+   "type": "bigint"
+  },
+  {
+   "comment": "First days at a 52-week low after 30 days without one (the MARKET_52W_LOW signals) over the selected days.",
+   "is_measure": true,
+   "name": "52-Week Low Events",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Market signals on the listed parents of APAC client groups (220 listed parents, trading days Apr-2025 to Sep-2026, fictional market-data vendor): share-price change 1D / 30D, CDS-like spread and its 30-day change, parents at their 52-week low, the agency rating and outlook in force, agency downgrades / upgrades / negative outlook changes, and the group's APAC credit exposure (drawn lending + trade finance outstanding, USD). Prices, spreads, counts of parents and exposure are POINT-IN-TIME: they return the last trading day of the selection (filter Date = DATE'2026-09-30' for today); rating actions and 52-week-low events add up. Grain: one row per listed parent per trading day (gold.fact_market_signal_daily).",
+ "identifier": "smbc_genie.metrics.mv_market_signals",
+ "type": "METRIC_VIEW"
+}

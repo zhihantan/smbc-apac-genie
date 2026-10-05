@@ -1,0 +1,241 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the trade month as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the trade month, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics, Sunda Energi Nusantara). \"Client\" or \"group\" without qualification means this level. Match names with LIKE '%Kinokawa%'. About 380 groups.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity (golden client) with its location, e.g. Kinokawa Precision (Singapore) Pte Ltd - \"entity\" or \"subsidiary\" means this level. About 2,500 entities; match with LIKE '%Kinokawa%Singapore%'.",
+   "is_measure": false,
+   "name": "Client",
+   "type": "string"
+  },
+  {
+   "comment": "Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier - Strategic, Core or Transactional. \"Strategic clients\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for APAC subsidiaries of Japanese groups (segment Japanese Corporate) - \"Japanese corporates\", \"JC\" or \"Japanese clients\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials, Energy, Industrials); see Subsector.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors, Automotive Parts, Coal Mining, Shipping).",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location covering the client, ISO-2 code: SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand. \"Country\" means this unless the user says risk / HQ country.",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Primary relationship manager (fictional name) at the row's month-end: the CRM primary-RM assignment, else the group account-plan owner; null = no RM coverage.",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the primary RM sits - \"RMs in Singapore / Hong Kong\" means this (most RMs also cover clients booked in other countries, so it differs from Coverage Office).",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Internal rating grade 1-10 in force at the row's month-end (1 best, 10 default; 7 and worse is sub-investment watch territory); null = not rated (no credit relationship).",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage at the row's month-end: 1 performing, 2 significant increase in credit risk, 3 credit-impaired / default; null = not rated.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the row's month-end (\"not on the watchlist\" = false).",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating Low, Medium or High at the row's month-end (latest completed review); null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Final early-warning band at the row's month-end: Green (score < 40), Amber (40-69) or Red (>= 70), after overrides; null = not scored (no credit relationship, or before Apr-2025).",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Client (an SMBC client active in the corridor) or Market residual (statistics of a corridor-month with no active SMBC client).",
+   "is_measure": false,
+   "name": "Record Type",
+   "type": "string"
+  },
+  {
+   "comment": "Country the goods are shipped from (ISO-2), e.g. CN in CN->VN.",
+   "is_measure": false,
+   "name": "Corridor From",
+   "type": "string"
+  },
+  {
+   "comment": "Country the goods are shipped to (ISO-2), e.g. VN in CN->VN (Vietnam importing from China).",
+   "is_measure": false,
+   "name": "Corridor To",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor origin->destination, e.g. CN->VN. Trade-settlement payments are mapped to it (an outbound payment = the client imports).",
+   "is_measure": false,
+   "name": "Corridor",
+   "type": "string"
+  },
+  {
+   "comment": "Goods: Electronics (HS 85), Machinery (84), Auto Parts (87), Precision Instruments (90), Chemicals (29), Plastics (39), Iron & Steel (72), Mineral Fuels (27), Ores & Metals (26), Palm Oil & Fats (15), Food & Agri (10), Textiles & Apparel (62); Unclassified = payment activity of clients with no main traded goods.",
+   "is_measure": false,
+   "name": "Commodity",
+   "type": "string"
+  },
+  {
+   "comment": "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats).",
+   "is_measure": false,
+   "name": "Is Carbon-Intensive Commodity",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client's cross-border trade-settlement payments show it trading on the corridor in the month.",
+   "is_measure": false,
+   "name": "Is Payment Visible",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client had an SMBC trade-finance instrument issued in the 12 months to the month-end or live at it (any corridor).",
+   "is_measure": false,
+   "name": "Has Trade Product 12M",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has a live SMBC trade instrument at 30-Sep-2026 or one issued Oct-2025 to Sep-2026; false = no trade product with us.",
+   "is_measure": false,
+   "name": "Has Trade Product Today",
+   "type": "boolean"
+  },
+  {
+   "comment": "Size of the corridor from external trade statistics (vendor, USD), allocated so it adds up over corridors, commodities and months (a flow).",
+   "is_measure": true,
+   "name": "Corridor Volume USD",
+   "type": "double"
+  },
+  {
+   "comment": "The same corridors' external trade value 12 months earlier, allocated with the same keys (USD; from Apr-2024) - e.g. with Fiscal Half = FY2026-H1 it is the H1 FY2025 volume, so one row gives both halves and Corridor Growth YoY %.",
+   "is_measure": true,
+   "name": "Corridor Volume Prior Year USD",
+   "type": "double"
+  },
+  {
+   "comment": "Year-on-year growth of the corridor market volume (fraction; 0.37 = +37% - return it as is, never multiplied by 100), e.g. Fiscal Half FY2026-H1 vs FY2025-H1: filter the later period and the measure compares it with the same months a year earlier (Corridor Volume Prior Year USD).",
+   "is_measure": true,
+   "name": "Corridor Growth YoY %",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC trade-finance instruments issued on the corridor, USD (a flow).",
+   "is_measure": true,
+   "name": "SMBC Trade Finance USD",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC trade-finance volume / corridor market volume (fraction) - SMBC's estimated share of the corridor.",
+   "is_measure": true,
+   "name": "SMBC Share Estimate %",
+   "type": "double"
+  },
+  {
+   "comment": "SMBC trade-finance instruments issued on the corridor (count; a flow).",
+   "is_measure": true,
+   "name": "Trade Finance Transactions",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients' cross-border trade-settlement payments mapped to the goods corridor, USD (open-account trade visible from payments).",
+   "is_measure": true,
+   "name": "Trade Settlement Payments USD",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities active on the corridor in the selection (SMBC trade finance or trade-settlement payments).",
+   "is_measure": true,
+   "name": "Clients Active in Corridor",
+   "type": "bigint"
+  },
+  {
+   "comment": "Clients trading on the corridor (visible from their trade-settlement payments) that have no SMBC trade product today - the trade finance cross-sell list.",
+   "is_measure": true,
+   "name": "Clients in Corridor Without Trade Product",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Trade corridors (goods origin -> destination country x commodity) by month, Apr-2023 to Sep-2026 (USD): market size from external trade statistics (vendor, allocated so it adds up), its growth YoY, SMBC trade-finance volume on the corridor and SMBC's estimated share, clients' cross-border trade-settlement payments mapped to the goods corridor, clients active in the corridor and those active only via payments without any SMBC trade product (the trade finance opportunity). All measures add up over months; SMBC share and growth are ratios of sums - use them at corridor / commodity level (a client filter keeps only that client's allocated share of the market). Grain: one row per corridor x HS chapter x month x active client, plus one market residual row per corridor-month without an active client (gold.fact_trade_corridor_monthly).",
+ "identifier": "smbc_genie.metrics.mv_trade_corridors",
+ "type": "METRIC_VIEW"
+}

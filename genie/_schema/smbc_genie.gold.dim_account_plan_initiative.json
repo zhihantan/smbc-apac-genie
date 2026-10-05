@@ -1,0 +1,175 @@
+{
+ "columns": [
+  {
+   "comment": "Account-plan initiative id.",
+   "is_measure": false,
+   "name": "initiative_id",
+   "type": "string"
+  },
+  {
+   "comment": "Account plan the initiative belongs to (group x fiscal year).",
+   "is_measure": false,
+   "name": "plan_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group short brand.",
+   "is_measure": false,
+   "name": "group_name",
+   "type": "string"
+  },
+  {
+   "comment": "CRM account id (source record of the CRM platform) the row was recorded against.",
+   "is_measure": false,
+   "name": "crm_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Golden client the plan is held on (group lead entity in CRM).",
+   "is_measure": false,
+   "name": "lead_golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client surrogate key of the plan's client (current version).",
+   "is_measure": false,
+   "name": "lead_golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Fiscal year of the account plan (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Short initiative title.",
+   "is_measure": false,
+   "name": "initiative_name",
+   "type": "string"
+  },
+  {
+   "comment": "Initiative description (synthetic text).",
+   "is_measure": false,
+   "name": "initiative_description",
+   "type": "string"
+  },
+  {
+   "comment": "Annual revenue the initiative targets in USD.",
+   "is_measure": false,
+   "name": "target_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Initiative status: Not Started, In Progress, At Risk, Delayed (open); Completed, Not Achieved, Cancelled (closed).",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "True for open initiatives (Not Started / In Progress / At Risk / Delayed) at the as-of date.",
+   "is_measure": false,
+   "name": "is_open",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when open and past its due date at 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_overdue",
+   "type": "boolean"
+  },
+  {
+   "comment": "Initiative priority.",
+   "is_measure": false,
+   "name": "priority",
+   "type": "string"
+  },
+  {
+   "comment": "Initiative due date.",
+   "is_measure": false,
+   "name": "due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Fiscal quarter of the due date, e.g. FY2026-Q3 (Oct-Dec 2026).",
+   "is_measure": false,
+   "name": "due_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half of the due date, e.g. FY2026-H2.",
+   "is_measure": false,
+   "name": "due_fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Completion date; null while open.",
+   "is_measure": false,
+   "name": "completed_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the initiative was created.",
+   "is_measure": false,
+   "name": "created_date",
+   "type": "date"
+  },
+  {
+   "comment": "Initiative owner (employee_id; RM or a product specialist).",
+   "is_measure": false,
+   "name": "owner_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Initiative owner name (fictional).",
+   "is_measure": false,
+   "name": "owner_name",
+   "type": "string"
+  },
+  {
+   "comment": "RM code of the account's RM recorded on the initiative.",
+   "is_measure": false,
+   "name": "owner_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "employee_id of owner_rm_code.",
+   "is_measure": false,
+   "name": "owner_rm_employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Name of the account's RM (fictional).",
+   "is_measure": false,
+   "name": "owner_rm_name",
+   "type": "string"
+  },
+  {
+   "comment": "Pipeline opportunity created from the initiative, if any.",
+   "is_measure": false,
+   "name": "linked_opportunity_id",
+   "type": "string"
+  }
+ ],
+ "comment": "Account-plan initiatives (detail dimension, D15): what the RM team planned per client group and fiscal year - initiative text, product family, target revenue, owner, status, due date with its fiscal quarter and half, and whether it is still open or overdue at 30-Sep-2026 (e.g. \"initiatives still open for FY2026-Q3 by RM\"). Grain: one row per account-plan initiative.",
+ "identifier": "smbc_genie.gold.dim_account_plan_initiative",
+ "type": "MANAGED"
+}

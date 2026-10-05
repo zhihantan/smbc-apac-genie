@@ -1,0 +1,59 @@
+table: fact_group_exposure_by_er_run
+domain: foundation
+comment: >-
+  Why entity resolution matters: credit exposure of each client group under each quarterly ER run (USD) =
+  drawn lending + trade finance outstanding at the run date, attributed to the group through that run's
+  resolution, beside the same exposure attributed with the previous run's resolution. resolution_change
+  isolates the effect of re-resolution (e.g. Meridian Agri Holdings +38% at the Mar-2026 v2 run, crossing
+  the USD 500m single-borrower attention threshold); change_vs_prev_run also includes balance movements.
+  Point-in-time per run: never sum exposure across runs. Exposure not attributable to any group is one
+  UNATTRIBUTED row per run.
+grain: one row per ER run per client group (group_key UNATTRIBUTED for unattributed exposure)
+primary_key: [run_id, group_key]
+foreign_keys:
+  - {columns: [run_date], references: dim_date}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [lead_golden_client_sk], references: dim_client}
+cluster_by: [run_date, client_group_id]
+min_rows: 1500
+columns:
+  run_id: {type: STRING, comment: "ER run id ER-yyyymmdd."}
+  group_key: {type: STRING, comment: "client_group_id, or UNATTRIBUTED for exposure on records the run could not attribute to a group."}
+  run_date: {type: DATE, comment: As-of date of the ER run and of the exposure snapshot (the grain date).}
+  rule_version: {type: STRING, comment: Rule set of the run (v1 or v2).}
+  run_seq: {type: INT, comment: Run sequence 1-6 in date order.}
+  is_latest_run: {type: BOOLEAN, comment: True for the latest run (ER-20260930).}
+  is_rule_version_change: {type: BOOLEAN, comment: True for the first run of a new rule set (ER-20260331 = first v2 run - the March 2026 resolution).}
+  client_group_id: {type: STRING, comment: "Client group (SYN-G-nnnn); null on the UNATTRIBUTED row. Join gold.dim_client_group."}
+  lead_golden_client_sk: BIGINT
+  attribution_status: {type: STRING, comment: "Attributed (records resolved to a group) or Unattributed."}
+  n_golden_clients: {type: INT, comment: Golden clients of the group holding the exposure records under this run.}
+  n_obligor_records: {type: INT, comment: Credit obligor records attributed to the group under this run.}
+  n_trade_party_records: {type: INT, comment: Trade party records attributed to the group under this run.}
+  lending_drawn_usd: {type: DOUBLE, comment: Drawn lending in USD at the run date (core facility balances of the attributed obligor records).}
+  trade_outstanding_usd: {type: DOUBLE, comment: Trade finance outstanding in USD at the run date (instruments of the attributed trade party records).}
+  total_exposure_usd: {type: DOUBLE, comment: Group credit exposure in USD under this run's resolution = lending drawn + trade outstanding (point-in-time).}
+  prior_resolution_exposure_usd: {type: DOUBLE, comment: The same run-date exposure attributed with the previous run's resolution (null for the first run).}
+  resolution_change_usd: {type: DOUBLE, comment: total_exposure_usd - prior_resolution_exposure_usd = the exposure change caused by re-resolution alone (USD).}
+  resolution_change_pct: {type: DOUBLE, comment: "resolution_change_usd / prior_resolution_exposure_usd (fraction; 0.38 = +38%); null when there was no prior exposure."}
+  prev_run_exposure_usd: {type: DOUBLE, comment: Group exposure reported at the previous run (its own date and resolution).}
+  change_vs_prev_run_usd: {type: DOUBLE, comment: total_exposure_usd - prev_run_exposure_usd (resolution plus balance movements).}
+  change_vs_prev_run_pct: {type: DOUBLE, comment: Change vs the previous run as a fraction of prev_run_exposure_usd.}
+  attention_threshold_usd: {type: DOUBLE, comment: Single-borrower attention threshold in USD (500m; gold.dim_threshold SINGLE_BORROWER_ATTENTION_USD).}
+  is_above_threshold: {type: BOOLEAN, comment: True when total_exposure_usd is at or above the attention threshold under this run.}
+  was_above_threshold_before_resolution: {type: BOOLEAN, comment: True when the prior-resolution exposure was already at or above the threshold.}
+  crossed_threshold_on_resolution: {type: BOOLEAN, comment: True when re-resolution in this run moved the group across the attention threshold (Meridian at ER-20260331).}
+  is_material_resolution_change: {type: BOOLEAN, comment: "True when |resolution_change_pct| > 20% (gold.dim_threshold ER_EXPOSURE_CHANGE) - the exposures that changed by more than 20% after a resolution."}
+checks:
+  - name: meridian_mar26_resolution     # storyline 3: +35..45% on the Mar-2026 resolution, crosses USD 500m
+    sql: >-
+      SELECT count_if(resolution_change_pct NOT BETWEEN 0.35 AND 0.45 OR NOT crossed_threshold_on_resolution
+      OR total_exposure_usd < attention_threshold_usd) + (1 - count(*)) FROM ${table}
+      WHERE run_id = 'ER-20260331' AND client_group_id = 'SYN-G-0005'
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.group_exposure_by_er_run
+  - name: exposure_vs_silver
+    gold: SELECT round(sum(total_exposure_usd), 0) FROM ${table}
+    silver: SELECT round(sum(total_exposure_usd), 0) FROM ${catalog}.silver.group_exposure_by_er_run
+    tolerance: 1

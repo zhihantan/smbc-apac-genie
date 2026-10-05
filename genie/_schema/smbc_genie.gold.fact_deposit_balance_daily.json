@@ -1,0 +1,169 @@
+{
+ "columns": [
+  {
+   "comment": "Core-banking account id (join gold.dim_account).",
+   "is_measure": false,
+   "name": "account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Calendar day of the end-of-day balance (every day incl. weekends; 1-Dec-2025 to 30-Sep-2026).",
+   "is_measure": false,
+   "name": "balance_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the calendar month of balance_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Core-banking customer number (source identity record) holding the account.",
+   "is_measure": false,
+   "name": "cust_no",
+   "type": "string"
+  },
+  {
+   "comment": "APAC booking location of the account = the holder's coverage office (ISO-2, e.g. HK); join gold.dim_booking_entity.",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Current Account, Savings Account, Time Deposit or Money Market Deposit.",
+   "is_measure": false,
+   "name": "account_type",
+   "type": "string"
+  },
+  {
+   "comment": "Deposit product (PRD-CURRENT-ACCOUNT, PRD-SAVINGS-ACCOUNT, PRD-TIME-DEPOSIT, PRD-MONEY-MARKET-DEPOSIT); join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "CASA (current and savings accounts) or TD (time and money-market deposits).",
+   "is_measure": false,
+   "name": "deposit_class",
+   "type": "string"
+  },
+  {
+   "comment": "True for current / savings accounts (CASA); CASA ratio = CASA balance / total balance on one date.",
+   "is_measure": false,
+   "name": "is_casa",
+   "type": "boolean"
+  },
+  {
+   "comment": "ISO 4217 currency of the account (balance_lcy is in this currency).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "End-of-day balance in the account currency (point-in-time; >= 0; do not sum across dates).",
+   "is_measure": false,
+   "name": "balance_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "End-of-day balance in USD at the day's FX rate (point-in-time; >= 0; do not sum across dates).",
+   "is_measure": false,
+   "name": "balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "balance_usd when the account is CASA, else 0 (point-in-time). CASA ratio = SUM(casa_balance_usd) / SUM(balance_usd) on one date.",
+   "is_measure": false,
+   "name": "casa_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "balance_usd when the account is a time / money-market deposit, else 0 (point-in-time).",
+   "is_measure": false,
+   "name": "td_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "USD balance of the same account on the previous day (null on the account's first day in the window).",
+   "is_measure": false,
+   "name": "balance_usd_prev_day",
+   "type": "double"
+  },
+  {
+   "comment": "USD balance of the same account 30 days earlier (null when the account or the window is younger than 30 days). 30-day outflow % = 1 - SUM(balance_usd) / SUM(balance_usd_30d_prior).",
+   "is_measure": false,
+   "name": "balance_usd_30d_prior",
+   "type": "double"
+  },
+  {
+   "comment": "balance_usd - balance_usd_prev_day (USD; negative = outflow); additive across accounts and days (a flow).",
+   "is_measure": false,
+   "name": "balance_change_1d_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Principal (USD) of time deposits placed into this TD / money-market account on this day (flow; 0 for CASA or no placement).",
+   "is_measure": false,
+   "name": "td_placed_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Part of td_placed_usd funded by a transfer from the client's current account (CASA -> TD migration), USD (flow).",
+   "is_measure": false,
+   "name": "td_placed_from_current_account_usd",
+   "type": "double"
+  },
+  {
+   "comment": "On current accounts: principal moved out of this account into time deposits on this day (funding account of the placement), USD (flow).",
+   "is_measure": false,
+   "name": "transferred_to_td_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Principal (USD) of time deposits on this account maturing on this day (flow).",
+   "is_measure": false,
+   "name": "td_matured_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True on the last calendar day of a month - the month-end snapshot (equals fact_deposit_balance_monthly).",
+   "is_measure": false,
+   "name": "is_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on the as-of date 30-Sep-2026 (today's balance).",
+   "is_measure": false,
+   "name": "is_as_of_date",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on a Singapore business day (Mon-Fri); weekend balances repeat the Friday balance.",
+   "is_measure": false,
+   "name": "is_business_day_sg",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Daily end-of-day deposit balances per core-banking account for the 10-month daily window 1-Dec-2025 to 30-Sep-2026 (current, savings, time-deposit and money-market accounts), in local currency and USD, with the CASA / TD split, the balance 1 and 30 days earlier (outflow analysis, e.g. Sunda's February outflow) and the day's time-deposit placements / maturities. POINT-IN-TIME: never sum balances across dates - take one date (is_as_of_date, is_month_end) or the average over days. Month-end rows equal fact_deposit_balance_monthly; history before Dec-2025 is month-end only (fact_deposit_balance_monthly). Grain: one row per account per calendar day (1-Dec-2025 to 30-Sep-2026, from the account's first day).",
+ "identifier": "smbc_genie.gold.fact_deposit_balance_daily",
+ "type": "MANAGED"
+}

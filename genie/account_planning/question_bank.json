@@ -1,0 +1,1050 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 7,
+      "columns": [
+        "Product Family",
+        "original_target_usd",
+        "revised_target_usd",
+        "target_in_force_usd",
+        "h1_actual_usd",
+        "full_year_run_rate_usd",
+        "attainment"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Cash",
+          "3286908.64",
+          "2397142.47",
+          "2397142.47",
+          "1511267.74",
+          "3022535.48",
+          "0.6304455237489492"
+        ],
+        [
+          "Corporate Lending",
+          "3064496.42",
+          "2234937.24",
+          "2234937.24",
+          "238882.14",
+          "477764.28",
+          "0.10688539066090284"
+        ],
+        [
+          "FX",
+          "748904.44",
+          "546176.01",
+          "546176.01",
+          "334735.1999999999",
+          "669470.3999999998",
+          "0.6128705652963408"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "0cda5a0c790db277",
+      "sorted_by": null
+    },
+    "Q1-casual": {
+      "rows": 7,
+      "columns": [
+        "Product Family",
+        "h1_actual_usd",
+        "attainment"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Cash",
+          "1511267.74",
+          "0.6304455237489492"
+        ],
+        [
+          "Liquidity",
+          "1147341.9800000002",
+          "0.6509177084774759"
+        ],
+        [
+          "Trade Finance",
+          "642885.8999999999",
+          "0.6585651980477236"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "3e0ba15247c4b92f",
+      "sorted_by": "h1_actual_usd"
+    },
+    "Q1-abbrev": {
+      "rows": 7,
+      "columns": [
+        "Product Family",
+        "h1_actual_usd",
+        "full_year_run_rate_usd"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Cash",
+          "1511267.74",
+          "3022535.48"
+        ],
+        [
+          "Liquidity",
+          "1147341.9800000002",
+          "2294683.9600000004"
+        ],
+        [
+          "Trade Finance",
+          "642885.8999999999",
+          "1285771.7999999998"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "66476faf42b26378",
+      "sorted_by": "h1_actual_usd"
+    },
+    "Q2": {
+      "rows": 6,
+      "columns": [
+        "Coverage Office",
+        "Plan Owner RM",
+        "Client Group",
+        "attainment_h1",
+        "revenue_h1_usd",
+        "target_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "TH",
+          "Chen Vo",
+          "Visayan Energy Group",
+          "0.33018390762314836",
+          "393498.26999999996",
+          "1191754.84"
+        ],
+        [
+          "HK",
+          "Siti Devi",
+          "Jelita Property Holdings",
+          "0.3500032583090382",
+          "1089440.26",
+          "3112657.48"
+        ],
+        [
+          "SG",
+          "Wei Vo",
+          "Mekong Energy Holdings",
+          "0.35327698551374115",
+          "20222.930000000004",
+          "55696.920000000006"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "7c1fe682175a74d5",
+      "sorted_by": null
+    },
+    "Q2-jargon": {
+      "rows": 6,
+      "columns": [
+        "Coverage Office",
+        "Plan Owner RM",
+        "Client Group",
+        "attainment_h1",
+        "revenue_h1_usd",
+        "target_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "TH",
+          "Chen Vo",
+          "Visayan Energy Group",
+          "0.33018390762314836",
+          "393498.26999999996",
+          "1191754.84"
+        ],
+        [
+          "HK",
+          "Siti Devi",
+          "Jelita Property Holdings",
+          "0.3500032583090382",
+          "1089440.26",
+          "3112657.48"
+        ],
+        [
+          "SG",
+          "Wei Vo",
+          "Mekong Energy Holdings",
+          "0.35327698551374115",
+          "20222.930000000004",
+          "55696.920000000006"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "7c1fe682175a74d5",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 2,
+      "columns": [
+        "Client",
+        "Coverage Office",
+        "products_held",
+        "deposit_only_entity",
+        "deposits_usd",
+        "lending_drawn_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Tanaka Chemical (Hong Kong) (HK) Ltd",
+          "HK",
+          "14",
+          "0",
+          "676504.2",
+          "870821.2"
+        ],
+        [
+          "Tanaka Chemical (Singapore) Pte Ltd",
+          "SG",
+          "15",
+          "0",
+          "1459058.87",
+          "5.58E7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "81d75b6a7d6625d2",
+      "sorted_by": null
+    },
+    "Q3b": {
+      "rows": 16,
+      "columns": [
+        "Product Family",
+        "Product",
+        "entities_holding",
+        "deposits_usd",
+        "lending_drawn_usd",
+        "tb_volume_12m_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Cash",
+          "Current Account",
+          "2",
+          "1262507.36",
+          "0.0",
+          "0.0"
+        ],
+        [
+          "Cash",
+          "Savings Account",
+          "2",
+          "61317.75",
+          "0.0",
+          "0.0"
+        ],
+        [
+          "Corporate Lending",
+          "Revolving Credit Facility",
+          "1",
+          "0.0",
+          "5.58E7",
+          "0.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e8debfdb9789675f",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 4,
+      "columns": [
+        "Region",
+        "entities",
+        "committed_usd",
+        "drawn_usd",
+        "deposits_usd",
+        "revenue_12m_usd"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AMER",
+          "3",
+          "2.0317170142000002E8",
+          "1.3010261062E8",
+          "4.119100995E7",
+          "2743006.58"
+        ],
+        [
+          "APAC",
+          "6",
+          "1.5271931821E8",
+          "1.2667926205E8",
+          "2.0566573284999996E8",
+          "4644627.8100000005"
+        ],
+        [
+          "EMEA",
+          "4",
+          "1.9523799087E8",
+          "1.2920996134E8",
+          "2.51963708E8",
+          "4179136.1899999995"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "e8cf3731127601c8",
+      "sorted_by": null
+    },
+    "Q4-typo": {
+      "rows": 4,
+      "columns": [
+        "Region",
+        "deposits_usd",
+        "revenue_12m_usd"
+      ],
+      "types": [
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "JP",
+          "1.9094456242399998E9",
+          "8494259.309999999"
+        ],
+        [
+          "EMEA",
+          "2.51963708E8",
+          "4179136.1899999995"
+        ],
+        [
+          "APAC",
+          "2.0566573284999996E8",
+          "4644627.8100000005"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "be33f072fdecf5a3",
+      "sorted_by": "deposits_usd"
+    },
+    "Q5": {
+      "rows": 10,
+      "columns": [
+        "Segment",
+        "Product Family",
+        "wallet_usd",
+        "share_of_wallet"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Sponsor & Structured Finance",
+          "Supply Chain Finance",
+          "219828.75",
+          "0.0"
+        ],
+        [
+          "Japanese Corporate",
+          "Supply Chain Finance",
+          "1.0938639426999995E8",
+          "0.03101851196982509"
+        ],
+        [
+          "Non-Japanese Large Corporate",
+          "Supply Chain Finance",
+          "4.444325944E7",
+          "0.06031062491306781"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "5561d8c905c95c4d",
+      "sorted_by": null
+    },
+    "Q5-jargon": {
+      "rows": 10,
+      "columns": [
+        "Segment",
+        "Product Family",
+        "wallet_usd",
+        "share_of_wallet"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Sponsor & Structured Finance",
+          "Supply Chain Finance",
+          "219828.75",
+          "0.0"
+        ],
+        [
+          "Japanese Corporate",
+          "Supply Chain Finance",
+          "1.0938639426999995E8",
+          "0.03101851196982509"
+        ],
+        [
+          "Non-Japanese Large Corporate",
+          "Supply Chain Finance",
+          "4.444325944E7",
+          "0.06031062491306781"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "5561d8c905c95c4d",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 20,
+      "columns": [
+        "Client",
+        "Client Group",
+        "Primary RM",
+        "days_since_last_contact"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Luzon Telecom Holdings Trading (Singapore) Pte Ltd",
+          "Luzon Telecom Holdings",
+          "Budi Ito",
+          "321.0"
+        ],
+        [
+          "Konabe Auto Parts (Ho Chi Minh City) Co Ltd",
+          "Konabe Auto Parts",
+          "Tomo Putra",
+          "310.0"
+        ],
+        [
+          "Fuwa Heavy Industries Manufacturing (Singapore) Pte Ltd",
+          "Fuwa Heavy Industries",
+          "Hideo Vo",
+          "310.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "94872bfbe6075161",
+      "sorted_by": null
+    },
+    "Q6b": {
+      "rows": 1,
+      "columns": [
+        "strategic_crm_clients_not_touched_90d",
+        "strategic_entities_without_crm_account",
+        "crm_clients_not_touched_90d"
+      ],
+      "types": [
+        "LONG",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "20",
+          "360",
+          "239"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "99461b6d48e2862e",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 6,
+      "columns": [
+        "Primary RM",
+        "groups",
+        "revenue_ytd_usd",
+        "attainment"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Chen Watanabe",
+          "4",
+          "1247504.93",
+          "0.49259421143651383"
+        ],
+        [
+          "Sofia Goh",
+          "2",
+          "903196.9599999998",
+          "0.41230903034387745"
+        ],
+        [
+          "Budi Tan",
+          "3",
+          "788440.11",
+          "0.5319297580088685"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "76ea6c30f11ff011",
+      "sorted_by": null
+    },
+    "Q7-abbrev": {
+      "rows": 6,
+      "columns": [
+        "Primary RM",
+        "groups",
+        "revenue_ytd_usd",
+        "attainment"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Chen Watanabe",
+          "4",
+          "1247504.93",
+          "0.49259421143651383"
+        ],
+        [
+          "Sofia Goh",
+          "2",
+          "903196.9599999998",
+          "0.41230903034387745"
+        ],
+        [
+          "Budi Tan",
+          "3",
+          "788440.11",
+          "0.5319297580088685"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "76ea6c30f11ff011",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 426,
+      "columns": [
+        "bucket",
+        "client_group",
+        "group_yoy",
+        "product_family",
+        "revenue_h1_fy2026_usd",
+        "revenue_h1_fy2025_usd",
+        "family_yoy"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "DOUBLE",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Fell > 15%",
+          "Kisaragi Construction",
+          "-0.6814215049291709",
+          "Cash",
+          "10395.21",
+          "10227.65",
+          "0.01638304009229885"
+        ],
+        [
+          "Fell > 15%",
+          "Kisaragi Construction",
+          "-0.6814215049291709",
+          "Corporate Lending",
+          "0.0",
+          "46200.35",
+          "-1.0"
+        ],
+        [
+          "Fell > 15%",
+          "Kisaragi Construction",
+          "-0.6814215049291709",
+          "FX",
+          "0.0",
+          "0.0",
+          null
+        ]
+      ],
+      "error": null,
+      "sql_sha": "2248bc477c05619d",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 16,
+      "columns": [
+        "scope",
+        "product_family",
+        "groups",
+        "revenue_12m_usd",
+        "drawn_usd",
+        "deposits_usd"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "APAC",
+          "Cash",
+          "51",
+          "2.600044437E7",
+          "0.0",
+          "1.4059150021899998E9"
+        ],
+        [
+          "APAC",
+          "Liquidity",
+          "52",
+          "6889897.479999998",
+          "0.0",
+          "7.446933263100002E8"
+        ],
+        [
+          "APAC",
+          "Corporate Lending",
+          "33",
+          "6368912.0200000005",
+          "3.3155866215999997E8",
+          "0.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "a051b47820946814",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 49,
+      "columns": [
+        "rm",
+        "open_initiatives_due_q3",
+        "target_revenue_usd",
+        "open_initiatives_fy2026",
+        "overdue_initiatives_fy2026"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Sofia Oka",
+          "5",
+          "137775.57",
+          "6",
+          "0"
+        ],
+        [
+          "Ken Goh",
+          "4",
+          "2177022.79",
+          "8",
+          "0"
+        ],
+        [
+          "Tomo Putra",
+          "4",
+          "223857.38",
+          "5",
+          "0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "f61d3e85f54608ae",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_account_plan_progress",
+      "type": "METRIC_VIEW",
+      "field": "Fiscal Year",
+      "first": "FY2023",
+      "last": "FY2026",
+      "periods": 4
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_relationship_footprint",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_global_group_relationship",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_rm_engagement",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2024-04-01",
+      "last": "2026-09-01",
+      "periods": 30
+    },
+    {
+      "asset": "smbc_genie.gold.dim_account_plan_initiative",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:23:12+00:00",
+  "questions_captured_at": "2026-10-04T15:35:48+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "Give me the account-plan status for the Kinokawa Precision group: FY2026 target vs H1 actual by product family, and the full-year run-rate.",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_account_plan_status`(client_group => 'Kinokawa Precision', fiscal_year => 'FY2026')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Product Family",
+        "original_target_usd",
+        "revised_target_usd",
+        "target_in_force_usd",
+        "h1_actual_usd",
+        "full_year_run_rate_usd",
+        "attainment"
+      ],
+      "genie_rows": 7,
+      "seconds": 18.7,
+      "asked_at": "2026-10-04T14:23:12+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Now show the same for the Tanaka Chemical group.",
+      "after": "S1",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (7 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_account_plan_status`(client_group => 'Tanaka Chemical', fiscal_year => 'FY2026')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Product Family",
+        "original_target_usd",
+        "revised_target_usd",
+        "target_in_force_usd",
+        "h1_actual_usd",
+        "full_year_run_rate_usd",
+        "attainment"
+      ],
+      "genie_rows": 7,
+      "seconds": 21.4,
+      "asked_at": "2026-10-04T15:35:26+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which Strategic-tier groups are below 40% plan attainment at H1, by coverage office and RM?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Coverage Office`, `Plan Owner RM`, `Client Group`,\n       MEASURE(`Attainment %`)           AS attainment_h1,\n       MEASURE(`Revenue Actual YTD USD`) AS revenue_h1_usd,\n       MEASURE(`Effective Target USD`)   AS target_usd\nFROM smbc_genie.metrics.mv_account_plan_progress\nWHERE `Fiscal Year` = :fiscal_year AND `Relationship Tier` = :relationship_tier\nGROUP BY ALL\nHAVING MEASURE(`Attainment %`) < 0.40\nORDER BY attainment_h1",
+      "genie_parameters": [
+        {
+          "keyword": "relationship_tier",
+          "value": "Strategic",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "fiscal_year",
+          "value": "FY2026",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Coverage Office",
+        "Plan Owner RM",
+        "Client Group",
+        "attainment_h1",
+        "revenue_h1_usd",
+        "target_usd"
+      ],
+      "genie_rows": 6,
+      "seconds": 21.6,
+      "asked_at": "2026-10-04T14:23:31+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "Show the global relationship with Hayashi Marine Logistics - exposure, deposits and revenue by region including Japan, EMEA and Americas.",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": "Q4",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Region`,\n       MEASURE(`Entity Count`)           AS entities,\n       MEASURE(`Global Committed USD`)   AS committed_usd,\n       MEASURE(`Global Drawn USD`)       AS drawn_usd,\n       MEASURE(`Global Deposits USD`)    AS deposits_usd,\n       MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd\nFROM smbc_genie.metrics.mv_global_group_relationship\nWHERE `Client Group` = :client_group AND `Is Latest Month`\nGROUP BY ALL\nORDER BY `Region`",
+      "genie_parameters": [
+        {
+          "keyword": "client_group",
+          "value": "Hayashi Marine Logistics",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Region",
+        "entities",
+        "committed_usd",
+        "drawn_usd",
+        "deposits_usd",
+        "revenue_12m_usd"
+      ],
+      "genie_rows": 4,
+      "seconds": 18.8,
+      "asked_at": "2026-10-04T14:23:53+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "Which Tanaka Chemical entities hold nothing but deposits with us?",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT * FROM `smbc_genie`.`gold`.`fn_account_plan_footprint`(client_group => 'Tanaka Chemical')",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Coverage Office",
+        "products_held",
+        "deposit_only_entity",
+        "deposits_usd",
+        "lending_drawn_usd"
+      ],
+      "genie_rows": 2,
+      "seconds": 18.9,
+      "asked_at": "2026-10-04T14:24:12+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Where is our share of wallet lowest by segment and product family in FY2025?",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": null,
+      "verdict": "differs",
+      "note": "Genie lists 33 rows; its first 10 are exactly the benchmark's answer",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Segment`,\n  `Product Family`,\n  MEASURE(`SMBC Wallet Revenue USD`) AS `smbc_wallet_revenue_usd`,\n  MEASURE(`Estimated Wallet USD`) AS `estimated_wallet_usd`,\n  MEASURE(`Share of Wallet %`) AS `share_of_wallet_pct`\nFROM `smbc_genie`.`metrics`.`mv_account_plan_progress`\nWHERE `Fiscal Year` = 'FY2025'\n  AND `Segment` IS NOT NULL\n  AND `Product Family` IS NOT NULL\nGROUP BY ALL\nHAVING MEASURE(`Estimated Wallet USD`) > 0\n   AND MEASURE(`Share of Wallet %`) IS NOT NULL\nORDER BY `share_of_wallet_pct` ASC, `Segment` ASC, `Product Family` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Segment",
+        "Product Family",
+        "smbc_wallet_revenue_usd",
+        "estimated_wallet_usd",
+        "share_of_wallet_pct"
+      ],
+      "genie_rows": 33,
+      "seconds": 24.2,
+      "asked_at": "2026-10-04T14:24:31+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Which Strategic clients have had no RM contact in the last 90 days?",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows; Genie shows 3 of the benchmark's 4 columns (not shown: days since last contact); adds 2 columns",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Client`, `Client Group`, `Coverage Office`, `Primary RM`, `Primary RM Office`\nFROM `smbc_genie`.`metrics`.`mv_rm_engagement`\nWHERE `Is Latest Month` = true\n  AND `Relationship Tier` = 'Strategic'\n  AND `Record Type` = 'coverage'\nGROUP BY ALL\nHAVING MEASURE(`Strategic Clients Not Touched 90D`) > 0\nORDER BY `Coverage Office` ASC, `Primary RM` ASC, `Client Group` ASC, `Client` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Client",
+        "Client Group",
+        "Coverage Office",
+        "Primary RM",
+        "Primary RM Office"
+      ],
+      "genie_rows": 20,
+      "seconds": 38.4,
+      "asked_at": "2026-10-04T14:24:55+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "RM book summary: for each RM in Singapore, number of groups, revenue YTD and attainment.",
+      "after": null,
+      "benchmark": "Q7",
+      "matched": "Q7",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT\n  `Primary RM` AS `primary_rm`,\n  MEASURE(`Groups`) AS `groups`,\n  MEASURE(`Revenue Actual YTD USD`) AS `revenue_ytd_usd`,\n  MEASURE(`Attainment %`) AS `attainment_pct`\nFROM `smbc_genie`.`metrics`.`mv_account_plan_progress`\nWHERE `Fiscal Year` = 'FY2026'\n  AND `Primary RM Office` = 'SG'\n  AND `Primary RM` IS NOT NULL\nGROUP BY ALL\nORDER BY `revenue_ytd_usd` DESC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "primary_rm",
+        "groups",
+        "revenue_ytd_usd",
+        "attainment_pct"
+      ],
+      "genie_rows": 6,
+      "seconds": 35.0,
+      "asked_at": "2026-10-04T14:25:34+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "List account-plan initiatives still open for Q3 FY2026 by RM.",
+      "after": null,
+      "benchmark": "Q10",
+      "matched": "Q10",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH d AS (\n  SELECT owner_rm_name, count(*) AS open_initiatives_due_q3, sum(target_revenue_usd) AS target_revenue_usd\n  FROM smbc_genie.gold.dim_account_plan_initiative\n  WHERE is_open AND due_fiscal_quarter_label = :due_quarter\n  GROUP BY 1\n), v AS (\n  SELECT `Plan Owner RM`, MEASURE(`Initiatives Open`) AS open_initiatives_fy2026,\n         MEASURE(`Initiatives Overdue`) AS overdue_initiatives_fy2026\n  FROM smbc_genie.metrics.mv_account_plan_progress\n  WHERE `Fiscal Year` = :fiscal_year\n  GROUP BY ALL\n)\nSELECT d.owner_rm_name AS rm, d.open_initiatives_due_q3, d.target_revenue_usd,\n       v.open_initiatives_fy2026, v.overdue_initiatives_fy2026\nFROM d LEFT JOIN v ON v.`Plan Owner RM` = d.owner_rm_name\nORDER BY d.open_initiatives_due_q3 DESC, rm",
+      "genie_parameters": [
+        {
+          "keyword": "due_quarter",
+          "value": "FY2026-Q3",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "fiscal_year",
+          "value": "FY2026",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "rm",
+        "open_initiatives_due_q3",
+        "target_revenue_usd",
+        "open_initiatives_fy2026",
+        "overdue_initiatives_fy2026"
+      ],
+      "genie_rows": 49,
+      "seconds": 19.2,
+      "asked_at": "2026-10-04T14:26:10+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "account_planning",
+  "space_id": "my-agent-id"
+}

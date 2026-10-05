@@ -1,0 +1,79 @@
+{
+ "columns": [
+  {
+   "comment": "Fictional staff id (SYN-P-nnnn); join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "employee_id",
+   "type": "string"
+  },
+  {
+   "comment": "Staff name (fictional); role + id (e.g. Onboarding Officer SYN-P-0211) when no source records a name.",
+   "is_measure": false,
+   "name": "employee_name",
+   "type": "string"
+  },
+  {
+   "comment": "Primary role: RM, Credit Analyst, Credit Approver, TB Sales or Onboarding Officer.",
+   "is_measure": false,
+   "name": "role",
+   "type": "string"
+  },
+  {
+   "comment": "All roles the person appears in across systems, comma-separated (e.g. Credit Analyst, Credit Analyst (checker)).",
+   "is_measure": false,
+   "name": "roles_seen",
+   "type": "string"
+  },
+  {
+   "comment": "Team: <segment> Coverage for RMs (by the segment most of their accounts belong to), Credit Risk Management, Credit Approval, Transaction Banking Sales or Client Onboarding & KYC.",
+   "is_measure": false,
+   "name": "team",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location) the person works from: CRM team record; onboarding officers the booking country most of their cases are in; otherwise the Singapore hub.",
+   "is_measure": false,
+   "name": "coverage_office",
+   "type": "string"
+  },
+  {
+   "comment": "CRM RM code (RM001-RM120) for relationship managers; null for other roles. Unique.",
+   "is_measure": false,
+   "name": "rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "True for relationship managers (primary or secondary RM on CRM accounts).",
+   "is_measure": false,
+   "name": "is_relationship_manager",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when a source system records the person's name (false = role-based display name).",
+   "is_measure": false,
+   "name": "has_recorded_name",
+   "type": "boolean"
+  },
+  {
+   "comment": "Golden clients for which the person is the current primary RM in CRM.",
+   "is_measure": false,
+   "name": "primary_clients_current",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups with at least one client for which the person is the current primary RM.",
+   "is_measure": false,
+   "name": "primary_groups_current",
+   "type": "bigint"
+  },
+  {
+   "comment": "Current CRM account-team assignments in any team role.",
+   "is_measure": false,
+   "name": "team_assignments_current",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Fictional SMBC APAC staff seen in the source systems: relationship managers (RM001-RM120), credit analysts, credit approvers, TB sales and onboarding officers, with role, team, coverage office and current client coverage. Facts that record an RM code (e.g. crm_activity.rm_code, owner_rm) join on rm_code to get employee_id. Names come from the CRM team records; staff who never appear there (approvers, onboarding officers) carry a role-based display name. Grain: one row per staff member (employee_id).",
+ "identifier": "smbc_genie.gold.dim_employee",
+ "type": "MANAGED"
+}

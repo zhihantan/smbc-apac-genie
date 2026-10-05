@@ -1,0 +1,64 @@
+table: fact_trade_outstanding_monthly
+domain: trade
+comment: >-
+  Month-end outstanding of every live trade-finance instrument from Apr-2024 (the complete trade history) to
+  Sep-2026, replayed from the instrument lifecycle events (issue / amend / present / accept / pay / expire /
+  claim): outstanding USD and LCY with the instrument's product, corridor, commodity, beneficiary and
+  counterparty-bank country, booking location, maturity / expiry fiscal quarter and days to maturity.
+  POINT-IN-TIME: never sum outstanding across month-ends - pick one month_end_date (is_latest_month_end =
+  30-Sep-2026, or quarter-ends for trends) or use the semi-additive last value. Answers guarantees / SBLCs
+  outstanding by beneficiary country and expiry quarter and trade exposure to carbon-intensive commodities.
+grain: one row per trade-finance instrument per month-end while its outstanding is above zero
+primary_key: [txn_id, month_end_date]
+foreign_keys:
+  - {columns: [txn_id], references: fact_trade_finance_transaction}
+  - {columns: [month_end_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [beneficiary_country], references: dim_country}
+cluster_by: [month_end_date, golden_client_sk]
+min_rows: 10000
+columns:
+  txn_id: {type: STRING, comment: "Trade-finance instrument id (join gold.fact_trade_finance_transaction)."}
+  month_end_date: {type: DATE, comment: "Month-end of the snapshot."}
+  month: {type: DATE, comment: "First day of the month of month_end_date."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the client valid at the month-end (as-was, D11)."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  product_type: {type: STRING, comment: "Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan or Receivables Purchase."}
+  product_id: {type: STRING, comment: "Trade product key; join gold.dim_product."}
+  direction: {type: STRING, comment: "Import or Export."}
+  origin_country: {type: STRING, comment: "Goods corridor origin country (ISO-2)."}
+  destination_country: {type: STRING, comment: "Goods corridor destination country (ISO-2)."}
+  corridor: {type: STRING, comment: "Goods corridor origin->destination, e.g. CN->VN."}
+  commodity: {type: STRING, comment: "Goods traded (e.g. Electronics, Mineral Fuels)."}
+  hs_chapter: {type: STRING, comment: "HS chapter of the goods."}
+  is_carbon_intensive_commodity: {type: BOOLEAN, comment: "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats)."}
+  beneficiary_country: {type: STRING, comment: "Country of the beneficiary (e.g. of a guarantee / SBLC)."}
+  counterparty_bank_country: {type: STRING, comment: "Country of the counterparty's bank."}
+  booking_country: {type: STRING, comment: "SMBC booking location of the instrument (ISO-2)."}
+  currency: {type: STRING, comment: "Instrument currency (ISO 4217)."}
+  outstanding_usd: {type: DOUBLE, comment: "Outstanding exposure at the month-end in USD (point-in-time; never sum across month-ends)."}
+  outstanding_lcy: {type: DOUBLE, comment: "Outstanding in the instrument currency (outstanding_usd x the issue-date currency / USD ratio of the instrument)."}
+  txn_date: {type: DATE, comment: "Issue date of the instrument."}
+  maturity_date: {type: DATE, comment: "Maturity / expiry date."}
+  days_to_maturity: {type: INT, comment: "Days from the month-end to maturity (negative = past maturity but still outstanding, e.g. under claim)."}
+  expiry_fiscal_quarter_label: {type: STRING, comment: "Japanese fiscal quarter of the maturity date, e.g. FY2026-Q3."}
+  tenor_bucket: {type: STRING, comment: "Original tenor bucket: 0-30 days, 31-90 days, 91-180 days, 181-365 days or Over 365 days."}
+  is_sustainable_trade: {type: BOOLEAN, comment: "True for sustainable / green trade instruments."}
+  is_latest_month_end: {type: BOOLEAN, comment: "True for the as-of month-end 30-Sep-2026."}
+  is_fiscal_quarter_end: {type: BOOLEAN, comment: "True on fiscal quarter-ends (30 Jun, 30 Sep, 31 Dec, 31 Mar) - use for quarterly trends."}
+checks:
+  - name: positive_outstanding
+    sql: SELECT count_if(outstanding_usd <= 0 OR outstanding_usd IS NULL) FROM ${table}
+reconcile:
+  - name: as_of_outstanding_vs_silver
+    gold: SELECT round(sum(outstanding_usd)) FROM ${table} WHERE is_latest_month_end
+    silver: SELECT round(sum(outstanding_usd)) FROM ${catalog}.silver.trade_finance_txn
+    tolerance: 1
+  - name: live_instruments_at_as_of_vs_silver   # open instruments with a balance (6 settled ones keep a 1-cent residual in silver)
+    gold: SELECT count(*) FROM ${table} WHERE is_latest_month_end
+    silver: SELECT count(*) FROM ${catalog}.silver.trade_finance_txn WHERE closed_date IS NULL AND outstanding_usd > 0

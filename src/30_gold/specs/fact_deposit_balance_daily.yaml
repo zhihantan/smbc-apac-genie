@@ -1,0 +1,74 @@
+table: fact_deposit_balance_daily
+domain: tb
+comment: >-
+  Daily end-of-day deposit balances per core-banking account for the 10-month daily window 1-Dec-2025 to
+  30-Sep-2026 (current, savings, time-deposit and money-market accounts), in local currency and USD, with the
+  CASA / TD split, the balance 1 and 30 days earlier (outflow analysis, e.g. Sunda's February outflow) and the
+  day's time-deposit placements / maturities. POINT-IN-TIME: never sum balances across dates - take one date
+  (is_as_of_date, is_month_end) or the average over days. Month-end rows equal fact_deposit_balance_monthly;
+  history before Dec-2025 is month-end only (fact_deposit_balance_monthly).
+grain: one row per account per calendar day (1-Dec-2025 to 30-Sep-2026, from the account's first day)
+primary_key: [account_id, balance_date]
+foreign_keys:
+  - {columns: [account_id], references: dim_account}
+  - {columns: [balance_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [currency], references: dim_currency}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [product_id], references: dim_product}
+cluster_by: [balance_date, golden_client_sk]
+min_rows: 2000000
+columns:
+  account_id: {type: STRING, comment: "Core-banking account id (join gold.dim_account)."}
+  balance_date: {type: DATE, comment: "Calendar day of the end-of-day balance (every day incl. weekends; 1-Dec-2025 to 30-Sep-2026)."}
+  month: {type: DATE, comment: "First day of the calendar month of balance_date."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  cust_no: {type: STRING, comment: "Core-banking customer number (source identity record) holding the account."}
+  booking_country: {type: STRING, comment: "APAC booking location of the account = the holder's coverage office (ISO-2, e.g. HK); join gold.dim_booking_entity."}
+  account_type: {type: STRING, comment: "Current Account, Savings Account, Time Deposit or Money Market Deposit."}
+  product_id: {type: STRING, comment: "Deposit product (PRD-CURRENT-ACCOUNT, PRD-SAVINGS-ACCOUNT, PRD-TIME-DEPOSIT, PRD-MONEY-MARKET-DEPOSIT); join gold.dim_product."}
+  deposit_class: {type: STRING, comment: "CASA (current and savings accounts) or TD (time and money-market deposits)."}
+  is_casa: {type: BOOLEAN, comment: "True for current / savings accounts (CASA); CASA ratio = CASA balance / total balance on one date."}
+  currency: {type: STRING, comment: "ISO 4217 currency of the account (balance_lcy is in this currency)."}
+  balance_lcy: {type: DOUBLE, comment: "End-of-day balance in the account currency (point-in-time; >= 0; do not sum across dates)."}
+  balance_usd: {type: DOUBLE, comment: "End-of-day balance in USD at the day's FX rate (point-in-time; >= 0; do not sum across dates)."}
+  casa_balance_usd: {type: DOUBLE, comment: "balance_usd when the account is CASA, else 0 (point-in-time). CASA ratio = SUM(casa_balance_usd) / SUM(balance_usd) on one date."}
+  td_balance_usd: {type: DOUBLE, comment: "balance_usd when the account is a time / money-market deposit, else 0 (point-in-time)."}
+  balance_usd_prev_day: {type: DOUBLE, comment: "USD balance of the same account on the previous day (null on the account's first day in the window)."}
+  balance_usd_30d_prior: {type: DOUBLE, comment: "USD balance of the same account 30 days earlier (null when the account or the window is younger than 30 days). 30-day outflow % = 1 - SUM(balance_usd) / SUM(balance_usd_30d_prior)."}
+  balance_change_1d_usd: {type: DOUBLE, comment: "balance_usd - balance_usd_prev_day (USD; negative = outflow); additive across accounts and days (a flow)."}
+  td_placed_usd: {type: DOUBLE, comment: "Principal (USD) of time deposits placed into this TD / money-market account on this day (flow; 0 for CASA or no placement)."}
+  td_placed_from_current_account_usd: {type: DOUBLE, comment: "Part of td_placed_usd funded by a transfer from the client's current account (CASA -> TD migration), USD (flow)."}
+  transferred_to_td_usd: {type: DOUBLE, comment: "On current accounts: principal moved out of this account into time deposits on this day (funding account of the placement), USD (flow)."}
+  td_matured_usd: {type: DOUBLE, comment: "Principal (USD) of time deposits on this account maturing on this day (flow)."}
+  is_month_end: {type: BOOLEAN, comment: "True on the last calendar day of a month - the month-end snapshot (equals fact_deposit_balance_monthly)."}
+  is_as_of_date: {type: BOOLEAN, comment: "True on the as-of date 30-Sep-2026 (today's balance)."}
+  is_business_day_sg: {type: BOOLEAN, comment: "True on a Singapore business day (Mon-Fri); weekend balances repeat the Friday balance."}
+checks:
+  - name: no_negative_balances
+    sql: SELECT count_if(balance_usd < 0 OR balance_lcy < 0) FROM ${table}
+  - name: casa_td_split_adds_up
+    sql: SELECT count_if(abs(casa_balance_usd + td_balance_usd - balance_usd) > 0.005) FROM ${table}
+  - name: month_ends_match_monthly_fact     # in-window month-ends equal gold.fact_deposit_balance_monthly
+    sql: >-
+      SELECT count(*) FROM ${table} d LEFT JOIN ${catalog}.gold.fact_deposit_balance_monthly m
+      ON m.account_id = d.account_id AND m.balance_date = d.balance_date
+      WHERE d.is_month_end AND (m.account_id IS NULL OR abs(m.balance_usd - d.balance_usd) > 0.005)
+  - name: as_of_total_equals_silver
+    sql: >-
+      SELECT abs((SELECT sum(balance_usd) FROM ${table} WHERE is_as_of_date)
+      - (SELECT sum(balance_usd) FROM ${catalog}.silver.core_deposit_balance_daily WHERE balance_date = DATE'${as_of_date}'))
+    max: 1
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.core_deposit_balance_daily
+  - name: td_placements_vs_silver_in_window
+    gold: SELECT round(sum(td_placed_usd)) FROM ${table}
+    silver: >-
+      SELECT round(sum(t.principal_usd)) FROM ${catalog}.silver.core_time_deposit t
+      JOIN (SELECT account_id, min(balance_date) AS d0 FROM ${catalog}.silver.core_deposit_balance_daily GROUP BY account_id) a
+      ON a.account_id = t.account_id AND t.placement_date >= a.d0 AND t.placement_date <= DATE'${as_of_date}'
+    tolerance: 2

@@ -1,0 +1,52 @@
+table: fact_channel_usage_monthly
+domain: tb
+comment: >-
+  Monthly digital-channel and payment-rail usage per client and channel from Apr-2024 to Sep-2026: e-banking portal
+  users and logins, payments initiated (outbound, = fact_payment_transaction outbound count) and their value, STP
+  payments, manual instructions keyed by operations (fax / paper on the network rails), digital payments, API calls
+  and host-to-host files. All measures are monthly flows / counts (additive across months), except active_users
+  (a monthly head-count - average or take one month). Digital share = SUM(digital_payments) / SUM(payments_initiated);
+  manual share = SUM(manual_instructions) / SUM(payments_initiated).
+grain: one row per golden client per channel per month
+primary_key: [golden_client_id, usage_month, channel]
+foreign_keys:
+  - {columns: [usage_month], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [product_id], references: dim_product}
+cluster_by: [usage_month, golden_client_sk]
+min_rows: 50000
+columns:
+  golden_client_id: {type: STRING, not_null: true}
+  usage_month: {type: DATE, comment: "First day of the usage month."}
+  channel: {type: STRING, comment: "Portal (e-banking), Payments API, Host-to-Host, SWIFT MT, ISO 20022, RTGS or FAST."}
+  golden_client_sk: {type: BIGINT}
+  client_group_id: {type: STRING}
+  booking_country: {type: STRING, comment: "Client's coverage office / booking location (ISO-2)."}
+  channel_type: {type: STRING, comment: "Digital (Portal, Payments API, Host-to-Host) or Network rail (SWIFT MT, ISO 20022, RTGS, FAST)."}
+  product_id: {type: STRING, comment: "Connectivity product where one exists (PRD-PAYMENTS-API, PRD-HOST-TO-HOST); null for the portal and network rails."}
+  active_users: {type: INT, comment: "E-banking portal users active in the month (portal rows only; a head-count - do not sum across months)."}
+  logins: {type: BIGINT, comment: "Portal logins in the month (portal rows only)."}
+  payments_initiated: {type: BIGINT, comment: "Outbound payments initiated through the channel in the month."}
+  payments_value_usd: {type: DOUBLE, comment: "USD value of the payments initiated in the month."}
+  stp_payments: {type: BIGINT, comment: "Payments initiated that went straight through (no repair)."}
+  manual_instructions: {type: BIGINT, comment: "Payments sent as manual instructions (fax / paper / e-mail) that operations keyed onto the rail - the clients still sending manual instructions."}
+  digital_payments: {type: BIGINT, comment: "Payments initiated electronically by the client = payments_initiated - manual_instructions."}
+  api_calls: {type: BIGINT, comment: "Payments-API calls in the month (API rows only)."}
+  files_transmitted: {type: BIGINT, comment: "Host-to-host payment files transmitted in the month (host-to-host rows only)."}
+  is_active: {type: BOOLEAN, comment: "True when the client used the channel in the month (users, logins, payments, API calls or files > 0). Active Clients = count distinct golden_client_id where true."}
+  source_customers: {type: INT, comment: "Core-banking customer records aggregated into the row (duplicates of one golden client are summed)."}
+checks:
+  - name: digital_plus_manual_equals_initiated
+    sql: SELECT count_if(digital_payments + manual_instructions <> payments_initiated) FROM ${table}
+reconcile:
+  - name: payments_initiated_vs_silver
+    gold: SELECT sum(payments_initiated) FROM ${table}
+    silver: SELECT sum(payments_initiated) FROM ${catalog}.silver.pay_channel_usage
+  - name: logins_vs_silver
+    gold: SELECT sum(logins) FROM ${table}
+    silver: SELECT sum(logins) FROM ${catalog}.silver.pay_channel_usage
+  - name: outbound_payments_vs_payment_fact   # usage counts = outbound payment messages from Apr-2024
+    gold: SELECT sum(payments_initiated) FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.pay_payment_message WHERE direction = 'Outbound'

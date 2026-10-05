@@ -1,0 +1,46 @@
+# SMBC APAC Genie — Declarative Automation Bundle (formerly Asset Bundle).
+# Target CLI >= 1.19 (direct deployment engine). `bundle validate` also passes on 0.299.x.
+# The bundle never creates or updates the Genie Agents (DECISIONS D50): they are changed from a laptop with
+# src/50_genie/run_genie.py --create (REST, D06). The p08 job only evaluates the existing agents.
+
+bundle:
+  name: smbc-apac-genie
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog name
+    default: smbc_genie
+  warehouse_id:
+    description: >-
+      Serverless SQL warehouse id for DDL, metric views and Genie. Set at deploy time
+      (`--var warehouse_id=...`) or switch to a lookup once authenticated, e.g.
+      warehouse_id: {lookup: {warehouse: "smbc-genie-wh"}}.
+    default: ""
+  scale:
+    description: 0.1 for dev iterations, 1.0 for the demo build
+    default: "0.1"
+  as_of_date:
+    default: "2026-09-30"
+  random_seed:
+    default: "20260930"
+  spaces_to_build:
+    default: all
+  consumer_group:
+    description: Account-level group granted SELECT on gold+metrics and CAN_RUN on spaces
+    default: ""
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      scale: "0.1"
+    # workspace.host is taken from the --profile used on the CLI (my-workspace).
+
+  demo:
+    mode: production
+    variables:
+      scale: "1.0"

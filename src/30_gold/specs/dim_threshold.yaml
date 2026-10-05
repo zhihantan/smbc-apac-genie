@@ -1,0 +1,29 @@
+table: dim_threshold
+domain: hub
+comment: >-
+  Single source of business thresholds (D20, D29): profitability hurdles (RoRWA 1.2%, RAROC 12%, ROE 10%;
+  "below hurdle" always means below these configured values), the USD 500m single-borrower attention
+  threshold, EWS bands (Green < 40, Amber 40-69, Red >= 70), covenant headroom warning, onboarding stage
+  SLA days and the cut-offs used by the standard questions (e.g. LTV 70%, 90 days without RM contact).
+  Ratios are fractions (0.012 = 1.2%).
+grain: one row per threshold
+primary_key: [threshold_code]
+cluster_by: [category]
+min_rows: 20
+columns:
+  threshold_code: {type: STRING, comment: "Threshold key, e.g. RORWA_HURDLE, EWS_RED_MIN, SLA_STAGE_2_KYC_DOCS."}
+  threshold_name: {type: STRING, comment: Human-readable threshold name.}
+  category: {type: STRING, comment: "Area: Profitability, Credit, Early Warning, Onboarding, Relationship, Opportunity, Cash & Liquidity, Trade & SCF, Cashflow, Signals or Data Foundation."}
+  threshold_value: {type: DOUBLE, comment: "Threshold value in `unit` (ratios as fractions: 0.012 = 1.2%)."}
+  unit: {type: STRING, comment: "Unit of threshold_value: ratio, usd, score, days, hours, months or count."}
+  comparison: {type: STRING, comment: "How it is applied: below, at_or_above, above, at_most or within."}
+  applies_to: {type: STRING, comment: Measure or field the threshold is applied to.}
+  description: {type: STRING, comment: What crossing the threshold means.}
+  source: {type: STRING, comment: "Where the value comes from: config/smbc_genie.yaml (configurable), silver.kyc_case_stage (stage SLA) or a business rule fixed in gold."}
+checks:
+  - name: config_hurdles_present
+    sql: >-
+      SELECT 3 - count(*) FROM ${table} WHERE threshold_code IN ('RORWA_HURDLE', 'RAROC_HURDLE', 'ROE_HURDLE')
+      AND threshold_value IS NOT NULL
+  - name: stage_slas_present
+    sql: SELECT (SELECT count(*) FROM ${catalog}.gold.dim_onboarding_stage) - count(*) FROM ${table} WHERE threshold_code LIKE 'SLA_STAGE_%'

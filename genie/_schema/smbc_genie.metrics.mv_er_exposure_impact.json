@@ -1,0 +1,247 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the ER run (quarter-end) as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the ER run (quarter-end), April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics). \"Client\" or \"group\" without qualification means this level. Match with LIKE '%Kinokawa%'.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "The group's lead (relationship) legal entity, e.g. the entity holding the account plan.",
+   "is_measure": false,
+   "name": "Lead Client",
+   "type": "string"
+  },
+  {
+   "comment": "Group segment (most common segment of its APAC clients): Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Group relationship tier - Strategic, Core or Transactional. \"Strategic groups\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for groups headquartered in Japan (Japanese corporate groups) - \"Japanese corporates\" / \"JC\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Group industry sector (most common sector of its APAC clients), e.g. Technology, Materials, Energy.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Group industry subsector (most common subsector of its APAC clients), e.g. Automotive Parts, Shipping.",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Lead office of the group = coverage office of its lead entity, ISO-2 code (SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand).",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Group lead RM = current primary RM of the group's lead entity (fictional name).",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the group lead RM sits - \"RMs in Singapore\" means this.",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Worst (highest) internal rating grade 1-10 among the group's rated APAC clients today; null = no rated client.",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "Highest IFRS 9 stage (1-3) among the group's APAC clients today.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when at least one APAC client of the group is on the credit watchlist today.",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating (Low, Medium, High) of the group's lead entity today; null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Worst current early-warning band among the group's APAC clients (Red > Amber > Green); null = none scored.",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Entity-resolution run: ER-20250630, ER-20250930, ER-20251231 (v1), ER-20260331 (first v2 run - the March 2026 resolution), ER-20260630, ER-20260930 (latest).",
+   "is_measure": false,
+   "name": "Run",
+   "type": "string"
+  },
+  {
+   "comment": "Rule set of the run: v1 (2025 runs) or v2 (from Mar-2026).",
+   "is_measure": false,
+   "name": "Rule Version",
+   "type": "string"
+  },
+  {
+   "comment": "Attributed (exposure resolved to a client group) or Unattributed (records the run could not attribute).",
+   "is_measure": false,
+   "name": "Attribution Status",
+   "type": "string"
+  },
+  {
+   "comment": "True when re-resolution in the run changed the group's exposure by more than 20% (gold.dim_threshold ER_EXPOSURE_CHANGE) - \"exposures that changed by more than 20% after the resolution\".",
+   "is_measure": false,
+   "name": "Material Resolution Change",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when re-resolution in the run moved the group across the USD 500m single-borrower attention threshold.",
+   "is_measure": false,
+   "name": "Crossed Threshold on Resolution",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the group's exposure under the run is at or above the USD 500m attention threshold.",
+   "is_measure": false,
+   "name": "Above Attention Threshold",
+   "type": "boolean"
+  },
+  {
+   "comment": "Group credit exposure under the run's resolution (drawn lending + trade finance outstanding at the run date), USD; latest run of the selection (point-in-time).",
+   "is_measure": true,
+   "name": "Exposure After Resolution USD",
+   "type": "double"
+  },
+  {
+   "comment": "The same run-date exposure attributed with the previous run's resolution, USD (null for the first run).",
+   "is_measure": true,
+   "name": "Exposure Before Resolution USD",
+   "type": "double"
+  },
+  {
+   "comment": "Exposure under the run minus the same exposure under the previous resolution, USD - the effect of ER alone.",
+   "is_measure": true,
+   "name": "Resolution Change USD",
+   "type": "double"
+  },
+  {
+   "comment": "Resolution change / exposure under the previous resolution (fraction; 0.38 = +38% for Meridian at the Mar-2026 run).",
+   "is_measure": true,
+   "name": "Resolution Change %",
+   "type": "double"
+  },
+  {
+   "comment": "Group exposure reported by the previous run (its own date and resolution), USD.",
+   "is_measure": true,
+   "name": "Exposure Previous Run USD",
+   "type": "double"
+  },
+  {
+   "comment": "Change vs the exposure reported at the previous run (resolution plus balance movements; fraction).",
+   "is_measure": true,
+   "name": "Change vs Previous Run %",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn lending of the attributed obligor records at the run date, USD (latest run of the selection).",
+   "is_measure": true,
+   "name": "Lending Drawn USD",
+   "type": "double"
+  },
+  {
+   "comment": "Trade finance outstanding of the attributed trade party records at the run date, USD.",
+   "is_measure": true,
+   "name": "Trade Outstanding USD",
+   "type": "double"
+  },
+  {
+   "comment": "Client groups with attributed exposure under the run (latest run of the selection).",
+   "is_measure": true,
+   "name": "Groups",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups (and the unattributed bucket) whose exposure changed by more than 20% through re-resolution in the run.",
+   "is_measure": true,
+   "name": "Groups With Material Change",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups at or above the attention threshold under the run.",
+   "is_measure": true,
+   "name": "Groups Above Threshold",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups moved across the USD 500m attention threshold by re-resolution in the run (Meridian at ER-20260331).",
+   "is_measure": true,
+   "name": "Groups Crossing Threshold",
+   "type": "bigint"
+  },
+  {
+   "comment": "The single-borrower attention threshold (USD 500m, gold.dim_threshold SINGLE_BORROWER_ATTENTION_USD).",
+   "is_measure": true,
+   "name": "Attention Threshold USD",
+   "type": "double"
+  }
+ ],
+ "comment": "Why entity resolution matters: credit exposure of each client group under each quarterly ER run (Jun-2025 .. Sep-2026, USD; drawn lending + trade finance outstanding at the run date) beside the same exposure attributed with the previous run's resolution - the change caused by re-resolution alone (e.g. Meridian Agri Holdings +38% at the March 2026 v2 run, crossing the USD 500m single-borrower attention threshold) - plus the change vs the previous run, groups with a material (> 20%) resolution change and groups above / crossing the threshold. Per-run snapshots: group by Run or filter Month = DATE'2026-03-01' for the March 2026 resolution; unattributed exposure is one row per run with no client group. Grain: one row per ER run per client group, plus one unattributed row per run (gold.fact_group_exposure_by_er_run).",
+ "identifier": "smbc_genie.metrics.mv_er_exposure_impact",
+ "type": "METRIC_VIEW"
+}

@@ -1,0 +1,43 @@
+{
+ "columns": [
+  {
+   "comment": "Industry sector of the APAC taxonomy (e.g. Technology, Materials); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_sector",
+   "type": "string"
+  },
+  {
+   "comment": "Industry subsector within the sector (e.g. Semiconductors); see gold.dim_industry.",
+   "is_measure": false,
+   "name": "industry_subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.",
+   "is_measure": false,
+   "name": "peer_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "True for carbon-intensive (transition-risk) subsectors.",
+   "is_measure": false,
+   "name": "is_carbon_intensive",
+   "type": "boolean"
+  },
+  {
+   "comment": "Portfolio concentration limit for the subsector in USD.",
+   "is_measure": false,
+   "name": "sector_limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Sector - subsector label, e.g. Technology - Semiconductors.",
+   "is_measure": false,
+   "name": "industry_label",
+   "type": "string"
+  }
+ ],
+ "comment": "APAC industry taxonomy: sector and subsector with the ratio-benchmarking peer group, the carbon-intensive flag (coal, oil and gas, petrochemicals, steel, chemicals, mining, shipping, power ...) and the sector concentration limit. dim_client.industry_sector / industry_subsector reference it. Grain: one row per industry subsector.",
+ "identifier": "smbc_genie.gold.dim_industry",
+ "type": "MANAGED"
+}

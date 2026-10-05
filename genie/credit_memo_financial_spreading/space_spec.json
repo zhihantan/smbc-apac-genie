@@ -1,0 +1,180 @@
+{
+  "slug": "credit_memo_financial_spreading",
+  "title": "APAC Genie - Credit Memo & Financial Spreading",
+  "description": "Ask about spread financials, ratios vs peers, facilities, covenants, collateral and the credit review workflow (the credit memo pack) for SMBC's APAC clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar). Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.",
+  "warehouse_id": "",
+  "assets": [
+    "smbc_genie.metrics.mv_financial_spreads",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral",
+    "smbc_genie.metrics.mv_credit_review_workflow",
+    "smbc_genie.gold.vw_client_360",
+    "smbc_genie.gold.dim_client_group",
+    "smbc_genie.gold.dim_peer_group"
+  ],
+  "entity_matching_columns": [
+    "smbc_genie.metrics.mv_financial_spreads.Client Group",
+    "smbc_genie.metrics.mv_financial_spreads.Segment",
+    "smbc_genie.metrics.mv_financial_spreads.Industry",
+    "smbc_genie.metrics.mv_financial_spreads.Subsector",
+    "smbc_genie.metrics.mv_financial_spreads.Coverage Office",
+    "smbc_genie.metrics.mv_financial_spreads.Primary RM",
+    "smbc_genie.metrics.mv_financial_spreads.Statement Type",
+    "smbc_genie.metrics.mv_financial_spreads.Statement Line",
+    "smbc_genie.metrics.mv_financial_spreads.Statement Basis",
+    "smbc_genie.metrics.mv_financial_spreads.Reporting Currency",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Client Group",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Segment",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Industry",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Subsector",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Coverage Office",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Primary RM",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Ratio Name",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Ratio Category",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Ratio Unit",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Peer Group",
+    "smbc_genie.metrics.mv_financial_ratios_vs_peers.Peer Quartile Position",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Client Group",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Segment",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Industry",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Subsector",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Coverage Office",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Primary RM",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.EWS Band",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Record Type",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Facility Type",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Facility Status",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Security Type",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Guarantor Type",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Parent Rating",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Covenant Type",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Headroom Bucket",
+    "smbc_genie.metrics.mv_facilities_covenants_collateral.Collateral Type",
+    "smbc_genie.metrics.mv_credit_review_workflow.Client Group",
+    "smbc_genie.metrics.mv_credit_review_workflow.Segment",
+    "smbc_genie.metrics.mv_credit_review_workflow.Coverage Office",
+    "smbc_genie.metrics.mv_credit_review_workflow.Primary RM",
+    "smbc_genie.metrics.mv_credit_review_workflow.Review Type",
+    "smbc_genie.metrics.mv_credit_review_workflow.Status",
+    "smbc_genie.metrics.mv_credit_review_workflow.Outcome",
+    "smbc_genie.metrics.mv_credit_review_workflow.Analyst",
+    "smbc_genie.metrics.mv_credit_review_workflow.Approver",
+    "smbc_genie.metrics.mv_credit_review_workflow.Review Fiscal Year",
+    "smbc_genie.metrics.mv_credit_review_workflow.Approval Fiscal Half",
+    "smbc_genie.gold.vw_client_360.group_name",
+    "smbc_genie.gold.vw_client_360.segment",
+    "smbc_genie.gold.vw_client_360.industry_sector",
+    "smbc_genie.gold.vw_client_360.industry_subsector",
+    "smbc_genie.gold.vw_client_360.coverage_office",
+    "smbc_genie.gold.vw_client_360.primary_rm_name",
+    "smbc_genie.gold.vw_client_360.credit_analyst_name",
+    "smbc_genie.gold.vw_client_360.rating_equivalent",
+    "smbc_genie.gold.vw_client_360.ews_band",
+    "smbc_genie.gold.dim_client_group.group_name",
+    "smbc_genie.gold.dim_client_group.group_external_rating",
+    "smbc_genie.gold.dim_client_group.jp_parent_rating_equivalent",
+    "smbc_genie.gold.dim_peer_group.peer_group_name",
+    "smbc_genie.gold.dim_peer_group.industry_sector",
+    "smbc_genie.gold.dim_peer_group.industry_subsector"
+  ],
+  "general_instructions": "- Fiscal year runs 1 April to 31 March. FY2026 = Apr 2026 to Mar 2027. Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar. H1 = Apr-Sep, H2 = Oct-Mar.\n- \"This year\" / \"YTD\" means fiscal year to date; \"latest month\" means September 2026 unless the user names a month.\n- Default currency is USD. Use local currency only when asked.\n- \"Client\" or \"group\" without qualification means the client group (global parent); \"entity\" means the individual legal entity. When asked \"which clients\", answer at group level with the top 20 and show the coverage office.\n- \"APAC\" means all APAC booking entities. \"Country\" means booking country unless the user says \"risk country\", \"client country\" or \"HQ country\". \"Global\" or \"including Japan\" means use the regional (JP/APAC/EMEA/AMER) dimension.\n- \"Japanese corporates\" means Is Japanese Corporate = true. \"Strategic clients\" means Relationship Tier = Strategic.\n- Balance-type measures (deposits, exposure, RWA, ECL, scores, headcount) are point-in-time month-end values: group by month when a question spans several months; never sum them across months. Use the Average measure when the user says \"average\".\n- Year-on-year compares the same fiscal period in the prior fiscal year.\n- Prefer measures from the metric views; use MEASURE() syntax.\n- If the question is ambiguous between two metric views, ask one clarifying question rather than guessing.\n- Today = 30 Sep 2026 (H1 FY2026 close); never use CURRENT_DATE() or NOW(). \"Last N days\" = Date BETWEEN DATE'2026-09-30' - (N-1) AND DATE'2026-09-30'. Client names have no value dictionary: match them with LIKE '%name%'.\n- Credit work is per legal entity: for spreads, ratios, facilities, covenants, collateral and reviews, \"clients\" means Client (legal entity) - list every matching row (no top-20 cut). Sunda Energi Nusantara = `Client` LIKE 'Sunda Energi Nusantara (Jakarta)%' (the lead obligor; the group also has a Singapore entity).\n- Spreads and ratios are annual: filter or group by Fiscal Year (FY2023-FY2025; the latest spread year is FY2025, FY2026 has none), \"last 3 years\" = all three; always filter Statement Line or Ratio Name. \"vs peers\" = Peer Median, \"peer percentile\" = Percentile Rank in Peer Group %, \"worse than P25\" = Clients Below Peer P25.\n- mv_facilities_covenants_collateral: each measure reads its own Record Type (Facility, Covenant Test, Collateral); filter Record Type only when listing covenant tests or collateral items. Date = record date; \"at the latest test\" = Is Latest Test; \"leverage covenant\" = Covenant Type 'Net Debt/EBITDA'; \"breached or < 10% headroom\" = Headroom Bucket IN ('Breached', '0-10%'); live book = Facility Status 'Active'; this fiscal year's tests = Fiscal Year 'FY2026'. Covenant waivers are always 0 in this data.\n- Collateral needing review = LTV above 70% or a valuation older than 24 months (keep rows with MEASURE(`Collateral Needing Review`) > 0); parent support = Guarantor Type IN ('Parent Guarantee', 'Keepwell'); the parent's external rating (Japan share) = Parent Rating.\n- \"Indonesian mining\" = Coverage Office 'ID' and Subsector IN ('Mining', 'Minerals', 'Natural Resources', 'Oil, Gas & Coal') (coal names sit under Energy); \"electronics\" = Subsector IN ('Electronics', 'Electronic Devices').\n- mv_credit_review_workflow (statuses as of 30-Sep-2026): \"FY2025 financials not yet spread\" = Review Type 'Financial Spreading' + Review Fiscal Year 'FY2025' + Is Not Yet Spread; \"due in Q3 FY2026\" = Fiscal Quarter 'FY2026-Q3' (Date = due date); \"approved in H1 FY2026\" = Approval Fiscal Half 'FY2026-H1' + Outcome IN ('Approved', 'Approved with Conditions').\n- Memo pack of one entity: spread P&L and balance sheet = fn_credit_memo_financials, facilities with limits and collateral = fn_credit_memo_facilities, current exposure (drawn, EAD, RWA, ECL, Stage 3, overdue) = fn_credit_memo_exposure; ratios and covenant tests come from the metric views.\n- Answer with one summary sentence that states the period and filters used, then the table. Keep measure values unscaled and unrounded in the SQL; name output columns plainly.",
+  "sample_questions": [
+    "Credit memo pack for Sunda Energi Nusantara (Jakarta): show its spread P&L and balance sheet for the last 3 fiscal years.",
+    "Which clients breached or have less than 10% headroom on a leverage covenant at the latest test?",
+    "Net Debt/EBITDA and ICR for all Indonesian mining clients vs their peer median, FY2023-FY2025",
+    "Which clients' FY2025 financials are not yet spread, by analyst and days overdue?",
+    "Annual reviews due in Q3 FY2026 by analyst, with the current status and days in preparation",
+    "Which collateral on active facilities has an LTV above 70% or a valuation older than 24 months?",
+    "Which Japanese-corporate subsidiaries rely on a parent guarantee or keepwell on their active facilities, and what is the parent's external rating?",
+    "New-money requests approved in H1 FY2026: amount, margin and time to approval by coverage office"
+  ],
+  "trusted_queries": [
+    {
+      "name": "Key ratios of :client_name vs the peer median and peer percentile, by fiscal year",
+      "usage_guidance": "Use for the ratio section of a credit memo pack - key ratios, ratios vs peers, peer percentile or peer benchmarking of one client (legal entity), e.g. \"how does Sunda's leverage compare with its peers\".",
+      "parameters": [
+        {
+          "name": "client_name",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Ratio Name`, `Fiscal Year`,\n       MEASURE(`Ratio Value`)                     AS ratio_value,\n       MEASURE(`Peer Median`)                     AS peer_median,\n       MEASURE(`Percentile Rank in Peer Group %`) AS peer_percentile_rank,\n       MEASURE(`Clients Below Peer P25`)          AS worse_than_p25\nFROM smbc_genie.metrics.mv_financial_ratios_vs_peers\nWHERE `Client` LIKE CONCAT('%', :client_name, '%')\n  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR', 'DSCR', 'Current Ratio', 'EBITDA Margin')\nGROUP BY ALL\nORDER BY `Ratio Name`, `Fiscal Year`"
+    },
+    {
+      "name": "Covenant tests of :client_name since :from_date with actual, threshold, headroom and breaches",
+      "usage_guidance": "Use for the covenant section of a memo pack - covenant tests, covenant headroom history or the leverage path of one client; Is Latest Test flags the latest test of each facility covenant.",
+      "parameters": [
+        {
+          "name": "client_name",
+          "type": "STRING"
+        },
+        {
+          "name": "from_date",
+          "type": "DATE"
+        }
+      ],
+      "sql": "SELECT `Facility`, `Covenant Type`, `Date` AS test_date, `Is Latest Test`,\n       MEASURE(`Covenant Actual`)         AS actual,\n       MEASURE(`Covenant Threshold`)      AS threshold,\n       MEASURE(`Min Covenant Headroom %`) AS headroom,\n       MEASURE(`Breaches`)                AS breaches\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Client` LIKE CONCAT('%', :client_name, '%')\n  AND `Record Type` = 'Covenant Test' AND `Date` >= :from_date\nGROUP BY ALL\nORDER BY `Facility`, `Covenant Type`, test_date"
+    },
+    {
+      "name": "Which clients breached or have less than 10% headroom on a :covenant_type covenant at the latest test?",
+      "usage_guidance": "Use for covenant breaches, tight headroom, near-breach or covenant blind-spot questions at the latest test (\"leverage covenant\" = Net Debt/EBITDA, \"interest cover\" = ICR); lists legal entities and facilities.",
+      "parameters": [
+        {
+          "name": "covenant_type",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Client`, `Facility`, `Headroom Bucket`, `Watchlist`,\n       MEASURE(`Covenant Actual`)         AS actual,\n       MEASURE(`Covenant Threshold`)      AS threshold,\n       MEASURE(`Min Covenant Headroom %`) AS headroom\nFROM smbc_genie.metrics.mv_facilities_covenants_collateral\nWHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = :covenant_type\n  AND `Headroom Bucket` IN ('Breached', '0-10%')\nGROUP BY ALL\nORDER BY headroom"
+    },
+    {
+      "name": "Net Debt/EBITDA and ICR of mining clients in :coverage_office vs their peer median, FY2023-FY2025",
+      "usage_guidance": "Use for leverage or interest cover of a country's mining, coal or resources clients vs peers; \"Indonesian mining\" = ID with the Mining, Minerals, Natural Resources and Oil, Gas & Coal subsectors.",
+      "parameters": [
+        {
+          "name": "coverage_office",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Client`, `Subsector`, `Ratio Name`, `Fiscal Year`,\n       MEASURE(`Ratio Value`)        AS ratio_value,\n       MEASURE(`Peer Median`)        AS peer_median,\n       MEASURE(`Gap to Peer Median`) AS gap_to_peer_median\nFROM smbc_genie.metrics.mv_financial_ratios_vs_peers\nWHERE `Coverage Office` = :coverage_office\n  AND `Subsector` IN ('Mining', 'Minerals', 'Natural Resources', 'Oil, Gas & Coal')\n  AND `Ratio Name` IN ('Net Debt/EBITDA', 'ICR')\nGROUP BY ALL\nORDER BY `Client`, `Ratio Name`, `Fiscal Year`"
+    },
+    {
+      "name": "Clients whose :review_fiscal_year financials are not yet spread, with the analyst, spreading status and days overdue",
+      "usage_guidance": "Use for the financial-spreading backlog - financials / statements of a fiscal year not yet spread, by client or by analyst; the year of the financials is Review Fiscal Year (not Fiscal Year, the due date's year) and days overdue per client = Max Days Overdue.",
+      "parameters": [
+        {
+          "name": "review_fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "SELECT `Client`, `Analyst`, `Status`, MEASURE(`Max Days Overdue`) AS days_overdue\nFROM smbc_genie.metrics.mv_credit_review_workflow\nWHERE `Review Type` = 'Financial Spreading' AND `Review Fiscal Year` = :review_fiscal_year AND `Is Not Yet Spread`\nGROUP BY ALL\nORDER BY days_overdue DESC"
+    },
+    {
+      "name": "Clients with breached or tight leverage covenants at the latest test and their :fiscal_year Net Debt/EBITDA vs the peer median",
+      "usage_guidance": "Cross-view pattern (covenants + ratios) - wrap each metric-view query in a CTE and join the CTEs on Client; use when a question combines covenant headroom with spread ratios or peer benchmarks.",
+      "parameters": [
+        {
+          "name": "fiscal_year",
+          "type": "STRING"
+        }
+      ],
+      "sql": "WITH cov AS (\n  SELECT `Client`, MEASURE(`Min Covenant Headroom %`) AS min_headroom, MEASURE(`Breaches`) AS breaches\n  FROM smbc_genie.metrics.mv_facilities_covenants_collateral\n  WHERE `Record Type` = 'Covenant Test' AND `Is Latest Test` AND `Covenant Type` = 'Net Debt/EBITDA'\n  GROUP BY ALL\n),\nlev AS (\n  SELECT `Client`, MEASURE(`Ratio Value`) AS net_debt_to_ebitda, MEASURE(`Peer Median`) AS peer_median\n  FROM smbc_genie.metrics.mv_financial_ratios_vs_peers\n  WHERE `Ratio Name` = 'Net Debt/EBITDA' AND `Fiscal Year` = :fiscal_year\n  GROUP BY ALL\n)\nSELECT cov.`Client`, cov.min_headroom, cov.breaches, lev.net_debt_to_ebitda, lev.peer_median\nFROM cov LEFT JOIN lev ON lev.`Client` = cov.`Client`\nWHERE cov.min_headroom < 0.10\nORDER BY cov.min_headroom"
+    }
+  ],
+  "sql_functions": [
+    "smbc_genie.gold.fn_credit_memo_financials",
+    "smbc_genie.gold.fn_credit_memo_facilities",
+    "smbc_genie.gold.fn_credit_memo_exposure"
+  ],
+  "benchmarks_file": "benchmarks.json",
+  "counts": {
+    "assets": 7,
+    "example_sqls": 6,
+    "sql_functions": 3,
+    "text_instructions": 1,
+    "instruction_lines": 19,
+    "instructions_total": 10,
+    "sample_questions": 8,
+    "benchmarks": 20,
+    "entity_matching_columns": 63
+  }
+}

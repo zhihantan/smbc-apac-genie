@@ -1,0 +1,483 @@
+# Curated text for the Genie question bank (docs/GENIE_QUESTIONS.md, docs/genie_questions.csv), rendered by
+# src/50_genie/build_question_bank.py together with genie/<slug>/space.yaml, benchmarks.json, eval_report.json,
+# metrics/_answers/<slug>.sql and the live-capture cache genie/<slug>/question_bank.json.
+#
+# Per agent:
+#   tier / audience / job / knows   who the agent is for and what it holds (brief §5; plain English)
+#   starters    one entry per space.yaml sample question, in display order: the benchmark it paraphrases
+#               (graded against that benchmark's expected result), optional `also` (other benchmarks that count
+#               as a match), `need` (benchmark columns Genie must show), `note` (shown instead of the grader's
+#               note when the starter is not a match; with `note_sql` = sha of the Genie SQL it describes, it is
+#               dropped automatically when a re-capture gets a different answer)
+#   themes      business themes; every base benchmark key exactly once (variants are shown under their base)
+#   more        base benchmarks outside the brief's must-answer list (storyline checks, extras)
+#   flaky       benchmarks that missed in the last evaluation: why, and the safer wording (asked live)
+#   follow_ups  questions to ask next in the same conversation (asked live after the starter `after`);
+#               `expect_in_sql` = text Genie's SQL must contain to count as keeping the context
+#   routing     what to ask another agent instead
+#   summary_columns / formats   optional overrides for the expected-answer summaries (units: usd, pct, bps,
+#               days, hours, months, count, num, multiple, text, date, month)
+workspace_url: https://my-workspace.cloud.databricks.com
+
+guide:
+  phrasing:
+    - "**Use full names.** Say \"Kinokawa Precision\" (\"Kinokawa\" also matches Kinokawa Heavy Industries), \"Meridian Agri Holdings\" (\"Meridian\" also matches Meridian Investment Corporation) and \"Sunda Energi Nusantara (Jakarta)\" for the Jakarta entity. \"Tanaka Chemical\" and \"Tanaka Chemical Group\" are two different groups."
+    - "**Pin the date for point-in-time figures.** Balances, early-warning bands and exposure work best with \"today\" or \"as at 30 Sep 2026\". Today in this demo is 30 Sep 2026; the agents never use the computer's clock."
+    - "**Use Japanese fiscal-year terms.** FY2026 = Apr 2026 – Mar 2027. H1 FY2026 = Apr – Sep 2026 (closed on 30 Sep 2026); Q2 FY2026 = Jul – Sep 2026; Q3 FY2026 = Oct – Dec 2026. \"This year\" means FY2026 to date, and year on year compares the same months of FY2025."
+    - "**Say what you want to see.** Name the grouping, the period and the size of the list (\"by coverage office\", \"since April 2025\", \"top 20\", \"with the RM and days open\"). A vague question gets a reasonable answer, but not always the cut you had in mind."
+    - "**Follow up in the same conversation.** \"Now only Singapore\", \"show it by month\", \"the same for Tanaka Chemical\". Start a new conversation when you change topic."
+    - "**Check the SQL.** Every answer shows the SQL Genie ran. Open it to see the filters, the metric views (the governed business definitions) and, where used, the trusted SQL function behind the answer."
+    - "**Banking terms work.** CASA (current and savings accounts), RoRWA (return on risk-weighted assets), RAROC (risk-adjusted return on capital), EWS (early-warning score), DPD (days past due), SCF (supply chain finance), RCF (revolving credit facility), LTV (loan-to-value), WL (watchlist), \"headroom\", \"utilisation\". Amounts are USD unless you ask for local currency."
+    - "**Good to know about the data.** It is synthetic. The brief's \"8% RoRWA hurdle\" is configured as 1.2% (with RAROC 12% and ROE 10%), and \"below hurdle\" means the configured Below-Hurdle flag. Covenant waivers are always 0. AI forecasting (`ai_forecast`) is disabled on this workspace, so forward cash-flow projections use the deterministic seasonal fallback. Two realistic entity-resolution leftovers remain on purpose: an entity named \"SUNDA POWER HOLDINGS TRADING (HONG\" in the Kinokawa group and a typo'd \"Kinokawl Precision (Jakarta) PT\"."
+  genie_one:
+    - "**Genie One** (formerly Databricks One, renamed in 2026) is the simplified Databricks UI for business users: \"a single entry point for interacting with data and AI without navigating technical concepts like compute, queries, models, or notebooks\". Open it at <https://my-workspace.cloud.databricks.com/one>. Docs: <https://docs.databricks.com/aws/en/genie-one/>."
+    - "**Ask without picking an agent.** Chat in Genie One \"first searches available Genie Agents for a match, then searches across dashboards, queries, and metric views\" (<https://docs.databricks.com/aws/en/genie-one/chat>). A business user can type any question from this guide there, and Genie One routes it to one of the 11 agents."
+    - "**Routing in this workspace.** The demo workspace also holds about 20 Genie Agents from other demos (for example \"KYC Analyst Genie\" and \"Credit Risk Genie\"), and the docs warn that many agents can reduce routing accuracy. Distinctive wording helps (client names, \"APAC\", \"early-warning band\"). If an answer comes from another agent, open the APAC Genie agent directly with the links below."
+    - "**Access.** \"Consumer access, the least-privileged option, is enough for Genie One chat\"; the user also needs CAN USE on a SQL warehouse. Each agent additionally needs its own permission (CAN RUN or higher) and Unity Catalog access to its data. In this demo the agents are not shared with anyone yet."
+  markers:
+    - "**Starter questions** were asked live through the Genie Conversation API and compared with the benchmark each one paraphrases. ✅ = Genie's rows equal the benchmark's expected rows (same number of rows, values to 4 significant digits) on every column both answers show; Genie may add columns, or leave out benchmark columns the starter does not ask for (the note lists them). ⚠️ = answered with SQL, but the rows or values differ (the note says how). ❌ = an error, or an answer without SQL."
+    - "**Benchmark questions** (the tested wordings under each theme) are graded in the agent's evaluation: ✅ passed, ⚠️ missed in the last run. The 3 that missed are listed under *Phrase with care* with a safer wording that was re-tested live."
+    - "**Answer** is the result of the benchmark's expected SQL (the governed query that defines the right answer), re-run on the workspace for this guide: the number of rows and the first rows. Your live answer should show the same figures."
+    - "**Good follow-ups** were asked live in the same conversation as their starter question; ✅ = Genie answered with SQL that kept the context (for example the same client)."
+
+tables:
+  gold.vw_client_360: as at 30 Sep 2026
+  gold.dim_client_group: as at 30 Sep 2026
+  gold.dim_account_plan_initiative: all plan years; status as at 30 Sep 2026
+  gold.dim_scf_programme: as at 30 Sep 2026
+  gold.xref_client_source: latest entity-resolution run (30 Sep 2026)
+  gold.dim_threshold: reference list
+  gold.dim_ews_trigger: reference list
+  gold.dim_signal_type: reference list
+  gold.dim_onboarding_stage: reference list
+  gold.dim_peer_group: reference list
+
+agents:
+  account_planning:
+    tier: RM Workbench
+    audience: Relationship managers (RMs), team heads, the Japanese Corporate Banking Dept and client strategy.
+    job: >-
+      Refresh the H1 account plan of a client group in minutes: what the group holds with us, what it earns, how
+      that compares with the plan, what the group looks like globally and who we talk to.
+    knows: >-
+      Account plans by client group, fiscal year and product family (original and revised targets, actuals,
+      run-rate, wallet and share of wallet, initiatives); month-end product holdings, deposits and drawn lending per
+      legal entity; each group's global relationship by region (APAC from the Customer 360; Japan, EMEA and the
+      Americas shared from the regional lakehouses over OpenSharing (formerly Delta Sharing), simulated in this
+      demo); and RM activity from CRM. Plan figures are
+      per fiscal year, and FY2026 actuals cover H1 (Apr – Sep 2026), so an attainment near 50% is on track.
+    starters:
+      - {benchmark: Q1}
+      - {benchmark: Q2}
+      - {benchmark: Q4}
+      - {benchmark: Q3}
+      - benchmark: Q5
+        note: Genie ranks all 33 segment and product-family pairs, lowest first; its first 10 rows are exactly the benchmark's 10 lowest.
+        note_sql: 4fff4429e3abf426
+      - {benchmark: Q6, need: [Client]}
+      - {benchmark: Q7}
+      - {benchmark: Q10}
+    themes:
+      - {name: Plan versus actual, keys: [Q1, Q2, Q7, Q10]}
+      - {name: Relationship footprint, keys: [Q3, Q3b, Q9]}
+      - {name: The global group view, keys: [Q4]}
+      - {name: Wallet and revenue growth, keys: [Q5, Q8]}
+      - {name: RM coverage, keys: [Q6, Q6b]}
+    follow_ups:
+      - {after: S1, ask: "Now show the same for the Tanaka Chemical group.", expect_in_sql: [Tanaka Chemical]}
+    routing:
+      - {ask: "Profitability, RoRWA, ROE and deal pricing of a group", agent: client_profitability_roe}
+      - {ask: "Open opportunities, next-best product and the pipeline", agent: opportunity_identification}
+      - {ask: "Early-warning bands, triggers and the watchlist", agent: early_warning_monitoring}
+      - {ask: "News, RM-note sentiment and market signals around a group", agent: signals_sentiment}
+
+  opportunity_identification:
+    tier: RM Workbench
+    audience: RMs, transaction banking (TB) sales, product partners and the Head of Coverage.
+    job: >-
+      Turn the Customer 360 into a ranked list of actionable opportunities: product gaps against peers, cash
+      surpluses, FX and trade flows we see but do not serve, maturing facilities and external triggers such as
+      expansion or capex news.
+    knows: >-
+      Opportunity signals per client (signal type, estimated annual revenue, confidence, status, days open);
+      next-best-product propensity scores by client, product and month; the CRM pipeline (stage, amount, weighted
+      value, expected close, won or lost, and the signal that created it); and product penetration against
+      industry peer groups by fiscal year. "Open opportunities" means open signals unless you say pipeline.
+    starters:
+      - {benchmark: Q1}
+      - {benchmark: Q2}
+      - {benchmark: Q3, need: [Client]}
+      - {benchmark: Q4}
+      - {benchmark: Q5}
+      - {benchmark: Q6}
+      - {benchmark: Q7, also: [Q7b]}
+      - {benchmark: Q9}
+    themes:
+      - {name: Open opportunities and signals, keys: [Q1, Q3, Q8]}
+      - {name: Flows we do not capture, keys: [Q2]}
+      - {name: Maturities and refinancing, keys: [Q4]}
+      - {name: Product gaps and next-best product, keys: [Q5, Q6]}
+      - {name: Pipeline and conversion, keys: [Q7, Q7b, Q9, Q10]}
+    more: [X1, X2]
+    follow_ups:
+      - {after: S1, ask: "Only show the ones covered from Singapore.", expect_in_sql: [SG]}
+    routing:
+      - {ask: "Account-plan targets, wallet share and the global relationship", agent: account_planning}
+      - {ask: "Trade corridors and SCF programmes in detail", agent: tb_trade_scf}
+      - {ask: "Cash surpluses and shortfalls forecast ahead", agent: cashflow_forecasting}
+      - {ask: "The news behind a capex or expansion signal", agent: signals_sentiment}
+
+  credit_memo_financial_spreading:
+    tier: Credit Workbench
+    audience: Credit analysts, credit officers and RMs preparing annual reviews and new-money requests.
+    job: >-
+      Assemble the numbers of a credit memo in one conversation: spread financials and ratios, the peer comparison,
+      facilities and covenants, collateral, exposure, pricing and the review workflow.
+    knows: >-
+      Spread financial statements and ratios per obligor and fiscal year, with peer-group P25 / median / P75;
+      facilities, covenant tests and collateral with headroom and LTV (loan-to-value); exposure, EAD, RWA and ECL;
+      and the credit-review workflow (annual reviews, new-money requests, spreading tasks, approvals). FY2025 is
+      the latest spread year.
+    starters:
+      - {benchmark: Q1, also: [Q1b, Q1c, Q1d, Q1e]}
+      - {benchmark: Q2}
+      - {benchmark: Q3}
+      - {benchmark: Q4b, also: [Q4]}
+      - {benchmark: Q5}
+      - {benchmark: Q6, also: [Q6b]}
+      - {benchmark: Q7, need: [Client, Guarantor Type, Parent Rating]}
+      - {benchmark: Q10}
+    themes:
+      - {name: The credit memo pack (Sunda Energi Nusantara), keys: [Q1, Q1b, Q1c, Q1d, Q1e]}
+      - {name: Covenants, keys: [Q2, Q9]}
+      - {name: Financials against peers, keys: [Q3, Q8]}
+      - {name: Spreading backlog and reviews, keys: [Q4, Q4b, Q5, Q10]}
+      - {name: Collateral and parent support, keys: [Q6, Q6b, Q7]}
+    summary_columns:
+      Q1: [Fiscal Year, Statement Type, Statement Line, amount_usd]
+    flaky:
+      Q10:
+        why: >-
+          Genie can drop the approved-outcome filter and count every new-money request approved in the half,
+          whatever its outcome.
+        safer: >-
+          New-money requests with an approved outcome in H1 FY2026, by coverage office: number approved, requested
+          amount, weighted margin in bps and average days to approval.
+    follow_ups:
+      - {after: S1, ask: "Now show its key ratios against the peer median, with its percentile rank in the peer group.", expect_in_sql: [Sunda Energi Nusantara]}
+      - {after: S1, ask: "Now list its facilities with limit, drawn amount, margin and collateral.", benchmark: Q1c, why: "The memo pack is built one section per question."}
+      - {after: S1, ask: "And its current exposure at 30 Sep 2026: drawn, limit, EAD, RWA, ECL, Stage 3 exposure and overdue amount.", benchmark: Q1e}
+      - {after: S2, ask: "Which of those clients are not on the watchlist?", expect_in_sql: [watchlist]}
+    routing:
+      - {ask: "The EWS score, triggers and watchlist actions of an obligor", agent: early_warning_monitoring}
+      - {ask: "Relationship profitability and RoRWA", agent: client_profitability_roe}
+      - {ask: "News and sentiment on the obligor", agent: signals_sentiment}
+
+  early_warning_monitoring:
+    tier: Credit Workbench
+    audience: Credit portfolio management, credit officers, RMs and the risk committee secretariat.
+    job: >-
+      See deterioration before it becomes a downgrade: a daily early-warning score (EWS) per client, the triggers
+      behind it, watchlist actions and delinquency.
+    knows: >-
+      A daily composite EWS score (0 – 100) per client with its band (Green below 40, Amber 40 – 69, Red 70 and
+      above), its top triggers and any override; the EWS triggers fired each month; watchlist events and actions;
+      and month-end delinquency (days past due, DPD) per facility.
+    starters:
+      - {benchmark: Q1}
+      - {benchmark: Q2, also: [Q2b]}
+      - {benchmark: Q3}
+      - {benchmark: Q4}
+      - {benchmark: Q5}
+      - benchmark: Q8
+        note: Genie lists the 25 overdue actions one by one (owner, client, action, days overdue) with the trusted function; the benchmark counts the same 25 actions per owner (22 owners).
+        note_sql: 9a105c57bc8bcd2a
+      - {benchmark: Q9}
+      - {benchmark: Q10}
+    themes:
+      - {name: Who is at risk today, keys: [Q1, Q3, Q10]}
+      - {name: One client's story, keys: [Q2, Q2b]}
+      - {name: Portfolio trends, keys: [Q4, Q9]}
+      - {name: Triggers and overrides, keys: [Q5, Q6, Q7]}
+      - {name: Watchlist, keys: [Q8]}
+    more: [X1, X2]
+    summary_columns:
+      Q2: [client, month, month_end_band, month_end_score]
+    follow_ups:
+      - {after: S1, ask: "Show the same for the Amber clients.", expect_in_sql: [Amber]}
+    routing:
+      - {ask: "The credit memo numbers and covenant detail", agent: credit_memo_financial_spreading}
+      - {ask: "The news and sentiment behind a trigger", agent: signals_sentiment}
+      - {ask: "Cash-flow volatility and forecasts of Red and Amber names", agent: cashflow_forecasting}
+      - {ask: "Whether a client's exposure moved after entity resolution", agent: customer360_data_foundation}
+
+  client_profitability_roe:
+    tier: RM + Credit
+    audience: Coverage heads, finance business partners, the pricing committee and RMs.
+    job: >-
+      Relationship-level profitability and returns: revenue by product, allocated cost, credit cost and capital,
+      RoRWA, RAROC and ROE against hurdle, and deal pricing at origination versus realised.
+    knows: >-
+      Monthly revenue, cost, credit cost and RWA per client and product family; the annual ROE waterfall per client
+      (revenue to net income and allocated capital); deal pricing per credit deal (origination and realised RAROC,
+      below-hurdle approvals and their exception reasons); and next-best-product scores for cross-sell. Hurdles are
+      configured values: RoRWA 1.2%, RAROC 12%, ROE 10%.
+    starters:
+      - {benchmark: Q1, also: [Q1b]}
+      - {benchmark: Q2, also: [Q2b]}
+      - {benchmark: Q3}
+      - {benchmark: Q4}
+      - {benchmark: Q5, also: [Q5b]}
+      - {benchmark: Q6}
+      - {benchmark: Q7}
+      - {benchmark: Q10}
+    themes:
+      - {name: Returns by group, keys: [Q1, Q1b, Q3, Q7]}
+      - {name: Below-hurdle relationships, keys: [Q2, Q2b, Q8]}
+      - {name: Revenue mix and contribution, keys: [Q4, Q6, Q9a, Q9b]}
+      - {name: Deal pricing, keys: [Q5, Q5b]}
+      - {name: RM profitability, keys: [Q10]}
+    more: [X1, X2]
+    flaky:
+      Q10-abbrev:
+        why: >-
+          The abbreviated "P&L" wording can send Genie to the annual ROE waterfall view instead of the monthly
+          profitability view, which gives different revenue and RWA figures.
+        safer: "RM-level profitability: revenue, RWA and RoRWA per RM in Hong Kong this fiscal year, with the number of clients."
+    follow_ups:
+      - {after: S3, ask: "Now show the same waterfall for the Kinokawa Precision group.", expect_in_sql: [Kinokawa Precision]}
+    routing:
+      - {ask: "Plan targets, wallet share and the global relationship", agent: account_planning}
+      - {ask: "Cross-sell propensity and open opportunities in detail", agent: opportunity_identification}
+      - {ask: "The credit quality behind a high credit cost", agent: early_warning_monitoring}
+
+  client_onboarding_kyc:
+    tier: Others (onboarding and KYC)
+    audience: Onboarding operations, KYC and CDD (customer due diligence) teams, RMs chasing their clients' go-live, and compliance.
+    job: >-
+      Funnel and cycle-time visibility across the onboarding stages, bottlenecks and SLAs, documents outstanding,
+      the health of periodic KYC reviews, screening, and whether a new entity already belongs to a known client group.
+    knows: >-
+      Every onboarding case with its stages (Request, KYC Docs, Screening, Risk Assessment, Credit/Product
+      Approval, Account Open, First Transaction), SLA days, blockers and outstanding documents; onboarding,
+      periodic and trigger KYC reviews at each month-end; screening alerts and how they were resolved; and
+      post-onboarding survey feedback. A case goes live at the end of Account Open.
+    starters:
+      - {benchmark: Q1}
+      - {benchmark: Q2}
+      - {benchmark: Q3}
+      - {benchmark: Q4}
+      - {benchmark: Q5, also: [Q5b], need: [Match Timing, cases, share_of_cases]}
+      - {benchmark: Q6}
+      - {benchmark: Q9}
+      - benchmark: Q10
+        also: [Q10b]
+        note: Genie answers both parts in one table - survey responses and average satisfaction by country match the benchmark; its negative count is for each country's most common theme only (the benchmark counts all negative responses).
+        note_sql: 2277aaeff44b5dda
+    themes:
+      - {name: Cycle time, keys: [Q1, Q1b, Q2]}
+      - {name: Backlog and SLA, keys: [Q3, Q4]}
+      - {name: Matching new clients to known groups, keys: [Q5, Q5b]}
+      - {name: Periodic KYC and screening, keys: [Q6, Q6b, Q9]}
+      - {name: Volumes and activation, keys: [Q7, Q7b, Q8]}
+      - {name: Client feedback, keys: [Q10, Q10b]}
+    follow_ups:
+      - {after: S3, ask: "Only the cases booked in Singapore.", expect_in_sql: [SG]}
+    routing:
+      - {ask: "Entity-resolution quality and the steward queue", agent: customer360_data_foundation}
+      - {ask: "A new client's deposits and payments", agent: tb_cash_payments_liquidity}
+
+  tb_cash_payments_liquidity:
+    tier: Transactional Banking
+    audience: The Head of Transaction Banking APAC, cash and liquidity product heads, TB sales and RMs.
+    job: >-
+      Operating deposits and CASA behaviour, payment flows and counterparties, liquidity structures (pooling and
+      sweeps) and digital channel adoption.
+    knows: >-
+      Month-end balances per deposit account (CASA and time deposits); every payment message (channel, direction,
+      purpose, counterparty bank type, straight-through processing (STP) or repair); liquidity structures and their
+      member accounts; and digital channel usage per client and month. For deposits and payments the booking
+      country is the coverage office.
+    starters:
+      - {benchmark: Q1}
+      - {benchmark: Q2}
+      - {benchmark: Q3}
+      - {benchmark: Q4b, also: [Q4]}
+      - benchmark: Q5
+        also: [Q5b]
+        note: Genie answers both parts in one table - the single lowest channel and currency pair (FAST in MYR, 84.4%, with no minimum volume) and the top repair reasons per channel; the benchmark lists the 12 lowest pairs with at least 200 payments.
+        note_sql: 90656b21c28ef817
+      - {benchmark: Q6, also: [Q6b]}
+      - {benchmark: Q8}
+      - {benchmark: Q9, also: [Q9b]}
+    themes:
+      - {name: Deposits and CASA, keys: [Q1, Q2, Q2b, Q3, Q7, Q7b, Q10]}
+      - {name: Payments, keys: [Q4, Q4b, Q5, Q5b, Q8, Q8a]}
+      - {name: Liquidity structures, keys: [Q6, Q6b]}
+      - {name: Digital channels, keys: [Q9, Q9b]}
+    follow_ups:
+      - {after: S1, ask: "Show the same for time deposits.", expect_in_sql: [time deposit]}
+    routing:
+      - {ask: "Cash-flow forecasts and predicted surpluses", agent: cashflow_forecasting}
+      - {ask: "Trade finance and SCF programmes", agent: tb_trade_scf}
+      - {ask: "Opportunity signals such as a deposit surplus", agent: opportunity_identification}
+
+  tb_trade_scf:
+    tier: Transactional Banking
+    audience: The Head of Trade APAC, trade product and sales teams, trade operations and RMs.
+    job: >-
+      Trade finance issuance and outstanding by product and corridor, the health of supply chain finance (SCF)
+      programmes, trade-operations turnaround and document discrepancies, and the trade-flow signals that feed
+      opportunities and early warning.
+    knows: >-
+      Trade instruments on their issue date and live instruments at each month-end (letters of credit (LCs),
+      guarantees and SBLCs, collections, trade loans, receivables purchase); LC document presentations with
+      discrepancies and turnaround; SCF programmes and their suppliers by month; trade corridors with external
+      market volumes; and trade-settlement payments. Corridors run from the goods' origin to their destination.
+    starters:
+      - {benchmark: Q1}
+      - benchmark: Q2
+        note: Genie adds Vietnam and India together for each commodity and segment (the totals agree); the benchmark splits them by destination country.
+        note_sql: 5648aca367ea1c85
+      - {benchmark: Q3}
+      - {benchmark: Q4, also: [Q4c]}
+      - benchmark: Q5
+        note: Genie measures the turnaround over the whole history; the benchmark uses this fiscal year (FY2026 to date).
+        note_sql: 488c354888c46aad
+      - benchmark: Q6
+        note: Genie names the client groups instead of the legal entities; the four trade-settlement payment amounts agree with the benchmark.
+        note_sql: a09ec41314a77534
+      - {benchmark: Q9}
+      - {benchmark: Q10}
+    themes:
+      - {name: Issuance and corridors, keys: [Q1, Q1b, Q2, Q2b, Q6, Q6b, Q6c]}
+      - {name: Supply chain finance, keys: [Q3, Q9]}
+      - {name: Trade operations, keys: [Q4, Q4b, Q4c, Q5]}
+      - {name: "Guarantees, fees and exposure", keys: [Q7, Q8, Q8b, Q10]}
+    flaky:
+      Q6c:
+        why: >-
+          Genie can return the growth in percentage points (37.0) instead of as a fraction (0.37); the two volumes
+          are right.
+        safer: >-
+          How much did the external market volume of the electronics and auto-parts import corridors into Vietnam
+          and India from China, Korea and Japan grow in H1 FY2026 versus H1 FY2025? Show both halves' volume and
+          the Corridor Growth YoY %.
+    follow_ups:
+      - {after: S2, ask: "Only the ones booked in Singapore.", expect_in_sql: [SG]}
+    routing:
+      - {ask: "Payment flows and corridor payments in detail", agent: tb_cash_payments_liquidity}
+      - {ask: "SCF and trade opportunities in the pipeline", agent: opportunity_identification}
+      - {ask: "Discrepancy spikes as an early-warning trigger", agent: early_warning_monitoring}
+
+  cashflow_forecasting:
+    tier: AI-enabled
+    audience: TB liquidity advisory, RMs, credit (the liquidity risk of borrowers) and the client-facing cash-forecast proposition.
+    job: >-
+      Client cash flows derived from transaction data, 7-, 30- and 90-day forecasts with P10 – P90 ranges,
+      forecast accuracy, and predicted shortfalls and surpluses that create credit (RCF) and deposit opportunities.
+    knows: >-
+      Daily inflows and outflows per client and cash-flow category; forecasts per client, run date, horizon
+      (7, 30 or 90 days) and model version (v1, and v2 from June 2026) with P10 / P90; monthly accuracy (MAPE,
+      bias, interval coverage; 30-day horizon); and liquidity-need events (predicted shortfall or surplus, the
+      action taken, days to action). "Go negative" means a material forecast shortfall. AI forecasting is disabled
+      on this workspace, so forward projections use the deterministic seasonal fallback.
+    starters:
+      - {benchmark: Q1}
+      - {benchmark: Q2}
+      - {benchmark: Q3}
+      - benchmark: Q4
+        note: Genie adds up the same 13 unplaced surpluses per client (12 clients, with today's closing balance and the 30-day forecast); the benchmark lists each event with its month and status.
+        note_sql: 93f642da2b4f96f3
+      - {benchmark: Q5}
+      - {benchmark: Q6}
+      - {benchmark: Q7}
+      - benchmark: Q8
+        note: Genie gives one bias per booking country across both model versions; the benchmark splits model v1 and v2 and adds the MAPE.
+        note_sql: 8a0871c3bb9eb747
+    themes:
+      - {name: Forecasts, keys: [Q1, Q1b, Q2, Q2b]}
+      - {name: Forecast accuracy, keys: [Q3, Q3b, Q8]}
+      - {name: "Shortfalls, surpluses and actions", keys: [Q4, Q6, Q6b]}
+      - {name: Cash-flow patterns, keys: [Q5, Q7]}
+    follow_ups:
+      - {after: S1, ask: "Show the same for the 90-day horizon.", expect_in_sql: ["90"]}
+    routing:
+      - {ask: "Deposit balances and CASA", agent: tb_cash_payments_liquidity}
+      - {ask: "RCF facilities, covenants and collateral", agent: credit_memo_financial_spreading}
+      - {ask: "Early-warning bands and triggers", agent: early_warning_monitoring}
+
+  signals_sentiment:
+    tier: AI-enabled
+    audience: RMs, credit analysts, client strategy and the signals product team.
+    job: >-
+      One feed of external and internal signals - news topics and sentiment, RM-note sentiment and market signals
+      on listed parents - to answer "what is happening around this client group" in seconds.
+    knows: >-
+      News items per client group (topic, sentiment from -1 to 1, source, region); RM call-note sentiment; daily
+      market signals on listed parents (share price, CDS spread, rating and outlook, 52-week lows); and the unified
+      signal feed (signal type, polarity, strength, which workbench uses it, whether an RM acknowledged it).
+      Headlines and sentiment scores are synthetic.
+    starters:
+      - {benchmark: Q1, also: [Q1b]}
+      - {benchmark: Q2}
+      - {benchmark: Q3}
+      - {benchmark: Q4}
+      - benchmark: Q5
+        note: Genie lists every RM with an unacknowledged risk signal in the last 90 days (66 rows, most first); its first 11 rows are exactly the benchmark, which keeps the RMs with at least 5.
+        note_sql: 845d885cde781039
+      - {benchmark: Q6}
+      - benchmark: Q7
+        note: Genie starts in FY2023 (28 rows); the benchmark starts in FY2024 (20 rows). For the quarters both show, news items and average sentiment agree.
+        note_sql: a2e23445eaf74017
+      - {benchmark: Q8}
+    themes:
+      - {name: What is happening around a group, keys: [Q1, Q1b]}
+      - {name: Sentiment blind spots and trends, keys: [Q2, Q3, Q7]}
+      - {name: Market and rating signals, keys: [Q4, Q8]}
+      - {name: Signals not yet actioned, keys: [Q5, Q6]}
+    more: [Q9, Q10, Q11]
+    follow_ups:
+      - {after: S1, ask: "Show the risk signals behind that, by date and entity.", expect_in_sql: [Kinokawa]}
+    routing:
+      - {ask: "What a negative signal did to the early-warning score", agent: early_warning_monitoring}
+      - {ask: "Opportunities raised from positive signals", agent: opportunity_identification}
+      - {ask: "Exposure and the account plan of the group", agent: account_planning}
+
+  customer360_data_foundation:
+    tier: Data foundation
+    audience: Data stewards, data governance, the Customer 360 platform team and audit.
+    job: >-
+      Prove that the foundation works: entity-resolution quality, golden-record coverage by source, data quality
+      by dimension, the freshness of the data shared from Japan, EMEA and the Americas, and the governance facts a
+      steward is asked about.
+    knows: >-
+      Each quarterly entity-resolution (ER) run by source system (records in, matched, precision, recall) and the
+      data-steward queue; golden-record coverage and attribute completeness per client, source and month;
+      data-quality (DQ) scores by table and dimension; the daily freshness of the tables shared over OpenSharing
+      (formerly Delta Sharing; simulated in this demo); and group exposure before and after each ER run.
+    starters:
+      - {benchmark: Q1}
+      - {benchmark: Q2}
+      - {benchmark: Q3}
+      - {benchmark: Q4}
+      - benchmark: Q5
+        also: [Q5b]
+        note: Genie lists all 762 table and DQ-dimension pairs for September with their change (pairs without a score first); the benchmark shows the 10 largest changes, all of which are in Genie's list.
+        note_sql: d25e07e95f2cb15e
+      - benchmark: Q6
+        note: Genie answers for the whole Japan share in one row (average lag 3.9 hours, maximum 4.6 hours, no stale tables, freshness SLA met 100%), which agrees with the benchmark's five per-table rows.
+        note_sql: 57193f006cf17f5d
+      - {benchmark: Q7, also: [Q10]}
+      - {benchmark: Q8, filter: {Relationship Tier: Strategic}}
+    themes:
+      - {name: Entity resolution, keys: [Q1, Q1b, Q2, Q3, Q3b, Q7]}
+      - {name: Golden-record coverage, keys: [Q4, Q8]}
+      - {name: Data quality, keys: [Q5, Q5b]}
+      - {name: OpenSharing freshness (the Japan share), keys: [Q6, Q6b]}
+    more: [Q9, Q10, Q11, Q12]
+    follow_ups:
+      - {after: S6, ask: "Which Japan tables were stale in August 2026?", expect_in_sql: ["2026-08"]}
+    routing:
+      - {ask: "Onboarding cases matched to a known client group", agent: client_onboarding_kyc}
+      - {ask: "Meridian Agri Holdings' early-warning and exposure view", agent: early_warning_monitoring}

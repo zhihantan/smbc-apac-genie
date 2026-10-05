@@ -1,0 +1,119 @@
+# SMBC APAC Genie — build configuration (brief §0 fill-ins + volumes + calibration + storylines).
+# Job/task parameters and SMBC_* env vars override these at run time (see smbc_genie_lib.config).
+
+# ---- Fill-ins (brief §0) -------------------------------------------------------------
+catalog: smbc_genie
+warehouse_name: smbc-genie-wh      # resolved to warehouse_id by the bundle (lookup) or set per target
+warehouse_id: ""                   # filled by deploy; empty is fine for `bundle validate` / unit tests
+as_of_date: "2026-09-30"           # H1 FY2026 close — "today" everywhere (DECISIONS D16)
+history_start: "2023-04-01"        # 3.5 Japanese fiscal years
+scale: 0.1                         # 0.1 dev iterations, 1.0 demo build
+random_seed: 20260930
+spaces_to_build: all               # core = 1-8 | all = 1-11
+use_ai_functions: auto             # auto | on | off  (ai_analyze_sentiment / ai_forecast)
+simulate_delta_sharing: true
+owner_group: ""                    # account group owning the catalog; empty => current user
+consumer_group: ""                 # account group with SELECT + Genie run; empty => `account users`
+storage_root: ""                   # blank = metastore default managed storage
+
+# ---- Fiscal / regulatory colour ------------------------------------------------------
+fiscal_year_start_month: 4
+base_currency: USD
+
+# ---- APAC booking footprint (13 locations, Singapore hub) ----------------------------
+booking_locations:
+  - {code: SG, city: Singapore,         currency: SGD, weight: 0.22, is_hub: true,  regulator: MAS}
+  - {code: HK, city: Hong Kong,         currency: HKD, weight: 0.14, is_hub: false, regulator: HKMA}
+  - {code: CN, city: Shanghai,          currency: CNY, weight: 0.10, is_hub: false, regulator: PBOC}
+  - {code: TH, city: Bangkok,           currency: THB, weight: 0.09, is_hub: false, regulator: BOT}
+  - {code: ID, city: Jakarta,           currency: IDR, weight: 0.08, is_hub: false, regulator: OJK}
+  - {code: IN, city: Mumbai,            currency: INR, weight: 0.07, is_hub: false, regulator: RBI}
+  - {code: AU, city: Sydney,            currency: AUD, weight: 0.07, is_hub: false, regulator: APRA}
+  - {code: VN, city: Ho Chi Minh City,  currency: VND, weight: 0.06, is_hub: false, regulator: SBV}
+  - {code: MY, city: Kuala Lumpur,      currency: MYR, weight: 0.05, is_hub: false, regulator: BNM}
+  - {code: TW, city: Taipei,            currency: TWD, weight: 0.04, is_hub: false, regulator: FSC}
+  - {code: KR, city: Seoul,             currency: KRW, weight: 0.04, is_hub: false, regulator: FSS}
+  - {code: PH, city: Manila,            currency: PHP, weight: 0.03, is_hub: false, regulator: BSP}
+  - {code: NZ, city: Auckland,          currency: NZD, weight: 0.01, is_hub: false, regulator: RBNZ}
+
+provider_regions: [JP, EMEA, AMER]   # Delta Sharing providers (Tokyo HO + regional lakehouses)
+
+# ---- Segments and tiers --------------------------------------------------------------
+segments:
+  Japanese Corporate:            {n_groups: 190}
+  Non-Japanese Large Corporate:  {n_groups: 110}
+  Financial Institution:         {n_groups: 35}
+  Sponsor & Structured Finance:  {n_groups: 25}
+  Public Sector:                 {n_groups: 20}
+tiers:
+  Strategic:     {approx: 60}
+  Core:          {approx: 150}
+  Transactional: {approx: 170}
+
+# ---- Volume targets at SCALE = 1.0 (dims fixed; event facts scale) --------------------
+volumes:
+  groups: 380
+  apac_entities: 2500
+  emea_amer_entities: 600
+  jp_parents: 380
+  source_records: 7900
+  accounts: 9000
+  loan_facilities: 1900
+  scf_programmes: 40
+  scf_suppliers: 1900
+  listed_parents: 220
+  staff: 240
+  contacts: 6000
+
+# ---- Thresholds (mirrored into gold.dim_threshold; DECISIONS D20, D29) ---------------
+thresholds:
+  rorwa_hurdle: 0.012     # net profit / RWA ~1.2% (realistic wholesale; 0.08 was an unreachable placeholder)
+  raroc_hurdle: 0.12
+  roe_hurdle: 0.10
+  single_borrower_attention_usd: 500000000
+  ews_amber_min: 40
+  ews_red_min: 70
+  covenant_headroom_warn: 0.10
+
+# ---- Realism knobs (brief §6.3) ------------------------------------------------------
+realism:
+  pareto_top_decile_deposit_share: 0.60
+  pareto_top_decile_lending_share: 0.55
+  supplier_payments_to_other_banks: 0.35
+  forecast_mape_v1: 0.18
+  forecast_mape_v2: 0.11
+  forecast_v2_from: "2026-06-01"
+  plan_optimism_min: 0.08
+  plan_optimism_max: 0.12
+
+# ---- Entity resolution (DECISIONS D22) ----------------------------------------------
+entity_resolution:
+  identity_sources: [core_customer, crm_account, kyc_customer, credit_obligor, trade_party, tsy_counterparty, ext_company_master]
+  noise:
+    dup_within_source: 0.06
+    wrong_country: 0.02
+    stale_parent: 0.03
+    single_source_only: 0.015
+    typo_rate: 0.05
+  run_dates:
+    v1: ["2025-06-30", "2025-09-30", "2025-12-31"]
+    v2: ["2026-03-31", "2026-06-30", "2026-09-30"]
+  steward_error_rate: 0.02
+  gate_precision: 0.97
+  gate_recall: 0.95
+
+# ---- Storyline switches (each injector in storylines.py; DECISIONS §5.4) -------------
+storylines:
+  sunda_energi_ews_cascade: true
+  kinokawa_wallet_recapture: true
+  meridian_entity_resolution: true
+  tanaka_parent_support: true
+  hk_casa_migration: true
+  vn_in_trade_surge: true
+  kyc_migration_backlog: true
+  below_hurdle_cluster: true
+  cashflow_model_upgrade: true
+  au_renewables_positive: true
+  covenant_blind_spot: true
+  payments_replay_17jun: true
+  jp_share_staleness: true

@@ -1,0 +1,175 @@
+{
+ "columns": [
+  {
+   "comment": "Rating event id (RTG-nnnnnn).",
+   "is_measure": false,
+   "name": "rating_event_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor record rated.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the rating action took effect.",
+   "is_measure": false,
+   "name": "effective_date",
+   "type": "date"
+  },
+  {
+   "comment": "Initial (first rating), Affirm, Upgrade or Downgrade.",
+   "is_measure": false,
+   "name": "rating_action",
+   "type": "string"
+  },
+  {
+   "comment": "Internal grade before the action (1 best .. 10 default); null for Initial.",
+   "is_measure": false,
+   "name": "grade_from",
+   "type": "int"
+  },
+  {
+   "comment": "Internal grade after the action (1-10).",
+   "is_measure": false,
+   "name": "grade_to",
+   "type": "int"
+  },
+  {
+   "comment": "Notches moved: grade_to - grade_from (positive = downgrade / worse, negative = upgrade).",
+   "is_measure": false,
+   "name": "notch_change",
+   "type": "int"
+  },
+  {
+   "comment": "External-scale equivalent of the new grade (e.g. BB-, CCC).",
+   "is_measure": false,
+   "name": "rating_equivalent_to",
+   "type": "string"
+  },
+  {
+   "comment": "IFRS 9 stage before the action (1, 2, 3); null for Initial.",
+   "is_measure": false,
+   "name": "stage_from",
+   "type": "int"
+  },
+  {
+   "comment": "IFRS 9 stage after the action: 1 performing, 2 significant deterioration, 3 credit-impaired / default.",
+   "is_measure": false,
+   "name": "stage_to",
+   "type": "int"
+  },
+  {
+   "comment": "Grade move as text, e.g. 7 -> 9.",
+   "is_measure": false,
+   "name": "grade_migration",
+   "type": "string"
+  },
+  {
+   "comment": "Stage move as text, e.g. Stage 2 -> Stage 3.",
+   "is_measure": false,
+   "name": "stage_migration",
+   "type": "string"
+  },
+  {
+   "comment": "True for downgrades (grade worsened).",
+   "is_measure": false,
+   "name": "is_downgrade",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for upgrades (grade improved).",
+   "is_measure": false,
+   "name": "is_upgrade",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the IFRS 9 stage changed.",
+   "is_measure": false,
+   "name": "is_stage_change",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client moved into Stage 3 (default) from Stage 1 or 2.",
+   "is_measure": false,
+   "name": "is_stage3_entry",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the IFRS 9 stage worsened (1 -> 2, 2 -> 3, 1 -> 3).",
+   "is_measure": false,
+   "name": "is_stage_deterioration",
+   "type": "boolean"
+  },
+  {
+   "comment": "Grade at origination of the relationship (reference for significant deterioration).",
+   "is_measure": false,
+   "name": "origination_grade",
+   "type": "int"
+  },
+  {
+   "comment": "grade_to - origination_grade (positive = worse than at origination; >= 3 notches indicates Stage 2).",
+   "is_measure": false,
+   "name": "notches_vs_origination",
+   "type": "int"
+  },
+  {
+   "comment": "Reason recorded for the rating action, e.g. Annual review, Unlikely to pay: missed RCF payment and covenant breach.",
+   "is_measure": false,
+   "name": "action_reason",
+   "type": "string"
+  },
+  {
+   "comment": "Rating model / scorecard used.",
+   "is_measure": false,
+   "name": "rating_model",
+   "type": "string"
+  },
+  {
+   "comment": "Credit approver (employee_id) who approved the rating; join to gold.dim_employee.",
+   "is_measure": false,
+   "name": "approver_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit review (CRV-...) that produced the rating action; see fact_credit_review_workflow.workflow_item_id.",
+   "is_measure": false,
+   "name": "review_id",
+   "type": "string"
+  },
+  {
+   "comment": "Distinct EWS triggers that fired for the client in the 90 days before the action (month-end evaluations).",
+   "is_measure": false,
+   "name": "n_triggers_prior_90d",
+   "type": "int"
+  },
+  {
+   "comment": "Those triggers as a comma-separated list, e.g. COV_BREACH, DPD_30, UTIL_HIGH.",
+   "is_measure": false,
+   "name": "triggers_prior_90d",
+   "type": "string"
+  }
+ ],
+ "comment": "Internal rating actions and migrations (brief 5.4), Apr-2023 to Sep-2026: one row per rating event of a credit obligor - Initial, Affirm, Upgrade or Downgrade - with grade from -> to (1 best .. 10 default), notches (positive = worse), IFRS 9 stage from -> to, migration flags (downgrade, upgrade, stage change, Stage 3 entry), notches vs origination, reason, rating model, approver, the linked credit review and the EWS triggers that fired in the 90 days before the action. Sunda's 12-Jun-2026 downgrade 7 -> 9 into Stage 3 is here. Count downgrades with is_downgrade; rating actions are events (additive counts). Grain: one row per internal rating event.",
+ "identifier": "smbc_genie.gold.fact_rating_migration",
+ "type": "MANAGED"
+}

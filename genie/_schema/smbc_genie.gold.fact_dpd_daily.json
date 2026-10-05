@@ -1,0 +1,127 @@
+{
+ "columns": [
+  {
+   "comment": "Credit facility in arrears (FAC-nnnnnn).",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Calendar day the facility is past due.",
+   "is_measure": false,
+   "name": "dpd_date",
+   "type": "date"
+  },
+  {
+   "comment": "Credit obligor record of the borrower.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Days past due on the day (1 = first day after the missed due date).",
+   "is_measure": false,
+   "name": "days_past_due",
+   "type": "int"
+  },
+  {
+   "comment": "DPD bucket: 1-29, 30-59, 60-89 or 90+ (90+ = default / Stage 3 territory).",
+   "is_measure": false,
+   "name": "dpd_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "True when 30 or more days past due (dim_threshold DPD_30_PLUS).",
+   "is_measure": false,
+   "name": "is_30_plus_dpd",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when more than 90 days past due (default, dim_threshold DPD_DEFAULT).",
+   "is_measure": false,
+   "name": "is_90_plus_dpd",
+   "type": "boolean"
+  },
+  {
+   "comment": "Amount overdue on the day, USD (point-in-time).",
+   "is_measure": false,
+   "name": "overdue_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Amount overdue on the day in facility currency.",
+   "is_measure": false,
+   "name": "overdue_amount_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Facility currency (ISO 4217).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Arrears episode (ARR-nnnnn): consecutive days in arrears from one missed payment until cure.",
+   "is_measure": false,
+   "name": "arrears_episode_id",
+   "type": "string"
+  },
+  {
+   "comment": "Payment due date that was missed and started the episode.",
+   "is_measure": false,
+   "name": "missed_due_date",
+   "type": "date"
+  },
+  {
+   "comment": "Date the arrears were cleared (episode cured); null when not cured by 30-Sep-2026.",
+   "is_measure": false,
+   "name": "cure_date",
+   "type": "date"
+  },
+  {
+   "comment": "True when the episode was cured on or before the as-of date.",
+   "is_measure": false,
+   "name": "is_episode_cured",
+   "type": "boolean"
+  },
+  {
+   "comment": "Facility type (e.g. Revolving Credit Facility, Term Loan).",
+   "is_measure": false,
+   "name": "facility_type",
+   "type": "string"
+  },
+  {
+   "comment": "Product key of the facility type; join to gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "True on calendar month-ends (month-end delinquency snapshots).",
+   "is_measure": false,
+   "name": "is_month_end",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Daily delinquency (brief 5.4): one row per credit facility x day in arrears (Apr-2023 to Sep-2026) with days past due, DPD bucket (1-29, 30-59, 60-89, 90+), overdue amount (USD and local currency), the arrears episode, its missed due date and cure date (a cure after 30-Sep-2026 is not known yet: null / not cured). Only days in arrears are present (a facility absent on a day is current). DPD and overdue amounts are point-in-time: never sum across days. For rates over the whole book (30+ DPD rate, cure rate) use fact_credit_exposure_monthly. Grain: one row per facility x day in arrears.",
+ "identifier": "smbc_genie.gold.fact_dpd_daily",
+ "type": "MANAGED"
+}

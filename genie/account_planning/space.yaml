@@ -1,0 +1,327 @@
+# APAC Genie - Account Planning (brief §5.1, PLAN §8 / §9 / §10). Authored by G1 (p07g1).
+# Must-answer queries: metrics/_answers/account_planning.sql. Caveats: scratch/genie_caveats.md §1.
+slug: account_planning
+title: APAC Genie - Account Planning
+description: >-
+  Ask about account plans, relationship footprint, global group relationships and RM engagement for SMBC's APAC
+  clients. Figures are USD unless you ask for local currency; periods follow the Japanese fiscal year (Apr-Mar).
+  Client names roll up to client groups; data is synthetic and as of 30 Sep 2026.
+
+data_sources:
+  - identifier: smbc_genie.metrics.mv_account_plan_progress
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Industry: {entity_matching: true}
+      Subsector: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Primary RM Office: {entity_matching: true}
+      Product Family: {entity_matching: true}
+      Plan Status: {entity_matching: true}
+      Plan Owner RM: {entity_matching: true}
+      Plan Owner RM Office: {entity_matching: true}
+      Top Competitor Bank: {entity_matching: true}
+      Fiscal Year: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_relationship_footprint
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      Product Family: {entity_matching: true}
+      Product: {entity_matching: true}
+      Business Line: {entity_matching: true}
+      Booking Country: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_global_group_relationship
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Region: {entity_matching: true}
+      Booking Entity: {entity_matching: true}
+      Product Family: {entity_matching: true}
+      Entity Type: {entity_matching: true}
+  - identifier: smbc_genie.metrics.mv_rm_engagement
+    columns:
+      Client Group: {entity_matching: true}
+      Segment: {entity_matching: true}
+      Relationship Tier: {entity_matching: true}
+      Coverage Office: {entity_matching: true}
+      Primary RM: {entity_matching: true}
+      RM: {entity_matching: true}
+      RM Office: {entity_matching: true}
+      Activity Type: {entity_matching: true}
+      Contact Role: {entity_matching: true}
+      Purpose: {entity_matching: true}
+      Record Type: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_account_plan_initiative
+    include_columns: [initiative_id, group_name, fiscal_year_label, product_family, initiative_name, initiative_description,
+                      target_revenue_usd, status, is_open, is_overdue, priority, due_date, due_fiscal_quarter_label,
+                      due_fiscal_half_label, completed_date, owner_name, owner_rm_name]
+    columns:
+      group_name: {entity_matching: true}
+      fiscal_year_label: {entity_matching: true}
+      product_family: {entity_matching: true}
+      status: {entity_matching: true}
+      priority: {entity_matching: true}
+      due_fiscal_quarter_label: {entity_matching: true, synonyms: [due quarter, quarter due, Q3 FY2026, target quarter]}
+      due_fiscal_half_label: {entity_matching: true}
+      owner_rm_name: {entity_matching: true, synonyms: [RM, relationship manager, account RM, plan RM, by RM]}
+      owner_name: {entity_matching: true}
+  - identifier: smbc_genie.gold.dim_client_group
+    include_columns: [client_group_id, group_name, hq_country, hq_region, is_japanese_group, jp_parent_legal_name,
+                      group_segment, group_relationship_tier, is_strategic_group, group_industry_sector,
+                      group_industry_subsector, global_tier, global_relationship_owner_region, global_rm_name,
+                      lead_client_name, lead_office, lead_rm_name, n_entities_apac, n_apac_countries,
+                      apac_countries_text, n_entities_emea, n_entities_amer, n_entities_global,
+                      has_account_plan_current_fy]
+    columns:
+      group_name: {entity_matching: true}
+      hq_country: {entity_matching: true}
+      hq_region: {entity_matching: true}
+      group_segment: {entity_matching: true}
+      group_relationship_tier: {entity_matching: true}
+      lead_office: {entity_matching: true}
+      lead_rm_name: {entity_matching: true}
+      global_tier: {entity_matching: true}
+  - identifier: smbc_genie.gold.vw_client_360
+    include_columns: [golden_client_id, display_name, short_name, aliases_text, group_name, is_group_lead, segment,
+                      is_japanese_corporate, relationship_tier, industry_sector, industry_subsector, coverage_office,
+                      primary_rm_name, primary_rm_office, has_account_plan, revenue_fytd_usd, revenue_prior_fytd_usd,
+                      revenue_yoy_pct, products_held_count, product_families_held_count, is_deposit_only,
+                      is_single_product_lending, next_best_product, open_pipeline_usd, last_rm_contact_date,
+                      days_since_last_rm_contact, rm_contacts_last_90d, open_rm_actions, credit_limit_usd, drawn_usd,
+                      deposits_usd]
+    columns:
+      group_name: {entity_matching: true}
+      segment: {entity_matching: true}
+      relationship_tier: {entity_matching: true}
+      coverage_office: {entity_matching: true}
+      primary_rm_name: {entity_matching: true}
+
+instructions:
+  domain:
+    - "- Plan targets, attainment, run-rate, revenue YoY, wallet / share of wallet and initiative counts: mv_account_plan_progress (group x fiscal year x product family). Filter ONE `Fiscal Year`; FY2026 actuals are H1 (Apr-Sep 2026), so attainment near 50% is on track and `Attainment %` < 0.40 is behind plan."
+    - "- Products held, deposit-only entities, drawn lending, deposits: mv_relationship_footprint. Exposure, deposits and revenue by region (APAC, JP, EMEA, AMER): mv_global_group_relationship. RM activities and contact gaps: mv_rm_engagement. These are point-in-time: filter `Is Latest Month` for today (Sep-2026)."
+    - "- `Client Group` has a value dictionary: filter it with = on the exact group name ('Tanaka Chemical' and 'Tanaka Chemical Group' are different groups). Use LIKE only for entity (`Client`) names."
+    - "- Questions about entities or subsidiaries (which entities hold only deposits, which clients were not contacted) list `Client` (legal entity) with its `Client Group`; a group question lists `Client Group`."
+    - "- RMs: 'by RM' = `Primary RM` (the group lead RM; `Plan Owner RM` in plan lists); 'RMs in Singapore / Hong Kong' = `Primary RM Office` = 'SG' / 'HK' (where the RM sits, not the client's `Coverage Office`)."
+    - "- 'No RM contact in 90 days' = `Strategic Clients Not Touched 90D` (Strategic) or `Clients Not Touched 90D` on `Is Latest Month`: CRM-covered clients only; `Strategic Entities Without CRM` counts Strategic-tier entities with no CRM account at all."
+    - "- Initiative detail (name, status, due quarter, owner RM): gold.dim_account_plan_initiative with is_open, is_overdue and due_fiscal_quarter_label (e.g. 'FY2026-Q3'); per-group / per-RM counts: `Initiatives Open`, `Initiatives Overdue`."
+    - "- `Revenue YoY %` is like for like: FY2026 = H1 FY2026 vs H1 FY2025. Share of wallet: `Share of Wallet %` with `Estimated Wallet USD` > 0; 'where is it lowest' = ascending order."
+
+example_sqls:
+  - question: Global relationship with :client_group by region - entities, committed, drawn, deposits and revenue 12M (including Japan, EMEA and Americas)
+    usage_guidance: Use for "global relationship / global exposure of <group>", "by region including Japan, EMEA and Americas", "JP parent exposure", "how big is <group> worldwide".
+    parameters:
+      - {name: client_group, type: STRING, description: "Exact client group name (value dictionary), e.g. Hayashi Marine Logistics", default: Hayashi Marine Logistics}
+    sql: |
+      SELECT `Region`,
+             MEASURE(`Entity Count`)           AS entities,
+             MEASURE(`Global Committed USD`)   AS committed_usd,
+             MEASURE(`Global Drawn USD`)       AS drawn_usd,
+             MEASURE(`Global Deposits USD`)    AS deposits_usd,
+             MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd
+      FROM smbc_genie.metrics.mv_global_group_relationship
+      WHERE `Client Group` = :client_group AND `Is Latest Month`
+      GROUP BY ALL
+      ORDER BY `Region`
+  - question: Which :relationship_tier tier groups are below 40% plan attainment at H1 of :fiscal_year, by coverage office and RM?
+    usage_guidance: Use for "groups behind plan", "below 40% attainment", "laggards vs plan at H1 / half-year", "under-achieving Strategic relationships".
+    parameters:
+      - {name: relationship_tier, type: STRING, description: "Relationship tier: Strategic, Core or Transactional", default: Strategic}
+      - {name: fiscal_year, type: STRING, description: "Fiscal-year label, e.g. FY2026", default: FY2026}
+    sql: |
+      SELECT `Coverage Office`, `Plan Owner RM`, `Client Group`,
+             MEASURE(`Attainment %`)           AS attainment_h1,
+             MEASURE(`Revenue Actual YTD USD`) AS revenue_h1_usd,
+             MEASURE(`Effective Target USD`)   AS target_usd
+      FROM smbc_genie.metrics.mv_account_plan_progress
+      WHERE `Fiscal Year` = :fiscal_year AND `Relationship Tier` = :relationship_tier
+      GROUP BY ALL
+      HAVING MEASURE(`Attainment %`) < 0.40
+      ORDER BY attainment_h1
+  - question: What products does the :client_group group hold with us across APAC today, by product family and product?
+    usage_guidance: Use for "what products does <group> hold", "product footprint / product mix of <group>", "products held across APAC".
+    parameters:
+      - {name: client_group, type: STRING, description: "Exact client group name (value dictionary), e.g. Tanaka Chemical", default: Tanaka Chemical}
+    sql: |
+      SELECT `Product Family`, `Product`,
+             MEASURE(`Product Holdings`)  AS entities_holding,
+             MEASURE(`Deposits USD`)      AS deposits_usd,
+             MEASURE(`Lending Drawn USD`) AS lending_drawn_usd,
+             MEASURE(`TB Volume 12M USD`) AS tb_volume_12m_usd
+      FROM smbc_genie.metrics.mv_relationship_footprint
+      WHERE `Client Group` = :client_group AND `Is Latest Month` AND `Is Active Product`
+      GROUP BY ALL
+      ORDER BY `Product Family`, `Product`
+  - question: Which :segment groups grew revenue more than 20% YoY and which fell more than 15% in :fiscal_year? Break down by product family.
+    usage_guidance: Use for "groups growing > 20% / falling > 15% year on year", "revenue movers by product", "YoY winners and losers"; YoY is H1 FY2026 vs H1 FY2025 like for like.
+    parameters:
+      - {name: segment, type: STRING, description: "Client segment, e.g. Japanese Corporate", default: Japanese Corporate}
+      - {name: fiscal_year, type: STRING, description: "Fiscal-year label, e.g. FY2026", default: FY2026}
+    sql: |
+      WITH g AS (
+        SELECT `Client Group`, MEASURE(`Revenue YoY %`) AS group_yoy
+        FROM smbc_genie.metrics.mv_account_plan_progress
+        WHERE `Fiscal Year` = :fiscal_year AND `Segment` = :segment
+        GROUP BY ALL
+        HAVING MEASURE(`Revenue YoY %`) > 0.20 OR MEASURE(`Revenue YoY %`) < -0.15
+      ), f AS (
+        SELECT `Client Group`, `Product Family`,
+               MEASURE(`Revenue YTD Comparable USD`) AS revenue_h1_fy2026_usd,
+               MEASURE(`Revenue Prior YTD USD`)      AS revenue_h1_fy2025_usd,
+               MEASURE(`Revenue YoY %`)              AS family_yoy
+        FROM smbc_genie.metrics.mv_account_plan_progress
+        WHERE `Fiscal Year` = :fiscal_year AND `Segment` = :segment
+        GROUP BY ALL
+      )
+      SELECT CASE WHEN g.group_yoy > 0.20 THEN 'Grew > 20%' ELSE 'Fell > 15%' END AS bucket,
+             g.`Client Group` AS client_group, g.group_yoy, f.`Product Family` AS product_family,
+             f.revenue_h1_fy2026_usd, f.revenue_h1_fy2025_usd, f.family_yoy
+      FROM g JOIN f ON f.`Client Group` = g.`Client Group`
+      WHERE f.revenue_h1_fy2025_usd IS NOT NULL
+      ORDER BY bucket, g.group_yoy, product_family
+  - question: For groups where APAC is less than 20% of global group revenue, what is the APAC product footprint vs the rest of the group as of :month?
+    usage_guidance: Use for "groups where APAC is a small share of the global relationship", "APAC footprint vs rest of group", "APAC share of group revenue below 20%".
+    parameters:
+      - {name: month, type: DATE, description: "Month-end as the first day of the month; today = 2026-09-01", default: "2026-09-01"}
+    sql: |
+      WITH s AS (
+        SELECT `Client Group`, MEASURE(`APAC Share of Group Revenue %`) AS apac_share
+        FROM smbc_genie.metrics.mv_global_group_relationship
+        WHERE `Month` = :month
+        GROUP BY ALL
+        HAVING MEASURE(`APAC Share of Group Revenue %`) < 0.20
+      ), f AS (
+        SELECT `Client Group`, `Region`, `Product Family`,
+               MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd,
+               MEASURE(`Global Drawn USD`)       AS drawn_usd,
+               MEASURE(`Global Deposits USD`)    AS deposits_usd
+        FROM smbc_genie.metrics.mv_global_group_relationship
+        WHERE `Month` = :month
+        GROUP BY ALL
+      )
+      SELECT CASE WHEN f.`Region` = 'APAC' THEN 'APAC' ELSE 'Rest of group' END AS scope,
+             f.`Product Family` AS product_family,
+             count(DISTINCT f.`Client Group`) AS groups, sum(f.revenue_12m_usd) AS revenue_12m_usd,
+             sum(f.drawn_usd) AS drawn_usd, sum(f.deposits_usd) AS deposits_usd
+      FROM f JOIN s ON s.`Client Group` = f.`Client Group`
+      GROUP BY ALL
+      ORDER BY scope, revenue_12m_usd DESC
+  - question: Account-plan initiatives still open and due in :due_quarter by RM, with each RM's open and overdue initiatives for :fiscal_year
+    usage_guidance: Use for "open initiatives for Q3 FY2026 by RM", "account-plan actions due next quarter", "initiative backlog per RM"; joins the initiative detail table with the plan view (CTE per source).
+    parameters:
+      - {name: due_quarter, type: STRING, description: "Fiscal quarter label of the due date, e.g. FY2026-Q3 (Oct-Dec 2026)", default: FY2026-Q3}
+      - {name: fiscal_year, type: STRING, description: "Plan fiscal-year label, e.g. FY2026", default: FY2026}
+    sql: |
+      WITH d AS (
+        SELECT owner_rm_name, count(*) AS open_initiatives_due_q3, sum(target_revenue_usd) AS target_revenue_usd
+        FROM smbc_genie.gold.dim_account_plan_initiative
+        WHERE is_open AND due_fiscal_quarter_label = :due_quarter
+        GROUP BY 1
+      ), v AS (
+        SELECT `Plan Owner RM`, MEASURE(`Initiatives Open`) AS open_initiatives_fy2026,
+               MEASURE(`Initiatives Overdue`) AS overdue_initiatives_fy2026
+        FROM smbc_genie.metrics.mv_account_plan_progress
+        WHERE `Fiscal Year` = :fiscal_year
+        GROUP BY ALL
+      )
+      SELECT d.owner_rm_name AS rm, d.open_initiatives_due_q3, d.target_revenue_usd,
+             v.open_initiatives_fy2026, v.overdue_initiatives_fy2026
+      FROM d LEFT JOIN v ON v.`Plan Owner RM` = d.owner_rm_name
+      ORDER BY d.open_initiatives_due_q3 DESC, rm
+
+sql_functions:
+  - smbc_genie.gold.fn_account_plan_status
+  - smbc_genie.gold.fn_account_plan_footprint
+  - smbc_genie.gold.fn_account_plan_rm_book
+
+sample_questions:
+  - "Give me the account-plan status for the Kinokawa Precision group: FY2026 target vs H1 actual by product family, and the full-year run-rate."
+  - Which Strategic-tier groups are below 40% plan attainment at H1, by coverage office and RM?
+  - Show the global relationship with Hayashi Marine Logistics - exposure, deposits and revenue by region including Japan, EMEA and Americas.
+  - Which Tanaka Chemical entities hold nothing but deposits with us?
+  - Where is our share of wallet lowest by segment and product family in FY2025?
+  - Which Strategic clients have had no RM contact in the last 90 days?
+  - "RM book summary: for each RM in Singapore, number of groups, revenue YTD and attainment."
+  - List account-plan initiatives still open for Q3 FY2026 by RM.
+
+benchmarks:
+  - key: Q1
+    question: "Give me the account-plan status for the Kinokawa Precision group: FY2026 target vs H1 actual by product family, and the full-year run-rate (original, revised and in-force targets, H1 actual, run-rate and attainment)."
+    answer: Q1
+  - key: Q1-casual
+    question: how is kinokawa precision tracking against its account plan this year?
+    variant_of: Q1
+    expected_sql: |
+      SELECT `Product Family`, MEASURE(`Revenue Actual YTD USD`) AS h1_actual_usd, MEASURE(`Attainment %`) AS attainment
+      FROM smbc_genie.metrics.mv_account_plan_progress
+      WHERE `Client Group` = 'Kinokawa Precision' AND `Fiscal Year` = 'FY2026'
+      GROUP BY ALL
+    allow_extra_columns: true
+  - key: Q1-abbrev
+    question: Kinokawa Precision FY26 plan vs H1 actual and run-rate by product family
+    variant_of: Q1
+    expected_sql: |
+      SELECT `Product Family`, MEASURE(`Revenue Actual YTD USD`) AS h1_actual_usd, MEASURE(`Run-Rate Full-Year USD`) AS full_year_run_rate_usd
+      FROM smbc_genie.metrics.mv_account_plan_progress
+      WHERE `Client Group` = 'Kinokawa Precision' AND `Fiscal Year` = 'FY2026'
+      GROUP BY ALL
+    allow_extra_columns: true
+  - key: Q2
+    question: Which Strategic-tier groups are below 40% plan attainment at H1 FY2026, by coverage office and RM? Show attainment, H1 revenue and the target in force.
+    answer: Q2
+  - key: Q2-jargon
+    question: Strategic names running below 40% of plan at the half-year - by office and plan RM, with attainment, H1 revenue and target
+    variant_of: Q2
+  - key: Q3
+    question: Which Tanaka Chemical group entities hold nothing but deposits with us? For each entity show its coverage office, products held today, whether it is deposit-only, deposits and drawn lending.
+    answer: Q3
+    allow_extra_columns: true
+  - key: Q3b
+    question: What products does the Tanaka Chemical group hold with us across APAC today, by product family and product? Show the number of entities holding each, deposits, drawn lending and 12-month TB volume.
+    answer: Q3b
+  - key: Q4
+    question: Show the global relationship with Hayashi Marine Logistics - entities, committed, drawn exposure, deposits and 12-month revenue by region including Japan, EMEA and Americas.
+    answer: Q4
+  - key: Q4-typo
+    question: global relationshp with Hayashi Marine Logistcs by region incl Japan, EMEA and Americas
+    variant_of: Q4
+    expected_sql: |
+      SELECT `Region`, MEASURE(`Global Deposits USD`) AS deposits_usd, MEASURE(`Global Revenue 12M USD`) AS revenue_12m_usd
+      FROM smbc_genie.metrics.mv_global_group_relationship
+      WHERE `Client Group` = 'Hayashi Marine Logistics' AND `Is Latest Month`
+      GROUP BY ALL
+    allow_extra_columns: true
+  - key: Q5
+    question: Our share of wallet by segment and product family in FY2025 - where is it lowest? Show the 10 lowest segment and product-family combinations with their estimated wallet.
+    answer: Q5
+  - key: Q5-jargon
+    question: FY25 SoW by segment x product family - bottom 10 with wallet size
+    variant_of: Q5
+  - key: Q6
+    question: Which Strategic clients have had no RM contact in the last 90 days? List each legal entity with its group, primary RM and days since the last contact.
+    answer: Q6
+    allow_extra_columns: true
+  - key: Q6b
+    question: How many Strategic clients have had no RM contact in 90 days, how many Strategic-tier entities have no CRM account at all, and how many CRM clients in total have not been contacted in 90 days?
+    answer: Q6b
+  - key: Q7
+    question: "RM book summary: for each RM in Singapore, the number of groups, revenue YTD and attainment."
+    answer: Q7
+  - key: Q7-abbrev
+    question: SG RM book - groups, rev YTD, attainment per RM
+    variant_of: Q7
+  - key: Q8
+    question: Which Japanese-corporate groups grew revenue more than 20% YoY and which fell more than 15%? Break down by product family with H1 FY2026 and H1 FY2025 revenue and growth.
+    answer: Q8
+  - key: Q9
+    question: For groups where APAC is less than 20% of global group revenue, what is the APAC product footprint vs the rest of the group? By product family show the number of groups, 12-month revenue, drawn and deposits.
+    answer: Q9
+  - key: Q10
+    question: "List account-plan initiatives still open for Q3 FY2026 by RM: open initiatives due in the quarter and their target revenue, plus each RM's open and overdue FY2026 initiatives."
+    answer: Q10

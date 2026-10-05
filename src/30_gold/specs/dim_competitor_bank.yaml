@@ -1,0 +1,19 @@
+table: dim_competitor_bank
+domain: hub
+comment: >-
+  Counterparty banks seen in client payments and wallet estimates: SMBC itself, the fictional competitor
+  banks (e.g. Meridian Pacific Bank, Garuda Commercial Bank) and intercompany transfers, with how often
+  each competitor is the top competitor in a group's product wallet in the latest fiscal year.
+grain: one row per bank
+primary_key: [bank_id]
+cluster_by: [bank_id]
+min_rows: 3
+columns:
+  bank_id: {type: STRING, comment: "Bank key BNK-<NAME> (upper-case name, non-alphanumerics as '-'), e.g. BNK-SOLARIS-BANK."}
+  bank_name: {type: STRING, comment: "Bank name as recorded in payments / wallet estimates (fictional competitors, SMBC, Intercompany)."}
+  bank_type: {type: STRING, comment: "SMBC, Other Bank (competitor) or Intercompany (transfers within the client group)."}
+  is_competitor: {type: BOOLEAN, comment: True for other (competitor) banks.}
+  wallet_fiscal_year: {type: INT, comment: Latest fiscal year of the wallet estimates used for the competitor statistics.}
+  groups_as_top_competitor: {type: BIGINT, comment: Client groups for which this bank is the top competitor in at least one product family (latest wallet fiscal year).}
+  wallet_lines_as_top_competitor: {type: BIGINT, comment: Group x product-family wallet lines where this bank is the top competitor (latest wallet fiscal year).}
+  avg_top_competitor_share: {type: DOUBLE, comment: "Average estimated share of wallet (0-1) this bank holds where it is the top competitor (latest wallet fiscal year)."}

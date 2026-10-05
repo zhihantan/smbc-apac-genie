@@ -1,0 +1,70 @@
+table: fact_liquidity_need_event
+domain: cashflow
+comment: >-
+  Liquidity-need events flagged by the cash-flow forecasts (Jul-2024 to Sep-2026): predicted shortfalls (forecast
+  inflows below the expected outflows) and predicted surpluses, with the forecast behind them (model version, run
+  date, horizon, inflows, outflows, net, severity vs the client's typical gross flow), the client's undrawn RCF
+  headroom, and what happened next - RCF drawdown (linked to the drawdown in the loan schedule), TD placed or none -
+  with the action date, days to action, amount and estimated annual revenue. Storyline 9: exactly 23 predicted
+  shortfalls Jun-Sep 2026, 15 of them followed by an RCF drawdown within 10 days (is_rcf_drawdown_within_10d).
+  Amounts are per event (additive across events).
+grain: one row per liquidity-need event (event_id)
+primary_key: [event_id]
+foreign_keys:
+  - {columns: [event_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [booking_country], references: dim_booking_entity}
+  - {columns: [action_product_id], references: dim_product}
+cluster_by: [event_date, golden_client_sk]
+min_rows: 100
+columns:
+  event_id: {type: STRING, comment: "Liquidity-need event id."}
+  event_date: {type: DATE, comment: "Date the forecast flagged the event (the predicted shortfall / surplus date)."}
+  event_month: {type: DATE, comment: "First day of the month of event_date."}
+  event_type: {type: STRING, comment: "Predicted Shortfall or Predicted Surplus."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version valid on the event date (as-was, D11) - its primary RM is the RM of the event."}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  cust_no: {type: STRING, comment: "Core-banking customer number (source identity record) of the client."}
+  booking_country: {type: STRING, comment: "Client's coverage office / booking location (ISO-2)."}
+  model_version: {type: STRING, comment: "Forecast model that flagged the event (v1 or v2)."}
+  forecast_run_date: {type: DATE, comment: "Run date of the forecast behind the event."}
+  forecast_target_month: {type: DATE, comment: "Target month of that forecast."}
+  horizon_days: {type: INT, comment: "Days from the forecast run to the event date."}
+  horizon_label: {type: STRING, comment: "Forecast horizon of the model behind the event (30D = one month ahead)."}
+  forecast_inflows_usd: {type: DOUBLE, comment: "Forecast inflows of the target month, USD (null for scripted HK surplus events)."}
+  expected_outflows_usd: {type: DOUBLE, comment: "Expected outflows (average of the 3 months before the run), USD."}
+  predicted_net_usd: {type: DOUBLE, comment: "Predicted net cash flow, USD (negative = shortfall)."}
+  predicted_amount_usd: {type: DOUBLE, comment: "Size of the predicted shortfall / surplus = |predicted_net_usd|, USD."}
+  severity_ratio: {type: DOUBLE, comment: "|predicted net| / the client's typical gross monthly flow (0-1+; null for scripted events)."}
+  has_rcf: {type: BOOLEAN, comment: "True when the client has a committed revolving credit facility."}
+  undrawn_rcf_usd: {type: DOUBLE, comment: "Undrawn RCF headroom at the month-end before the target month, USD."}
+  action_taken: {type: STRING, comment: "RCF Drawdown, TD Placed or None."}
+  action_product_id: {type: STRING, comment: "Product of the action: PRD-REVOLVING-CREDIT-FACILITY or PRD-TIME-DEPOSIT; null when none."}
+  action_date: {type: DATE, comment: "Date of the RCF drawdown / TD placement (null when none)."}
+  days_to_action: {type: INT, comment: "Days from the event to the action (null when none). Average Days to Action = AVG over actioned events."}
+  action_amount_usd: {type: DOUBLE, comment: "Amount drawn / placed, USD."}
+  linked_facility_id: {type: STRING, comment: "RCF facility drawn (RCF Drawdown events)."}
+  linked_schedule_event_id: {type: STRING, comment: "Loan-schedule drawdown event that actioned the shortfall."}
+  linked_drawdown_date: {type: DATE, comment: "Date of the linked drawdown in the loan schedule (verifies the link)."}
+  linked_drawdown_usd: {type: DOUBLE, comment: "Amount of the linked drawdown in the loan schedule, USD."}
+  est_action_revenue_usd: {type: DOUBLE, comment: "Estimated annual revenue of the action (RCF margin or TD spread on the amount), USD - Revenue from Actions."}
+  event_status: {type: STRING, comment: "Actioned, Open (still inside the 30-day action window at the as-of date) or Closed - No Action."}
+  is_actioned: {type: BOOLEAN, comment: "True when an action followed (Actioned %)."}
+  is_rcf_drawdown_within_10d: {type: BOOLEAN, comment: "True for shortfalls followed by an RCF drawdown within 10 days (dim_threshold RCF_FOLLOW_UP_DAYS) linked in the loan schedule."}
+  is_large_surplus: {type: BOOLEAN, comment: "True for predicted surpluses above USD 20m (dim_threshold SURPLUS_ATTENTION_USD)."}
+  is_surplus_not_placed: {type: BOOLEAN, comment: "True for predicted surpluses where no TD was placed (deposit / investment opportunity)."}
+checks:
+  - name: rcf_links_resolve   # every RCF action points at a real drawdown of the linked facility
+    sql: >-
+      SELECT count_if(action_taken = 'RCF Drawdown' AND (linked_drawdown_date IS NULL OR linked_drawdown_date <> action_date))
+      FROM ${table}
+  - name: storyline_shortfalls_jun_sep_2026
+    sql: >-
+      SELECT abs(count_if(event_type = 'Predicted Shortfall' AND event_date BETWEEN DATE'2026-06-01' AND DATE'2026-09-30') - 23)
+      + abs(count_if(event_type = 'Predicted Shortfall' AND event_date BETWEEN DATE'2026-06-01' AND DATE'2026-09-30'
+      AND is_rcf_drawdown_within_10d) - 15) FROM ${table}
+reconcile:
+  - name: rows_vs_silver
+    silver: SELECT count(*) FROM ${catalog}.silver.cf_event

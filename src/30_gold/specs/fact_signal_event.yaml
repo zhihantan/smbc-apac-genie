@@ -1,0 +1,79 @@
+table: fact_signal_event
+domain: signals
+comment: >-
+  Unified signal feed consumed by Opportunity Identification and Early Warning: every signal from every
+  source keyed to gold.dim_signal_type - CRM opportunity signals (e.g. DEPOSIT_SURPLUS, TRADE_CORRIDOR_GROWTH),
+  EWS triggers (e.g. UTIL_HIGH, DPD_30; monthly), news items (NEWS_*), market moves on listed parents
+  (MARKET_*), external agency rating actions (EXT_RATING_*, EXT_OUTLOOK_NEGATIVE), JP parent rating actions
+  from the Japan share (PARENT_RATING_*, source_region JP) and positive / negative RM notes (RM_NOTE_*).
+  Group-level signals (market, agency, JP parent) sit on the group's lead entity. Each signal has a polarity
+  (Opportunity / Risk / Neutral), a strength 0-1, an owner RM, an acknowledged flag and pipeline flags.
+  Flow fact: count signals, average strength.
+grain: one row per signal event
+primary_key: [signal_event_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [signal_date], references: dim_date}
+  - {columns: [signal_code], references: dim_signal_type}
+  - {columns: [owner_employee_id], references: dim_employee}
+cluster_by: [signal_date, golden_client_sk]
+min_rows: 10000
+columns:
+  signal_event_id: {type: STRING, comment: "Signal id: the CRM signal id (SIG-...), or EWS-<obligor>-<yyyyMM>-<trigger>, NEWS-EVT-<news id>, MKT-<issuer>-<yyyyMMdd>-<code>, XR-<agency rating id>, JPR-EVT-<JP rating id>, NOTE-<activity id>."}
+  signal_date: {type: DATE, comment: "Date the signal was raised (EWS signals: first day of the month evaluated) - the grain date."}
+  month: {type: DATE, comment: First day of the calendar month of the signal.}
+  signal_code: {type: STRING, comment: "Signal type code; join gold.dim_signal_type (e.g. DEPOSIT_SURPLUS, UTIL_HIGH, NEWS_EXPANSION, MARKET_52W_LOW, PARENT_RATING_UPGRADE)."}
+  signal_name: {type: STRING, comment: Signal type name (from dim_signal_type).}
+  signal_category: {type: STRING, comment: "Signal category, e.g. Wallet Leakage, Growth, Liquidity, Credit, News, Market, Rating, Internal Sentiment."}
+  polarity: {type: STRING, comment: "Polarity of this signal: Opportunity, Risk or Neutral. News takes the item sentiment (>= 0.2 Opportunity, <= -0.2 Risk, else the type default); rating actions: upgrade = Opportunity, downgrade / negative outlook = Risk."}
+  is_opportunity_signal: {type: BOOLEAN, comment: True when polarity = Opportunity.}
+  is_risk_signal: {type: BOOLEAN, comment: True when polarity = Risk.}
+  source_quadrant: {type: STRING, comment: "Data quadrant of the signal type: Internal Quantitative, Internal Qualitative, External Quantitative or External Qualitative."}
+  consumed_by: {type: STRING, comment: "Workflow that consumes the signal type: Opportunity Identification, Early Warning or Both."}
+  source_feed: {type: STRING, comment: "Feed the signal came from: crm_signal, ews_signal, news, market, ext_rating, jp_parent_rating or rm_note."}
+  source_system: {type: STRING, comment: "Producing engine of the signal type: crm_signal_engine, news_alerts, ews_engine, news_vendor, market_data, rating_agency, jp_share or crm_notes."}
+  source_region: {type: STRING, comment: "Region of the data provider: JP for signals from the Japan (Tokyo HO) Delta Share, APAC for local feeds and vendors - filter JP for rating actions from JP-shared parent data."}
+  source_record_id: {type: STRING, comment: "Id of the source record (CRM signal id, news id, agency or JP rating id, activity id, issuer|date, obligor|month|trigger)."}
+  signal_level: {type: STRING, comment: "Client (raised on the legal entity) or Group (raised on the group / listed parent and attached to the group lead entity)."}
+  golden_client_sk: BIGINT
+  golden_client_id: {type: STRING, not_null: true, comment: "Golden client the signal is about (group-level signals: the group's lead entity)."}
+  client_group_id: STRING
+  owner_employee_id: {type: STRING, comment: "RM who owns the signal: the CRM signal owner, the RM who wrote the note, else the client's primary RM at the signal date (dim_client as-was); join gold.dim_employee."}
+  strength: {type: DOUBLE, comment: "Signal strength 0-1: CRM engine strength; EWS severity (High 1.0, Medium 0.6, Low 0.3); news 0.5 x relevance + 0.5 x |sentiment|; market move size; rating notches; |note sentiment|. Average it."}
+  sentiment_score: {type: DOUBLE, comment: Sentiment -1..1 for news and RM-note signals; null for other feeds.}
+  signal_text: {type: STRING, comment: "Short description: CRM signal detail, EWS detail, news headline, market move, rating rationale or RM note text (synthetic)."}
+  source_status: {type: STRING, comment: "CRM signal status for CRM opportunity signals: New, Actioned, Converted or Dismissed; null for other feeds."}
+  is_new_occurrence: {type: BOOLEAN, comment: False for EWS signals that also fired for the same obligor and trigger the month before (a persisting condition); true for first occurrences and every other feed.}
+  is_acknowledged: {type: BOOLEAN, comment: "Acknowledged by the RM: CRM signals whose status moved beyond New; RM notes (raised by the RM); any other signal when an RM logged a CRM activity with the client group within 30 days on or after the signal date. False = unacknowledged."}
+  acknowledged_date: {type: DATE, comment: Date of the acknowledgement (CRM action / status date or the first qualifying RM activity); null when unacknowledged.}
+  days_to_acknowledge: {type: INT, comment: Days from the signal to its acknowledgement; null when unacknowledged.}
+  linked_opportunity_id: {type: STRING, comment: Pipeline opportunity the CRM signal converted into (null otherwise).}
+  has_open_pipeline: {type: BOOLEAN, comment: "True when the client (group-level signals: any client of the group) has an open pipeline opportunity at 30-Sep-2026."}
+  has_opportunity_since_signal: {type: BOOLEAN, comment: "True when a pipeline opportunity was created for the client (group-level: the group) on or after the signal date, or the CRM signal is linked to one."}
+  has_pipeline: {type: BOOLEAN, comment: True when has_open_pipeline or has_opportunity_since_signal - false = a signal with no pipeline.}
+  days_before_as_of: {type: INT, comment: "Days between the signal date and the as-of date 30-Sep-2026; last N days = days_before_as_of < N."}
+  is_last_30d: {type: BOOLEAN, comment: True for signals in the 30 days to 30-Sep-2026.}
+  is_last_90d: {type: BOOLEAN, comment: True for signals in the 90 days to 30-Sep-2026 (3-Jul-2026 .. 30-Sep-2026).}
+checks:
+  - name: tanaka_parent_upgrade_jun26   # storyline 4: the JP parent upgrade of 18-Jun-2026 is in the feed
+    sql: >-
+      SELECT 1 - count(*) FROM ${table} WHERE client_group_id = 'SYN-G-0003' AND signal_code = 'PARENT_RATING_UPGRADE'
+      AND signal_date = DATE'2026-06-18' AND source_region = 'JP'
+  - name: every_source_feed_present
+    sql: >-
+      SELECT 7 - count(DISTINCT source_feed) FROM ${table}
+  - name: news_items_all_in_feed
+    sql: SELECT (SELECT count(*) FROM ${catalog}.gold.fact_news_item) - count(*) FROM ${table} WHERE source_feed = 'news'
+reconcile:
+  - name: crm_signals_vs_silver
+    gold: SELECT count(*) FROM ${table} WHERE source_feed = 'crm_signal'
+    silver: SELECT count(*) FROM ${catalog}.silver.crm_signal WHERE golden_client_id IS NOT NULL AND detected_date <= DATE'${as_of_date}'
+  - name: ews_signals_vs_silver
+    gold: SELECT count(*) FROM ${table} WHERE source_feed = 'ews_signal'
+    silver: SELECT count(*) FROM ${catalog}.silver.ews_signal WHERE golden_client_id IS NOT NULL AND signal_month <= DATE'${as_of_date}'
+  - name: jp_parent_actions_vs_silver
+    gold: SELECT count(*) FROM ${table} WHERE source_feed = 'jp_parent_rating'
+    silver: >-
+      SELECT count(*) FROM ${catalog}.silver.share_jp_parent_rating WHERE rating_action IN ('Upgrade', 'Downgrade')
+      AND rating_date BETWEEN DATE'${history_start}' AND DATE'${as_of_date}'

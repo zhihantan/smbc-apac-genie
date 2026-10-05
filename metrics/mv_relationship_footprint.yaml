@@ -1,0 +1,196 @@
+# WP9b - space 1, Account Planning. What each client holds with SMBC APAC at each month-end: products held, deposit-
+# only entities, drawn lending, deposits, 12-month TB / FX volumes, family revenue 12M, products vs the peer median.
+# Balances and 12M windows are point-in-time (window measures, latest month); client-month attributes are read on
+# the client-month primary row. Must-answer queries: metrics/_answers/account_planning.sql.
+view: mv_relationship_footprint
+space: account_planning
+comment: >-
+  Relationship footprint of SMBC APAC clients at each month-end, Apr-2023 to Sep-2026: the products each legal
+  entity holds or used in the last 12 months (deposits, loans, trade, FX, payments, cash management, SCF), entities
+  holding nothing but deposits, drawn lending, deposits, trailing 12-month transaction-banking and FX volumes,
+  trailing 12-month revenue, and products held vs the peer-group median. Everything except Transaction Volume is
+  POINT-IN-TIME (a month-end snapshot or a trailing 12-month window): filter one Month (Is Latest Month = Sep 2026)
+  - a longer period returns its last month. "What does group X hold" = filter the group and the latest month.
+grain: one row per golden client x product x month-end (gold.fact_product_holding_monthly)
+source: ${catalog}.gold.fact_product_holding_monthly
+blocks:
+  calendar: {date: source.month, grain: month, what: the holding month-end}
+  client: {key: source.golden_client_sk}
+dimensions:
+  - name: Product Family
+    expr: source.product_family
+    display_name: Product Family
+    comment: >-
+      Product family: Corporate Lending, Trade Finance, Supply Chain Finance, Cash (current / savings accounts,
+      pooling, sweeps), Liquidity (time deposits, money market), Payments or FX.
+    synonyms: [product family, product line, product group, business product, family]
+  - name: Product
+    expr: source.product_name
+    display_name: Product
+    comment: >-
+      Product held or used, e.g. Current Account, Time Deposit, Term Loan, Revolving Credit Facility, Import LC,
+      Guarantee / SBLC, FX Forward, Cross-Border Payments, Notional Pooling, Payables Finance.
+    synonyms: [product, product name, facility type, account type, service, instrument]
+  - name: Business Line
+    expr: source.business_line
+    display_name: Business Line
+    comment: Business line of the product - Lending, Transaction Banking or Markets.
+    synonyms: [business line, division, line of business, LOB, business]
+  - name: Booking Country
+    expr: source.booking_country
+    display_name: Booking Country
+    comment: APAC booking location of the client relationship (coverage office at the month-end, ISO-2, e.g. SG, HK, VN).
+    synonyms: [booking country, country, booking location, booking entity, market, location]
+  - name: Is Active Product
+    expr: source.is_active
+    display_name: Is Active Product
+    comment: >-
+      True when the client holds the product at the month-end or used it in the trailing 12 months (products held);
+      false = lapsed (used before, not any more).
+    synonyms: [active product, held product, product held, in use, current product, live product]
+  - name: Is Deposit-Only Entity
+    expr: source.is_deposit_only
+    display_name: Is Deposit-Only Entity
+    comment: True when, at the month-end, every product the entity holds is a deposit product (nothing but deposits).
+    synonyms: [deposit only, deposits only, only deposits, liability only, pure depositor, deposit-only client]
+measures:
+  - name: Products Held
+    expr: COUNT(DISTINCT CASE WHEN source.is_active THEN source.product_id END)
+    display_name: Products Held (distinct)
+    comment: Distinct products held or used in the last 12 months by the selected clients at the month-end.
+    synonyms: [products held, product count, number of products, products, product breadth, product mix]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+    window: &eom
+      - {order: Month, range: current, semiadditive: last}
+  - name: Product Holdings
+    expr: COUNT(CASE WHEN source.is_active THEN 1 END)
+    display_name: Product Holdings (client x product)
+    comment: Active client-product holdings at the month-end (a product held by three entities counts three times).
+    synonyms: [holdings, product holdings, client products, active holdings, relationships x products]
+    format: *count
+    window: *eom
+  - name: Clients
+    expr: COUNT(DISTINCT CASE WHEN source.is_client_month_primary_row AND source.products_held_count > 0 THEN source.golden_client_id END)
+    display_name: Clients (with a product)
+    comment: Legal entities (golden clients) holding at least one product at the month-end.
+    synonyms: [clients, entities, number of clients, client count, legal entities, customers]
+    format: *count
+    window: *eom
+  - name: Deposit-Only Entities
+    expr: COUNT(DISTINCT CASE WHEN source.is_client_month_primary_row AND source.is_deposit_only THEN source.golden_client_id END)
+    display_name: Deposit-Only Entities
+    comment: Entities whose only products at the month-end are deposits - cross-sell candidates.
+    synonyms: [deposit only entities, deposit-only clients, depositors only, liability-only clients, pure depositors]
+    format: *count
+    window: *eom
+  - name: Average Products per Client
+    expr: >-
+      SUM(CASE WHEN source.is_client_month_primary_row THEN source.products_held_count END)
+      / NULLIF(COUNT(DISTINCT CASE WHEN source.is_client_month_primary_row AND source.products_held_count > 0 THEN source.golden_client_id END), 0)
+    display_name: Average Products per Client
+    comment: Average number of products held per client at the month-end.
+    synonyms: [products per client, product depth, cross-sell ratio, average products, wallet depth]
+    format: &dec2 {type: number, decimal_places: {type: max, places: 2}}
+    window: *eom
+  - name: Peer Median Products Held
+    expr: AVG(CASE WHEN source.is_client_month_primary_row THEN source.peer_median_products_held END)
+    display_name: Peer Median Products Held
+    comment: Median products held by clients of the same peer group (industry subsector) at the month-end, averaged over the selected clients.
+    synonyms: [peer median, peer products, peer benchmark, typical peer, peer group median]
+    format: *dec2
+    window: *eom
+  - name: Products Held vs Peer Median
+    expr: AVG(CASE WHEN source.is_client_month_primary_row THEN source.products_held_vs_peer_median END)
+    display_name: Products Held vs Peer Median
+    comment: Average of (products held - peer median) per client at the month-end; negative = fewer products than peers.
+    synonyms: [vs peers, product gap, peer gap, products vs peers, under-penetration]
+    format: *dec2
+    window: *eom
+  - name: Lending Drawn USD
+    expr: SUM(source.lending_drawn_usd)
+    display_name: Lending Drawn (USD)
+    comment: Drawn balance of credit facilities at the month-end in USD.
+    synonyms: [drawn, loans outstanding, lending, drawn balance, outstanding, utilised amount, loan book]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+    window: *eom
+  - name: Lending Limit USD
+    expr: SUM(CASE WHEN source.holding_basis = 'Facility limit' THEN source.limit_usd END)
+    display_name: Lending Limits (USD)
+    comment: Committed credit-facility limits at the month-end in USD.
+    synonyms: [limits, committed, facility limits, commitments, approved limits, credit lines]
+    format: *usd
+    window: *eom
+  - name: Deposits USD
+    expr: SUM(source.deposit_balance_usd)
+    display_name: Deposits (USD)
+    comment: Deposit balances (current, savings, time, money market) at the month-end in USD.
+    synonyms: [deposits, deposit balance, liabilities, balances, CASA and TD, funding]
+    format: *usd
+    window: *eom
+  - name: TB Volume 12M USD
+    expr: SUM(source.tb_volume_12m_usd)
+    display_name: TB Volume 12M (USD)
+    comment: Transaction-banking volume (payments and trade finance) over the 12 months to the month-end, USD.
+    synonyms: [TB volume, transaction banking volume, payments volume, trade volume, flows, throughput]
+    format: *usd
+    window: *eom
+  - name: FX Notional 12M USD
+    expr: SUM(source.fx_notional_12m_usd)
+    display_name: FX Notional 12M (USD)
+    comment: FX notional dealt with SMBC over the 12 months to the month-end, USD (history from Apr-2024).
+    synonyms: [FX volume, FX notional, FX turnover, FX flow, treasury volume, markets volume]
+    format: *usd
+    window: *eom
+  - name: Revenue 12M USD
+    expr: SUM(source.revenue_12m_usd)
+    display_name: Revenue 12M (USD)
+    comment: Revenue over the 12 months to the month-end, USD (product-family level; history from Apr-2024).
+    synonyms: [revenue 12M, trailing revenue, LTM revenue, annual revenue, revenue last 12 months]
+    format: *usd
+    window: *eom
+  - name: Transaction Volume USD
+    expr: SUM(source.volume_month_usd)
+    display_name: Transaction Volume (USD, in the period)
+    comment: Transaction value in the selected months in USD (trade issuance, FX notional, payments) - a flow, adds up over months.
+    synonyms: [transaction volume, volume, turnover, flow, transactions value]
+    format: *usd
+validate:
+  dims: [Month, Segment, Product Family]
+reconcile:
+  - name: deposits_sep_2026
+    measure: Deposits USD
+    where: "`Is Latest Month`"
+    gold: SELECT sum(deposit_balance_usd) FROM ${catalog}.gold.fact_product_holding_monthly WHERE month = DATE'2026-09-01'
+  - name: lending_drawn_by_booking_country_sep_2026
+    measure: Lending Drawn USD
+    by: [Booking Country]
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT booking_country, sum(lending_drawn_usd) FROM ${catalog}.gold.fact_product_holding_monthly
+      WHERE month = DATE'2026-09-01' GROUP BY 1
+  - name: deposit_only_entities_sep_2026
+    measure: Deposit-Only Entities
+    where: "`Is Latest Month`"
+    gold: >-
+      SELECT count(DISTINCT golden_client_id) FROM ${catalog}.gold.fact_product_holding_monthly
+      WHERE month = DATE'2026-09-01' AND is_client_month_primary_row AND is_deposit_only
+  - name: products_per_client_by_segment_sep_2026
+    measure: Average Products per Client
+    by: [Segment]
+    where: "`Is Latest Month` AND `Segment` IS NOT NULL"
+    gold: >-
+      SELECT c.segment, sum(h.products_held_count) / count(DISTINCT h.golden_client_id)
+      FROM ${catalog}.gold.fact_product_holding_monthly h JOIN ${catalog}.gold.dim_client c ON c.golden_client_sk = h.golden_client_sk
+      WHERE h.month = DATE'2026-09-01' AND h.is_client_month_primary_row AND h.products_held_count > 0 AND c.segment IS NOT NULL
+      GROUP BY 1
+  - name: fx_notional_fy2025_flow
+    measure: Transaction Volume USD
+    where: "`Fiscal Year` = 'FY2025' AND `Product Family` = 'FX'"
+    gold: >-
+      SELECT sum(volume_month_usd) FROM ${catalog}.gold.fact_product_holding_monthly
+      WHERE fiscal_year = 2025 AND product_family = 'FX'
+glossary:
+  caveats:
+    - >-
+      Point-in-time: filter one Month (Is Latest Month for today); products held = held at the month-end or used in the
+      last 12 months. Share of wallet lives in mv_account_plan_progress.

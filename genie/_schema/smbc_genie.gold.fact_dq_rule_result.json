@@ -1,0 +1,187 @@
+{
+ "columns": [
+  {
+   "comment": "DQ run id DQ-yyyymmdd (the as-of date it evaluated).",
+   "is_measure": false,
+   "name": "run_id",
+   "type": "string"
+  },
+  {
+   "comment": "DQ rule id <table>:<rule>, e.g. pay_payment_message:key_unique, pay_payment_message:x:landing_ties_to_cash_flow.",
+   "is_measure": false,
+   "name": "rule_id",
+   "type": "string"
+  },
+  {
+   "comment": "Layer the rule was evaluated on: bronze, shared or silver.",
+   "is_measure": false,
+   "name": "layer",
+   "type": "string"
+  },
+  {
+   "comment": "As-of date of the DQ run (from the run id; the grain date).",
+   "is_measure": false,
+   "name": "run_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of the run (joins fact_dq_score_monthly.month).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Layer-qualified table evaluated, e.g. bronze.pay_payment_message.",
+   "is_measure": false,
+   "name": "table_name",
+   "type": "string"
+  },
+  {
+   "comment": "Table name without the layer.",
+   "is_measure": false,
+   "name": "base_table_name",
+   "type": "string"
+  },
+  {
+   "comment": "Column(s) the rule checks (comma-separated; * = row / cross-table rule).",
+   "is_measure": false,
+   "name": "column_name",
+   "type": "string"
+  },
+  {
+   "comment": "DQ dimension: completeness, validity, uniqueness, timeliness or consistency.",
+   "is_measure": false,
+   "name": "dimension",
+   "type": "string"
+  },
+  {
+   "comment": "Rule kind, e.g. key_present, key_unique, required, valid_values, parent_exists, golden_key, freshness, cross_table.",
+   "is_measure": false,
+   "name": "rule_kind",
+   "type": "string"
+  },
+  {
+   "comment": "What the rule checks (DQ catalogue).",
+   "is_measure": false,
+   "name": "rule_description",
+   "type": "string"
+  },
+  {
+   "comment": "Rule expression as documented in the DQ catalogue.",
+   "is_measure": false,
+   "name": "rule_expr",
+   "type": "string"
+  },
+  {
+   "comment": "Where the rule came from: generated (from the table spec) or hand_written (cross-table consistency rule).",
+   "is_measure": false,
+   "name": "rule_origin",
+   "type": "string"
+  },
+  {
+   "comment": "Grain the rule is evaluated at: row or table.",
+   "is_measure": false,
+   "name": "rule_grain",
+   "type": "string"
+  },
+  {
+   "comment": "Rule severity: error, warn or info.",
+   "is_measure": false,
+   "name": "severity",
+   "type": "string"
+  },
+  {
+   "comment": "True for blocking rules - failing rows are quarantined out of silver.",
+   "is_measure": false,
+   "name": "is_blocking",
+   "type": "boolean"
+  },
+  {
+   "comment": "Action on failure: none, deduplicate (rows removed by business-key de-duplication) or flag (rows kept and flagged).",
+   "is_measure": false,
+   "name": "action",
+   "type": "string"
+  },
+  {
+   "comment": "Rows evaluated by the rule.",
+   "is_measure": false,
+   "name": "total_rows",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rows failing the rule (for deduplicate rules = duplicate rows removed).",
+   "is_measure": false,
+   "name": "failed_rows",
+   "type": "bigint"
+  },
+  {
+   "comment": "total_rows - failed_rows.",
+   "is_measure": false,
+   "name": "passed_rows",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rows removed by de-duplication (failed_rows of deduplicate rules; 0 otherwise).",
+   "is_measure": false,
+   "name": "deduplicated_rows",
+   "type": "bigint"
+  },
+  {
+   "comment": "Share of rows passing (fraction 0-1).",
+   "is_measure": false,
+   "name": "pass_rate",
+   "type": "double"
+  },
+  {
+   "comment": "Failure rate tolerated before the rule fails (fraction; 0 = no failure tolerated).",
+   "is_measure": false,
+   "name": "threshold",
+   "type": "double"
+  },
+  {
+   "comment": "Result: pass, warn or fail.",
+   "is_measure": false,
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the status is warn or fail (Rules Failed).",
+   "is_measure": false,
+   "name": "is_failed",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the status is fail.",
+   "is_measure": false,
+   "name": "is_hard_fail",
+   "type": "boolean"
+  },
+  {
+   "comment": "Sample keys of failing rows, comma-separated (null when none).",
+   "is_measure": false,
+   "name": "sample_keys_text",
+   "type": "string"
+  },
+  {
+   "comment": "Extra detail as JSON text, e.g. {removed_by_batch: {PAY_20260617_R: 3966}}.",
+   "is_measure": false,
+   "name": "detail",
+   "type": "string"
+  },
+  {
+   "comment": "Demo storyline the rule result belongs to (e.g. 12 = payments replay); null otherwise.",
+   "is_measure": false,
+   "name": "storyline_no",
+   "type": "int"
+  },
+  {
+   "comment": "True for the latest DQ run.",
+   "is_measure": false,
+   "name": "is_latest_run",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Rule-level data-quality results of the DQ run (DQ-20260930, as of 30-Sep-2026): one row per DQ rule evaluated on a layer-qualified table (bronze, shared or silver) with the rule definition from the DQ catalogue, its dimension, severity, blocking flag and action, rows evaluated / failed, pass rate, threshold and status (pass / warn / fail). The drill-down behind fact_dq_score_monthly's latest month - e.g. pay_payment_message:key_unique on bronze: 3,966 replayed messages of batch PAY_20260617_R removed by de-duplication (storyline 12), silver passes. Grain: one row per DQ run per rule per layer.",
+ "identifier": "smbc_genie.gold.fact_dq_rule_result",
+ "type": "MANAGED"
+}

@@ -1,0 +1,187 @@
+{
+ "columns": [
+  {
+   "comment": "First day of the month of the month-end snapshot.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Month-end the coverage is measured at (90-day windows end here).",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "True for Sep-2026, the month of the as-of date - use it for today's coverage.",
+   "is_measure": false,
+   "name": "is_latest_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Primary RM (employee_id) of the client at the month-end (dim_client as-was); null when uncovered.",
+   "is_measure": false,
+   "name": "primary_rm_id",
+   "type": "string"
+  },
+  {
+   "comment": "CRM code of the primary RM at the month-end.",
+   "is_measure": false,
+   "name": "primary_rm_code",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location) of the primary RM.",
+   "is_measure": false,
+   "name": "primary_rm_office",
+   "type": "string"
+  },
+  {
+   "comment": "Relationship tier at the month-end: Strategic, Core or Transactional.",
+   "is_measure": false,
+   "name": "relationship_tier",
+   "type": "string"
+  },
+  {
+   "comment": "True when the client is Strategic tier at the month-end.",
+   "is_measure": false,
+   "name": "is_strategic",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client has a CRM account (is covered in the CRM platform).",
+   "is_measure": false,
+   "name": "has_crm_account",
+   "type": "boolean"
+  },
+  {
+   "comment": "RM activities with the client in the calendar month (additive across months).",
+   "is_measure": false,
+   "name": "activities_in_month",
+   "type": "bigint"
+  },
+  {
+   "comment": "Meetings and site visits in the month (additive across months).",
+   "is_measure": false,
+   "name": "in_person_in_month",
+   "type": "bigint"
+  },
+  {
+   "comment": "RM activities in the 90 days to the month-end (trailing window).",
+   "is_measure": false,
+   "name": "activities_90d",
+   "type": "bigint"
+  },
+  {
+   "comment": "Distinct client contacts met in the 90 days to the month-end.",
+   "is_measure": false,
+   "name": "contacts_touched_90d",
+   "type": "bigint"
+  },
+  {
+   "comment": "Distinct RMs who logged an activity with the client in the 90 days to the month-end.",
+   "is_measure": false,
+   "name": "rms_engaged_90d",
+   "type": "bigint"
+  },
+  {
+   "comment": "Sum of note sentiment over the trailing 90 days (with sentiment_count_90d gives a weighted average).",
+   "is_measure": false,
+   "name": "sentiment_sum_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Activities with a sentiment score in the trailing 90 days.",
+   "is_measure": false,
+   "name": "sentiment_count_90d",
+   "type": "bigint"
+  },
+  {
+   "comment": "Average note sentiment over the trailing 90 days (-1..1); null without activity.",
+   "is_measure": false,
+   "name": "avg_sentiment_90d",
+   "type": "double"
+  },
+  {
+   "comment": "Date of the latest RM activity on or before the month-end; null when never contacted.",
+   "is_measure": false,
+   "name": "last_activity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from last_activity_date to the month-end; null when never contacted.",
+   "is_measure": false,
+   "name": "days_since_last_activity",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client had at least one RM activity in the 90 days to the month-end.",
+   "is_measure": false,
+   "name": "is_touched_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the client had no RM activity in the 90 days to the month-end (incl. never contacted) - dim_threshold NO_RM_CONTACT_DAYS.",
+   "is_measure": false,
+   "name": "is_not_touched_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for Strategic-tier clients not touched in the 90 days to the month-end - Strategic Clients Not Touched 90D.",
+   "is_measure": false,
+   "name": "is_strategic_not_touched_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Follow-up actions logged up to the month-end that are still open at the as-of date (meaningful for the latest month).",
+   "is_measure": false,
+   "name": "open_next_actions",
+   "type": "bigint"
+  }
+ ],
+ "comment": "RM coverage of every golden client at every month-end (Account Planning, mv_rm_engagement; Apr-2024 to Sep-2026, from the month the relationship started): the primary RM and relationship tier in force, activities in the month and in the trailing 90 days, distinct contacts met, average note sentiment, the last contact date and the touched / not-touched-in-90-days flags. Rows exist for clients with no activity at all, so \"Strategic clients with no RM contact in the last 90 days\" is a filter on the latest month (is_latest_month) and is_strategic_not_touched_90d. The 90-day counts are trailing windows: never sum them across months. Grain: one row per golden client x month-end (dense from the relationship start).",
+ "identifier": "smbc_genie.gold.fact_client_coverage_monthly",
+ "type": "MANAGED"
+}

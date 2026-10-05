@@ -1,0 +1,262 @@
+[
+  {
+    "id": "726fab2f686cd73424b08ff900000000",
+    "key": "Q1",
+    "question": "What is the 30-day net cash-flow forecast for the Kinokawa Precision client group - forecast inflows, expected outflows, forecast net, and the net P10 and P90?",
+    "expected_sql": "SELECT `Client Group`,\n       MEASURE(`Forecast Inflow USD`)  AS forecast_inflows_usd,\n       MEASURE(`Forecast Outflow USD`) AS expected_outflows_usd,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Forecast Net P90 USD`) AS forecast_net_p90_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = '30D' AND `Client Group` = 'Kinokawa Precision'\nGROUP BY ALL",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q1",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000001",
+    "key": "Q1-casual",
+    "question": "what's kinokawa precision looking like cash-wise over the next 30 days? inflows, outflows, net and the p10/p90 range",
+    "expected_sql": "SELECT `Client Group`,\n       MEASURE(`Forecast Inflow USD`)  AS forecast_inflows_usd,\n       MEASURE(`Forecast Outflow USD`) AS expected_outflows_usd,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Forecast Net P90 USD`) AS forecast_net_p90_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = '30D' AND `Client Group` = 'Kinokawa Precision'\nGROUP BY ALL",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q1",
+    "variant_of": "Q1",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff900000000"
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000002",
+    "key": "Q1b",
+    "question": "Show the latest Kinokawa Precision cash-flow forecast by entity and horizon (7, 30 and 90 days) - forecast net with its P10 and P90.",
+    "expected_sql": "SELECT `Client`, `Horizon`,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Forecast Net P90 USD`) AS forecast_net_p90_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Client Group` = 'Kinokawa Precision'\nGROUP BY ALL\nORDER BY `Client`, `Horizon`",
+    "expected_checks": {
+      "rows": 21
+    },
+    "answer_ref": "Q1b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000003",
+    "key": "Q2",
+    "question": "List the legal entities forecast to go negative in the next 30 days (a material shortfall) that have an RCF, with their segment, forecast net, net P10, deposits and undrawn RCF.",
+    "expected_sql": "SELECT `Client`, `Segment`,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Opening Deposits USD`) AS deposits_usd,\n       MEASURE(`Undrawn RCF USD`)      AS undrawn_rcf_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = '30D' AND `Is Material Shortfall` AND `Has RCF`\nGROUP BY ALL\nORDER BY forecast_net_usd\nLIMIT 25",
+    "expected_checks": {
+      "rows": 25
+    },
+    "answer_ref": "Q2",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000004",
+    "key": "Q2-jargon",
+    "question": "RCF drawdown candidates - names with a material 30D cash shortfall and a revolver, with segment, forecast net, P10, deposits and undrawn RCF headroom",
+    "expected_sql": "SELECT `Client`, `Segment`,\n       MEASURE(`Forecast Net USD`)     AS forecast_net_usd,\n       MEASURE(`Forecast Net P10 USD`) AS forecast_net_p10_usd,\n       MEASURE(`Opening Deposits USD`) AS deposits_usd,\n       MEASURE(`Undrawn RCF USD`)      AS undrawn_rcf_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = '30D' AND `Is Material Shortfall` AND `Has RCF`\nGROUP BY ALL\nORDER BY forecast_net_usd\nLIMIT 25",
+    "expected_checks": {
+      "rows": 25
+    },
+    "answer_ref": "Q2",
+    "variant_of": "Q2",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff900000003"
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000005",
+    "key": "Q2b",
+    "question": "In the next 30 days, how many clients are forecast, how many are forecast net negative and how many have a material shortfall, split by whether they have an RCF, with their undrawn RCF?",
+    "expected_sql": "SELECT `Has RCF`,\n       MEASURE(`Clients Forecast`)                AS clients_forecast,\n       MEASURE(`Clients Forecast Negative`)       AS clients_forecast_net_negative,\n       MEASURE(`Clients with Material Shortfall`) AS clients_with_material_shortfall,\n       MEASURE(`Undrawn RCF USD`)                 AS undrawn_rcf_usd\nFROM smbc_genie.metrics.mv_cashflow_forecast\nWHERE `Is Latest Forecast` AND `Horizon` = '30D'\nGROUP BY ALL\nORDER BY `Has RCF`",
+    "expected_checks": {
+      "rows": 2
+    },
+    "answer_ref": "Q2b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000006",
+    "key": "Q3",
+    "question": "Show forecast accuracy by horizon, segment and model version - MAPE, bias, P10-P90 interval coverage and the number of scored forecasts.",
+    "expected_sql": "SELECT `Horizon`, `Segment`, `Model Version`,\n       MEASURE(`MAPE %`)              AS mape,\n       MEASURE(`Bias %`)              AS bias,\n       MEASURE(`Interval Coverage %`) AS p10_p90_coverage,\n       MEASURE(`Scored Forecasts`)    AS scored_forecasts\nFROM smbc_genie.metrics.mv_forecast_accuracy\nGROUP BY ALL\nORDER BY `Horizon`, `Segment`, `Model Version`",
+    "expected_checks": {
+      "rows": 10
+    },
+    "answer_ref": "Q3",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000007",
+    "key": "Q3b",
+    "question": "Overall, how did model v1 compare with model v2 - MAPE, P10-P90 interval coverage and number of scored forecasts?",
+    "expected_sql": "SELECT `Model Version`,\n       MEASURE(`MAPE %`)              AS mape,\n       MEASURE(`Interval Coverage %`) AS p10_p90_coverage,\n       MEASURE(`Scored Forecasts`)    AS scored_forecasts\nFROM smbc_genie.metrics.mv_forecast_accuracy\nGROUP BY ALL\nORDER BY `Model Version`",
+    "expected_checks": {
+      "rows": 2
+    },
+    "answer_ref": "Q3b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000008",
+    "key": "Q3b-abbrev",
+    "question": "MAPE v1 vs v2, w/ P10-P90 coverage and",
+    "expected_sql": "SELECT `Model Version`,\n       MEASURE(`MAPE %`)              AS mape,\n       MEASURE(`Interval Coverage %`) AS p10_p90_coverage,\n       MEASURE(`Scored Forecasts`)    AS scored_forecasts\nFROM smbc_genie.metrics.mv_forecast_accuracy\nGROUP BY ALL\nORDER BY `Model Version`",
+    "expected_checks": {
+      "rows": 2
+    },
+    "answer_ref": "Q3b",
+    "variant_of": "Q3b",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff900000007"
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000009",
+    "key": "Q4",
+    "question": "Which predicted surpluses above USD 20m were not placed in a time deposit? Show the entity, event month, event status and predicted surplus amount.",
+    "expected_sql": "SELECT `Client`, `Month` AS event_month, `Event Status`,\n       MEASURE(`Predicted Amount USD`) AS predicted_surplus_usd\nFROM smbc_genie.metrics.mv_liquidity_events\nWHERE `Is Large Surplus` AND `Is Surplus Not Placed`\nGROUP BY ALL\nORDER BY event_month DESC, predicted_surplus_usd DESC",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q4",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff90000000a",
+    "key": "Q4-jargon",
+    "question": "Idle cash - unplaced surpluses over 20m with the entity, event month, status and surplus size",
+    "expected_sql": "SELECT `Client`, `Month` AS event_month, `Event Status`,\n       MEASURE(`Predicted Amount USD`) AS predicted_surplus_usd\nFROM smbc_genie.metrics.mv_liquidity_events\nWHERE `Is Large Surplus` AND `Is Surplus Not Placed`\nGROUP BY ALL\nORDER BY event_month DESC, predicted_surplus_usd DESC",
+    "expected_checks": {
+      "rows": 13
+    },
+    "answer_ref": "Q4",
+    "variant_of": "Q4",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff900000009"
+  },
+  {
+    "id": "726fab2f686cd73424b08ff90000000b",
+    "key": "Q5",
+    "question": "Which industries have March and September inflow peaks? For Apr-2024 to Mar-2026 show each industry's seasonality index in March, in September and its highest index in any other month.",
+    "expected_sql": "WITH s AS (\n  SELECT `Industry`, `Calendar Month`, MEASURE(`Seasonality Index`) AS seasonality_index\n  FROM smbc_genie.metrics.mv_client_cashflow\n  WHERE `Month` BETWEEN DATE'2024-04-01' AND DATE'2026-03-01'\n  GROUP BY ALL\n)\nSELECT `Industry`,\n       max(CASE WHEN `Calendar Month` = 3 THEN seasonality_index END) AS march_index,\n       max(CASE WHEN `Calendar Month` = 9 THEN seasonality_index END) AS september_index,\n       max(CASE WHEN `Calendar Month` NOT IN (3, 9) THEN seasonality_index END) AS highest_other_month_index\nFROM s WHERE `Industry` IS NOT NULL\nGROUP BY `Industry`\nORDER BY march_index + september_index DESC",
+    "expected_checks": {
+      "rows": 16
+    },
+    "answer_ref": "Q5",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff90000000c",
+    "key": "Q5-casual",
+    "question": "which industries peak in march and september? seasonality index for march, sept and their best other month, FY2024 to FY2025",
+    "expected_sql": "WITH s AS (\n  SELECT `Industry`, `Calendar Month`, MEASURE(`Seasonality Index`) AS seasonality_index\n  FROM smbc_genie.metrics.mv_client_cashflow\n  WHERE `Month` BETWEEN DATE'2024-04-01' AND DATE'2026-03-01'\n  GROUP BY ALL\n)\nSELECT `Industry`,\n       max(CASE WHEN `Calendar Month` = 3 THEN seasonality_index END) AS march_index,\n       max(CASE WHEN `Calendar Month` = 9 THEN seasonality_index END) AS september_index,\n       max(CASE WHEN `Calendar Month` NOT IN (3, 9) THEN seasonality_index END) AS highest_other_month_index\nFROM s WHERE `Industry` IS NOT NULL\nGROUP BY `Industry`\nORDER BY march_index + september_index DESC",
+    "expected_checks": {
+      "rows": 16
+    },
+    "answer_ref": "Q5",
+    "variant_of": "Q5",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff90000000b"
+  },
+  {
+    "id": "726fab2f686cd73424b08ff90000000d",
+    "key": "Q6",
+    "question": "From June to September 2026, how many predicted shortfalls were there, how many were followed by an RCF drawdown within 10 days, how much was drawn on those shortfalls and what annual revenue did the actions bring?",
+    "expected_sql": "SELECT MEASURE(`Shortfall Events`)                    AS predicted_shortfalls,\n       MEASURE(`Shortfalls Covered by RCF Within 10D`) AS followed_by_rcf_drawdown_within_10d,\n       MEASURE(`Action Amount USD`)                   AS amount_drawn_usd,\n       MEASURE(`Revenue from Actions USD`)            AS annual_revenue_from_actions_usd\nFROM smbc_genie.metrics.mv_liquidity_events\nWHERE `Month` BETWEEN DATE'2026-06-01' AND DATE'2026-09-01' AND `Event Type` = 'Predicted Shortfall'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q6",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff90000000e",
+    "key": "Q6-typo",
+    "question": "how many predicted shortfals jun-sep 2026, how many got an RCF drawdown within 10 days, the amount drawn and the revenue from actions?",
+    "expected_sql": "SELECT MEASURE(`Shortfall Events`)                    AS predicted_shortfalls,\n       MEASURE(`Shortfalls Covered by RCF Within 10D`) AS followed_by_rcf_drawdown_within_10d,\n       MEASURE(`Action Amount USD`)                   AS amount_drawn_usd,\n       MEASURE(`Revenue from Actions USD`)            AS annual_revenue_from_actions_usd\nFROM smbc_genie.metrics.mv_liquidity_events\nWHERE `Month` BETWEEN DATE'2026-06-01' AND DATE'2026-09-01' AND `Event Type` = 'Predicted Shortfall'",
+    "expected_checks": {
+      "rows": 1
+    },
+    "answer_ref": "Q6",
+    "variant_of": "Q6",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff90000000d"
+  },
+  {
+    "id": "726fab2f686cd73424b08ff90000000f",
+    "key": "Q6b",
+    "question": "List the predicted shortfalls from June to September 2026 that were followed by an RCF drawdown within 10 days - entity, event month, predicted shortfall, days to drawdown and amount drawn.",
+    "expected_sql": "SELECT `Client`, `Month` AS event_month,\n       MEASURE(`Predicted Amount USD`)   AS predicted_shortfall_usd,\n       MEASURE(`Average Days to Action`) AS days_to_drawdown,\n       MEASURE(`Action Amount USD`)      AS rcf_drawn_usd\nFROM smbc_genie.metrics.mv_liquidity_events\nWHERE `Month` BETWEEN DATE'2026-06-01' AND DATE'2026-09-01' AND `Is RCF Drawdown Within 10D`\nGROUP BY ALL\nORDER BY event_month, `Client`",
+    "expected_checks": {
+      "rows": 15
+    },
+    "answer_ref": "Q6b",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000010",
+    "key": "Q7",
+    "question": "Rank the clients in the Red or Amber EWS band today by inflow volatility over Oct-2025 to Sep-2026, for clients averaging at least USD 0.5m of inflows a month - show their band, average monthly inflow, inflow standard deviation and coefficient of variation.",
+    "expected_sql": "SELECT `Client`, `Current EWS Band`,\n       MEASURE(`Average Monthly Inflow USD`) AS average_monthly_inflow_usd,\n       MEASURE(`Inflow Volatility USD`)      AS inflow_stddev_usd,\n       MEASURE(`Inflow Volatility CV %`)     AS inflow_coefficient_of_variation\nFROM smbc_genie.metrics.mv_client_cashflow\nWHERE `Month` >= DATE'2025-10-01' AND `Current EWS Band` IN ('Red', 'Amber')\nGROUP BY ALL\nHAVING MEASURE(`Average Monthly Inflow USD`) >= 500000\nORDER BY inflow_coefficient_of_variation DESC\nLIMIT 15",
+    "expected_checks": {
+      "rows": 5
+    },
+    "answer_ref": "Q7",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000011",
+    "key": "Q7-abbrev",
+    "question": "inflow vol ranking, red/amber names today, last 12m, avg inflow >= 0.5m/month - band, avg inflow, stdev, CV",
+    "expected_sql": "SELECT `Client`, `Current EWS Band`,\n       MEASURE(`Average Monthly Inflow USD`) AS average_monthly_inflow_usd,\n       MEASURE(`Inflow Volatility USD`)      AS inflow_stddev_usd,\n       MEASURE(`Inflow Volatility CV %`)     AS inflow_coefficient_of_variation\nFROM smbc_genie.metrics.mv_client_cashflow\nWHERE `Month` >= DATE'2025-10-01' AND `Current EWS Band` IN ('Red', 'Amber')\nGROUP BY ALL\nHAVING MEASURE(`Average Monthly Inflow USD`) >= 500000\nORDER BY inflow_coefficient_of_variation DESC\nLIMIT 15",
+    "expected_checks": {
+      "rows": 5
+    },
+    "answer_ref": "Q7",
+    "variant_of": "Q7",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff900000010"
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000012",
+    "key": "Q8",
+    "question": "What is the forecast bias by booking country for model v1 versus v2, with the MAPE?",
+    "expected_sql": "SELECT `Booking Country`, `Model Version`,\n       MEASURE(`Bias %`) AS forecast_bias,\n       MEASURE(`MAPE %`) AS mape\nFROM smbc_genie.metrics.mv_forecast_accuracy\nGROUP BY ALL\nORDER BY `Booking Country`, `Model Version`",
+    "expected_checks": {
+      "rows": 26
+    },
+    "answer_ref": "Q8",
+    "variant_of": null,
+    "allow_extra_columns": false,
+    "variant_of_id": null
+  },
+  {
+    "id": "726fab2f686cd73424b08ff900000013",
+    "key": "Q8-casual",
+    "question": "is the forecast biased in some countries? bias and MAPE by booking country, v1 vs v2",
+    "expected_sql": "SELECT `Booking Country`, `Model Version`,\n       MEASURE(`Bias %`) AS forecast_bias,\n       MEASURE(`MAPE %`) AS mape\nFROM smbc_genie.metrics.mv_forecast_accuracy\nGROUP BY ALL\nORDER BY `Booking Country`, `Model Version`",
+    "expected_checks": {
+      "rows": 26
+    },
+    "answer_ref": "Q8",
+    "variant_of": "Q8",
+    "allow_extra_columns": false,
+    "variant_of_id": "726fab2f686cd73424b08ff900000012"
+  }
+]

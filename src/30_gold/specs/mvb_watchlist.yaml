@@ -1,0 +1,67 @@
+table: mvb_watchlist
+domain: ews
+comment: >-
+  Metric-view base for the credit watchlist (mv_watchlist, D13): a record_type union of Event rows (one per
+  watchlist register event: Added, Escalated, De-escalated, Removed, with reason, owner RM and the action plan
+  status at 30-Sep-2026) and Month-End Membership rows (one per client on the watchlist at each month-end from
+  Apr-2024: final EWS band, days on the list, drawn exposure, EAD and ECL at that month-end). Event measures
+  (Added, Removed, Actions Overdue) are populated only on Event rows; membership measures (Watchlist Clients,
+  Watchlist Exposure USD, ECL on Watchlist USD) only on Membership rows - these are point-in-time: take the
+  latest month-end (window semiadditive last), never sum across months.
+grain: one row per record_type x record (watchlist event, or client x month-end on the watchlist)
+primary_key: [record_type, record_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [record_date], references: dim_date}
+  - {columns: [owner_employee_id], references: dim_employee}
+cluster_by: [record_type, record_date, golden_client_sk]
+min_rows: 1000
+columns:
+  record_type: {type: STRING, comment: "Row type: Event or Month-End Membership."}
+  record_id: {type: STRING, comment: "Key within the type: event_id (Event) or golden_client_id|month-end (Membership)."}
+  record_date: {type: DATE, comment: "Event date (Event) or month-end date (Membership) - the window order field."}
+  month_end_date: {type: DATE, comment: "Month-end of record_date (Month dimension)."}
+  golden_client_sk: {type: BIGINT}
+  golden_client_id: {type: STRING, not_null: true}
+  client_group_id: {type: STRING}
+  obligor_id: {type: STRING, comment: "Event rows: credit obligor record of the event."}
+  event_type: {type: STRING, comment: "Event rows: Added, Escalated, De-escalated or Removed (count Added / Removed here)."}
+  band_from: {type: STRING, comment: "Event rows: final EWS band before the event."}
+  band_to: {type: STRING, comment: "Event rows: final EWS band after the event."}
+  watchlist_band: {type: STRING, comment: "Membership rows: final EWS band of the client at the month-end (Amber or Red)."}
+  composite_score: {type: DOUBLE, comment: "Composite EWS score (event month, or the month-end score for Membership rows)."}
+  lead_category: {type: STRING, comment: "Dominant EWS driver: Credit, Liquidity, Behavioural or External (Membership rows: of the latest event)."}
+  lead_reason: {type: STRING, comment: "Watchlist reason (Membership rows: of the latest event), e.g. Credit deterioration (health / utilisation / covenant)."}
+  owner_employee_id: {type: STRING, comment: "Owner RM (employee_id) of the event / of the client's latest event."}
+  owner_rm_code: {type: STRING, comment: "Owner RM code (RM001-RM120)."}
+  owner_name: {type: STRING, comment: "Owner RM name (fictional)."}
+  action_type: {type: STRING, comment: "Event rows: action plan required (Watchlist credit review, Recovery / exit plan, Monitoring update)."}
+  action_due_date: {type: DATE, comment: "Event rows: action due date."}
+  action_status: {type: STRING, comment: "Event rows: action status at the as-of date (Completed, Open, Overdue)."}
+  is_action_overdue: {type: BOOLEAN, comment: "Event rows: action overdue at 30-Sep-2026 (Actions Overdue)."}
+  is_action_open: {type: BOOLEAN, comment: "Event rows: action not yet completed."}
+  action_days_overdue: {type: INT, comment: "Event rows: days the action is past due."}
+  is_on_watchlist_as_of: {type: BOOLEAN, comment: "Event rows: latest event of an obligor still on the watchlist today."}
+  next_review_date: {type: DATE, comment: "Event rows: next watchlist review of names still on the list."}
+  exposure_at_event_usd: {type: DOUBLE, comment: "Event rows: client drawn exposure at the event month-end, USD."}
+  ecl_at_event_usd: {type: DOUBLE, comment: "Event rows: client ECL in the event month, USD."}
+  added_date: {type: DATE, comment: "Membership rows: date the client was (last) added to the watchlist."}
+  days_on_watchlist: {type: INT, comment: "Membership rows: days on the watchlist at the month-end since the last addition."}
+  exposure_drawn_usd: {type: DOUBLE, comment: "Membership rows: client drawn lending exposure at the month-end, USD (Watchlist Exposure; point-in-time)."}
+  ead_usd: {type: DOUBLE, comment: "Membership rows: client exposure at default at the month-end, USD (from Apr-2024)."}
+  ecl_usd: {type: DOUBLE, comment: "Membership rows: client IFRS 9 ECL at the month-end, USD (ECL on Watchlist; point-in-time)."}
+  is_as_of_month_end: {type: BOOLEAN, comment: "Membership rows: true for the 30-Sep-2026 month-end (today's watchlist)."}
+checks:
+  - name: members_today_match_register
+    sql: >-
+      SELECT abs(count(DISTINCT golden_client_id) - (SELECT count(DISTINCT golden_client_id) FROM ${catalog}.silver.ews_watchlist))
+      FROM ${table} WHERE record_type = 'Month-End Membership' AND record_date = DATE'${as_of_date}'
+  - name: members_today_match_daily_flag
+    sql: >-
+      SELECT abs(count(DISTINCT golden_client_id) - (SELECT count_if(is_watchlisted) FROM ${catalog}.gold.fact_ews_score_daily
+      WHERE score_date = DATE'${as_of_date}')) FROM ${table} WHERE record_type = 'Month-End Membership' AND record_date = DATE'${as_of_date}'
+reconcile:
+  - name: event_rows_vs_silver
+    gold: SELECT count_if(record_type = 'Event') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.ews_watchlist_event WHERE event_date <= DATE'${as_of_date}'

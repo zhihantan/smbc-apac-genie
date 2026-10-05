@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "Calendar month of the exposure month-end as its first day (DATE): September 2026 = DATE'2026-09-01' (the month-end snapshot as of 30-Sep-2026). This view is monthly; point-in-time measures grouped by a longer period (quarter, half, fiscal year) return its last month. The latest month is Sep 2026.",
+   "is_measure": false,
+   "name": "Month",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year label of the exposure month-end, April to March: FY2026 = Apr 2026 - Mar 2027, FY2025 = Apr 2025 - Mar 2026. \"This year\" / YTD = FY2026 to 30-Sep-2026; year-on-year compares the same months of FY2025.",
+   "is_measure": false,
+   "name": "Fiscal Year",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal quarter label, e.g. FY2026-Q2: Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar (FY2026-Q4 = Jan-Mar 2027). The latest quarter is FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "Fiscal Quarter",
+   "type": "string"
+  },
+  {
+   "comment": "Japanese fiscal half label, e.g. FY2026-H1: H1 = Apr-Sep, H2 = Oct-Mar. H1 FY2026 (Apr-Sep 2026) closed on 30-Sep-2026; compare with FY2025-H1 for year-on-year.",
+   "is_measure": false,
+   "name": "Fiscal Half",
+   "type": "string"
+  },
+  {
+   "comment": "Always true here: this view is monthly, every row is a month-end snapshot or a whole-month total (kept so the same filter works in daily and monthly views).",
+   "is_measure": false,
+   "name": "Is Month End",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for September 2026, the latest (as-of) month - use it for \"today\", \"current\", \"latest\" or \"right now\" questions on balances and other point-in-time measures.",
+   "is_measure": false,
+   "name": "Is Latest Month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Client group = the global parent group, as its short brand (e.g. Kinokawa Precision, Hayashi Marine Logistics). \"Client\" or \"group\" without qualification means this level. Match with LIKE '%Kinokawa%'.",
+   "is_measure": false,
+   "name": "Client Group",
+   "type": "string"
+  },
+  {
+   "comment": "The group's lead (relationship) legal entity, e.g. the entity holding the account plan.",
+   "is_measure": false,
+   "name": "Lead Client",
+   "type": "string"
+  },
+  {
+   "comment": "Group segment (most common segment of its APAC clients): Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor & Structured Finance or Public Sector.",
+   "is_measure": false,
+   "name": "Segment",
+   "type": "string"
+  },
+  {
+   "comment": "Group relationship tier - Strategic, Core or Transactional. \"Strategic groups\" means Relationship Tier = Strategic.",
+   "is_measure": false,
+   "name": "Relationship Tier",
+   "type": "string"
+  },
+  {
+   "comment": "True for groups headquartered in Japan (Japanese corporate groups) - \"Japanese corporates\" / \"JC\" means true.",
+   "is_measure": false,
+   "name": "Is Japanese Corporate",
+   "type": "boolean"
+  },
+  {
+   "comment": "Group industry sector (most common sector of its APAC clients), e.g. Technology, Materials, Energy.",
+   "is_measure": false,
+   "name": "Industry",
+   "type": "string"
+  },
+  {
+   "comment": "Group industry subsector (most common subsector of its APAC clients), e.g. Automotive Parts, Shipping.",
+   "is_measure": false,
+   "name": "Subsector",
+   "type": "string"
+  },
+  {
+   "comment": "Lead office of the group = coverage office of its lead entity, ISO-2 code (SG Singapore, HK Hong Kong, CN China, TH Thailand, ID Indonesia, IN India, AU Australia, VN Vietnam, MY Malaysia, KR South Korea, TW Taiwan, PH Philippines, NZ New Zealand).",
+   "is_measure": false,
+   "name": "Coverage Office",
+   "type": "string"
+  },
+  {
+   "comment": "Group lead RM = current primary RM of the group's lead entity (fictional name).",
+   "is_measure": false,
+   "name": "Primary RM",
+   "type": "string"
+  },
+  {
+   "comment": "Office (APAC booking location, ISO-2) where the group lead RM sits - \"RMs in Singapore\" means this.",
+   "is_measure": false,
+   "name": "Primary RM Office",
+   "type": "string"
+  },
+  {
+   "comment": "Worst (highest) internal rating grade 1-10 among the group's rated APAC clients today; null = no rated client.",
+   "is_measure": false,
+   "name": "Rating Grade",
+   "type": "int"
+  },
+  {
+   "comment": "Highest IFRS 9 stage (1-3) among the group's APAC clients today.",
+   "is_measure": false,
+   "name": "IFRS 9 Stage",
+   "type": "int"
+  },
+  {
+   "comment": "True when at least one APAC client of the group is on the credit watchlist today.",
+   "is_measure": false,
+   "name": "Watchlist",
+   "type": "boolean"
+  },
+  {
+   "comment": "KYC / AML risk rating (Low, Medium, High) of the group's lead entity today; null = no KYC record.",
+   "is_measure": false,
+   "name": "KYC Risk Rating",
+   "type": "string"
+  },
+  {
+   "comment": "Worst current early-warning band among the group's APAC clients (Red > Amber > Green); null = none scored.",
+   "is_measure": false,
+   "name": "EWS Band",
+   "type": "string"
+  },
+  {
+   "comment": "Where the relationship is booked: APAC (SMBC APAC), JP (Tokyo HO / Japan, incl. the Japanese parent), EMEA or AMER (regional subsidiaries). \"Including Japan, EMEA and Americas\" = all four regions.",
+   "is_measure": false,
+   "name": "Region",
+   "type": "string"
+  },
+  {
+   "comment": "APAC coverage office (ISO-2, e.g. SG, HK) for APAC rows, or the provider region JP / EMEA / AMER.",
+   "is_measure": false,
+   "name": "Booking Entity",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Sustainable Finance, Trade Finance, Cash, Liquidity, Payments, FX, Rates or Other TB & Advisory.",
+   "is_measure": false,
+   "name": "Product Family",
+   "type": "string"
+  },
+  {
+   "comment": "Legal entity of the group in the region (APAC client, Japanese parent, JP-booked entity or EMEA / AMER subsidiary).",
+   "is_measure": false,
+   "name": "Entity",
+   "type": "string"
+  },
+  {
+   "comment": "APAC legal entity, JP Parent, Group Entity (JP-booked), EMEA subsidiary or AMER subsidiary.",
+   "is_measure": false,
+   "name": "Entity Type",
+   "type": "string"
+  },
+  {
+   "comment": "Committed limits at the month-end in USD across the selected regions.",
+   "is_measure": true,
+   "name": "Global Committed USD",
+   "type": "double"
+  },
+  {
+   "comment": "Drawn / outstanding exposure at the month-end in USD (APAC - drawn loans plus live trade instruments).",
+   "is_measure": true,
+   "name": "Global Drawn USD",
+   "type": "double"
+  },
+  {
+   "comment": "Deposit balances at the month-end in USD across the selected regions.",
+   "is_measure": true,
+   "name": "Global Deposits USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue over the 12 months to the month-end in USD (APAC revenue history from Apr-2024).",
+   "is_measure": true,
+   "name": "Global Revenue 12M USD",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue over the 12 months to the month-end booked in SMBC APAC, USD.",
+   "is_measure": true,
+   "name": "APAC Revenue 12M USD",
+   "type": "double"
+  },
+  {
+   "comment": "APAC revenue 12M / global group revenue 12M (fraction); below 0.20 = APAC earns less than 20% of the group.",
+   "is_measure": true,
+   "name": "APAC Share of Group Revenue %",
+   "type": "double"
+  },
+  {
+   "comment": "Revenue earned in the selected months in USD - a flow, adds up over months.",
+   "is_measure": true,
+   "name": "Revenue in Period USD",
+   "type": "double"
+  },
+  {
+   "comment": "Legal entities of the group with business in the selected regions at the month-end.",
+   "is_measure": true,
+   "name": "Entity Count",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client groups with business at the month-end.",
+   "is_measure": true,
+   "name": "Groups",
+   "type": "bigint"
+  }
+ ],
+ "comment": "Global relationship of each client group by region at each month-end, Apr-2023 to Sep-2026 (USD): committed limits, drawn exposure, deposits and revenue over the trailing 12 months for SMBC APAC (golden clients), Japan (the Japanese parent and JP-booked group entities, Tokyo HO share) and the EMEA / AMER subsidiaries (regional shares), the APAC share of group revenue and the number of entities. Balances and Revenue 12M are POINT-IN-TIME: filter one Month (Is Latest Month = Sep 2026) - a longer period returns its last month; Revenue in the Period is a flow. Group attributes (segment, tier, lead office, lead RM) come from the group master. Grain: one row per entity x region x product family x month-end (gold.fact_group_global_exposure_monthly).",
+ "identifier": "smbc_genie.metrics.mv_global_group_relationship",
+ "type": "METRIC_VIEW"
+}

@@ -1,0 +1,71 @@
+table: mvb_group_liquidity
+domain: tb
+comment: >-
+  Metric-view base for the TB liquidity-structures view (D13 record_type union, month-end grain from Apr-2023):
+  record_type 'Structure member' = one row per liquidity structure x member account x month-end (from
+  fact_liquidity_structure_monthly: structure type, header / member country, currency, member balance, interest
+  saved, fee) and record_type 'Group' = one row per client group x month-end (from fact_deposit_balance_monthly:
+  the group's total / CASA / TD deposits, the APAC countries it holds accounts in, whether it runs an active
+  liquidity structure and the pooling-candidate flag: >= 3 APAC countries and no active structure). Measures never
+  mix the two: member_* / interest / fee columns are 0 or null on Group rows and group_* columns are 0 or null on
+  member rows. Balances are POINT-IN-TIME (one month-end; never sum across months).
+grain: one row per record_type x row key (structure|member account, or client group) x month-end
+primary_key: [record_type, base_row_id, month_end_date]
+foreign_keys:
+  - {columns: [month_end_date], references: dim_date}
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [lead_golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [product_id], references: dim_product}
+  - {columns: [header_country], references: dim_booking_entity}
+  - {columns: [member_country], references: dim_booking_entity}
+cluster_by: [month_end_date, golden_client_sk]
+min_rows: 10000
+columns:
+  record_type: {type: STRING, comment: "Structure member (a header / participant account of a cash pool) or Group (one row per client group and month-end)."}
+  base_row_id: {type: STRING, comment: "Row key: structure_id|member_account_id for Structure member rows, client_group_id for Group rows."}
+  month_end_date: {type: DATE, comment: "Month-end of the snapshot."}
+  month: {type: DATE, comment: "First day of the month of month_end_date."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version (as-was at the month-end) used for the standard client block: the member account holder (Structure member rows) or the group lead entity (Group rows)."}
+  golden_client_id: {type: STRING, comment: "Golden client id behind golden_client_sk (member holder or group lead)."}
+  lead_golden_client_sk: {type: BIGINT}
+  client_group_id: {type: STRING}
+  structure_id: {type: STRING, comment: "Liquidity structure id (Structure member rows; null on Group rows)."}
+  structure_type: {type: STRING, comment: "Notional Pooling, Physical Pooling, Sweep or Interest Optimisation (Structure member rows)."}
+  product_id: {type: STRING, comment: "Product of the structure type (Structure member rows); join gold.dim_product."}
+  header_country: {type: STRING, comment: "Booking country of the structure's header account (Structure member rows)."}
+  member_country: {type: STRING, comment: "Booking country of the member account - the participant country (Structure member rows)."}
+  member_currency: {type: STRING, comment: "Currency of the member account (Structure member rows)."}
+  pooling_currency: {type: STRING, comment: "Pooling / reporting currency of the structure (Structure member rows)."}
+  member_role: {type: STRING, comment: "Header or Participant (Structure member rows)."}
+  is_header: {type: BOOLEAN, comment: "True on the header row of a structure-month: Structures = SUM(CASE WHEN is_header THEN 1 ELSE 0 END)."}
+  is_participant: {type: BOOLEAN, comment: "True on participant rows: Participants = SUM(CASE WHEN is_participant THEN 1 ELSE 0 END)."}
+  member_balance_usd: {type: DOUBLE, comment: "Month-end balance of the member account in USD - Pooled Balance (point-in-time; 0 on Group rows)."}
+  interest_saved_usd: {type: DOUBLE, comment: "Estimated interest saved in the month on the member balance (USD, monthly flow; 0 on Group rows)."}
+  monthly_fee_usd: {type: DOUBLE, comment: "Monthly structure fee (USD, header rows only; 0 elsewhere)."}
+  group_deposits_usd: {type: DOUBLE, comment: "Total month-end deposits of the client group across all its APAC accounts, USD (Group rows; 0 on member rows; point-in-time)."}
+  group_casa_balance_usd: {type: DOUBLE, comment: "CASA part of group_deposits_usd (Group rows)."}
+  group_td_balance_usd: {type: DOUBLE, comment: "Time / money-market deposit part of group_deposits_usd (Group rows)."}
+  group_apac_countries: {type: INT, comment: "Distinct APAC booking countries in which the group holds deposit accounts at the month-end (Group rows; attribute - do not sum)."}
+  group_clients_with_accounts: {type: INT, comment: "Golden clients of the group holding deposit accounts at the month-end (Group rows)."}
+  group_active_structures: {type: INT, comment: "Liquidity structures of the group active at the month-end (Group rows)."}
+  group_has_active_structure: {type: BOOLEAN, comment: "True when the group runs at least one active liquidity structure at the month-end (Group rows)."}
+  is_pooling_candidate: {type: BOOLEAN, comment: "True on Group rows for multi-country groups (>= 3 APAC countries, dim_threshold POOLING_MIN_COUNTRIES) with no active liquidity structure - the pooling cross-sell list. Clients Without Pooling = count distinct client_group_id where true."}
+  is_latest_month_end: {type: BOOLEAN, comment: "True for the as-of month-end 30-Sep-2026."}
+checks:
+  - name: measures_do_not_mix
+    sql: >-
+      SELECT count_if(record_type = 'Group' AND (member_balance_usd <> 0 OR interest_saved_usd <> 0 OR monthly_fee_usd <> 0))
+      + count_if(record_type <> 'Group' AND group_deposits_usd <> 0) FROM ${table}
+  - name: candidates_have_three_countries_and_no_pool
+    sql: SELECT count_if(is_pooling_candidate AND (group_apac_countries < 3 OR group_has_active_structure)) FROM ${table}
+reconcile:
+  - name: member_rows_vs_fact
+    gold: SELECT count(*) FROM ${table} WHERE record_type = 'Structure member'
+    silver: SELECT count(*) FROM ${catalog}.gold.fact_liquidity_structure_monthly
+  - name: group_deposits_vs_deposit_fact_at_as_of
+    gold: SELECT round(sum(group_deposits_usd)) FROM ${table} WHERE record_type = 'Group' AND is_latest_month_end
+    silver: >-
+      SELECT round(sum(balance_usd)) FROM ${catalog}.gold.fact_deposit_balance_monthly
+      WHERE is_latest_month_end AND client_group_id IS NOT NULL
+    tolerance: 1

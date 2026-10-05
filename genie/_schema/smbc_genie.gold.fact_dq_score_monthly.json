@@ -1,0 +1,139 @@
+{
+ "columns": [
+  {
+   "comment": "First day of the scored month (the grain date).",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Layer-qualified table, e.g. silver.kyc_review, bronze.pay_payment_message, shared.share_jp_parent_rating.",
+   "is_measure": false,
+   "name": "table_name",
+   "type": "string"
+  },
+  {
+   "comment": "DQ dimension: completeness, validity, uniqueness, timeliness (incl. freshness of shared tables) or consistency.",
+   "is_measure": false,
+   "name": "dimension",
+   "type": "string"
+  },
+  {
+   "comment": "Layer: bronze (raw landing), shared (Delta Sharing inbound) or silver (cleansed).",
+   "is_measure": false,
+   "name": "layer",
+   "type": "string"
+  },
+  {
+   "comment": "Table name without the layer, e.g. pay_payment_message.",
+   "is_measure": false,
+   "name": "base_table_name",
+   "type": "string"
+  },
+  {
+   "comment": "DQ score 0-1 = share of evaluated rows passing the dimension's rules (0.978 = 97.8%). Average it; weight by rows_evaluated for a pass rate.",
+   "is_measure": false,
+   "name": "score",
+   "type": "double"
+  },
+  {
+   "comment": "Rules of the dimension evaluated on the table in the month.",
+   "is_measure": false,
+   "name": "rules_evaluated",
+   "type": "int"
+  },
+  {
+   "comment": "Rules that failed their threshold in the month.",
+   "is_measure": false,
+   "name": "rules_failed",
+   "type": "int"
+  },
+  {
+   "comment": "Rows evaluated by the dimension's rules in the month.",
+   "is_measure": false,
+   "name": "rows_evaluated",
+   "type": "bigint"
+  },
+  {
+   "comment": "Rows failing (e.g. 3,966 replayed payment messages de-duplicated in Sep-2026, bronze uniqueness).",
+   "is_measure": false,
+   "name": "rows_failed",
+   "type": "bigint"
+  },
+  {
+   "comment": "rows_evaluated - rows_failed.",
+   "is_measure": false,
+   "name": "rows_passed",
+   "type": "bigint"
+  },
+  {
+   "comment": "simulated (history), incident (an explainable dip) or actual (the current DQ run, Sep-2026).",
+   "is_measure": false,
+   "name": "basis",
+   "type": "string"
+  },
+  {
+   "comment": "Incident behind a dip: payments_replay_landing, payments_replay_tie, kyc_migration_backlog, kyc_migration_recovery or jp_share_outage; null otherwise.",
+   "is_measure": false,
+   "name": "incident_key",
+   "type": "string"
+  },
+  {
+   "comment": "Explanation of the incident.",
+   "is_measure": false,
+   "name": "incident_note",
+   "type": "string"
+  },
+  {
+   "comment": "Demo storyline the incident belongs to (7 KYC migration, 12 payments replay, 13 Delta Share staleness); null otherwise.",
+   "is_measure": false,
+   "name": "storyline_no",
+   "type": "int"
+  },
+  {
+   "comment": "DQ run that produced / last refreshed the score history (DQ-yyyymmdd).",
+   "is_measure": false,
+   "name": "dq_run_id",
+   "type": "string"
+  },
+  {
+   "comment": "True for the latest month (Sep-2026 = this month).",
+   "is_measure": false,
+   "name": "is_latest_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "Months relative to the latest month: 0 = Sep-2026 (this month), -1 = Aug-2026 (last month), ...",
+   "is_measure": false,
+   "name": "month_offset",
+   "type": "int"
+  },
+  {
+   "comment": "Score of the same table and dimension in the previous month (null if not scored then).",
+   "is_measure": false,
+   "name": "prev_month_score",
+   "type": "double"
+  },
+  {
+   "comment": "score - prev_month_score (fraction points; negative = deterioration).",
+   "is_measure": false,
+   "name": "score_change_vs_prev_month",
+   "type": "double"
+  },
+  {
+   "comment": "True when the score is below 95% (Tables Below 95%).",
+   "is_measure": false,
+   "name": "is_below_95",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when the row is an explainable incident dip.",
+   "is_measure": false,
+   "name": "is_incident",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Data-quality scorecard: monthly DQ score (Apr-2023 .. Sep-2026) per table of the bronze, shared and silver layers and per DQ dimension (completeness, validity, uniqueness, timeliness, consistency) - score 0-1 = share of evaluated rows passing, rules evaluated / failed, rows evaluated / failed - with the previous month's score, the incident behind each explainable dip (Jun-2026 payments replay: uniqueness; Feb-May 2026 KYC workflow migration: timeliness; 11-15 Aug 2026 Japan share outage: timeliness / freshness) and a below-95% flag. History is simulated and deterministic; the latest month (Sep-2026) equals the current DQ run (fact_dq_rule_result). Scores are point-in-time per month: average them, never sum. Grain: one row per month per layer-qualified table per DQ dimension.",
+ "identifier": "smbc_genie.gold.fact_dq_score_monthly",
+ "type": "MANAGED"
+}

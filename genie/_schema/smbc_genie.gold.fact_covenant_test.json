@@ -1,0 +1,193 @@
+{
+ "columns": [
+  {
+   "comment": "Credit facility id (FAC-nnnnnn) carrying the covenant; join to fact_facility_terms.",
+   "is_measure": false,
+   "name": "facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant: Net Debt/EBITDA (leverage, a maximum) or ICR (interest cover, a minimum).",
+   "is_measure": false,
+   "name": "covenant_type",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant test date (quarter-end for quarterly tests; the spread date for annual tests).",
+   "is_measure": false,
+   "name": "test_date",
+   "type": "date"
+  },
+  {
+   "comment": "Credit-system obligor id (CRD-nnnnnn) of the borrower.",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Basis of the test: Quarterly (management accounts) or FY<year> Annual (audited annual spread, e.g. FY2025 Annual).",
+   "is_measure": false,
+   "name": "test_basis",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant family: Leverage (Net Debt/EBITDA) or Interest Cover (ICR).",
+   "is_measure": false,
+   "name": "covenant_category",
+   "type": "string"
+  },
+  {
+   "comment": "Maximum (actual must stay at or below the threshold, e.g. leverage 4.0x) or Minimum (actual must stay at or above, e.g. ICR 2.5x).",
+   "is_measure": false,
+   "name": "covenant_direction",
+   "type": "string"
+  },
+  {
+   "comment": "Covenant level in the ratio's unit (x), e.g. 4.0 for Net Debt/EBITDA <= 4.0x.",
+   "is_measure": false,
+   "name": "threshold",
+   "type": "double"
+  },
+  {
+   "comment": "Tested ratio value (x), e.g. 4.6 for Net Debt/EBITDA of 4.6x.",
+   "is_measure": false,
+   "name": "actual",
+   "type": "double"
+  },
+  {
+   "comment": "Covenant headroom as a fraction of the threshold (0.08 = 8% headroom; negative = breached).",
+   "is_measure": false,
+   "name": "headroom_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Headroom band: Breached, 0-10% (tight), 10-20%, 20-30% or 30%+.",
+   "is_measure": false,
+   "name": "headroom_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "True when the test breached the covenant.",
+   "is_measure": false,
+   "name": "is_breached",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when not breached and headroom is below the 10% warning level (0 <= headroom < 0.10, dim_threshold COVENANT_HEADROOM_WARN).",
+   "is_measure": false,
+   "name": "is_tight_headroom",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when a waiver was granted for the test.",
+   "is_measure": false,
+   "name": "is_waived",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the latest test of this facility covenant on or before the as-of date 30-Sep-2026 (one per facility x covenant).",
+   "is_measure": false,
+   "name": "is_latest_test",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date of the previous test of the same facility covenant.",
+   "is_measure": false,
+   "name": "prior_test_date",
+   "type": "date"
+  },
+  {
+   "comment": "Actual at the previous test (x).",
+   "is_measure": false,
+   "name": "prior_actual",
+   "type": "double"
+  },
+  {
+   "comment": "actual - prior_actual (x); positive = the ratio rose since the previous test.",
+   "is_measure": false,
+   "name": "actual_change_vs_prior",
+   "type": "double"
+  },
+  {
+   "comment": "Headroom at the previous test (fraction).",
+   "is_measure": false,
+   "name": "prior_headroom_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Japanese fiscal year of the test date (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "test_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal quarter of the test date, e.g. FY2026-Q2.",
+   "is_measure": false,
+   "name": "test_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "True for tests in the current fiscal year (FY2026, from 1-Apr-2026).",
+   "is_measure": false,
+   "name": "is_current_fy_test",
+   "type": "boolean"
+  },
+  {
+   "comment": "Facility type of the tested facility (e.g. Term Loan, Revolving Credit Facility).",
+   "is_measure": false,
+   "name": "facility_type",
+   "type": "string"
+  },
+  {
+   "comment": "Current facility status: Active, Matured or Prepaid.",
+   "is_measure": false,
+   "name": "facility_status",
+   "type": "string"
+  },
+  {
+   "comment": "True when the facility is active at the as-of date.",
+   "is_measure": false,
+   "name": "is_facility_active",
+   "type": "boolean"
+  },
+  {
+   "comment": "Facility drawn balance at the test month-end, USD (the exposure the test relates to).",
+   "is_measure": false,
+   "name": "drawn_usd_at_test",
+   "type": "double"
+  },
+  {
+   "comment": "Facility limit at the test month-end, USD.",
+   "is_measure": false,
+   "name": "limit_usd_at_test",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client is on the credit watchlist at the as-of date 30-Sep-2026 (today's status, for 'tight covenant but not on the watchlist').",
+   "is_measure": false,
+   "name": "client_on_watchlist_as_of",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Financial covenant tests (brief 5.3 / 5.4): one row per facility x covenant (Net Debt/EBITDA leverage maximum, ICR interest-cover minimum) x test date from FY2023 (quarterly tests plus annual tests on the spread, e.g. Sunda's FY2025 test on 15-May-2026), with threshold, actual, headroom %, headroom bucket, breach / waiver flags, the previous test and the facility balance at the test month-end. is_latest_test marks the latest test of each facility covenant on or before 30-Sep-2026 - filter on it for 'at the latest test' questions (e.g. clients breaching or within 10% headroom on a leverage covenant). Headroom is a fraction: (threshold - actual) / threshold for maximum covenants, (actual - threshold) / threshold for minimum covenants; negative = breached. Grain: one row per facility x covenant type x test date.",
+ "identifier": "smbc_genie.gold.fact_covenant_test",
+ "type": "MANAGED"
+}

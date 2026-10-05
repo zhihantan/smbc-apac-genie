@@ -1,0 +1,223 @@
+{
+ "columns": [
+  {
+   "comment": "Liquidity-need event id.",
+   "is_measure": false,
+   "name": "event_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date the forecast flagged the event (the predicted shortfall / surplus date).",
+   "is_measure": false,
+   "name": "event_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of event_date.",
+   "is_measure": false,
+   "name": "event_month",
+   "type": "date"
+  },
+  {
+   "comment": "Predicted Shortfall or Predicted Surplus.",
+   "is_measure": false,
+   "name": "event_type",
+   "type": "string"
+  },
+  {
+   "comment": "dim_client version valid on the event date (as-was, D11) - its primary RM is the RM of the event.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Core-banking customer number (source identity record) of the client.",
+   "is_measure": false,
+   "name": "cust_no",
+   "type": "string"
+  },
+  {
+   "comment": "Client's coverage office / booking location (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Forecast model that flagged the event (v1 or v2).",
+   "is_measure": false,
+   "name": "model_version",
+   "type": "string"
+  },
+  {
+   "comment": "Run date of the forecast behind the event.",
+   "is_measure": false,
+   "name": "forecast_run_date",
+   "type": "date"
+  },
+  {
+   "comment": "Target month of that forecast.",
+   "is_measure": false,
+   "name": "forecast_target_month",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the forecast run to the event date.",
+   "is_measure": false,
+   "name": "horizon_days",
+   "type": "int"
+  },
+  {
+   "comment": "Forecast horizon of the model behind the event (30D = one month ahead).",
+   "is_measure": false,
+   "name": "horizon_label",
+   "type": "string"
+  },
+  {
+   "comment": "Forecast inflows of the target month, USD (null for scripted HK surplus events).",
+   "is_measure": false,
+   "name": "forecast_inflows_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Expected outflows (average of the 3 months before the run), USD.",
+   "is_measure": false,
+   "name": "expected_outflows_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Predicted net cash flow, USD (negative = shortfall).",
+   "is_measure": false,
+   "name": "predicted_net_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Size of the predicted shortfall / surplus = |predicted_net_usd|, USD.",
+   "is_measure": false,
+   "name": "predicted_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "|predicted net| / the client's typical gross monthly flow (0-1+; null for scripted events).",
+   "is_measure": false,
+   "name": "severity_ratio",
+   "type": "double"
+  },
+  {
+   "comment": "True when the client has a committed revolving credit facility.",
+   "is_measure": false,
+   "name": "has_rcf",
+   "type": "boolean"
+  },
+  {
+   "comment": "Undrawn RCF headroom at the month-end before the target month, USD.",
+   "is_measure": false,
+   "name": "undrawn_rcf_usd",
+   "type": "double"
+  },
+  {
+   "comment": "RCF Drawdown, TD Placed or None.",
+   "is_measure": false,
+   "name": "action_taken",
+   "type": "string"
+  },
+  {
+   "comment": "Product of the action: PRD-REVOLVING-CREDIT-FACILITY or PRD-TIME-DEPOSIT; null when none.",
+   "is_measure": false,
+   "name": "action_product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the RCF drawdown / TD placement (null when none).",
+   "is_measure": false,
+   "name": "action_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the event to the action (null when none). Average Days to Action = AVG over actioned events.",
+   "is_measure": false,
+   "name": "days_to_action",
+   "type": "int"
+  },
+  {
+   "comment": "Amount drawn / placed, USD.",
+   "is_measure": false,
+   "name": "action_amount_usd",
+   "type": "double"
+  },
+  {
+   "comment": "RCF facility drawn (RCF Drawdown events).",
+   "is_measure": false,
+   "name": "linked_facility_id",
+   "type": "string"
+  },
+  {
+   "comment": "Loan-schedule drawdown event that actioned the shortfall.",
+   "is_measure": false,
+   "name": "linked_schedule_event_id",
+   "type": "string"
+  },
+  {
+   "comment": "Date of the linked drawdown in the loan schedule (verifies the link).",
+   "is_measure": false,
+   "name": "linked_drawdown_date",
+   "type": "date"
+  },
+  {
+   "comment": "Amount of the linked drawdown in the loan schedule, USD.",
+   "is_measure": false,
+   "name": "linked_drawdown_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Estimated annual revenue of the action (RCF margin or TD spread on the amount), USD - Revenue from Actions.",
+   "is_measure": false,
+   "name": "est_action_revenue_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Actioned, Open (still inside the 30-day action window at the as-of date) or Closed - No Action.",
+   "is_measure": false,
+   "name": "event_status",
+   "type": "string"
+  },
+  {
+   "comment": "True when an action followed (Actioned %).",
+   "is_measure": false,
+   "name": "is_actioned",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for shortfalls followed by an RCF drawdown within 10 days (dim_threshold RCF_FOLLOW_UP_DAYS) linked in the loan schedule.",
+   "is_measure": false,
+   "name": "is_rcf_drawdown_within_10d",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for predicted surpluses above USD 20m (dim_threshold SURPLUS_ATTENTION_USD).",
+   "is_measure": false,
+   "name": "is_large_surplus",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for predicted surpluses where no TD was placed (deposit / investment opportunity).",
+   "is_measure": false,
+   "name": "is_surplus_not_placed",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Liquidity-need events flagged by the cash-flow forecasts (Jul-2024 to Sep-2026): predicted shortfalls (forecast inflows below the expected outflows) and predicted surpluses, with the forecast behind them (model version, run date, horizon, inflows, outflows, net, severity vs the client's typical gross flow), the client's undrawn RCF headroom, and what happened next - RCF drawdown (linked to the drawdown in the loan schedule), TD placed or none - with the action date, days to action, amount and estimated annual revenue. Storyline 9: exactly 23 predicted shortfalls Jun-Sep 2026, 15 of them followed by an RCF drawdown within 10 days (is_rcf_drawdown_within_10d). Amounts are per event (additive across events). Grain: one row per liquidity-need event (event_id).",
+ "identifier": "smbc_genie.gold.fact_liquidity_need_event",
+ "type": "MANAGED"
+}

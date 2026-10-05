@@ -1,0 +1,181 @@
+{
+ "columns": [
+  {
+   "comment": "Trade-finance instrument id (join gold.fact_trade_finance_transaction).",
+   "is_measure": false,
+   "name": "txn_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end of the snapshot.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of month_end_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version of the client valid at the month-end (as-was, D11).",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Import LC, Export LC, Guarantee / SBLC, Documentary Collection, Trade Loan or Receivables Purchase.",
+   "is_measure": false,
+   "name": "product_type",
+   "type": "string"
+  },
+  {
+   "comment": "Trade product key; join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Import or Export.",
+   "is_measure": false,
+   "name": "direction",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor origin country (ISO-2).",
+   "is_measure": false,
+   "name": "origin_country",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor destination country (ISO-2).",
+   "is_measure": false,
+   "name": "destination_country",
+   "type": "string"
+  },
+  {
+   "comment": "Goods corridor origin->destination, e.g. CN->VN.",
+   "is_measure": false,
+   "name": "corridor",
+   "type": "string"
+  },
+  {
+   "comment": "Goods traded (e.g. Electronics, Mineral Fuels).",
+   "is_measure": false,
+   "name": "commodity",
+   "type": "string"
+  },
+  {
+   "comment": "HS chapter of the goods.",
+   "is_measure": false,
+   "name": "hs_chapter",
+   "type": "string"
+  },
+  {
+   "comment": "True for carbon-intensive goods (chemicals, plastics, iron & steel, mineral fuels, ores & metals, palm oil & fats).",
+   "is_measure": false,
+   "name": "is_carbon_intensive_commodity",
+   "type": "boolean"
+  },
+  {
+   "comment": "Country of the beneficiary (e.g. of a guarantee / SBLC).",
+   "is_measure": false,
+   "name": "beneficiary_country",
+   "type": "string"
+  },
+  {
+   "comment": "Country of the counterparty's bank.",
+   "is_measure": false,
+   "name": "counterparty_bank_country",
+   "type": "string"
+  },
+  {
+   "comment": "SMBC booking location of the instrument (ISO-2).",
+   "is_measure": false,
+   "name": "booking_country",
+   "type": "string"
+  },
+  {
+   "comment": "Instrument currency (ISO 4217).",
+   "is_measure": false,
+   "name": "currency",
+   "type": "string"
+  },
+  {
+   "comment": "Outstanding exposure at the month-end in USD (point-in-time; never sum across month-ends).",
+   "is_measure": false,
+   "name": "outstanding_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Outstanding in the instrument currency (outstanding_usd x the issue-date currency / USD ratio of the instrument).",
+   "is_measure": false,
+   "name": "outstanding_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Issue date of the instrument.",
+   "is_measure": false,
+   "name": "txn_date",
+   "type": "date"
+  },
+  {
+   "comment": "Maturity / expiry date.",
+   "is_measure": false,
+   "name": "maturity_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the month-end to maturity (negative = past maturity but still outstanding, e.g. under claim).",
+   "is_measure": false,
+   "name": "days_to_maturity",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal quarter of the maturity date, e.g. FY2026-Q3.",
+   "is_measure": false,
+   "name": "expiry_fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Original tenor bucket: 0-30 days, 31-90 days, 91-180 days, 181-365 days or Over 365 days.",
+   "is_measure": false,
+   "name": "tenor_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "True for sustainable / green trade instruments.",
+   "is_measure": false,
+   "name": "is_sustainable_trade",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for the as-of month-end 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_latest_month_end",
+   "type": "boolean"
+  },
+  {
+   "comment": "True on fiscal quarter-ends (30 Jun, 30 Sep, 31 Dec, 31 Mar) - use for quarterly trends.",
+   "is_measure": false,
+   "name": "is_fiscal_quarter_end",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Month-end outstanding of every live trade-finance instrument from Apr-2024 (the complete trade history) to Sep-2026, replayed from the instrument lifecycle events (issue / amend / present / accept / pay / expire / claim): outstanding USD and LCY with the instrument's product, corridor, commodity, beneficiary and counterparty-bank country, booking location, maturity / expiry fiscal quarter and days to maturity. POINT-IN-TIME: never sum outstanding across month-ends - pick one month_end_date (is_latest_month_end = 30-Sep-2026, or quarter-ends for trends) or use the semi-additive last value. Answers guarantees / SBLCs outstanding by beneficiary country and expiry quarter and trade exposure to carbon-intensive commodities. Grain: one row per trade-finance instrument per month-end while its outstanding is above zero.",
+ "identifier": "smbc_genie.gold.fact_trade_outstanding_monthly",
+ "type": "MANAGED"
+}

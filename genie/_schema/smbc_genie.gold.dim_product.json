@@ -1,0 +1,67 @@
+{
+ "columns": [
+  {
+   "comment": "Product key PRD-<NAME> (upper-case name, non-alphanumerics as '-'), e.g. PRD-IMPORT-LC.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Product name as used by the source systems (unique), e.g. Import LC, Revolving Credit Facility.",
+   "is_measure": false,
+   "name": "product_name",
+   "type": "string"
+  },
+  {
+   "comment": "Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance, FX, Rates or Sustainable Finance.",
+   "is_measure": false,
+   "name": "product_family",
+   "type": "string"
+  },
+  {
+   "comment": "Business line - Lending, Transaction Banking, Markets or Sustainable Finance.",
+   "is_measure": false,
+   "name": "business_line",
+   "type": "string"
+  },
+  {
+   "comment": "Core product (booked in a product system) or CRM sales product (a coverage / sales bundle used in opportunities, NBP and signals).",
+   "is_measure": false,
+   "name": "product_type",
+   "type": "string"
+  },
+  {
+   "comment": "True for exposure-bearing products (loans, trade finance instruments, SCF financing, sustainable loans).",
+   "is_measure": false,
+   "name": "is_credit_product",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for deposit / account products (current, savings, time deposit, money market, investment, correspondent accounts).",
+   "is_measure": false,
+   "name": "is_deposit_product",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for Transaction Banking products (cash, liquidity, payments, trade finance, SCF).",
+   "is_measure": false,
+   "name": "is_tb_product",
+   "type": "boolean"
+  },
+  {
+   "comment": "True for sustainable-finance products (green and sustainability-linked loans).",
+   "is_measure": false,
+   "name": "is_sustainable",
+   "type": "boolean"
+  },
+  {
+   "comment": "Short product description.",
+   "is_measure": false,
+   "name": "product_description",
+   "type": "string"
+  }
+ ],
+ "comment": "SMBC APAC product hierarchy: business line > product family > product (Lending: Corporate / Structured Lending; Transaction Banking: Cash, Liquidity, Payments, Trade Finance, Supply Chain Finance; Markets: FX, Rates; Sustainable Finance), plus the CRM sales products used in opportunities, next-best-product scores and signals (e.g. Cash Management Mandate, Trade Finance Line). Facts carrying a product name join on product_name to get product_id. Grain: one row per product.",
+ "identifier": "smbc_genie.gold.dim_product",
+ "type": "MANAGED"
+}

@@ -1,0 +1,59 @@
+# Gold shared column dictionary (D25). A spec column without its own `comment` takes the entry here,
+# else config/column_dictionary.yaml (silver, WP8a); a column found in neither fails the build.
+# Write comments for an RM / credit analyst and for Genie: meaning, unit, currency, sign, allowed values.
+columns:
+  # ---- client hub keys (D11, D12) ----
+  golden_client_sk: >-
+    Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to
+    gold.dim_client.golden_client_sk for the client attributes at that time.
+  golden_client_id: >-
+    Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions;
+    one golden client = one resolved legal entity.
+  client_group_id: >-
+    Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to
+    gold.dim_client_group.
+  lead_golden_client_id: Golden client id of the group's lead (relationship) entity.
+  lead_golden_client_sk: >-
+    dim_client surrogate key of the group's lead entity (version valid on this row's date) - the client
+    attributes used for group-grain facts (D12).
+  # ---- calendar ----
+  date: Calendar date.
+  month: First day of the calendar month the row belongs to (monthly grain).
+  month_end_date: Last calendar day of the month.
+  fiscal_year: Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).
+  fiscal_year_label: Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).
+  fiscal_quarter: Fiscal quarter 1-4 (Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar).
+  fiscal_quarter_label: Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).
+  fiscal_half: Fiscal half, H1 (Apr-Sep) or H2 (Oct-Mar).
+  fiscal_half_label: Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).
+  as_of_date: The demo "today", 30-Sep-2026 (H1 FY2026 close); never CURRENT_DATE.
+  # ---- reference ----
+  currency: ISO 4217 currency code of the local-currency (LCY) amounts on the row.
+  currency_code: ISO 4217 currency code.
+  country_code: ISO 3166-1 alpha-2 country code.
+  booking_country: >-
+    APAC booking location (ISO-2 country code of the SMBC booking entity, e.g. SG, HK); join to
+    gold.dim_booking_entity.booking_entity_id.
+  coverage_office: >-
+    Coverage office = the client's APAC booking location (ISO-2 country code, e.g. SG, HK); join to
+    gold.dim_booking_entity.booking_entity_id.
+  segment: >-
+    Client segment: Japanese Corporate, Non-Japanese Large Corporate, Financial Institution, Sponsor &
+    Structured Finance or Public Sector.
+  relationship_tier: Relationship tier - Strategic, Core or Transactional.
+  industry_sector: Industry sector of the APAC taxonomy (e.g. Technology, Materials); see gold.dim_industry.
+  industry_subsector: Industry subsector within the sector (e.g. Semiconductors); see gold.dim_industry.
+  peer_group_id: Peer group used for ratio benchmarking (PG-nnn); join to gold.dim_peer_group.
+  product_id: Product key (PRD-<NAME>); join to gold.dim_product.
+  product_family: >-
+    Product family: Corporate Lending, Structured Lending, Cash, Liquidity, Payments, Trade Finance,
+    Supply Chain Finance, FX, Rates or Sustainable Finance.
+  business_line: Business line - Lending, Transaction Banking, Markets or Sustainable Finance.
+  employee_id: Fictional staff id (SYN-P-nnnn); join to gold.dim_employee.
+  rm_code: CRM relationship-manager code (RM001-RM120); gold.dim_employee.rm_code maps it to employee_id.
+  crm_account_id: CRM account id (source record of the CRM platform) the row was recorded against.
+  account_id: Core-banking account id; join to gold.dim_account.
+  source_system: >-
+    Identity source system (bronze identity master): core_customer, crm_account, kyc_customer,
+    credit_obligor, trade_party, tsy_counterparty or ext_company_master.
+  source_id: Record id in its source system.

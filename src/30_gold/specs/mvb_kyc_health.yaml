@@ -1,0 +1,61 @@
+table: mvb_kyc_health
+domain: onboarding
+comment: >-
+  Metric-view base for KYC health (mv_kyc_health, D13): a record_type union of Review Snapshot rows (one per
+  KYC review x month-end in which it fell due, was completed or was overdue; Apr-2023 to Sep-2026) and
+  Screening rows (one per sanctions / PEP / adverse-media alert, Apr-2024 to Sep-2026). Both carry the month-end,
+  booking country, segment, the client's KYC risk rating and a status (review status at the month-end, or the
+  screening disposition). Review flags live only on Review Snapshot rows and screening fields only on
+  Screening rows. Overdue at month-end is point-in-time (take the latest month-end, never sum months); due,
+  completed and screening alerts are flows. Examples: Overdue = COUNT_IF(is_overdue_at_month_end); High-Risk
+  Overdue = COUNT_IF(is_overdue_at_month_end AND is_high_risk); Screening True Match Rate % =
+  COUNT_IF(is_true_match) / COUNT_IF(is_screening_alert).
+grain: one row per record_type x record (review x month-end, or screening alert)
+primary_key: [record_type, record_id]
+foreign_keys:
+  - {columns: [golden_client_sk], references: dim_client}
+  - {columns: [client_group_id], references: dim_client_group}
+  - {columns: [record_date], references: dim_date}
+  - {columns: [booking_country], references: dim_booking_entity}
+cluster_by: [record_type, record_date, golden_client_sk]
+min_rows: 15000
+columns:
+  record_type: {type: STRING, comment: "Row type: Review Snapshot or Screening."}
+  record_id: {type: STRING, comment: "Key within the type: review_id|month-end (Review Snapshot) or screening_id (Screening)."}
+  record_date: {type: DATE, comment: "Month-end (Review Snapshot) or screening date (Screening) - the window order field."}
+  month_end_date: {type: DATE, comment: "Month-end the row belongs to (Month dimension) on both row types."}
+  golden_client_sk: {type: BIGINT, comment: "dim_client version of the client (null for screening of applicants that never became clients)."}
+  golden_client_id: {type: STRING, comment: "Golden client (null for applicants that never became clients)."}
+  client_group_id: {type: STRING}
+  booking_country: {type: STRING, comment: "Client's booking location / coverage office (ISO-2)."}
+  segment: {type: STRING}
+  kyc_risk_rating: {type: STRING, comment: "Client's KYC / AML risk rating from the KYC master: High, Medium or Low (null for applicants)."}
+  is_high_risk: {type: BOOLEAN, comment: "True for High-risk clients."}
+  status: {type: STRING, comment: "Review Snapshot: Completed, Overdue or Due at the month-end. Screening: disposition (False Positive - Cleared, True Match - Escalated / EDD Applied / Rejected)."}
+  review_id: {type: STRING, comment: "Review Snapshot rows: KYC review id."}
+  review_type: {type: STRING, comment: "Review Snapshot rows: Onboarding, Periodic or Trigger."}
+  due_date: {type: DATE, comment: "Review Snapshot rows: review due date."}
+  completed_date: {type: DATE, comment: "Review Snapshot rows: completion date (null while open)."}
+  is_due_in_month: {type: BOOLEAN, comment: "Review Snapshot rows: review fell due in the month (Reviews Due)."}
+  is_completed_in_month: {type: BOOLEAN, comment: "Review Snapshot rows: review completed in the month (Completed)."}
+  is_completed_on_time: {type: BOOLEAN, comment: "Review Snapshot rows: completed in the month on or before its due date."}
+  is_overdue_at_month_end: {type: BOOLEAN, comment: "Review Snapshot rows: due before the month-end and not completed by it (Overdue)."}
+  overdue_days_at_month_end: {type: INT, comment: "Review Snapshot rows: days past due at the month-end (average over overdue rows)."}
+  screening_id: {type: STRING, comment: "Screening rows: alert id."}
+  screening_context: {type: STRING, comment: "Screening rows: Onboarding or Ongoing."}
+  list_name: {type: STRING, comment: "Screening rows: list hit (UN / EU / UK HMT / US OFAC SDN sanctions, PEP Database, Adverse Media, Internal / Local Regulator Watchlist)."}
+  list_category: {type: STRING, comment: "Screening rows: Sanctions, PEP, Adverse Media or Watchlist."}
+  hit_type: {type: STRING, comment: "Screening rows: Exact, Alias, Fuzzy or Partial Name Match."}
+  is_true_match: {type: BOOLEAN, comment: "Screening rows: confirmed true match."}
+  resolution_hours: {type: DOUBLE, comment: "Screening rows: hours to resolve the alert."}
+  is_screening_alert: {type: BOOLEAN, comment: "True on Screening rows (denominator of the true-match rate)."}
+checks:
+  - name: review_flags_only_on_review_rows
+    sql: SELECT count_if(record_type = 'Screening' AND is_overdue_at_month_end IS NOT NULL) + count_if(record_type <> 'Screening' AND is_true_match IS NOT NULL) FROM ${table}
+reconcile:
+  - name: snapshot_rows
+    gold: SELECT count_if(record_type = 'Review Snapshot') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.gold.fact_kyc_review_snapshot_monthly
+  - name: screening_rows_vs_silver
+    gold: SELECT count_if(record_type = 'Screening') FROM ${table}
+    silver: SELECT count(*) FROM ${catalog}.silver.kyc_screening WHERE screening_date <= DATE'${as_of_date}'

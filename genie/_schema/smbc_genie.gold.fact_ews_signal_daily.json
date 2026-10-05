@@ -1,0 +1,169 @@
+{
+ "columns": [
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Evaluation date of the signal: month-end of the month it fired (30-Sep-2026 for the current month).",
+   "is_measure": false,
+   "name": "signal_date",
+   "type": "date"
+  },
+  {
+   "comment": "EWS trigger fired (join to gold.dim_ews_trigger): UTIL_HIGH (utilisation >= 90%, a.k.a. UTILISATION_GT_90), UTIL_ELEVATED, COV_HEADROOM_LOW (covenant headroom < 10%, a.k.a. COVENANT_HEADROOM_LT_10), COV_BREACH (covenant breach), DEPOSIT_OUTFLOW, DEPOSIT_OUTFLOW_SEVERE (deposit outflow >= 25% MoM), WALLET_LEAKAGE, HEALTH_DECLINE, GRADE_DOWNGRADE, NEWS_NEGATIVE (negative news sentiment), DPD_15, DPD_30.",
+   "is_measure": false,
+   "name": "trigger_code",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor record whose evaluation fired the trigger (the strongest one when the client has duplicate credit records).",
+   "is_measure": false,
+   "name": "obligor_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor records of the client for which the trigger fired that month (normally 1).",
+   "is_measure": false,
+   "name": "n_obligors_fired",
+   "type": "int"
+  },
+  {
+   "comment": "First day of the month the trigger fired.",
+   "is_measure": false,
+   "name": "signal_month",
+   "type": "date"
+  },
+  {
+   "comment": "Trigger name, e.g. Facility utilisation >= 90%.",
+   "is_measure": false,
+   "name": "trigger_name",
+   "type": "string"
+  },
+  {
+   "comment": "Trigger category: Credit, Liquidity, Behavioural or External.",
+   "is_measure": false,
+   "name": "trigger_category",
+   "type": "string"
+  },
+  {
+   "comment": "Business family of the trigger: Utilisation, Covenant, Deposit Outflow, Wallet Leakage, Credit Health, Internal Rating, Adverse News or Payment Arrears.",
+   "is_measure": false,
+   "name": "trigger_family",
+   "type": "string"
+  },
+  {
+   "comment": "Severity of the firing: High, Medium or Low.",
+   "is_measure": false,
+   "name": "severity",
+   "type": "string"
+  },
+  {
+   "comment": "Data quadrant: Internal Quantitative (credit, liquidity, behaviour data) or External Qualitative (news).",
+   "is_measure": false,
+   "name": "source_quadrant",
+   "type": "string"
+  },
+  {
+   "comment": "Observed value that fired the trigger: utilisation fraction, covenant headroom fraction, MoM deposit change (negative), leakage share, health drop, notches, days past due or average news sentiment.",
+   "is_measure": false,
+   "name": "signal_value",
+   "type": "double"
+  },
+  {
+   "comment": "Points the trigger contributed to the 0-100 composite EWS score (0 for informational triggers).",
+   "is_measure": false,
+   "name": "score_points",
+   "type": "double"
+  },
+  {
+   "comment": "True for DPD_15, DPD_30 and NEWS_NEGATIVE: reported as signals but not part of the composite score.",
+   "is_measure": false,
+   "name": "is_informational",
+   "type": "boolean"
+  },
+  {
+   "comment": "Engine explanation of the firing, e.g. Utilisation 97% of committed limit.",
+   "is_measure": false,
+   "name": "evidence_text",
+   "type": "string"
+  },
+  {
+   "comment": "Client's drawn lending exposure at the signal month-end, USD (repeats on each trigger row of the client-month: do not sum across triggers).",
+   "is_measure": false,
+   "name": "exposure_drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Client's committed facility limits at the signal month-end, USD (repeats per trigger row).",
+   "is_measure": false,
+   "name": "exposure_limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Distinct triggers that fired for the client in the same month.",
+   "is_measure": false,
+   "name": "n_triggers_client_month",
+   "type": "int"
+  },
+  {
+   "comment": "True when the client had both a deposit-outflow trigger (DEPOSIT_OUTFLOW / _SEVERE) and a utilisation trigger (UTIL_HIGH / UTIL_ELEVATED) in the same month.",
+   "is_measure": false,
+   "name": "outflow_and_util_same_month",
+   "type": "boolean"
+  },
+  {
+   "comment": "True when an internal-rating downgrade of the client followed within 90 days after the signal date (signal -> downgrade pair); use to rank which signals precede downgrades.",
+   "is_measure": false,
+   "name": "preceded_downgrade_90d",
+   "type": "boolean"
+  },
+  {
+   "comment": "Date of the client's next internal-rating downgrade after the signal (any horizon); null if none to the as-of date.",
+   "is_measure": false,
+   "name": "next_downgrade_date",
+   "type": "date"
+  },
+  {
+   "comment": "Days from the signal date to that next downgrade.",
+   "is_measure": false,
+   "name": "days_to_next_downgrade",
+   "type": "int"
+  },
+  {
+   "comment": "Notches of that next downgrade (positive = worse grade).",
+   "is_measure": false,
+   "name": "next_downgrade_notches",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year of the signal date (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "signal_fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "True for signals in the current fiscal year to date (Apr-Sep 2026) - 'this fiscal year'.",
+   "is_measure": false,
+   "name": "is_current_fytd",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Early-warning signals (brief 5.4): one row per golden client x evaluation date x EWS trigger fired, Apr-2024 to Sep-2026. The EWS engine evaluates every credit obligor monthly on month-end data, so signal_date is the month-end of the signal month (30-Sep-2026 for the current month). Carries the trigger's family, severity, source quadrant, observed value, composite-score points (0 for the informational DPD and news triggers, which do not move the score), evidence text, the client's drawn exposure at that month-end and the precomputed preceded_downgrade_90d flag (an internal-rating downgrade followed within 90 days). Trigger codes: UTIL_HIGH (utilisation >= 90%), UTIL_ELEVATED (80-90%), COV_HEADROOM_LOW (covenant headroom < 10%), COV_BREACH, DEPOSIT_OUTFLOW (>= 10% MoM), DEPOSIT_OUTFLOW_SEVERE (>= 25% MoM), WALLET_LEAKAGE, HEALTH_DECLINE, GRADE_DOWNGRADE, NEWS_NEGATIVE, DPD_15, DPD_30. Signals Fired = COUNT(*); count clients with COUNT(DISTINCT golden_client_id). Grain: one row per golden client x signal (evaluation) date x trigger code.",
+ "identifier": "smbc_genie.gold.fact_ews_signal_daily",
+ "type": "MANAGED"
+}

@@ -1,0 +1,172 @@
+# WP9b - space 5, Client Profitability & ROE. One row per credit deal signed since 1-Apr-2023: pricing at origination
+# vs the RAROC / RoRWA hurdles, approval exceptions and the realised RAROC once seasoned. Deals are events dated by
+# signing: measures add up over any period. Must-answer queries: metrics/_answers/client_profitability_roe.sql.
+view: mv_deal_pricing
+space: client_profitability_roe
+comment: >-
+  Deal pricing discipline of SMBC APAC credit deals signed Apr-2023 to Sep-2026 (USD): deals, amount, origination RAROC
+  vs the 12% hurdle (gold.dim_threshold), deals approved below hurdle and the exception reason (Relationship,
+  Strategic Client, Cross-sell Commitment, Competitive Pricing), realised RAROC once seasoned (deals signed up to
+  Mar-2026), whether it caught up with the hurdle, RAROC slippage and the priced margin vs the margin needed. Calendar
+  fields are of the SIGNING date (Signing Quarter = Fiscal Quarter). "Last 4 quarters" = Oct-2025..Sep-2026 (FY2026
+  deals not yet seasoned); "did realised RAROC catch up" questions use the last 4 seasoned quarters = FY2025.
+grain: one row per credit deal (facility) signed from FY2023 (gold.fact_deal_pricing)
+source: ${catalog}.gold.fact_deal_pricing
+blocks:
+  calendar: {date: source.signing_date, grain: day, what: the deal signing}
+  client: {key: source.golden_client_sk}
+joins:
+  - name: thr
+    source: ${catalog}.gold.dim_threshold
+    'on': "thr.threshold_code = 'RAROC_HURDLE'"
+dimensions:
+  - name: Product
+    expr: source.product
+    display_name: Product
+    comment: Facility type priced - Term Loan, Revolving Credit Facility, Bilateral Loan, Syndicated Loan, Overdraft or Trade Loan.
+    synonyms: [product, facility type, loan type, deal product, credit product]
+  - name: Approved Below Hurdle
+    expr: source.approved_below_hurdle
+    display_name: Approved Below Hurdle
+    comment: True when the deal was approved with an origination RAROC below the 12% hurdle (a pricing exception).
+    synonyms: [below hurdle, approved below hurdle, pricing exception, sub-hurdle deal, exception approval, 8% hurdle]
+  - name: Exception Reason
+    expr: source.exception_reason
+    display_name: Exception Reason
+    comment: Reason for approving below hurdle - Relationship, Strategic Client, Cross-sell Commitment or Competitive Pricing; blank without exception.
+    synonyms: [exception reason, rationale, justification, exception type, why approved]
+  - name: Realised Status
+    expr: source.realised_status
+    display_name: Realised RAROC Status
+    comment: >-
+      Caught up / Still below hurdle (deals approved below hurdle), Held above hurdle / Slipped below hurdle (deals
+      approved at or above), Not yet seasoned (signed after Mar-2026).
+    synonyms: [realised status, caught up, catch-up status, post-deal outcome, realised outcome]
+  - name: Pricing Status
+    expr: source.pricing_status
+    display_name: Pricing Status
+    comment: Priced margin vs the margin the deal needs for the RoRWA hurdle - Above hurdle (>= +25 bps), At hurdle, Below hurdle (< -25 bps).
+    synonyms: [pricing status, margin status, priced vs hurdle, pricing vs hurdle margin]
+  - name: Signed in Last 4 Quarters
+    expr: source.is_last_4_quarters
+    display_name: Signed in Last 4 Quarters
+    comment: True for deals signed in the last four fiscal quarters to 30-Sep-2026 (FY2025-Q3 to FY2026-Q2).
+    synonyms: [last 4 quarters, last four quarters, last 12 months, recent deals, trailing year]
+  - name: Signed in Last 4 Seasoned Quarters
+    expr: source.is_last_4_seasoned_quarters
+    display_name: Signed in Last 4 Seasoned Quarters
+    comment: True for deals signed in the last four quarters that already have a realised RAROC (FY2025 - Apr-2025 to Mar-2026).
+    synonyms: [seasoned deals, last 4 seasoned quarters, deals with realised RAROC, FY2025 deals]
+measures:
+  - name: Deals
+    expr: COUNT(1)
+    display_name: Deals
+    comment: Credit deals signed in the selected period.
+    synonyms: [deals, number of deals, deal count, transactions, facilities signed, approvals]
+    format: &count {type: number, decimal_places: {type: exact, places: 0}}
+  - name: Amount USD
+    expr: SUM(source.amount_usd)
+    display_name: Deal Amount (USD)
+    comment: Deal (facility limit) amount in USD.
+    synonyms: [amount, deal amount, deal size, facility amount, notional, volume]
+    format: &usd {type: currency, currency_code: USD, decimal_places: {type: max, places: 0}, abbreviation: compact}
+  - name: Average Origination RAROC %
+    expr: AVG(source.origination_raroc)
+    display_name: Average Origination RAROC
+    comment: Average RAROC at origination incl. the client's ancillary revenue (fraction, winsorised -25%..100%).
+    synonyms: [origination RAROC, RAROC at approval, priced RAROC, booked RAROC, deal RAROC]
+    format: &pct {type: percentage, decimal_places: {type: max, places: 1}}
+  - name: Average Realised RAROC %
+    expr: AVG(source.realised_raroc)
+    display_name: Average Realised RAROC
+    comment: Average realised RAROC of the seasoned deals (fraction, winsorised).
+    synonyms: [realised RAROC, actual RAROC, post-deal RAROC, delivered RAROC, ex-post RAROC]
+    format: *pct
+  - name: Below-Hurdle Deals
+    expr: COUNT(1) FILTER (WHERE source.approved_below_hurdle)
+    display_name: Deals Approved Below Hurdle
+    comment: Deals approved with an origination RAROC below the 12% hurdle.
+    synonyms: [below hurdle deals, exceptions, sub-hurdle deals, pricing exceptions, below-hurdle approvals]
+    format: *count
+  - name: Below-Hurdle Deals %
+    expr: COUNT(1) FILTER (WHERE source.approved_below_hurdle) / NULLIF(COUNT(1), 0)
+    display_name: Share of Deals Approved Below Hurdle
+    comment: Deals approved below hurdle / deals (fraction).
+    synonyms: [exception rate, below hurdle share, share below hurdle, pricing exception rate]
+    format: *pct
+  - name: Seasoned Deals
+    expr: COUNT(1) FILTER (WHERE source.is_seasoned)
+    display_name: Seasoned Deals (with realised RAROC)
+    comment: Deals with a realised RAROC (signed up to Mar-2026).
+    synonyms: [seasoned deals, deals with realised RAROC, measurable deals]
+    format: *count
+  - name: Deals Caught Up
+    expr: COUNT(1) FILTER (WHERE source.approved_below_hurdle AND source.caught_up)
+    display_name: Below-Hurdle Deals That Caught Up
+    comment: Deals approved below hurdle whose realised RAROC is back at or above the 12% hurdle.
+    synonyms: [caught up, deals caught up, exceptions paid off, recovered deals, realised above hurdle]
+    format: *count
+  - name: Caught-Up Rate %
+    expr: >-
+      COUNT(1) FILTER (WHERE source.approved_below_hurdle AND source.caught_up)
+      / NULLIF(COUNT(1) FILTER (WHERE source.approved_below_hurdle AND source.is_seasoned), 0)
+    display_name: Caught-Up Rate (below-hurdle, seasoned)
+    comment: Below-hurdle deals that caught up / seasoned below-hurdle deals (fraction).
+    synonyms: [catch-up rate, caught up rate, exception success rate, payback rate]
+    format: *pct
+  - name: RAROC Slippage pts
+    expr: AVG(source.raroc_slippage)
+    display_name: RAROC Slippage (pts)
+    comment: Average realised minus origination RAROC of the seasoned deals (fraction; negative = slipped).
+    synonyms: [RAROC slippage, slippage, RAROC drift, realised vs origination, RAROC erosion]
+    format: *pct
+  - name: Average Margin Gap bps
+    expr: AVG(source.margin_gap_bps)
+    display_name: Average Margin Gap to Hurdle (bps)
+    comment: Average priced margin minus the margin needed for the RoRWA hurdle, in basis points (negative = underpriced).
+    synonyms: [margin gap, pricing gap, underpricing, margin shortfall, spread gap]
+    format: &dec1 {type: number, decimal_places: {type: max, places: 1}}
+  - name: Average Priced Margin bps
+    expr: AVG(source.priced_margin_bps)
+    display_name: Average Priced Margin (bps)
+    comment: Average margin priced on the drawn amount, in basis points.
+    synonyms: [margin, priced margin, spread, lending margin, pricing]
+    format: *dec1
+  - name: RAROC Hurdle %
+    expr: MAX(thr.threshold_value)
+    display_name: RAROC Hurdle
+    comment: The configured RAROC hurdle from gold.dim_threshold (RAROC_HURDLE, 0.12 = 12%).
+    synonyms: [RAROC hurdle, hurdle, hurdle rate, minimum RAROC, target RAROC]
+    format: *pct
+validate:
+  dims: [Fiscal Quarter, Product, Exception Reason]
+reconcile:
+  - name: relationship_exceptions_fy2025
+    measure: Deals
+    where: "`Fiscal Year` = 'FY2025' AND `Exception Reason` = 'Relationship'"
+    gold: >-
+      SELECT count(*) FROM ${catalog}.gold.fact_deal_pricing WHERE signing_fiscal_year = 2025 AND exception_reason = 'Relationship'
+  - name: caught_up_by_reason_seasoned
+    measure: Deals Caught Up
+    by: [Exception Reason]
+    where: "`Signed in Last 4 Seasoned Quarters` AND `Approved Below Hurdle`"
+    gold: >-
+      SELECT exception_reason, count_if(caught_up) FROM ${catalog}.gold.fact_deal_pricing
+      WHERE is_last_4_seasoned_quarters AND approved_below_hurdle GROUP BY 1
+  - name: origination_raroc_fy2024
+    measure: Average Origination RAROC %
+    where: "`Fiscal Year` = 'FY2024'"
+    gold: SELECT avg(origination_raroc) FROM ${catalog}.gold.fact_deal_pricing WHERE signing_fiscal_year = 2024
+  - name: below_hurdle_share_last_4_quarters
+    measure: Below-Hurdle Deals %
+    where: "`Signed in Last 4 Quarters`"
+    gold: SELECT count_if(approved_below_hurdle) / count(*) FROM ${catalog}.gold.fact_deal_pricing WHERE is_last_4_quarters
+  - name: amount_by_product
+    measure: Amount USD
+    by: [Product]
+    gold: SELECT product, sum(amount_usd) FROM ${catalog}.gold.fact_deal_pricing GROUP BY 1
+glossary:
+  caveats:
+    - >-
+      Calendar fields are of the signing date. Realised RAROC exists for deals signed up to Mar-2026; "did realised RAROC
+      catch up" = Signed in Last 4 Seasoned Quarters (FY2025).

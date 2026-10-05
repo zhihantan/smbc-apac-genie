@@ -1,0 +1,205 @@
+{
+ "columns": [
+  {
+   "comment": "Liquidity structure (cash pool) id.",
+   "is_measure": false,
+   "name": "structure_id",
+   "type": "string"
+  },
+  {
+   "comment": "Account in the structure (the header account or a participant account); join gold.dim_account.",
+   "is_measure": false,
+   "name": "member_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Month-end of the snapshot (the structure and the member are active on this date).",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "First day of the month of month_end_date.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "dim_client version (as-was at the month-end) of the client holding the member account.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Golden client id of the client holding the member account (group entity).",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group of the structure (all members belong to the same group); join gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Structure label (group + structure type + region).",
+   "is_measure": false,
+   "name": "structure_name",
+   "type": "string"
+  },
+  {
+   "comment": "Notional Pooling, Physical Pooling, Sweep or Interest Optimisation.",
+   "is_measure": false,
+   "name": "structure_type",
+   "type": "string"
+  },
+  {
+   "comment": "Product of the structure type (PRD-NOTIONAL-POOLING, PRD-PHYSICAL-POOLING, PRD-SWEEP, PRD-INTEREST-OPTIMISATION); join gold.dim_product.",
+   "is_measure": false,
+   "name": "product_id",
+   "type": "string"
+  },
+  {
+   "comment": "Header (master) account of the structure.",
+   "is_measure": false,
+   "name": "header_account_id",
+   "type": "string"
+  },
+  {
+   "comment": "Golden client id of the header account holder (the group treasury entity running the pool).",
+   "is_measure": false,
+   "name": "header_golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Booking country of the header account (ISO-2).",
+   "is_measure": false,
+   "name": "header_country",
+   "type": "string"
+  },
+  {
+   "comment": "Currency the structure pools / reports in (ISO 4217).",
+   "is_measure": false,
+   "name": "pooling_currency",
+   "type": "string"
+  },
+  {
+   "comment": "Daily, Intraday, Weekly, Monthly or Daily (Notional) for notional pools.",
+   "is_measure": false,
+   "name": "sweep_frequency",
+   "type": "string"
+  },
+  {
+   "comment": "True when the structure spans more than one country.",
+   "is_measure": false,
+   "name": "is_cross_border",
+   "type": "boolean"
+  },
+  {
+   "comment": "Estimated annual interest benefit of the structure on pooled balances, in basis points.",
+   "is_measure": false,
+   "name": "interest_benefit_bps",
+   "type": "double"
+  },
+  {
+   "comment": "Date the structure went live.",
+   "is_measure": false,
+   "name": "structure_start_date",
+   "type": "date"
+  },
+  {
+   "comment": "Header or Participant.",
+   "is_measure": false,
+   "name": "member_role",
+   "type": "string"
+  },
+  {
+   "comment": "True for the header account row (one per structure and month-end; use SUM(is_header) or count distinct structure_id to count structures).",
+   "is_measure": false,
+   "name": "is_header",
+   "type": "boolean"
+  },
+  {
+   "comment": "Booking country of the member account (ISO-2) - the participant country.",
+   "is_measure": false,
+   "name": "member_country",
+   "type": "string"
+  },
+  {
+   "comment": "Currency of the member account (ISO 4217).",
+   "is_measure": false,
+   "name": "member_currency",
+   "type": "string"
+  },
+  {
+   "comment": "How funds move for a participant: Notional (no movement), Two-way or Concentration only; null for the header.",
+   "is_measure": false,
+   "name": "sweep_direction",
+   "type": "string"
+  },
+  {
+   "comment": "Target balance left on the participant account after sweeps, in the member currency (null for notional / header).",
+   "is_measure": false,
+   "name": "target_balance_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Date the account joined the structure.",
+   "is_measure": false,
+   "name": "member_join_date",
+   "type": "date"
+  },
+  {
+   "comment": "Month-end balance of the member account in USD (point-in-time; never sum across months; 0 when the account joined before it was funded).",
+   "is_measure": false,
+   "name": "member_balance_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Month-end balance of the member account in its own currency.",
+   "is_measure": false,
+   "name": "member_balance_lcy",
+   "type": "double"
+  },
+  {
+   "comment": "Estimated interest saved / earned in the month thanks to the structure = member_balance_usd x interest_benefit_bps / 10000 / 12 (USD, monthly flow, estimate).",
+   "is_measure": false,
+   "name": "interest_saved_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Monthly structure fee charged to the client (USD, on the header row only; 0 on participant rows).",
+   "is_measure": false,
+   "name": "monthly_fee_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Accounts in the structure at the month-end incl. the header (structure attribute repeated on every row - do not sum).",
+   "is_measure": false,
+   "name": "structure_members",
+   "type": "int"
+  },
+  {
+   "comment": "Distinct member countries of the structure at the month-end (structure attribute - do not sum).",
+   "is_measure": false,
+   "name": "structure_countries",
+   "type": "int"
+  },
+  {
+   "comment": "Member countries of the structure at the month-end, comma-separated (e.g. HK, SG, TH).",
+   "is_measure": false,
+   "name": "structure_countries_text",
+   "type": "string"
+  },
+  {
+   "comment": "True for the as-of month-end 30-Sep-2026.",
+   "is_measure": false,
+   "name": "is_latest_month_end",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Liquidity structures (cash pools) at each month-end from Apr-2023: notional pooling, physical pooling, sweeps and interest optimisation set up for multi-entity client groups, one row per member account (the header account and every participant account live at the month-end) with the member's country, currency, role and month-end balance, the structure attributes (type, header account / country, pooling currency, sweep frequency, cross-border flag, interest benefit, monthly fee) and the estimated interest saved. Structures = count distinct structure_id (or SUM(is_header)); Participants = count of rows with role Participant; Pooled Balance = SUM of member_balance_usd at one month-end (POINT-IN-TIME: never sum balances across months). interest_saved_usd and monthly_fee_usd are monthly flows (the fee sits on the header row only). Grain: one row per liquidity structure per member account (header or participant) per month-end while the structure is active.",
+ "identifier": "smbc_genie.gold.fact_liquidity_structure_monthly",
+ "type": "MANAGED"
+}

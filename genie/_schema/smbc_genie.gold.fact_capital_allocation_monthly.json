@@ -1,0 +1,217 @@
+{
+ "columns": [
+  {
+   "comment": "First day of the month of the month-end snapshot.",
+   "is_measure": false,
+   "name": "month",
+   "type": "date"
+  },
+  {
+   "comment": "Last calendar day of the month.",
+   "is_measure": false,
+   "name": "month_end_date",
+   "type": "date"
+  },
+  {
+   "comment": "Japanese fiscal year as its starting calendar year (FY2026 = Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year",
+   "type": "int"
+  },
+  {
+   "comment": "Japanese fiscal year label, e.g. FY2026 (Apr 2026 - Mar 2027).",
+   "is_measure": false,
+   "name": "fiscal_year_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal quarter label, e.g. FY2026-Q2 (Jul-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_quarter_label",
+   "type": "string"
+  },
+  {
+   "comment": "Fiscal half label, e.g. FY2026-H1 (Apr-Sep 2026).",
+   "is_measure": false,
+   "name": "fiscal_half_label",
+   "type": "string"
+  },
+  {
+   "comment": "Surrogate key of the dim_client version valid on this row's date (SCD2 as-was join, D11); join to gold.dim_client.golden_client_sk for the client attributes at that time.",
+   "is_measure": false,
+   "name": "golden_client_sk",
+   "type": "bigint"
+  },
+  {
+   "comment": "Durable golden client id from entity resolution (GC-nnnnnn), stable across ER runs and SCD2 versions; one golden client = one resolved legal entity.",
+   "is_measure": false,
+   "name": "golden_client_id",
+   "type": "string"
+  },
+  {
+   "comment": "Client group (global parent group) id from the Tokyo HO group master (SYN-G-nnnn); join to gold.dim_client_group.",
+   "is_measure": false,
+   "name": "client_group_id",
+   "type": "string"
+  },
+  {
+   "comment": "Credit obligor records of the client summed into the row (2 when entity resolution merged two obligors).",
+   "is_measure": false,
+   "name": "n_obligors",
+   "type": "bigint"
+  },
+  {
+   "comment": "Internal rating grade 1-10 (1 best, 10 default) at the month-end; worst obligor when several.",
+   "is_measure": false,
+   "name": "internal_grade",
+   "type": "int"
+  },
+  {
+   "comment": "External-scale equivalent of internal_grade (AAA ... B).",
+   "is_measure": false,
+   "name": "rating_equivalent",
+   "type": "string"
+  },
+  {
+   "comment": "IFRS 9 stage 1, 2 or 3 at the month-end (worst obligor).",
+   "is_measure": false,
+   "name": "ifrs9_stage",
+   "type": "int"
+  },
+  {
+   "comment": "Maximum days past due across the client's facilities at the month-end.",
+   "is_measure": false,
+   "name": "days_past_due_max",
+   "type": "int"
+  },
+  {
+   "comment": "Days-past-due bucket at the month-end: Current, 1-29, 30-59, 60-89 or 90+.",
+   "is_measure": false,
+   "name": "dpd_bucket",
+   "type": "string"
+  },
+  {
+   "comment": "Drawn credit balance at the month-end in USD. Point-in-time.",
+   "is_measure": false,
+   "name": "drawn_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Committed credit limits at the month-end in USD. Point-in-time.",
+   "is_measure": false,
+   "name": "limit_usd",
+   "type": "double"
+  },
+  {
+   "comment": "drawn_usd / limit_usd at the month-end (fraction, 0.85 = 85%).",
+   "is_measure": false,
+   "name": "utilisation_pct",
+   "type": "double"
+  },
+  {
+   "comment": "Exposure at default at the month-end in USD (drawn + credit-conversion factor x undrawn). Point-in-time.",
+   "is_measure": false,
+   "name": "ead_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Risk-weighted assets at the month-end in USD. Point-in-time - average across months, never sum.",
+   "is_measure": false,
+   "name": "rwa_usd",
+   "type": "double"
+  },
+  {
+   "comment": "rwa_usd / ead_usd (average risk weight, fraction).",
+   "is_measure": false,
+   "name": "rwa_density",
+   "type": "double"
+  },
+  {
+   "comment": "12-month probability of default (fraction), EAD-weighted across obligors.",
+   "is_measure": false,
+   "name": "pd_12m",
+   "type": "double"
+  },
+  {
+   "comment": "Lifetime probability of default (fraction), EAD-weighted.",
+   "is_measure": false,
+   "name": "pd_lifetime",
+   "type": "double"
+  },
+  {
+   "comment": "Loss given default (fraction), EAD-weighted.",
+   "is_measure": false,
+   "name": "lgd",
+   "type": "double"
+  },
+  {
+   "comment": "Remaining tenor of the exposure in years, EAD-weighted.",
+   "is_measure": false,
+   "name": "remaining_tenor_years",
+   "type": "double"
+  },
+  {
+   "comment": "12-month expected credit loss allowance at the month-end in USD. Point-in-time.",
+   "is_measure": false,
+   "name": "ecl_12m_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Lifetime expected credit loss at the month-end in USD. Point-in-time.",
+   "is_measure": false,
+   "name": "ecl_lifetime_usd",
+   "type": "double"
+  },
+  {
+   "comment": "IFRS 9 ECL allowance booked at the month-end in USD (12-month for Stage 1, lifetime for Stages 2-3). Point-in-time.",
+   "is_measure": false,
+   "name": "ecl_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Change in the ECL allowance versus the previous month in USD (positive = provision build, the impairment charge). Additive.",
+   "is_measure": false,
+   "name": "ecl_change_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Expected loss for the month in USD (PD x LGD x EAD / 12) - the credit cost in client profitability. Additive.",
+   "is_measure": false,
+   "name": "expected_loss_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Economic (unexpected-loss) capital at the month-end in USD - the RAROC denominator. Point-in-time.",
+   "is_measure": false,
+   "name": "economic_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Book equity allocated at 9% of EAD in USD at the month-end. Point-in-time.",
+   "is_measure": false,
+   "name": "book_equity_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Capital allocated at the 12.5% target CET1 ratio of RWA in USD at the month-end - the ROE denominator. Point-in-time.",
+   "is_measure": false,
+   "name": "allocated_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "Monthly cost of the allocated capital at the 10% cost of equity in USD. Additive.",
+   "is_measure": false,
+   "name": "cost_of_capital_usd",
+   "type": "double"
+  },
+  {
+   "comment": "True when the ECL is individually assessed (Stage 3 specific provision, e.g. Sunda from Jun-2026).",
+   "is_measure": false,
+   "name": "is_individually_assessed",
+   "type": "boolean"
+  }
+ ],
+ "comment": "Capital consumed by each golden client with credit exposure, per month-end (Apr-2024 to Sep-2026, Client Profitability): drawn, limit, EAD, risk-weighted assets, PD / LGD, IFRS 9 stage and ECL, expected loss, economic capital (RAROC denominator), capital allocated at the 12.5% target CET1 ratio of RWA, book equity (9% of EAD) and the monthly cost of that capital at the 10% cost of equity. Balances (drawn, EAD, RWA, ECL, capital) are month-end snapshots: never sum them across months - take the latest month or average. Expected loss, ECL change and cost of capital are monthly flows (additive). Grain: one row per golden client x month.",
+ "identifier": "smbc_genie.gold.fact_capital_allocation_monthly",
+ "type": "MANAGED"
+}

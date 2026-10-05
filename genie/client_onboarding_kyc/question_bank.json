@@ -1,0 +1,1031 @@
+{
+  "answers": {
+    "Q1": {
+      "rows": 102,
+      "columns": [
+        "Booking Country",
+        "request_month",
+        "live_cases",
+        "median_days_to_live",
+        "p90_days_to_live"
+      ],
+      "types": [
+        "STRING",
+        "DATE",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "AU",
+          "2025-04-01",
+          "2",
+          "22.0",
+          "25.2"
+        ],
+        [
+          "AU",
+          "2025-07-01",
+          "1",
+          "25.0",
+          "25.0"
+        ],
+        [
+          "AU",
+          "2025-08-01",
+          "1",
+          "20.0",
+          "20.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "cf8485d64c9238f9",
+      "sorted_by": null
+    },
+    "Q1b": {
+      "rows": 4,
+      "columns": [
+        "KYC Migration Period",
+        "live_cases",
+        "median_days_to_live",
+        "p90_days_to_live"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Pre-migration",
+          "192",
+          "21.0",
+          "26.0"
+        ],
+        [
+          "Recovery (from Jun-2026)",
+          "12",
+          "26.5",
+          "31.6"
+        ],
+        [
+          "Migration (Feb-2026)",
+          "14",
+          "27.0",
+          "29.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "59d79e1cd03971af",
+      "sorted_by": null
+    },
+    "Q2": {
+      "rows": 6,
+      "columns": [
+        "Stage Number",
+        "Stage",
+        "avg_days_before_feb_2026",
+        "avg_days_from_feb_2026"
+      ],
+      "types": [
+        "INT",
+        "STRING",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "1",
+          "Request",
+          "1.1923076923076923",
+          "1.0769230769230769"
+        ],
+        [
+          "2",
+          "KYC Docs",
+          "8.884615384615385",
+          "12.1"
+        ],
+        [
+          "3",
+          "Screening",
+          "3.2857142857142856",
+          "4.333333333333333"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "de04d30ce7acee3b",
+      "sorted_by": null
+    },
+    "Q3": {
+      "rows": 28,
+      "columns": [
+        "Owner",
+        "Blocker Reason",
+        "cases_over_sla"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Onboarding Officer SYN-P-0211",
+          "Workflow Migration Backlog",
+          "2"
+        ],
+        [
+          "Onboarding Officer SYN-P-0230",
+          "UBO Verification Pending",
+          "2"
+        ],
+        [
+          "Onboarding Officer SYN-P-0231",
+          "Awaiting Client Documents",
+          "2"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9908c4a6249f06a1",
+      "sorted_by": null
+    },
+    "Q4": {
+      "rows": 11,
+      "columns": [
+        "Document Type",
+        "outstanding_documents"
+      ],
+      "types": [
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "UBO Declaration",
+          "9"
+        ],
+        [
+          "Audited Financial Statements",
+          "7"
+        ],
+        [
+          "Constitutional Documents",
+          "7"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "56835701b4819a4a",
+      "sorted_by": null
+    },
+    "Q5": {
+      "rows": 3,
+      "columns": [
+        "Match Timing",
+        "cases",
+        "share_of_cases",
+        "live_cases",
+        "share_of_live_cases"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "At Intake",
+          "263",
+          "0.7346368715083799",
+          "208",
+          "0.8421052631578947"
+        ],
+        [
+          "New Group",
+          "56",
+          "0.1564245810055866",
+          "0",
+          "0.0"
+        ],
+        [
+          "After Account Opening",
+          "39",
+          "0.10893854748603352",
+          "39",
+          "0.15789473684210525"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "566b9cd7e354f5b0",
+      "sorted_by": null
+    },
+    "Q5b": {
+      "rows": 39,
+      "columns": [
+        "Client",
+        "Client Group",
+        "Booking Country",
+        "request_date",
+        "cases"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "DATE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Hoshioka Electronics Group Logistics (Singapore) Pte Ltd",
+          "Hoshioka Electronics Group",
+          "SG",
+          "2024-05-11",
+          "1"
+        ],
+        [
+          "Kadono Marine Logistics Holdings Manufacturing (Hong Kong) Ltd",
+          "Kadono Marine Logistics Holdings",
+          "HK",
+          "2024-07-15",
+          "1"
+        ],
+        [
+          "Suvarna Telecom (Bangkok) PCL",
+          "Suvarna Telecom",
+          "TH",
+          "2024-07-21",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "4c728c229d9d6c00",
+      "sorted_by": null
+    },
+    "Q6": {
+      "rows": 138,
+      "columns": [
+        "Month",
+        "Client Risk Rating",
+        "Booking Country",
+        "overdue_reviews"
+      ],
+      "types": [
+        "DATE",
+        "STRING",
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "2026-01-01",
+          "High",
+          "AU",
+          "1"
+        ],
+        [
+          "2026-01-01",
+          "High",
+          "CN",
+          "1"
+        ],
+        [
+          "2026-01-01",
+          "High",
+          "HK",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "690f13c06da356b8",
+      "sorted_by": null
+    },
+    "Q6b": {
+      "rows": 18,
+      "columns": [
+        "Month",
+        "high_risk_overdue",
+        "all_overdue"
+      ],
+      "types": [
+        "DATE",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "2025-04-01",
+          "4",
+          "10"
+        ],
+        [
+          "2025-05-01",
+          "4",
+          "18"
+        ],
+        [
+          "2025-06-01",
+          "4",
+          "13"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "bf997f9dc6616f56",
+      "sorted_by": null
+    },
+    "Q7": {
+      "rows": 32,
+      "columns": [
+        "Request Segment",
+        "Product Requested",
+        "fy2026_h1_requests",
+        "fy2025_h1_requests",
+        "fy2025_full_year_requests"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Non-Japanese Large Corporate",
+          "Current Account",
+          "23",
+          "25",
+          "47"
+        ],
+        [
+          "Japanese Corporate",
+          "Current Account",
+          "21",
+          "29",
+          "71"
+        ],
+        [
+          "Sponsor & Structured Finance",
+          "Current Account",
+          "14",
+          "5",
+          "12"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "a81be4b2dab4e1b0",
+      "sorted_by": null
+    },
+    "Q7b": {
+      "rows": 12,
+      "columns": [
+        "Request Segment",
+        "Primary Product",
+        "Fiscal Half",
+        "requests"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Financial Institution",
+          "Correspondent Account",
+          "FY2025-H1",
+          "5"
+        ],
+        [
+          "Financial Institution",
+          "Correspondent Account",
+          "FY2026-H1",
+          "10"
+        ],
+        [
+          "Financial Institution",
+          "Current Account",
+          "FY2025-H1",
+          "5"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9e9398e1d7cb7990",
+      "sorted_by": null
+    },
+    "Q8": {
+      "rows": 4,
+      "columns": [
+        "Client",
+        "Booking Country",
+        "not_transacted_within_60d",
+        "days_to_first_transaction"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Chaophraya Development Board (Ho Chi Minh City) Co Ltd",
+          "VN",
+          "1",
+          "122.0"
+        ],
+        [
+          "Luzon Infrastructure Group Trading (Hong Kong) (HK) Ltd",
+          "HK",
+          "1",
+          "103.0"
+        ],
+        [
+          "Umezono Devices Group (Singapore) Pte Ltd",
+          "SG",
+          "1",
+          "90.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "8bb64b8a55fbd477",
+      "sorted_by": null
+    },
+    "Q9": {
+      "rows": 8,
+      "columns": [
+        "List",
+        "alerts",
+        "true_matches",
+        "true_match_rate",
+        "avg_resolution_hours"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "PEP Database",
+          "3876",
+          "91",
+          "0.02347781217750258",
+          "4.797448400412788"
+        ],
+        [
+          "Adverse Media",
+          "4642",
+          "105",
+          "0.022619560534252476",
+          "4.815086169754413"
+        ],
+        [
+          "Internal Watchlist",
+          "738",
+          "10",
+          "0.013550135501355014",
+          "4.665555555555552"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ac22d47f6b01c966",
+      "sorted_by": null
+    },
+    "Q10": {
+      "rows": 13,
+      "columns": [
+        "Booking Country",
+        "responses",
+        "avg_satisfaction",
+        "negative_responses"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "LONG"
+      ],
+      "head": [
+        [
+          "MY",
+          "4",
+          "3.25",
+          "1"
+        ],
+        [
+          "TW",
+          "8",
+          "3.5",
+          "1"
+        ],
+        [
+          "IN",
+          "9",
+          "3.6666666666666665",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "42949a130227c797",
+      "sorted_by": null
+    },
+    "Q10b": {
+      "rows": 3,
+      "columns": [
+        "Feedback Theme",
+        "negative_responses"
+      ],
+      "types": [
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Turnaround Time",
+          "7"
+        ],
+        [
+          "Communication",
+          "2"
+        ],
+        [
+          "Document Requests",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "95f7f3d7e80f2262",
+      "sorted_by": null
+    },
+    "Q3-casual": {
+      "rows": 28,
+      "columns": [
+        "Owner",
+        "Blocker Reason",
+        "cases_over_sla"
+      ],
+      "types": [
+        "STRING",
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Onboarding Officer SYN-P-0211",
+          "Workflow Migration Backlog",
+          "2"
+        ],
+        [
+          "Onboarding Officer SYN-P-0230",
+          "UBO Verification Pending",
+          "2"
+        ],
+        [
+          "Onboarding Officer SYN-P-0231",
+          "Awaiting Client Documents",
+          "2"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "9908c4a6249f06a1",
+      "sorted_by": null
+    },
+    "Q9-typo": {
+      "rows": 8,
+      "columns": [
+        "List",
+        "alerts",
+        "true_matches",
+        "true_match_rate",
+        "avg_resolution_hours"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "PEP Database",
+          "3876",
+          "91",
+          "0.02347781217750258",
+          "4.797448400412788"
+        ],
+        [
+          "Adverse Media",
+          "4642",
+          "105",
+          "0.022619560534252476",
+          "4.815086169754413"
+        ],
+        [
+          "Internal Watchlist",
+          "738",
+          "10",
+          "0.013550135501355014",
+          "4.665555555555552"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "ac22d47f6b01c966",
+      "sorted_by": null
+    },
+    "Q1b-abbrev": {
+      "rows": 4,
+      "columns": [
+        "KYC Migration Period",
+        "live_cases",
+        "median_days_to_live",
+        "p90_days_to_live"
+      ],
+      "types": [
+        "STRING",
+        "LONG",
+        "DOUBLE",
+        "DOUBLE"
+      ],
+      "head": [
+        [
+          "Pre-migration",
+          "192",
+          "21.0",
+          "26.0"
+        ],
+        [
+          "Recovery (from Jun-2026)",
+          "12",
+          "26.5",
+          "31.6"
+        ],
+        [
+          "Migration (Feb-2026)",
+          "14",
+          "27.0",
+          "29.0"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "59d79e1cd03971af",
+      "sorted_by": null
+    },
+    "Q6b-jargon": {
+      "rows": 18,
+      "columns": [
+        "Month",
+        "high_risk_overdue",
+        "all_overdue"
+      ],
+      "types": [
+        "DATE",
+        "LONG",
+        "LONG"
+      ],
+      "head": [
+        [
+          "2025-04-01",
+          "4",
+          "10"
+        ],
+        [
+          "2025-05-01",
+          "4",
+          "18"
+        ],
+        [
+          "2025-06-01",
+          "4",
+          "13"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "bf997f9dc6616f56",
+      "sorted_by": null
+    },
+    "Q10b-casual": {
+      "rows": 3,
+      "columns": [
+        "Feedback Theme",
+        "negative_responses"
+      ],
+      "types": [
+        "STRING",
+        "LONG"
+      ],
+      "head": [
+        [
+          "Turnaround Time",
+          "7"
+        ],
+        [
+          "Communication",
+          "2"
+        ],
+        [
+          "Document Requests",
+          "1"
+        ]
+      ],
+      "error": null,
+      "sql_sha": "95f7f3d7e80f2262",
+      "sorted_by": null
+    }
+  },
+  "coverage": [
+    {
+      "asset": "smbc_genie.metrics.mv_onboarding_funnel",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-04-01",
+      "last": "2026-09-15",
+      "periods": 289
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_onboarding_cycle_time",
+      "type": "METRIC_VIEW",
+      "field": "Date",
+      "first": "2024-04-01",
+      "last": "2026-09-15",
+      "periods": 289
+    },
+    {
+      "asset": "smbc_genie.metrics.mv_kyc_health",
+      "type": "METRIC_VIEW",
+      "field": "Month",
+      "first": "2023-04-01",
+      "last": "2026-09-01",
+      "periods": 42
+    },
+    {
+      "asset": "smbc_genie.gold.vw_client_360",
+      "type": "VIEW",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_client_group",
+      "type": "MANAGED",
+      "field": null
+    },
+    {
+      "asset": "smbc_genie.gold.dim_onboarding_stage",
+      "type": "MANAGED",
+      "field": null
+    }
+  ],
+  "answers_captured_at": "2026-10-04T14:39:55+00:00",
+  "questions_captured_at": "2026-10-04T15:58:57+00:00",
+  "questions": [
+    {
+      "kind": "starter",
+      "id": "S1",
+      "question": "Median and P90 days to go live by booking country, by request month since April 2025",
+      "after": null,
+      "benchmark": "Q1",
+      "matched": "Q1",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Booking Country`, `Month` AS request_month,\n       MEASURE(`Live Cases`)          AS live_cases,\n       MEASURE(`Median Days to Live`) AS median_days_to_live,\n       MEASURE(`P90 Days to Live`)    AS p90_days_to_live\nFROM smbc_genie.metrics.mv_onboarding_cycle_time\nWHERE `Date` >= :from_month AND `Case Status` = 'Live'\nGROUP BY ALL\nORDER BY `Booking Country`, request_month",
+      "genie_parameters": [
+        {
+          "keyword": "from_month",
+          "value": "2025-04-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Booking Country",
+        "request_month",
+        "live_cases",
+        "median_days_to_live",
+        "p90_days_to_live"
+      ],
+      "genie_rows": 102,
+      "seconds": 19.2,
+      "asked_at": "2026-10-04T14:39:55+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S2",
+      "question": "Which stage adds the most days for Financial Institution clients, and did it change after February 2026?",
+      "after": null,
+      "benchmark": "Q2",
+      "matched": "Q2",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "WITH st AS (\n  SELECT `Stage Number`, `Stage`, `Is After KYC Migration`, MEASURE(`Average Days in Stage`) AS avg_days_in_stage\n  FROM smbc_genie.metrics.mv_onboarding_cycle_time\n  WHERE `Request Segment` = :request_segment AND `Stage Number` <= 6\n  GROUP BY ALL\n)\nSELECT `Stage Number`, `Stage`,\n       max(CASE WHEN NOT `Is After KYC Migration` THEN avg_days_in_stage END) AS avg_days_before_feb_2026,\n       max(CASE WHEN `Is After KYC Migration` THEN avg_days_in_stage END)     AS avg_days_from_feb_2026\nFROM st\nGROUP BY `Stage Number`, `Stage`\nORDER BY `Stage Number`",
+      "genie_parameters": [
+        {
+          "keyword": "request_segment",
+          "value": "Financial Institution",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Stage Number",
+        "Stage",
+        "avg_days_before_feb_2026",
+        "avg_days_from_feb_2026"
+      ],
+      "genie_rows": 6,
+      "seconds": 18.0,
+      "asked_at": "2026-10-04T14:40:14+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S3",
+      "question": "Open onboarding cases over SLA right now, by owner and blocker reason",
+      "after": null,
+      "benchmark": "Q3",
+      "matched": "Q3",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Case Status` = 'Open' AND (:booking_country = 'ALL' OR `Booking Country` = :booking_country)\nGROUP BY ALL\nHAVING MEASURE(`Cases Over SLA`) > 0\nORDER BY cases_over_sla DESC, `Owner`",
+      "genie_parameters": [
+        {
+          "keyword": "booking_country",
+          "value": "ALL",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Owner",
+        "Blocker Reason",
+        "cases_over_sla"
+      ],
+      "genie_rows": 28,
+      "seconds": 17.2,
+      "asked_at": "2026-10-04T14:40:33+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "follow_up",
+      "id": "F1",
+      "question": "Only the cases booked in Singapore.",
+      "after": "S3",
+      "benchmark": null,
+      "matched": null,
+      "verdict": "match",
+      "note": "answered in the same conversation (4 rows), context kept",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Owner`, `Blocker Reason`, MEASURE(`Cases Over SLA`) AS cases_over_sla\nFROM smbc_genie.metrics.mv_onboarding_funnel\nWHERE `Case Status` = 'Open' AND (:booking_country = 'ALL' OR `Booking Country` = :booking_country)\nGROUP BY ALL\nHAVING MEASURE(`Cases Over SLA`) > 0\nORDER BY cases_over_sla DESC, `Owner`",
+      "genie_parameters": [
+        {
+          "keyword": "booking_country",
+          "value": "SG",
+          "sql_type": "STRING"
+        }
+      ],
+      "genie_columns": [
+        "Owner",
+        "Blocker Reason",
+        "cases_over_sla"
+      ],
+      "genie_rows": 4,
+      "seconds": 22.3,
+      "asked_at": "2026-10-04T15:41:47+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S4",
+      "question": "Documents outstanding by type for cases stuck in KYC Docs more than 15 days",
+      "after": null,
+      "benchmark": "Q4",
+      "matched": "Q4",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Document Type`, MEASURE(`Documents Outstanding`) AS `documents_outstanding`\nFROM `smbc_genie`.`metrics`.`mv_onboarding_funnel`\nWHERE `Stuck in KYC Docs 15D` = true\n  AND `Document Type` IS NOT NULL\nGROUP BY ALL\nHAVING MEASURE(`Documents Outstanding`) > 0\nORDER BY `documents_outstanding` DESC, `Document Type`",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Document Type",
+        "documents_outstanding"
+      ],
+      "genie_rows": 11,
+      "seconds": 17.6,
+      "asked_at": "2026-10-04T14:40:50+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S5",
+      "question": "Break down all new onboarding cases by match timing (at intake, only after account opening, new group): how many cases and what share of all cases?",
+      "after": null,
+      "benchmark": "Q5",
+      "matched": "Q5",
+      "verdict": "match",
+      "note": "same rows; Genie shows 3 of the benchmark's 5 columns (not shown: live cases, share of live cases)",
+      "status": "COMPLETED",
+      "genie_sql": "WITH cases_by_match AS (\n  SELECT\n    `Match Timing`,\n    MEASURE(`Cases Opened`) AS `cases`\n  FROM `smbc_genie`.`metrics`.`mv_onboarding_funnel`\n  WHERE `Match Timing` IS NOT NULL\n  GROUP BY ALL\n  HAVING MEASURE(`Cases Opened`) > 0\n)\nSELECT\n  `Match Timing`,\n  `cases`,\n  try_divide(`cases`,SUM(`cases`) OVER ()) AS `share_of_all_cases`\nFROM cases_by_match\nORDER BY `cases` DESC, `Match Timing`",
+      "genie_parameters": [],
+      "genie_columns": [
+        "Match Timing",
+        "cases",
+        "share_of_all_cases"
+      ],
+      "genie_rows": 3,
+      "seconds": 19.9,
+      "asked_at": "2026-10-04T15:58:37+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S6",
+      "question": "Periodic KYC reviews overdue by risk rating and country, trend since January 2026",
+      "after": null,
+      "benchmark": "Q6",
+      "matched": "Q6",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `Month`, `Client Risk Rating`, `Booking Country`, MEASURE(`Overdue`) AS overdue_reviews\nFROM smbc_genie.metrics.mv_kyc_health\nWHERE `Review Type` = :review_type AND `Month` >= :from_month\nGROUP BY ALL\nHAVING MEASURE(`Overdue`) > 0\nORDER BY `Month`, `Client Risk Rating`, `Booking Country`",
+      "genie_parameters": [
+        {
+          "keyword": "review_type",
+          "value": "Periodic",
+          "sql_type": "STRING"
+        },
+        {
+          "keyword": "from_month",
+          "value": "2026-01-01",
+          "sql_type": "DATE"
+        }
+      ],
+      "genie_columns": [
+        "Month",
+        "Client Risk Rating",
+        "Booking Country",
+        "overdue_reviews"
+      ],
+      "genie_rows": 138,
+      "seconds": 18.9,
+      "asked_at": "2026-10-04T14:41:38+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S7",
+      "question": "Screening true-match rate and average resolution hours by list",
+      "after": null,
+      "benchmark": "Q9",
+      "matched": "Q9",
+      "verdict": "match",
+      "note": "same rows as the benchmark",
+      "status": "COMPLETED",
+      "genie_sql": "SELECT `List`, MEASURE(`Screening Alerts`) AS `screening_alerts`, MEASURE(`True Matches`) AS `true_matches`, MEASURE(`Screening True Match Rate %`) AS `screening_true_match_rate_pct`, MEASURE(`Average Resolution Hours`) AS `average_resolution_hours`\nFROM `smbc_genie`.`metrics`.`mv_kyc_health`\nWHERE `Record Type` = 'Screening'\n  AND `List` IS NOT NULL\nGROUP BY ALL\nHAVING MEASURE(`Screening Alerts`) > 0\nORDER BY `screening_true_match_rate_pct` DESC, `List`",
+      "genie_parameters": [],
+      "genie_columns": [
+        "List",
+        "screening_alerts",
+        "true_matches",
+        "screening_true_match_rate_pct",
+        "average_resolution_hours"
+      ],
+      "genie_rows": 8,
+      "seconds": 22.1,
+      "asked_at": "2026-10-04T14:41:57+00:00",
+      "conversation_deleted": true
+    },
+    {
+      "kind": "starter",
+      "id": "S8",
+      "question": "Post-onboarding satisfaction by country and the most common negative comment themes",
+      "after": null,
+      "benchmark": "Q10",
+      "matched": null,
+      "verdict": "differs",
+      "note": "same 13 rows; values differ for negative responses (Genie: negative responses)",
+      "status": "COMPLETED",
+      "genie_sql": "WITH `country_satisfaction` AS (\n  SELECT\n    `Booking Country`,\n    MEASURE(`Average Satisfaction`) AS `average_satisfaction`,\n    MEASURE(`Survey Responses`) AS `survey_responses`\n  FROM `smbc_genie`.`metrics`.`mv_onboarding_funnel`\n  WHERE `Booking Country` IS NOT NULL\n  GROUP BY ALL\n),\n`theme_counts` AS (\n  SELECT\n    `Booking Country`,\n    `Feedback Theme`,\n    MEASURE(`Negative Responses`) AS `negative_responses`\n  FROM `smbc_genie`.`metrics`.`mv_onboarding_funnel`\n  WHERE `Booking Country` IS NOT NULL\n    AND `Feedback Theme` IS NOT NULL\n  GROUP BY ALL\n  HAVING MEASURE(`Negative Responses`) > 0\n),\n`ranked_themes` AS (\n  SELECT\n    `Booking Country`,\n    `Feedback Theme`,\n    `negative_responses`,\n    ROW_NUMBER() OVER (\n      PARTITION BY `Booking Country`\n      ORDER BY `negative_responses` DESC, `Feedback Theme` ASC\n    ) AS `theme_rank`\n  FROM `theme_counts`\n)\nSELECT\n  cs.`Booking Country` AS `booking_country`,\n  cs.`average_satisfaction`,\n  cs.`survey_responses`,\n  rt.`Feedback Theme` AS `most_common_negative_comment_theme`,\n  rt.`negative_responses`\nFROM `country_satisfaction` cs\nLEFT JOIN `ranked_themes` rt\n  ON cs.`Booking Country` = rt.`Booking Country`\n AND rt.`theme_rank` = 1\nORDER BY `booking_country` ASC",
+      "genie_parameters": [],
+      "genie_columns": [
+        "booking_country",
+        "average_satisfaction",
+        "survey_responses",
+        "most_common_negative_comment_theme",
+        "negative_responses"
+      ],
+      "genie_rows": 13,
+      "seconds": 25.0,
+      "asked_at": "2026-10-04T14:42:19+00:00",
+      "conversation_deleted": true
+    }
+  ],
+  "slug": "client_onboarding_kyc",
+  "space_id": "my-agent-id"
+}
